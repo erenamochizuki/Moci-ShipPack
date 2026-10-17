@@ -1,0 +1,42 @@
+{
+  "hullName": "Moci_RX_93_shield",
+  "hullId": "Moci_RX_93_shield",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RX_93/arms/RX_93_arm_shield_left.png",
+  "style": "MOCI_MS",
+  "height": 188,
+  "width": 70,
+  "center": [35, 94],
+  "collisionRadius": 96,
+  "shieldCenter": [46.5, -13.5],
+  "shieldRadius": 85,
+  "viewOffset": 0,
+  #"moduleAnchor": [-31, -21],
+  "builtInMods": [
+    "Moci_antibeamcoating_shield",
+    "Moci_module_collision_controller"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [88, 20]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    89.5, 20.5,
+    83.5, 26.5,
+    34.5, 30.5,
+    5.5, 30.5,
+    -17.5, 28.5,
+    -25.5, 24.5,
+    -25.5, 18.5,
+    -6.5, 14.5,
+    83.5, 16.5
+  ]
+}

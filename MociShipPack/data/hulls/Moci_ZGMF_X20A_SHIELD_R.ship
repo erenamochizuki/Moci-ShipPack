@@ -1,0 +1,29 @@
+{
+  "hullName": "Moci_ZGMF_X20A_SHIELD_R",
+  "hullId": "Moci_ZGMF_X20A_SHIELD_R",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/ZGMF_X20A/arms/ZGMF_X20A_right_shield.png",
+  "style": "MOCI_MS",
+  "height": 229,
+  "width": 62,
+  "center": [31, 115],
+  "collisionRadius": 60,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 60,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_antibeamcoating_shield",
+    "Moci_module_collision_controller"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [],
+  "bounds": [
+    60.5, -4.5,
+    29.5, 11.5,
+    -6.5, 5.5,
+    -26.5, -7.5,
+    -1.5, -20.5,
+    28.5, -23.5,
+    60.5, -10.5
+  ]
+}

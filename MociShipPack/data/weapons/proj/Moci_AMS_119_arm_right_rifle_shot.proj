@@ -1,0 +1,17 @@
+{
+	"id":"Moci_AMS_119_arm_right_rifle_shot",
+	"specClass":"projectile",
+	"spawnType":"BALLISTIC_AS_BEAM",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	"length":180.0,
+	"width":10,
+	"fadeTime":0.3,
+	"fringeColor":[150,150,150,255],
+	"coreColor":[235,235,255,255],
+	"textureScrollSpeed":64.0,
+	"pixelsPerTexel":5.0,
+	"passThroughMissiles":true,
+	"passThroughFighters":true,
+	"bulletSprite":"graphics/missiles/shell_hellbore.png"	
+}

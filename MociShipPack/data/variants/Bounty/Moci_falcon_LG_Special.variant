@@ -1,0 +1,63 @@
+{
+    "displayName": "Special",
+    "fluxCapacitors": 35,
+    "fluxVents": 35,
+    "goalVariant": false,
+    "hullId": "falcon_LG",
+    "hullMods": [
+        "converted_hangar",
+        "targetingunit",
+        "advancedoptics",
+        "defensive_targeting_array"
+    ],
+    "permaMods": [
+    "comp_storage",
+    "malfunctioning_comms",
+    "erratic_injector",
+],
+    "sMods": [
+    "fluxcoil",
+    "fluxdistributor",
+    "fluxbreakers"
+    ],
+    "variantId": "Moci_falcon_LG_Special",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {"WS 008": "heavymauler"}
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS 001": "heatseeker",
+                "WS 002": "heatseeker"
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {"WS 007": "gravitonbeam"}
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 005": "gravitonbeam",
+                "WS 006": "gravitonbeam"
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 003": "mininglaser",
+                "WS 004": "mininglaser",
+                "WS 009": "mininglaser",
+                "WS 010": "mininglaser"
+            }
+        }
+    ],
+    "wings": ["wasp_wing"]
+}

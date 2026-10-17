@@ -1,0 +1,52 @@
+{
+  "id": "MSN_03_arm_right_rifle",
+  "specClass": "projectile",
+  "projectileSpecId": "MSN_03_arm_right_rifle_shot",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_MSN_03/arms/MSN_03b_WEAPON_R_stutter_00.png",
+  "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_MSN_03/arms/MSN_03b_WEAPON_R_stutter_glow.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MSN_03/arms/MSN_03b_WEAPON_R_stutter_00.png",
+  "hardpointGlowSprite": "graphics/ships/Mobile_Suit/Moci_MSN_03/arms/MSN_03b_WEAPON_R_stutter_glow.png",
+  "glowColor": [
+    100,
+    100,
+    255,
+    225
+  ],
+  "visualRecoil": 2.5,
+  "turretOffsets": [
+    56,
+    -8
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    91,
+    -8
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "numFrames": 2,
+  "frameRate": 30,
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 30,
+    "spread": 5,
+    "particleSizeMin": 12,
+    "particleSizeRange": 12,
+    "particleDuration": 0.12,
+    "particleCount": 12,
+    "particleColor": [
+      75,
+      255,
+      75,
+      255
+    ]
+  },
+  "fireSoundTwo": "kinetic_blaster_fire"
+}

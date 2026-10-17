@@ -1,0 +1,80 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 9,
+    "fluxVents": 50,
+    "goalVariant": true,
+    "hullId": "Moci_Nadesico",
+    "hullMods": [
+        "hardenedshieldemitter",
+        "stabilizedshieldemitter",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Nadesico_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "MAIN_01": "Moci_GravityWaveCannon",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0013": "Moci_Nadesico_Missile_R",
+                "WS0012": "Moci_Nadesico_Missile_L",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0014": "Moci_dracohydra",
+                "WS0015": "Moci_dracohydra",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0004_SOURCE": "tachyonlance",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003_SOURCE": "ionbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001_SOURCE": "gravitonbeam",
+                "WS0002_SOURCE": "gravitonbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0006_SOURCE": "mininglaser",
+                "WS0007_SOURCE": "mininglaser",
+                "WS0008_SOURCE": "mininglaser",
+                "WS0009_SOURCE": "mininglaser",
+                "WS0010_SOURCE": "mininglaser",
+                "WS0011_SOURCE": "mininglaser",
+            }
+        },
+    ],
+    "wings": [
+        "Moci_Gespenst_fighter_pl_wing",
+        "Moci_Gespenst_fighter_pl_wing",
+    ],
+    "modules": [],
+}

@@ -1,0 +1,46 @@
+{
+  "id": "Moci_Aestivalis_Super_arm_machinegun_right",
+  "specClass": "projectile",
+  "projectileSpecId": "lightmg_shot",
+  "type": "BALLISTIC",
+  "size": "SMALL",
+  "displayArcRadius": 250,
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_Aestivalis_Super/shoulders/Moci_Aestivalis_Super_shoulderweapon_right.png",
+  "turretGunSprite": "graphics/ships/Mobile_Suit/Moci_Aestivalis_Super/shoulders/Moci_Aestivalis_Super_shoulderweapon_right.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_Aestivalis_Super/shoulders/Moci_Aestivalis_Super_shoulderweapon_right.png",
+  "hardpointGunSprite": "graphics/ships/Mobile_Suit/Moci_Aestivalis_Super/shoulders/Moci_Aestivalis_Super_shoulderweapon_right.png",
+  "renderHints": [
+    RENDER_BARREL_BELOW
+  ],
+  "turretOffsets": [
+    10,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    16,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING_BURST",
+  "animationType": "MUZZLE_FLASH",
+  "muzzleFlashSpec": {
+    "length": 20,
+    "spread": 6,
+    "particleSizeMin": 6,
+    "particleSizeRange": 8,
+    "particleDuration": 0.15,
+    "particleCount": 7,
+    "particleColor": [
+      255,
+      240,
+      165,
+      200
+    ]
+  },
+  "fireSoundTwo": "light_machinegun_fire"
+}

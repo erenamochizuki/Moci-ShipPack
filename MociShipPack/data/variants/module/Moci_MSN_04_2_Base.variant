@@ -1,0 +1,70 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_MSN_04_2",
+    "hullMods": [
+        "Moci_MSN_04_2_right_mode_megacannon",
+        "Moci_MSN_04_2_right_mode_rilfe",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MSN_04_2_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WING_R": "Moci_MSN_04_2_wing_right",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WING_L": "Moci_MSN_04_2_wing_left",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "MSN_04_2_arm_right_Sabre",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0005": "MSN_04_2_leg_left_Sabre",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0004": "MSN_04_2_leg_right_Sabre",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "MSN_04_2_arm_right_rifle",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "BODY_WEAPON": "MSN_04_2_body_beam",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_MSN_04_2_shield_base"},
+    ],
+}

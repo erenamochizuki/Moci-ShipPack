@@ -1,0 +1,24 @@
+{
+	"id":"Moci_LateralThrustStats",
+	"type":"STAT_MOD",
+	"aiType":"CUSTOM",
+	"aiScript":"data.shipsystems.scripts.ai.Moci_LateralThrustAI2",
+	
+	"statsScript":"data.shipsystems.scripts.Moci_LateralThrustStats2",
+
+	"runScriptWhileIdle":true, # unapply() never gets called
+
+	"useSound":"Moci_Yamato_ET_System",
+	"outOfUsesSound":"gun_out_of_ammo",
+	
+	"aiHints":{
+		"activeSpeedIncrease":150,
+		"burstMovementPotential":300,
+		"averageSpeedIncrease":50
+	}
+	
+}
+
+
+
+

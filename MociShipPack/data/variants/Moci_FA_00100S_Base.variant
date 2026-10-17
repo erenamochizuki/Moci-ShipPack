@@ -1,0 +1,61 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 5,
+    "fluxVents": 10,
+    "goalVariant": true,
+    "hullId": "Moci_FA_00100S",
+    "hullMods": [
+        "advancedoptics",
+        "armoredweapons",
+        "autorepair",
+        "auxiliarythrusters",
+        "fluxbreakers",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "magazines",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_FA_00100S_Base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "BACKPACK_WEAPON": "Moci_FA_00100S_backcannon",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "MSN_00100_arm_right_gun_rifle",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "MSN_00100_arm_left_gun_bazooka",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "autopulse",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "RX_78_2_head_vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

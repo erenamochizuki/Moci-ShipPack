@@ -1,0 +1,57 @@
+{
+  "specClass": "beam",
+  "id": "Moci_MSN_06S_SHIELD_COVER",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "everyFrameEffect": "data.scripts.weapons.Moci_MSN06SShieldCoverEffect",
+  "showDamageWhenDecorative": false,
+  "renderBelowAllWeapons": false,
+  "turretSprite": "graphics/ships/Mobile_Suit/MSN_06S/arms/MSN_06S_left_shield_00.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/MSN_06S/arms/MSN_06S_left_shield_00.png",
+  "numFrames": 2,
+  "frameRate": 0,
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    0,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    255,
+    255,
+    255,
+    0
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    0
+  ],
+  "glowColor": [
+    255,
+    255,
+    255,
+    0
+  ],
+  "width": 0.0,
+  "textureType": SMOOTH,
+  "textureScrollSpeed": 128.0,
+  "pixelsPerTexel": 5.0,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF,
+    ASTEROID
+  ],
+}

@@ -1,0 +1,44 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 8,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_MS_06_leader_Axe",
+    "hullMods": [
+        "Moci_radical_modification",
+        "armoredweapons",
+        "autorepair",
+        "auxiliarythrusters",
+        "fluxbreakers",
+        "fluxdistributor",
+        "hardened_subsystems",
+        "insulatedengine",
+        "reinforcedhull",
+        "safetyoverrides",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_06_leader_Axe_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_mini_mjolnir",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "MS_06_right_arm_Axe",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_RS": "Moci_MS_06_SHIELD_RS_Base"},
+        {"SHIELD_L": "Moci_MS_06_SHIELD_L_Base"},
+    ],
+}

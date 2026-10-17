@@ -1,0 +1,45 @@
+{
+  "id": "Moci_Vangray_left_gun",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_Vangray_left_gun_shot",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "turretSprite": "",
+  "turretGunSprite": "graphics/ships/Mobile_Suit/Moci_Vangray/arms/Moci_Vangray_left_gun.png",
+  "hardpointSprite": "",
+  "hardpointGunSprite": "graphics/ships/Mobile_Suit/Moci_Vangray/arms/Moci_Vangray_left_gun.png",
+  "glowColor": [
+    255,
+    155,
+    150,
+    255
+  ],
+  "visualRecoil": 2,
+  "turretOffsets": [
+    58,
+    -8
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    62.5,
+    2.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+	"animationType":"SMOKE",
+	"smokeSpec":{"particleSizeMin":10.0,
+				 "particleSizeRange":10.0,
+				 "cloudParticleCount":3,
+				 "cloudDuration":0.75,
+				 "cloudRadius":15.0,
+				 "blowbackParticleCount":4,
+				 "blowbackDuration":2.0,
+				 "blowbackLength":10.0,
+				 "blowbackSpread":5.0,
+				 "particleColor":[100,100,100,200]},	
+  "fireSoundTwo": "mining_blaster_fire"
+}

@@ -1,0 +1,63 @@
+{
+  "id": "MSZ_010_WR_MAINGUN",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "everyFrameEffect": "data.scripts.weapons.Moci_MagicAnimationGun",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/ships/Mobile_Suit/MSZ_010/backpack/MSZ_010_WR_MAINGUN.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/MSZ_010/backpack/MSZ_010_WR_MAINGUN.png",
+  "glowColor": [
+    165,
+    100,
+    255,
+    235
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    27,
+    11.5,
+    27,
+    -11.5
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    45,
+    11.5,
+    45,
+    -11.5
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+  "beamFireOnlyOnFullCharge": true,
+  "fringeColor": [
+    224,
+    56,
+    142,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 55,
+  "textureType": ROUGH,
+  "textureScrollSpeed": 292,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ],
+  "fireSoundTwo": "tachyon_lance_fire"
+}

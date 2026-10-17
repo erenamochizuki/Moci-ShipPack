@@ -1,0 +1,19 @@
+{
+	"id":"Moci_OmegaAdministrationSkill",
+	"governingAptitude":"leadership",
+	"compressHullmods":false,
+	"scope":"GOVERNED_OUTPOST",
+	"effectGroups":[
+		{
+			"requiredSkillLevel":1,
+			"effectBasedOnLevel":false,
+			"effects":[
+			{"type":"GOVERNED_OUTPOST", "script":"data.campaign.skills.Moci_OmegaAdministrationSkill$FleetSize"},
+			{"type":"GOVERNED_OUTPOST", "script":"data.campaign.skills.Moci_OmegaAdministrationSkill$GroundDefense"},
+			{"type":"GOVERNED_OUTPOST", "script":"data.campaign.skills.Moci_OmegaAdministrationSkill$Accessibility"},
+			{"type":"GOVERNED_OUTPOST", "script":"data.campaign.skills.Moci_OmegaAdministrationSkill$DemandReduction"},
+			{"type":"GOVERNED_OUTPOST", "script":"data.campaign.skills.Moci_OmegaAdministrationSkill$UpkeepReduction"}
+			]
+		},
+	],
+}

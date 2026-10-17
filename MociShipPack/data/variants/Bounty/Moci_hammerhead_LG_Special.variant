@@ -1,0 +1,53 @@
+{
+    "displayName": "Special",
+    "fluxCapacitors": 15,
+    "fluxVents": 15,
+    "goalVariant": false,
+    "hullId": "hammerhead_LG",
+    "hullMods": [
+        "converted_hangar",
+        "safetyoverrides"
+    ],
+    "permaMods": [
+    "comp_storage",
+    "malfunctioning_comms",
+    "erratic_injector",
+    ],
+    "sMods": [
+        "fluxbreakers",
+        "fluxcoil",
+        "fluxdistributor",
+    ],
+    "suppressedMods": [],
+    "variantId": "Moci_hammerhead_LG_Special",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS 006": "amblaster",
+                "WS 005": "amblaster",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS 003": "reaper",
+                "WS 004": "reaper",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 002": "ionpulser",
+                "WS 001": "ionpulser",
+            }
+        },
+    ],
+    "wings": [
+        "sarissa_wing",
+    ],
+    "modules": [],
+}

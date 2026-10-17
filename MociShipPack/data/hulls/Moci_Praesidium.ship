@@ -1,0 +1,270 @@
+{
+  "hullName": "Moci_Praesidiu",
+  "hullId": "Moci_Praesidium",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/Moci_Praesidium.png",
+  "style": "MIDLINE",
+  "height": 150,
+  "width": 310,
+  "center": [
+    155,
+    100
+  ],
+  "collisionRadius": 183.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 183.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "andrada_mods",
+    "solar_shielding",
+    "fluxshunt",
+    "coherer"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "ENERGY",
+      "mount": "HARDPOINT",
+      "arc": 40,
+      "angle": 0,
+      "locations": [
+        -6,
+        0
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "SYNERGY",
+      "mount": "HARDPOINT",
+      "arc": 40,
+      "angle": 0,
+      "locations": [
+        5,
+        -32
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "SYNERGY",
+      "mount": "HARDPOINT",
+      "arc": 40,
+      "angle": 0,
+      "locations": [
+        5,
+        32
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 220,
+      "angle": -51.5,
+      "locations": [
+        19,
+        -132
+      ]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 220,
+      "angle": 51.5,
+      "locations": [
+        19,
+        132
+      ]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 135,
+      "angle": -161.5,
+      "locations": [
+        -42,
+        -48
+      ]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 135,
+      "angle": 161.5,
+      "locations": [
+        -42,
+        48
+      ]
+    },
+    {
+      "id": "WS0008",
+      "size": "MEDIUM",
+      "type": "HYBRID",
+      "mount": "HARDPOINT",
+      "arc": 90,
+      "angle": -18.5,
+      "locations": [
+        2,
+        -78
+      ]
+    },
+    {
+      "id": "WS0009",
+      "size": "MEDIUM",
+      "type": "HYBRID",
+      "mount": "HARDPOINT",
+      "arc": 90,
+      "angle": 18.5,
+      "locations": [
+        2,
+        78
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -43,
+        -79.5
+      ],
+      "length": 38,
+      "width": 24,
+      "angle": 180,
+      "contrailSize": 24,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -43,
+        79.5
+      ],
+      "length": 38,
+      "width": 24,
+      "angle": -180,
+      "contrailSize": 24,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -78.5,
+        -65
+      ],
+      "length": 95.241966,
+      "width": 25.707459,
+      "angle": -153.5,
+      "contrailSize": 25.707459,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -78.5,
+        65
+      ],
+      "length": 95.241966,
+      "width": 25.707459,
+      "angle": 153.5,
+      "contrailSize": 25.707459,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -95,
+        -53
+      ],
+      "length": 86.325623,
+      "width": 23.506315,
+      "angle": -153.5,
+      "contrailSize": 23.506315,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -95,
+        53
+      ],
+      "length": 86.325623,
+      "width": 23.506315,
+      "angle": 153.5,
+      "contrailSize": 23.506315,
+      "style": "MIDLINE"
+    }
+  ],
+  "bounds": [
+    -78.5,
+    15,
+    -69,
+    22,
+    -94.5,
+    45.5,
+    -75.5,
+    69.5,
+    -49,
+    63,
+    -43.5,
+    84.5,
+    -29,
+    94,
+    -26.5,
+    109,
+    2.5,
+    131.5,
+    0,
+    142.5,
+    28,
+    154,
+    46,
+    130.5,
+    25.5,
+    103,
+    31.5,
+    59.5,
+    14,
+    47,
+    1,
+    15,
+    1,
+    -15,
+    14,
+    -47,
+    31.5,
+    -59.5,
+    25.5,
+    -103,
+    46,
+    -130.5,
+    28,
+    -154,
+    0,
+    -142.5,
+    2.5,
+    -131.5,
+    -26.5,
+    -109,
+    -29,
+    -94,
+    -43.5,
+    -84.5,
+    -49,
+    -63,
+    -75.5,
+    -69.5,
+    -94.5,
+    -45.5,
+    -69,
+    -22,
+    -78.5,
+    -15
+  ]
+}

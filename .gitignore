@@ -1,0 +1,40 @@
+# ============================================================
+# Moci 工作区 —— Git 只跟踪「本体」，其余一律忽略
+# 白名单方式：顶层全部忽略，再逐个放行需要版本管理的内容。
+# 需要跟踪新的顶层目录时，在下面加一行 !/目录名/。
+# ============================================================
+/*
+
+# ---- 根目录必要文件 ----
+!/.gitignore
+!/.gitattributes
+!/.editorconfig
+!/pom.xml
+
+# ---- 本体：Java 源码 ----
+!/src/
+
+# ---- 本体：中文发布包（MociShipPack）----
+!/MociShipPack/
+# 构建产物不跟踪：MociShipPack.jar 由 mvn package + 手动拷贝生成
+/MociShipPack/jars/
+
+# ---- 只保留在本地、不进 Git 的内容 ----
+# WORKSPACE.md   工作区地图（个人使用，不上传）
+# CLAUDE.md      已不再使用
+# docs/          个人设计笔记与整理清单
+# tools/         本地脚本（翻译/修复/回归测试）
+# newdata/       待移植源码 + 已移出的 CTBAnimation 参考副本（见 WORKSPACE.md 第 10 节）
+# 这些目录/文件由上面的 /* 统一忽略，这里只作说明。
+
+# ---- 系统 / IDE / 构建垃圾 ----
+.idea/
+out/
+target/
+*.iml
+.DS_Store
+Thumbs.db
+desktop.ini
+__pycache__/
+*.pyc
+*.log

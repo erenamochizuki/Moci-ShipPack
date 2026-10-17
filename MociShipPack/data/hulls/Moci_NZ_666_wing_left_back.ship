@@ -1,0 +1,28 @@
+{
+  "hullName": "Moci_NZ_666_wing_left_back",
+  "hullId": "Moci_NZ_666_wing_left_back",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/NZ_666/wings/NZ_666_wing_left_back_00.png",
+  "style": "MOCI_MS",
+  "height": 252,
+  "width": 210,
+  "center": [105, 126],
+  "collisionRadius": 126,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 126,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_module_collision_controller"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [],
+  "bounds": [
+    -94, 18,
+    -54, 48,
+    32, 46,
+    64, 12,
+    54, -38,
+    -12, -56,
+    -82, -32
+  ]
+}

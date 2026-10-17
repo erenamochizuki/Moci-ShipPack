@@ -1,0 +1,51 @@
+{
+    "displayName": "Gunner",
+    "fluxCapacitors": 9,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_RGM_89",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "armoredweapons",
+        "auxiliarythrusters",
+        "fluxdistributor",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "magazines",
+        "targetingunit",
+        "autorepair",
+        "stabilizedshieldemitter",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RGM_89_Gunner",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "autopulse",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "RGM_89_arm_left_gun_Sabre",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RGM_89_SHIELD_L_Base"},
+    ],
+}

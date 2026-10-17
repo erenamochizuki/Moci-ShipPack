@@ -1,0 +1,28 @@
+{
+  "variantId": "Moci_Ironshark_pirate_path_Standard",
+  "hullId": "Moci_Ironshark_pirate_path",
+  "displayName": "Standard",
+  "goalVariant": true,
+  "fluxCapacitors": 17,
+  "fluxVents": 0,
+  "quality": 0.5,
+  "permaMods": [],
+  "hullMods": [
+    "targetingunit"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "hveldriver",
+        "WS0003": "hveldriver",
+        "WS0004": "hveldriver",
+        "WS0005": "hveldriver",
+        "WS0006": "hveldriver"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

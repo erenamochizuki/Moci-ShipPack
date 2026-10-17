@@ -1,0 +1,44 @@
+{
+  "id": "Moci_AMS_119_leader_arm_right_rifle",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_AMS_119_arm_right_rifle_shot",
+  "type": "BALLISTIC",
+  "size": "LARGE",
+  "turretSprite": "",
+  "turretGunSprite": "graphics/ships/Mobile_Suit/Moci_AMS_119/arms/AMS_119_leader_WEAPON_R_RIFLE.png",
+  "hardpointSprite": "",
+  "hardpointGunSprite": "graphics/ships/Mobile_Suit/Moci_AMS_119/arms/AMS_119_leader_WEAPON_R_RIFLE.png",
+  "visualRecoil": 3,
+  "turretOffsets": [
+    97,
+    -1.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    150.5,
+    -1.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "MUZZLE_FLASH",
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 65,
+    "spread": 20,
+    "particleSizeMin": 10,
+    "particleSizeRange": 35,
+    "particleDuration": 0.75,
+    "particleCount": 50,
+    "particleColor": [
+      150,
+      150,
+      150,
+      245
+    ]
+  },
+  "fireSoundTwo": "hellbore_fire"
+}

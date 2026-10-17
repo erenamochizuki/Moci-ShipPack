@@ -1,0 +1,43 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 10,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_MS_06_BTS",
+    "hullMods": [
+        "armoredweapons",
+        "autorepair",
+        "auxiliarythrusters",
+        "eccm",
+        "hardened_subsystems",
+        "magazines",
+        "missleracks",
+        "reinforcedhull",
+        "unstable_injector",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_06_BTS_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "hammerrack",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "lightmg",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_RS": "Moci_MS_06_SHIELD_RS_Base"},
+        {"SHIELD_L": "Moci_MS_06_SHIELD_L_Base"},
+    ],
+}

@@ -1,0 +1,61 @@
+{
+  "id": "Moci_RGM_96X_arm_right_lance",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "beamEffect": "data.scripts.weapons.Moci_Blade_BeamEffect",
+  "everyFrameEffect": "data.scripts.weapons.Moci_BladeEffectPlugin",
+  "collisionClass": "RAY_FIGHTER",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_RGM_96X/arms/RGM_96X_arm_right_lance.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_RGM_96X/arms/RGM_96X_arm_right_lance.png",
+  "glowColor": [
+    255,
+    155,
+    0,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    40.5,
+    -2.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    85.5,
+    -2.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "beamFireOnlyOnFullCharge": true,
+  "fringeColor": [
+    255,
+    220,
+    0,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 10,
+  "textureType": [
+    "graphics/fx/Moci_beam_fringe_2.png",
+    "graphics/fx/Moci_beam_core_2.png"
+  ],
+  "textureScrollSpeed": 252,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ],
+  "fireSoundTwo": "high_intensity_laser_loop"
+}

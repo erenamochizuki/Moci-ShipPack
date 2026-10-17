@@ -1,0 +1,24 @@
+{
+	"id":"Moci_displacer",
+	"type":"DISPLACER",
+	"aiType":"PHASE_DISPLACER",
+	
+	"statsScript":"data.shipsystems.scripts.Moci_DisplacerStats",
+	
+	"engineGlowColor":[100,165,255,125],
+
+	"range":1800,
+	"randomRange":0,
+	
+	"renderCopyDuringTeleport":false,
+	
+	"fadeActivationSoundOnChargedown":false,
+	"useSound":"Moci_displacer_active",
+	"outOfUsesSound":"gun_out_of_ammo",
+	
+	"aiHints":{
+		"activeSpeedIncrease":0,
+		"burstMovementPotential":1800,
+		"averageSpeedIncrease":200,
+	}
+}

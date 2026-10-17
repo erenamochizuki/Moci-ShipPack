@@ -1,0 +1,16 @@
+{
+	"id":"Moci_tpc4_shot",
+	"specClass":"projectile",
+    "onHitEffect":"data.scripts.weapons.Moci_Tpc_Flamer_OnHitEffect",
+	"spawnType":"BALLISTIC_AS_BEAM",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	"length":70.0,
+	"width":70.0,
+	"fadeTime":0.25,
+	"fringeColor":[255,0,0,150],
+	"coreColor":[255,100,50,255],
+	"textureType":"SMOOTH",
+	"textureScrollSpeed":-256.0,
+	"pixelsPerTexel":1.0	
+}

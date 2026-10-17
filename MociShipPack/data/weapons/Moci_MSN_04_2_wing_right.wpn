@@ -1,0 +1,53 @@
+{
+  "id": "Moci_MSN_04_2_wing_right",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_MSN04_Wingman",
+  "type": "UNIVERSAL",
+  "size": "MEDIUM",
+  "everyFrameEffect": "data.scripts.weapons.Moci_MSN04Wingman_Effect",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/wings/MSN_04_2_wing_right_00.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/wings/MSN_04_2_wing_right_00.png",
+  "numFrames": 10,
+  "frameRate": 10,
+  "turretOffsets": [
+    -28.5,
+    -67,
+    -27,
+    -94,
+    -12,
+    -84,
+    -33,
+    -105,
+    -43,
+    -85
+  ],
+  "turretAngleOffsets": [
+    -51.5,
+    -63.5,
+    -33.5,
+    -90,
+    -63.5
+  ],
+  "hardpointOffsets": [
+    13,
+    -67.5,
+    14.5,
+    -95,
+    29.5,
+    -83.5,
+    8,
+    -105,
+    -3,
+    -84
+  ],
+  "hardpointAngleOffsets": [
+    -59,
+    -56.5,
+    -33.5,
+    -90,
+    -53
+  ],
+  "barrelMode": "LINKED",
+  "animationType": "NONE",
+  "fireSoundTwo": "Moci_bit_launch"
+}

@@ -1,0 +1,54 @@
+{
+    "displayName": "ATX",
+    "fluxCapacitors": 0,
+    "fluxVents": 6,
+    "goalVariant": false,
+    "hullId": "Moci_AltEisen",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "armoredweapons",
+        "blast_doors",
+        "heavyarmor",
+        "insulatedengine",
+        "magazines",
+        "missleracks",
+        "unstable_injector",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_AltEisen_ATX",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "Moci_Weapon1",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_Weapon2",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDER_L_SOURCE": "Moci_heavry_phasecl",
+                "SHOULDER_R_SOURCE": "Moci_heavry_phasecl",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "Moci_heavry_vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

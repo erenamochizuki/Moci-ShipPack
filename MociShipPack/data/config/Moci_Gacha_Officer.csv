@@ -1,0 +1,17 @@
+id,category,name,last_name,gender,level,max_level,max_elite,skills,elite_skills,personality,hire_text,sprite,update_when_load
+#独立id不能重复,类型id作为item_id填在抽卡表格中,名字,姓氏,性别 除了FEMALE和ANY外全部识别为MALE,初始等级,最大等级,最大精英技能数量,初始携带的常规技能 填技能id逗号隔开,初始携带的精英技能 填技能id逗号隔开,性格id 不填或者错误默认steady,军官招募后的对话,默认头像路径,默认false 如果填true将会在每次读档的时候刷新
+#moci_gacha_officer01,SSR_Officer,卡缪,维丹,,5,10,5,"helmsmanship,field_modulation,Moci_PlayerSkill1","combat_endurance,impact_mitigation,damage_control",reckless,"""卡缪是男人的名字，这有什么不妥吗？！""",graphics/portraits/gacha/kamille.png,
+moci_gacha_officer01,SSR_Officer,拉拉,辛,FEMALE,5,10,5,"helmsmanship,field_modulation,Moci_PlayerSkill1","combat_endurance,impact_mitigation,damage_control",,"""…我好像听见有人叫我妈妈？""",graphics/portraits/gacha/lalah.png,
+moci_gacha_officer02,SR_Officer,奥尔加,伊兹卡,,3,7,4,"helmsmanship,impact_mitigation",combat_endurance,,"""只要不停下来，道路就会不断延申...""",graphics/portraits/gacha/Orga Itsuka.png,
+moci_gacha_officer05,SR_Officer,库瓦特罗,巴吉纳,,3,7,5,"helmsmanship,impact_mitigation,Moci_PlayerSkill1",combat_endurance,,"""不是我叫的哦，还不是~""",graphics/portraits/gacha/Quattro Vageena.png,
+moci_gacha_officer03,R_Officer,玛秋,,FEMALE,1,7,4,Moci_PlayerSkill1,helmsmanship,reckless,"""虽然搞不懂情况...但我好像懂了！""",graphics/portraits/gacha/Machu.png,
+#moci_gacha_officer04,SR_Officer,艾尔,,,3,7,5,"helmsmanship,impact_mitigation",combat_endurance,,机器人就是男人的浪漫，这点在什么地方都是不会变的！,graphics/portraits/gacha/Ernesti Echevallia.png,
+moci_gacha_officer04,SR_Officer,哈撒维,诺亚,,3,7,5,"helmsmanship,Moci_PlayerSkill1",combat_endurance,,我也想成为独当一面的人，死这种事情，大家都做过了，我也应该能做好。,graphics/portraits/gacha/Hathaway Noa.png,
+moci_gacha_officer05,SSR_Officer,南部,响介,,5,10,5,"helmsmanship,field_modulation","combat_endurance,impact_mitigation,damage_control",reckless,"""任务了解。就算是战舰的装甲，也只有被贯穿的命运！""",graphics/portraits/characters/ATX_Kyosuke_Nanbu.png,
+moci_gacha_officer06,SSR_Officer,艾克塞琳,勃朗宁,FEMALE,5,10,5,"helmsmanship,field_modulation","combat_endurance,impact_mitigation,damage_control",reckless,"""哎呀~终于轮到我出场了？Excellen Browning，闪亮登场！可别被我的魅力迷倒了哦~""",graphics/portraits/characters/ATX_Excellen_Browning.png,
+moci_gacha_officer07,SR_Officer,丛云,总司,,3,7,5,"helmsmanship,impact_mitigation",combat_endurance,,"""英仙座……还真是令人着迷""",graphics/portraits/gacha/SOUJI.png,
+moci_gacha_officer08,SR_Officer,如月,千岁,FEMALE,1,7,4,,helmsmanship,reckless,"""我本身将成为子弹！""",graphics/portraits/gacha/CHITOSE.png,
+moci_gacha_officer09,R_Officer,南梦,芽,FEMALE,1,7,4,,helmsmanship,,(应该到了报到的时间，但通讯器中没有声音传来),graphics/portraits/gacha/Yume Minami.png,
+moci_gacha_officer10,R_Officer,宝多,六花,FEMALE,1,7,4,,helmsmanship,,"""宝多六花。又卷入麻烦事了啊…算了，既然来了就面对吧。""",graphics/portraits/gacha/Takarada Rikka.png,
+moci_gacha_officer11,R_Officer,新条,茜,FEMALE,1,7,4,,helmsmanship,reckless,"""新条茜登场。这个世界也有怪兽吗？快让我看看！""",graphics/portraits/gacha/Shinjou Akane.png,
+moci_gacha_officer12,SR_Officer,邱尼,卡斯,,3,7,5,"helmsmanship,Moci_PlayerSkill1",combat_endurance,,什么呢？刚才的声音是什么？光？那是什么？,graphics/portraits/gacha/Gyunei Guss.png,

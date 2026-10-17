@@ -1,0 +1,52 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 29,
+    "fluxVents": 50,
+    "goalVariant": true,
+    "hullId": "Moci_MSN_02",
+    "hullMods": [
+        "autorepair",
+        "hardenedshieldemitter",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MSN_02_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARMBIT_R": "Moci_MSN_02_Arm_LinerBit_Control_R",
+                "BACKPACK_L": "Moci_MSN_02_LinerBit_Control_L",
+                "ARMBIT_L": "Moci_MSN_02_Arm_LinerBit_Control_L",
+                "BACKPACK_R": "Moci_MSN_02_LinerBit_Control_R",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "hammerrack",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_double_hephag",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"BODY_ARMOR": "Moci_MSN_02_body_armor_Standard"},
+        {"BACKPACK_ARMOR": "Moci_MSN_02_backpack_Standard"},
+        {"ARMBIT_SHOULDER_MODULE_L": "Moci_MSN_02_shoulder_left_Standard"},
+        {"ARMBIT_SHOULDER_MODULE_R": "Moci_MSN_02_shoulder_right_Standard"},
+        {"BACKPACK_WPL": "Moci_MSN_02_LinerBit_Standard"},
+        {"BACKPACK_WPR": "Moci_MSN_02_LinerBit_Standard"},
+        {"ARMBIT_WPR": "Moci_MSN_02_LinerBit_Arm_R_Standard"},
+        {"ARMBIT_WPL": "Moci_MSN_02_LinerBit_Arm_L_Standard"},
+    ],
+}

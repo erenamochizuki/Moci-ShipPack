@@ -1,0 +1,43 @@
+{
+  "hullName": "Moci_Vangnix_bit",
+  "hullId": "Moci_Vangnix_bit",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_Vangnix/bit/Vangnix_bit.png",
+  "style": "HIGH_TECH",
+  "height": 82,
+  "width": 16,
+  "center": [8, 41],
+  "collisionRadius": 24,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 24,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-6, 0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-8, 0],
+      "length": 14,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -17.5, -4.5,
+    -14.5, -6.5,
+    38.5, -4.5,
+    38.5, 4.5,
+    -14.5, 6.5,
+    -17.5, 4.5
+  ]
+}

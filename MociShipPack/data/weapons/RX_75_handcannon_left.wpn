@@ -1,0 +1,43 @@
+{
+  "id": "RX_75_handcannon_left",
+  "specClass": "projectile",
+  "projectileSpecId": "heavyac_shot",
+  "type": "BALLISTIC",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_RX_75/arms/RX_75_arm_left.png",
+  "turretGunSprite": "graphics/ships/Mobile_Suit/Moci_RX_75/arms/RX_75_handcannon_left.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_RX_75/arms/RX_75_arm_left.png",
+  "hardpointGunSprite": "graphics/ships/Mobile_Suit/Moci_RX_75/arms/RX_75_handcannon_left.png",
+  "visualRecoil": 4,
+  "turretOffsets": [
+    26.5,
+    6.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    17,
+    0.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "MUZZLE_FLASH",
+  "muzzleFlashSpec": {
+    "length": 25,
+    "spread": 20,
+    "particleSizeMin": 12,
+    "particleSizeRange": 16,
+    "particleDuration": 0.5,
+    "particleCount": 16,
+    "particleColor": [
+      255,
+      125,
+      105,
+      255
+    ]
+  },
+  "fireSoundTwo": "autocannon_fire"
+}

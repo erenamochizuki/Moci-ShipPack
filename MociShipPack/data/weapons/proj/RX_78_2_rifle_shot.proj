@@ -1,0 +1,16 @@
+{
+	"id":"RX_78_2_rifle_shot",
+	"specClass":"projectile",
+	"spawnType":"BALLISTIC_AS_BEAM",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	"hitGlowRadius":75,
+	"length":50.0,
+	"width":8.0,
+	"fadeTime":0.25,
+	"fringeColor":[224,56,142,255],
+	"coreColor":[255,255,255,200],
+	"textureType":"ROUGH",  # only needed for BEAM spawnType
+	"textureScrollSpeed":-256.0,
+	"pixelsPerTexel":1.0
+}

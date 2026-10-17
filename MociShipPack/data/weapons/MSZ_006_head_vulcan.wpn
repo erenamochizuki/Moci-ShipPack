@@ -1,0 +1,47 @@
+{
+  "id": "MSZ_006_head_vulcan",
+  "specClass": "projectile",
+  "projectileSpecId": "vulcan_shot",
+  "type": "BALLISTIC",
+  "size": "SMALL",
+  "displayArcRadius": 300,
+  "turretSprite": "graphics/ships/Mobile_Suit/MSZ_006/head/MSZ_006_head_vulcan_00.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/MSZ_006/head/MSZ_006_head_vulcan_00.png",
+  "turretOffsets": [
+    11.5,
+    -4.5,
+    11.5,
+    4.5
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    20,
+    -4.5,
+    20,
+    4.5
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+  "barrelMode": "LINKED",
+  "animationType": "MUZZLE_FLASH",
+  "muzzleFlashSpec": {
+    "length": 10,
+    "spread": 3,
+    "particleSizeMin": 1,
+    "particleSizeRange": 3,
+    "particleDuration": 0.15,
+    "particleCount": 7,
+    "particleColor": [
+      255,
+      240,
+      165,
+      200
+    ]
+  },
+  "fireSoundTwo": "vulcan_cannon_fire"
+}

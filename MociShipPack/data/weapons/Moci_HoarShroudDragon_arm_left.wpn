@@ -1,0 +1,60 @@
+{
+  "id": "Moci_HoarShroudDragon_arm_left",
+  "specClass": "beam",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "everyFrameEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/ships/VIII/HoarShroudDragon/arms/Moci_HoarShroudDragon_arm_left.png",
+  "turretGlowSprite": "graphics/ships/VIII/HoarShroudDragon/arms/Moci_HoarShroudDragon_arm_left_glow.png",
+  "hardpointSprite": "graphics/ships/VIII/HoarShroudDragon/arms/Moci_HoarShroudDragon_arm_left.png",
+  "hardpointGlowSprite": "graphics/ships/VIII/HoarShroudDragon/arms/Moci_HoarShroudDragon_arm_left_glow.png",
+  "glowColor": [
+    255,
+    85,
+    17,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "renderHints": [
+    RENDER_BARREL_BELOW
+  ],
+  "turretOffsets": [
+    121.5,
+    43
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    292,
+    43
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    255,
+    0,
+    30,
+    0
+  ],
+  "coreColor": [
+    255,
+    10,
+    50,
+    0
+  ],
+  "width": 6,
+  "textureType": SMOOTH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ]
+}

@@ -1,0 +1,39 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 9,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_MS_06_Char",
+    "hullMods": [
+        "autorepair",
+        "auxiliarythrusters",
+        "hardened_subsystems",
+        "targetingunit",
+        "unstable_injector",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_06_Char_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "heavyac",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "devastator",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_RS": "Moci_MS_06_SHIELD_RS_Char_Base"},
+        {"SHIELD_L": "Moci_MS_06_SHIELD_L_Base"},
+    ],
+}

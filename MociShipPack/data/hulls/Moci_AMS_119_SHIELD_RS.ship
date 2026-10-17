@@ -1,0 +1,34 @@
+{
+  "hullName": "Moci_AMS_119_SHIELD_RS",
+  "hullId": "Moci_AMS_119_SHIELD_RS",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_AMS_119/shoulders/AMS_119_shoulder_right_shield.png",
+  "style": "MOCI_MS",
+  "height": 22,
+  "width": 34,
+  "center": [15, 10],
+  "collisionRadius": 21,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 21,
+  "viewOffset": 0,
+  "moduleAnchor": [
+    2,
+    -2
+  ],
+  "builtInMods": [
+    "Moci_module_collision_controller"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [],
+  "bounds": [
+    2.5, -18.5,
+    -8.5, -18.5,
+    -8.5, -13.5,
+    -5.5, -7.5,
+    -4.5, 0.5,
+    -2.5, 1.5,
+    9.5, 1.5,
+    11.5, -0.5,
+    11.5, -8.5
+  ]
+}

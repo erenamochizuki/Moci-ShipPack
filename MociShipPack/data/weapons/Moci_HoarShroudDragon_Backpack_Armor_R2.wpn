@@ -1,0 +1,56 @@
+{
+  "id": "Moci_HoarShroudDragon_Backpack_Armor_R2",
+  "specClass": "beam",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/ships/VIII/HoarShroudDragon/backpack/Moci_HoarShroudDragon_Backpack_Armor_R2_00.png",
+  "hardpointSprite": "graphics/ships/VIII/HoarShroudDragon/backpack/Moci_HoarShroudDragon_Backpack_Armor_R2_00.png",
+  "numFrames": 2,
+  "frameRate": 0,
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    81,
+    6.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    136.5,
+    6.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    255,
+    0,
+    30,
+    255
+  ],
+  "coreColor": [
+    255,
+    10,
+    50,
+    155
+  ],
+  "width": 6,
+  "textureType": SMOOTH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ]
+}

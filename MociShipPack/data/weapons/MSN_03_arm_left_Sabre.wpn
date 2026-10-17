@@ -1,0 +1,63 @@
+{
+  "id": "MSN_03_arm_left_Sabre",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "everyFrameEffect": "data.scripts.weapons.Moci_Axe_AnimationController_noMagic",
+  "beamEffect": "data.scripts.weapons.Moci_Axe_BeamEffect",
+  "collisionClass": "RAY_FIGHTER",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "",
+  "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_MSN_03/arms/MSN_03_arm_left_gun_Sabre_glow.png",
+  "hardpointSprite": "",
+  "hardpointGlowSprite": "graphics/ships/Mobile_Suit/Moci_MSN_03/arms/MSN_03_arm_left_gun_Sabre_glow.png",
+  "glowColor": [
+    255,
+    155,
+    0,
+    255
+  ],
+  "hitGlowRadius": 100,
+  "turretOffsets": [
+    19.5,
+    10.5
+  ],
+  "turretAngleOffsets": [
+    -22
+  ],
+  "hardpointOffsets": [
+    60.5,
+    10.5
+  ],
+  "hardpointAngleOffsets": [
+    -22
+  ],
+  "beamFireOnlyOnFullCharge": true,
+  "fringeColor": [
+    255,
+    220,
+    0,
+    0
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    0
+  ],
+  "width": 115,
+  "textureType": [
+    "graphics/fx/Moci_beam_fringe_2.png",
+    "graphics/fx/Moci_beam_core_2.png"
+  ],
+  "textureScrollSpeed": 252,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ],
+  "fireSoundTwo": "high_intensity_laser_loop"
+}

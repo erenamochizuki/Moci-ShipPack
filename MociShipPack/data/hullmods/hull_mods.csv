@@ -1,0 +1,237 @@
+name,id,tier,rarity,tech/manufacturer,tags,uiTags,base value,unlocked,hidden,hiddenEverywhere,cost_frigate,cost_dest,cost_cruiser,cost_capital,script,desc,short,sModDesc,sprite
+,,,,,,,,,,,,,,,,,,,
+Omega特征,Moci_omega_engine,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_OmegaEngine,舰船表现出非同寻常的Omega特征，允许舰船以 %s 的正常耗散速率在护盾开启时耗散硬幅能。并且武器射程小于 %s 的武器的基础射程都会被提升至 %s ，武器的弹道速度也被提升了 %s 。,允许舰船在展开护盾时耗散硬幅能，提升武器射程、弹速。,,graphics/hullmods/flux_shunt.png
+永续护盾分流器,Moci_always_on_shield_flux_shunt,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_AlwaysOnShieldFluxShunt,强制护盾保持开启，并允许舰船以 %s 的正常耗散速率在护盾开启时耗散硬幅能。护盾维持幅能降低 %s 。,强制护盾保持开启，完全耗散硬幅能并取消护盾维持幅能。,,graphics/hullmods/flux_shunt.png
+余辉先进点防AI,Moci_IntegratedPointDefenseAI,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_IntegratedPointDefenseAI,强化了点防武器的AI系统和射程，可以让原本的非点防武器拥有点防能力。,强化了点防武器的AI系统和射程，可以让原本的非点防武器拥有点防能力。,,graphics/hullmods/flux_shunt.png
+测试用船插,Moci_test,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_test,测试,,,
+靶子用船插,Moci_station,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_station,测试,,,
+,,,,,,,,,,,,,,,,,,,
+货船改装航母甲板,Moci_cargo_carrier_deck,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_CargoCarrierDeck,<Tooltip created in script>,货舰改装的航母甲板只能以较低效率运转。,,graphics/hullmods/Moci_CargoCarrierDeck.png
+开放式维修龙门架,Moci_open_maintenance_gantry,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_OpenMaintenanceGantry,这艘船的后勤港口同时可以作为飞行甲板来使用，海量的后勤港口加强了舰队的整备能力，但也导致了搭载舰载机时会提高后勤压力。,强化了舰队后勤能力并且装载舰载机装配会受到惩罚。,,graphics/hullmods/Moci_open_maintenance_gantry.png
+龙门架舰队效果,Moci_open_maintenance_gantry_fleet_effect,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_OpenMaintenanceGantryFleetEffect,你不应该看到这个船插,,,
+,,,,,,,,,,,,,,,,,,,
+固定反转,Moci_anchorrotation,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_AnchorRotation,该结构围绕着固定锚点进行反向旋转，仅适用于空间站模块。,,,graphics/hullmods/axial_rotation.png
+隐藏插件,Moci_hidden_hullmod,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_Hidden_Hullmod,,,,
+及其易损,Moci_easytobreak,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_EasyToBreak,这个舰船及其易损，一旦在战斗中被击毁几乎没有任何机会被打捞。,这个舰船及其易损，一旦在战斗中被击毁几乎没有任何机会被打捞。,,graphics/hullmods/rugged_construction.png
+超级甲板,Moci_SuperFlightDeck,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_SuperFlightDeck,增加大量甲板,增加大量甲板,,
+零人员需求,Moci_ZeroCrew,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_ZeroCrew,没有船员需求,没有船员需求,,
+易爆结构,Moci_VolatileAmmunition,,,,dmod,,,,TRUE,,0,0,0,0,data.hullmods.Moci_VolatileAmmunition,"这台舰船将原本的炮塔被强行改装为了导弹发射器，但这种不兼容的改装会导致安全问题。但对于卢德左径分子来说，这也许正是他们所需要的。
+舰船的殉爆伤害 %s ，殉爆范围 %s ，当舰船的结构受到超过 %s 的伤害时会有 %s 的几率使弹药产生殉爆。殉爆造成 %s 的武器伤害，并且有可能因此产生连锁反应。",这台舰船将原本的炮塔改装为了导弹发射器，但这种不兼容的改装会导致安全问题。,,graphics/hullmods/illadvised.png
+隐藏导弹,Moci_HiddenMissile,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_HiddenMissile,,,,
+隐藏导弹(仅隐藏槽),Moci_HiddenMissileForHiddenSlot,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_HiddenMissileForHiddenSlot,,,,
+隐藏覆盖,Moci_HiddenCover,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_HiddenCover,,,,
+隐藏模块,Moci_Hidden_module,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_Hidden_module,,,,
+伤害测试,Moci_ModuleDamageLogger,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_ModuleDamageLogger,,,,
+,,,,,,,,,,,,,,,,,,,
+先进甲板改装,Moci_advanced_flight_deck,,,MOCI武库,no_build_in,武器,500000,,TRUE,TRUE,100,100,100,100,data.hullmods.Moci_AdvancedFlightDeck,,,,graphics/hullmods/Moci_fighter_expand.png
+,,,,,,,,,,,,,,,,,,,
+轻武器集成,Moci_small_weapon_integration,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_SmallWeaponIntegration,降低 %s 点所有小型能量、实弹武器所需的装配点。,降低小型能量、实弹武器所需装配点。,,graphics/hullmods/Moci_small_weapon_integration.png
+武器超频,Moci_weapon_overload,,,MOCI武库,no_build_in,武器,10000,,TRUE,,100,100,100,100,data.hullmods.Moci_weapon_overload,"这艘舰船搭载了极其先进的武器系统，能够使其搭载的武器发挥出超乎想象的效果。
+
+搭载所有武器的伤害和射速都提升了 %s。",提升搭载武器的射速和伤害。,,graphics/hullmods/ballistics_integration.png
+先进装配模式,Moci_advance_weaponIntegration,,,MOCI武库,no_build_in,武器,10000,,TRUE,,100,100,100,100,data.hullmods.Moci_AdvanceWeaponIntegration,"先进的武器装配系统允许舰船搭载更多更重型的武器。
+
+令舰船搭载的装配点数超过 %s 的 %s 和 %s 装配点降低为 %s 。",降低搭载武器所占用的装配点。,,graphics/hullmods/assault_package.png
+激进改装,Moci_radical_modification,1,,MOCI武库,"req_spaceport, special, merc, standard, no_build_in",特殊,10000,TRUE,,,-5,-10,-15,-20,data.hullmods.Moci_radical_modification,"通过拆卸大量的装甲板、保护性结构来加装更多能源管道、能量电池，并降低舰船重量，可以改装的空间也变得更多。
+
+降低舰船 %s 的结构和装甲值，提升 %s 护盾受到的伤害。
+提升了 %s 舰船的幅能容量、幅能耗散，提升了 %s 的机动性，提升了 %s 最大速度。",用降低耐久的方式提高耗散和灵活性。,,graphics/hullmods/Moci_radical_modification.png
+钙质装甲,Moci_armor_to_hull,3,0.5,MOCI武库,"req_spaceport, special, merc, standard, no_build_in",特殊,10000,,,,2,4,8,16,data.hullmods.Moci_ArmorToHull,从{%s}的生物铠甲中获得启发，这种改装通过堆积大量脆弱不堪的结构用来{%s}，以此允许舰船承受更多伤害。,用降低装甲的方式提高结构值。,,graphics/hullmods/Moci_armor_to_hull.png
+战机后备部署,Moci_fighter_expand,3,0.5,MOCI武库,"req_spaceport, no_build_in",战机,10000,,,,30,50,70,90,data.hullmods.Moci_FighterExpand,"重新设计的机库使得每个战机联队可以部署更多战机，但额外部署的战机将大幅增加塔台调度和后勤维护的难度。
+
+搭载的战机的数量 %s ，降低 %s 的战机战斗范围，提高 %s 的整备下降速率。",翻倍搭载的舰载机的数量。,,graphics/hullmods/Moci_fighter_expand.png
+纳米虫导弹工厂,Moci_nanobot_factory,3,0.5,MOCI武库,"req_spaceport, no_build_in","导弹, 武器",10000,,,,15,30,50,80,data.hullmods.Moci_MissileReload,"为自身搭载能够回收舰船残骸的纳米虫。允许舰船在击杀敌方舰船时回复一定的导弹备弹。纳米虫的释放会影响到对自身舰船的修复 。
+",击杀舰船回复弹药。,,graphics/hullmods/Moci_MissileReload.png
+阻尼装甲,Moci_damped_armor,3,0.5,MOCI武库,"req_spaceport, no_build_in","护盾, 防御",10000,,,,35,50,65,80,data.hullmods.Moci_DamperArmor,"将舰船的护盾发生器改装成类似阻尼立场的装甲能量发生器。禁用所有武器并移除舰船的飞行甲板。重力干涉装置也导致了舰船的质量翻倍。
+根据舰船等级每秒产生 %s / %s / %s / %s 的硬幅能，减少 %s 船体和装甲受到的伤害，延长 %s 的过载时间。当舰船超载时将失去减伤效果。",禁用武器并大幅减少舰船收到的伤害。,,graphics/hullmods/Moci_damped_armor.png
+高速导弹挂架改装,Moci_highspeed_missilerack,3,0.5,MOCI武库,req_spaceport,"导弹, 武器",10000,,,,8,12,20,30,data.hullmods.Moci_HighSpeedMissileRack,改装导弹的装填系统，用额外驱动的装弹机和挂架实现导弹的高速装填。,快速冷却导弹武器并产生幅能。,,graphics/hullmods/Moci_highspeed_missilerack.png
+高能聚焦武器改装,Moci_high_energy_focus,3,0.5,MOCI武库,"req_spaceport, no_build_in",武器,10000,,,,10,18,26,34,data.hullmods.Moci_HighEnergyFocus,一种集成化的高能聚焦系统，通过额外的武器供能系统使得能量武器能够发挥出远超其原本的性能。,提高能量武器的辐能消耗和伤害，禁用战术系统。,,graphics/hullmods/Moci_high_energy_focus.png
+裂隙排幅回路,Moci_flux_rift_vent,3,0.5,MOCI武库,"req_spaceport, no_build_in",特殊,10000,TRUE,,,8,12,20,30,data.hullmods.Moci_FluxRiftVent,"排幅时，每排掉 %s 点幅能就会从系统槽位释放一道裂隙电弧。电弧会优先攻击 %s 范围内最近的敌方舰船、战机和导弹；命中造成 %s 能量伤害和 %s EMP伤害。",排幅时按消散幅能释放裂隙电弧。,,graphics/icons/hullsys/quantum_disruptor.png
+连锁雷暴电容器,Moci_chain_lightning_capacitor,3,0.5,MOCI武库,"req_spaceport, no_build_in","特殊, 武器",10000,TRUE,,,8,12,20,30,data.hullmods.Moci_ChainLightningCapacitor,"在舰船旁显示雷暴充能条，充能满 %s 点时释放一次连锁闪电。充能会以每秒 %s 点自然增长；本舰以 weapon 不为空的武器对敌人造成实际伤害时，每造成 %s 点实际伤害额外累计 1 点；由伤害带来的充能每秒最多累计 25 点。主闪电链射程 %s ，后续弹跳射程 %s ，主链造成 %s 能量伤害与等量 EMP 伤害，默认弹跳 %s 次，每次弹跳伤害衰减 %s 。",按时间和武器伤害积蓄雷暴充能，满值后释放连锁闪电。,,graphics/icons/hullsys/quantum_disruptor.png
+超载雷暴调谐,Moci_chain_lightning_overload,3,0.5,MOCI武库,"req_spaceport, no_build_in","特殊, 武器",10000,TRUE,,,0,0,0,0,data.hullmods.Moci_ChainLightningOverload,"连锁雷暴电容器的调谐插件。提高 %s 的自然充能速度和 %s 的闪电链伤害，但弹跳次数减少 %s 次，并且每点伤害充能所需实际伤害提高 %s 点。与分叉雷暴调谐互斥。",提高雷暴充能和伤害，减少弹跳。,,graphics/icons/hullsys/quantum_disruptor.png
+分叉雷暴调谐,Moci_chain_lightning_branching,3,0.5,MOCI武库,"req_spaceport, no_build_in","特殊, 武器",10000,TRUE,,,0,0,0,0,data.hullmods.Moci_ChainLightningBranching,"连锁雷暴电容器的调谐插件。弹跳次数增加 %s 次，弹跳伤害衰减降低为 %s ，但每点伤害充能所需实际伤害提高 %s 点。与超载雷暴调谐互斥。",增加雷暴弹跳并降低弹跳衰减。,,graphics/icons/hullsys/quantum_disruptor.png
+集成式熵抑制器,Moci_entropy_suppressor,3,0.5,MOCI武库,req_spaceport,防御,10000,,,,10,15,25,35,data.hullmods.Moci_EntropySuppressor,通过对 不明舰船 的 熵抑制器 进行逆向工程实现的一种舰船改装，在原本的武器和引擎位置安装一个小型的 熵抑制器 来快速修复损坏的武器和引擎。,以降低护甲和辐能的代价瞬间修复武器和引擎。,,graphics/hullmods/Moci_entropy_suppressor.png
+实弹武器协调系统,Moci_ballisticweaponcountrangefinder,2,0.5,MOCI武库,"offensive, merc, standard",武器,10000,,,,5,12,20,30,data.hullmods.Moci_BallisticWeaponCountRangefinder,协调不同尺寸的实弹武器，通过相互测距来提高武器的射程，但当武器较多时效果会变差。,提高实弹武器的射程。,,graphics/hullmods/Moci_ballisticweaponcountrangefinder.png
+能量武器协调系统,Moci_energyweaponcountrangefinder,2,0.5,MOCI武库,"offensive, merc, standard",武器,10000,,,,5,12,20,30,data.hullmods.Moci_EnergyWeaponCountRangefinder,协调不同尺寸的能量武器，通过相互测距来提高武器的射程，但当武器较多时效果会变差。,提高能量武器的射程。,,graphics/hullmods/Moci_energyweaponcountrangefinder.png
+超级弹仓,Moci_SuperLongMagazines,3,0.5,MOCI武库,req_spaceport,武器,10000,,,,5,8,10,15,data.hullmods.Moci_SuperLongMagazines,通过换装巨大的弹仓提高实弹武器和能量武器{%s}的备弹量，但降低{%s}的备弹回复速度。,提高实弹/能量武器的备弹量，降低备弹回复速度。,额外提高 %s 的实弹和能量武器备弹量。,graphics/hullmods/Moci_SuperLongMagazines.png
+增压弹膛,Moci_BallisticAmplifier,3,0.5,MOCI武库,req_spaceport,武器,10000,,,,10,15,25,35,data.hullmods.Moci_BallisticAmplifier,"通过降低实弹武器的射速来提高单发威力和弹丸速度。
+降低实弹武器{%s}的射速，提高实弹武器{%s}的幅能消耗，同时提高{%s}的实弹武器伤害，提高{%s}的实弹武器弹速。",通过降低实弹武器的射速来提高单发威力和弹丸速度。,额外降低{%s}的实弹武器射速并提高{%s}的实弹武器射程。,graphics/hullmods/Moci_BallisticAmplifier.png
+,,,,,,,,,,,,,,,,,,,
+广域作战雷达,Moci_WideAreaRadar,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WideAreaRadar,加装了额外的战斗雷达，使得航母的舰载机能够在更远的范围内战斗。但额外的设备需要拆装部分原有的系统，例如护盾。,提高战斗视野和舰载机的交战距离。,,graphics/hullmods/Moci_WideAreaRadar.png
+,,,,,,,,,,,,,,,,,,,
+活性再生装甲,Moci_Yamato_hullmod1,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Yamato_hullmod1,在本舰船未受到伤害的{%s}秒内，装甲开始修复且每秒修复的装甲值为起始装甲值的{%s}，但由于装甲具有活性且与普通装甲完全不同，护甲受到的动能伤害增加{%s}，每月维护所需的补给增加{%s},,移除每月维护多消耗补给的效果，但每秒修复的装甲值降低为{%s}。,
+波动引擎,Moci_Yamato_hullmod2,,,独行轻骑兵,"special,no_drop",,,,,,5,10,15,20,data.hullmods.Moci_Yamato_hullmod2,"波动引擎的核心能够将卷曲为卡拉比-丘流形态的紧密高维度展开，卷曲的维度在此过程中释放出大量的能量和超光速粒子。
+由于引擎的科技与人之领完全不同，使得零幅能加速完全失效，但船体机动性增加{%s}，由于波动引擎向武器直接供能，使得船体搭载的武器伤害增加{%s}，但每月消耗补给增加{%s} ",,移除每月维护多消耗的补给，武器伤害增加至 {%s}.,graphics/hullmods/Moci_Yamato_hullmod2.png
+超限损管,Moci_Yamato_hullmod3,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Yamato_hullmod3,"大和号在穿越黑洞时遭遇重创，被迫将波动引擎产生的巨大能量流导入自动损管系统以修复船体，在穿过黑洞之后，波动引擎与损管系统间的能量通路因此获得了强化。
+减少受到的{%s}EMP伤害，且舰船武器与引擎修复所需要的时间减少{%s}。",,,graphics/hullmods/Moci_Yamato_hullmod3.png
+英雄迟暮,Moci_Yamato_hullmod4,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Yamato_hullmod4,"该舰在与人造黑洞战斗的过程中超限使用波动炮，使得船体受到巨大损伤。
+CR值流失速度提升{%s}，但该舰峰值时间增加{%s}；舰船装配小型武器时需要的OP降低{%s}，并且低于{%s}射程的武器射程会被提升至{%s}。本舰在停机或被摧毁后不会产生D-mod。",,,graphics/hullmods/Moci_Yamato_hullmod4.png
+无人机着陆,Moci_WingmanAIManager,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_WingmanAIManager,无人机专用,,,
+零式武装,Moci_ZeroWeaponEffect,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_ZeroWeaponEffect,提高{%s}所有武器的射速，并且将武器射程低于{%s}的武器提高至{%s}。,,,
+,,,,,,,,,,,,,,,,,,,
+赴汤蹈火,Moci_Syunran_hullmod1,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Syunran_hullmod1,"勇气就是人类的赞歌，人类的伟大就是勇气的伟大。春兰的船员们哪怕是粉身碎骨，血染星河，也会给敌人最致命的一击。
+战术系统启动时，提高舰船{%s}的武器转速和{%s}的弹丸速度。在与敌方舰船{%s}范围内交战时，可以获得最高{%s}的伤害加成，在{%s}范围内时伤害达到最高。",,,graphics/hullmods/Moci_Syunran_hullmod1.png
+未竟之志,Moci_Syunran_hullmod2,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Syunran_hullmod2,"战略性撤退后的春兰陷落于时间裂隙中，船员们凭借着强大的意志再次启动了春兰的波动跃迁。在跃迁和时间裂隙的作用下，春兰的舰体受到了来自波动引擎的巨大强化。
+提高{%s}船体结构值。降低{%s}战斗中因船体结构受损而造成的船员伤亡。
+不兼容{%s}和{%s}。",,,graphics/hullmods/Moci_Syunran_hullmod2.png
+,,,,,,,,,,,,,,,,,,,
+铁血锋刃,Moci_Ymato_ET_hullmods1,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Ymato_ET_hullmods1,"舰炮鲜红的光泽散发着无与伦比的杀气，最新锐的武器应该有最为强大的力量。
+光束武器将对护盾造成{%s}。
+降低光束武器{%s}的幅能消耗。
+不兼容{%s}和{%s}。",,,graphics/hullmods/Moci_Ymato_ET_hullmods1.png
+余烬王冠,Moci_Ymato_ET_hullmods2,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Ymato_ET_hullmods2,"黑暗宇宙中鲜红的传奇，在船坞中突发的波动跃迁使波动引擎与船体的契合度变得更高了。
+将舰船的幅能容量提高至{%s}。
+将舰船的幅能耗散提高至{%s}。",,,graphics/hullmods/Moci_Ymato_ET_hullmods2.png
+,,,,,,,,,,,,,,,,,,,
+着陆程序,Moci_LandingSequence,,,独行轻骑兵,,特殊,,,TRUE,,0,0,0,0,data.hullmods.Moci_LandingSequence,允许在具有特定设施的友军航母上降落修整。,,,graphics/hullmods/Moci_LandingSequence.png
+炮塔模式,Moci_MechTurretMode,,,独行轻骑兵,no_build_in,特殊,,TRUE,,,10,10,10,10,data.hullmods.Moci_MechTurretMode,允许机动兵器自动停靠至友军舰船的大型空炮塔槽位并作为临时炮塔运作。停靠完成后会根据宿主体型提升实弹与能量武器射程。,允许机动兵器停靠友军大型空炮塔槽位并作为临时炮塔作战。,,graphics/hullmods/Moci_LandingSequence.png
+炮塔AI：高主动,Moci_mechturret_ai_high,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_MechTurretAIModeMark,炮塔模式AI处于高主动状态。只要机体当前不需要进入整备流程，AI就会持续尝试停靠到可搭载的友军舰船上。,高主动炮塔AI,,graphics/hullmods/Moci_mechturret_ai_high.png
+炮塔AI：中主动,Moci_mechturret_ai_medium,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_MechTurretAIModeMark,炮塔模式AI处于中主动状态。AI仅会在接敌且1500范围内存在可搭载友军时尝试停靠；若周围2000内持续无敌人，或敌人过载/残血，则会主动脱离进行追击。,中主动炮塔AI,,graphics/hullmods/Moci_mechturret_ai_medium.png
+炮塔AI：低主动,Moci_mechturret_ai_low,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_MechTurretAIModeMark,炮塔模式AI处于低主动状态。只有当机体船体低于整备血量阈值且战场上没有可用整备舰船时，AI才会主动进入炮塔模式继续战斗；若后续出现可整备目标，则会优先脱离炮塔去整备。,低主动炮塔AI,,graphics/hullmods/Moci_mechturret_ai_low.png
+炮塔AI：手动,Moci_mechturret_ai_manual,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_MechTurretAIModeMark,炮塔模式AI处于纯手操状态。AI不会自行寻找可停靠宿主；只有在玩家手动锁定友军、用鼠标指定槽位偏好并按U进入自动导航后，才会进入炮塔模式。,纯手操炮塔模式,,graphics/hullmods/Moci_hullmod_disable.png
+整备湾,Moci_LandingBay,,,独行轻骑兵,,特殊,,,TRUE,,5,10,15,20,data.hullmods.Moci_RepairBayHullModEffect,"允许持有{%s}的{%s}在舰船上降落进行{%s}。
+集成了维护，检修专向为适应MS的高性能设备，为友军MS提供补给、维修服务，以维持这些高性能装备的持续作战。",,,graphics/hullmods/Moci_LandingBay.png
+机动兵器专用整备库,Moci_ms_repair_bay,,,独行轻骑兵,,特殊,,,TRUE,,0,0,0,0,data.hullmods.Moci_MSRepairBay,这艘舰船安装有专为机动战士设计的整备库，因此当机动战士在这艘舰船上进行整备时整备速度将提高 %s 。此外，机动战士的舰载机搭载在这艘舰船上时也在损失的时候进行快速增员，但这个效果需要等待舰载机整备时间的 %s 才能再次触发。,提高机动战士在这艘舰船上的整备速度。,,graphics/hullmods/Moci_ms_repair_bay.png
+重力波天线,Moci_GravityAntenna,,,独行轻骑兵,,,,,TRUE,,3,7,10,15,data.hullmods.Moci_GravityAntenna,抚子号上的相转移引擎可以产生重力波，并由重力波天线以不可见辐射波的形式，远程传输至安装有重力波接收器的机体，因此只要与母舰的连接不被中断，机体就能获得持续的能量供应，避免了频繁返航整备的麻烦。此外，高度集成化的系统让这艘舰船的船员需求降低了 %s 。,在抚子号身边，安装有重力波接收器的机体峰值与CR不会衰减，同时可以持续不断的恢复备弹。,,graphics/hullmods/Moci_GravityAntenna.png
+重力波接收器,Moci_GravityReceiver,,,独行轻骑兵,,特殊,,TRUE,,,4,8,12,20,data.hullmods.Moci_GravityReceiver,通用款的重力波接收器，在安装后即可接受来自抚子号的重力波。,通用款的重力波接收器，在安装后即可接受来自抚子号的重力波。,"尼尔加重工的舰船：获得 %s 。
+非尼尔加重工的舰船： %s 。",graphics/hullmods/Moci_GravityReceiver.png
+,,,,,,,,,,,,,,,,,,,
+自适应武器系统,Moci_adaptive_weapon_system,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_AdaptiveWeaponSystem,智能火控系统能够适应舰船的超频状态，即便舰船的安全协议被解除，火控系统依旧能够保持在较好的状态。,提高安全协议超驰时的射程阈值，超出峰值时间时CR衰减的更快。,,graphics/hullmods/Moci_adaptive_weapon_system.png
+,,,,,,,,,,,,,,,,,,,
+紧急导弹工厂,Moci_emergency_missile_factory,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_EmergencyMissileFactory,<Tooltip created in script>,降低备弹量的同时获得回复导弹的能力。,,graphics/hullmods/Moci_EmergencyMissileFactory.png
+制导雷达,Moci_guidance_radar,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_guidance_radar,一种大型的制导雷达系统，能够提高搭载舰船的雷达范围 %s 点，战场视野扩大 %s ， 导弹射程和机动性提高 %s ，并且提高 %s 的导弹武器伤害。,提升搭载导弹武器的射程和伤害，同时扩大视野范围。,,graphics/hullmods/Moci_guidance_radar.png
+,,,,,,,,,,,,,,,,,,,
+第十四战斗群(前线改装),Moci_fourteenth_front,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_Fourteenth_Front,"霸主 的前身 (人之领 第十四战斗群) 所配备的战舰是现如今研究 人之领 海军 ""决战"" 教条的原始样本。与常见的十四军团改装不同，前线改装型更侧重于高压战斗下的持久作战能力，并且对校射雷达进行了升级。提高{%s}的射程，提高{%s}的最低装甲值，提高{%s}的强制排幅效率，降低{%s}的最高航速与机动性。而调整到极佳状态下的能源系统让该舰的幅能耗散/容量提高{%s}。",,,graphics/hullmods/fourteenth.png
+第八战斗群,Moci_legion_VIII,,,第八战斗群,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_legion_VIII,第八战斗群倾向于使用能量武器和护盾防御，他们的舰船通常拥有更高功率的反应堆。提高{%s}的射程，提高{%s}的幅能容量和幅能耗散，降低{%s}护盾受到的伤害，同时护甲值降低{%s}。,,,graphics/hullmods/Moci_legion_VIII.png
+六十六军团设计,Moci_legion_LXVI,,,第六十六卫队 ,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_legion_LXVI,不会受到EMP伤害，装甲受到的动能与高爆伤害的倍率系数修正至{%s}。,,,graphics/hullmods/Moci_legion_LXVI.png
+,,,,,,,,,,,,,,,,,,,
+激光聚焦重定向,Moci_high_scatter_amp,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_HighScatterAmp,"辛达强权的最新科技成果，对舰船的幅能系统进行整个重构使其完全服务于光束武器，其难度不亚于重新设计并建造一艘相同的舰船，而其昂贵的价格足以武装一整支舰队。该改装被用于辛达瑞亚之狮的座舰，用代表其威严的光束武器向这片星域耀武扬威。
+提高 %s 的强制排幅效率，但降低光束武器 %s 的转速，同时，光束武器将对护盾造成 %s 。
+不兼容 %s 和 %s 。",提高强制排幅效率，令光束武器对护盾造成硬幅能伤害，但降低其转速。,,graphics/hullmods/Moci_high_scatter_amp.png
+量子信号畸变器,Moci_signal_distortion_amplifier,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_SignalDistortionAmplifier,"舰船搭载了尺寸庞大的电子战设备。这种昂贵的设备允许舰船上的电子系统以远超寻常的方式运转。
+提高舰船战术系统 %s 的射程，降低 %s 的冷却时间，降低 %s 的战术系统激活幅能消耗。",提高战术系统射程， 降低冷却，增加持续时间。,,graphics/hullmods/Moci_SignalDistortionAmplifier.png
+,,,,,,,,,,,,,,,,,,,
+舰载机AI升级,Moci_autofighter,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_AutoFighter,高度集成化的AI系统使其可以对搭载的舰载机进行精细操作，将该舰船的舰载机改造为 %s ，为每一个舰载机搭载一枚 %s 级别的AI核心，极大提高了舰载机的战斗力。,为舰载机搭载Gamma核心，极大提高舰载机的战斗力。,,graphics/hullmods/Moci_autofighter.png
+,,,,,,,,,,,,,,,,,,,
+模块引擎同步器,Moci_moduelengine,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_ModuleEngine,你不应该看到这个船插,你不应该看到这个船插,,
+,,,,,,,,,,,,,,,,,,,
+热脉冲武器模式切换器,Moci_TpcWeaponSwap,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TpcWeaponSwap,你不应该看到这个船插,你不应该看到这个船插,,
+超频热脉冲加农炮,Moci_tpc_mode_cannon,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_TpcSwaperCycle,为边境级安装 超频热脉冲加农炮 作为主武器，移除插件将更换武器模式。,超频热脉冲加农炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+霰射式热脉冲炮,Moci_tpc_mode_shotgun,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_TpcSwaperCycle,为边境级安装 霰射式热脉冲炮 作为主武器，移除插件将更换武器模式。,霰射式热脉冲炮,,graphics/hullmods/Moci_MSSwapHullmod_shotgun.png
+脉冲式等离子喷射器,Moci_tpc_mode_flamer,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_TpcSwaperCycle,为边境级安装 脉冲式等离子喷射器 作为主武器，移除插件将更换武器模式。,脉冲式等离子喷射器,,graphics/hullmods/Moci_MSSwapHullmod_flamer.png
+,,,,,,,,,,,,,,,,,,,
+米诺夫斯基AI切换器,Moci_MinovskyAISwitch,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_MinovskyAISwitch,你不应该看到这个船插,你不应该看到这个船插,,
+启用米诺夫斯基粒子AI,Moci_minovsky_ai_enabled,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_minovsky_ai_mark,启用米诺夫斯基粒子的AI，这个状态下，AI将会主动使用这个战术系统。,启用战术系统AI,,graphics/hullmods/Moci_hullmod_denable.png
+禁用米诺夫斯基粒子AI,Moci_minovsky_ai_disabled,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_minovsky_ai_mark,禁用米诺夫斯基粒子的AI，这个状态下，AI将不会主动使用这个战术系统。,禁用战术系统AI,,graphics/hullmods/Moci_hullmod_disable.png
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+人形机动兵器,Moci_MobileSuits,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_MobileSuitsIDcard,<Tooltip created in script>,机动兵器作为独特的舰船类型，不受大多数殉爆和撞击伤害。,,graphics/hullmods/Moci_MobileSuits.png
+可变式框架,Moci_VariableFrame,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_VariableFrame,<Tooltip created in script>,支持MS/WR形态切换的可变式骨架。,,graphics/hullmods/Moci_VariableFrame.png
+机动装甲,Moci_MobileArmour,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_MobileArmour,<Tooltip created in script>,机动装甲作为独特的舰船类型，战场表现与通常舰船有所不同。,,graphics/hullmods/Moci_MobileArmor.png
+喷气背包子系统,Moci_MobilitySubsystemHullmod,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_MobilitySubsystemHullmod,你不应该看到这个船插,你不应该看到这个船插,,
+NTD,Moci_NTDSubsystemHullmod,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_NTDSubsystemHullmod,这艘舰船具有名为New-Type Destroyer System的系统(简称NTD)。启动时，会解锁机体的额外武装，并赋予强大的战斗能力。,NTD系统,,
+抗光束涂层,Moci_antibeamcoating,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_AntiBeamCoating,"在舰船的表面涂装一种特殊的涂层，使得伤害较低的光束武器难以对该舰船造成伤害。同时还会使得舰船免疫日冕等环境伤害。
+
+舰船受到的光束武器伤害降低 %s 。",降低舰船受到的光束伤害。,,graphics/hullmods/Moci_antibeamcoating.png
+抗光束涂层（护盾）,Moci_antibeamcoating_shield,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_AntiBeamCoating_Module,降低舰船受到的光束伤害。,,,graphics/hullmods/Moci_antibeamcoating.png
+护盾AI插件,Moci_shield_module_controller,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_ShieldModuleController,你不应该看到这个船插,你不应该看到这个船插,,
+模块碰撞插件,Moci_module_collision_controller,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_ModuleCollisionSync,你不应该看到这个船插,你不应该看到这个船插,,
+浮游炮模块,Moci_Module_Drone,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_Module_Drone,你不应该看到这个船插,你不应该看到这个船插,,
+临界核反应堆,Moci_UnstableReactor,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_UnstableReactor,这个舰船搭载了功率庞大的核熔炉，但并未设置有效的安全机制。,这个舰船搭载了功率庞大的核熔炉，但并未设置有效的安全机制，因此当这个舰船被摧毁时，他会产生巨大的爆炸。,,graphics/hullmods/Moci_UnstableReactor.png
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+全地形适应,Moci_allterrainadaptation,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_AllTerrainAdaptation,"宇宙探索用母舰的设计令舰船可以适应任何的苛刻环境，不仅能够自由的航行在哪怕是宇宙中最狂暴的天体附近，也令她能够突破大气层航行至地表，甚至潜入海底。
+舰船免疫日冕等环境伤害；
+提高 %s 点地面袭击强度；
+舰船的 %s 永远不会低于 %s 。",令舰船免疫环境伤害，提高对地支援强度，提高舰船CR。,,graphics/hullmods/Moci_allterrainadaptation.png
+,,,,,,,,,,,,,,,,,,,
+牛武器切换器,Moci_RX_93_WeaponSwap,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod,你不应该看到这个船插,你不应该看到这个船插,,
+光束步枪,Moci_RX_93_WeaponSwap_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为牛的 右手 武器安装 光束步枪，移除插件将更换武器模式。,光束步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+高能火箭炮,Moci_RX_93_WeaponSwap_bazooka,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为牛的 右手 武器安装 高能火箭炮，移除插件将更换武器模式。,高能火箭炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+光束军刀,Moci_RX_93_WeaponSwap_Sabre,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为牛的 右手 武器安装 光束军刀，移除插件将更换武器模式。,光束军刀,,graphics/hullmods/Moci_MSSwapHullmod_Sabre.png
+,,,,,,,,,,,,,,,,,,,
+夜莺武器切换器,Moci_MSN_04_2_WeaponSwap,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod,你不应该看到这个船插,你不应该看到这个船插,,
+米加粒子枪,Moci_MSN_04_2_right_mode_rilfe,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夜莺的 右手 武器安装 米加粒子步枪，移除插件将更换武器模式。,米加粒子步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+光束战斧,Moci_MSN_04_2_right_mode_axe,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夜莺的 右手 武器安装 光束战斧，移除插件将更换武器模式。,光束战斧,,graphics/hullmods/Moci_MSSwapHullmod_Axe.png
+扩散式米加粒子炮,Moci_MSN_04_2_right_mode_megacannon,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夜莺的 腹部 武器安装 扩散式米加粒子炮，移除插件将更换武器模式。,腹部扩散式米加粒子炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+接近战用牵引光束,Moci_MSN_04_2_right_mode_warpbeam,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夜莺的 腹部 武器安装 接近战用牵引光束，移除插件将更换武器模式。,接近战用牵引光束,,graphics/hullmods/Moci_MSSwapHullmod_wap.png
+,,,,,,,,,,,,,,,,,,,
+海牛武器切换器,Moci_RX_93_v2_WeaponSwap,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod,你不应该看到这个船插,你不应该看到这个船插,,
+光束步枪,Moci_RX_93_v2_WeaponSwap_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为海牛的 右手 武器安装 光束步枪，移除插件将更换武器模式。,光束步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+高能火箭炮,Moci_RX_93_v2_WeaponSwap_bazooka,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为海牛的 右手 武器安装 高能火箭炮，移除插件将更换武器模式。,高能火箭炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+光束军刀,Moci_RX_93_v2_WeaponSwap_Sabre,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为海牛的 右手 武器安装 光束军刀，移除插件将更换武器模式。,光束军刀,,graphics/hullmods/Moci_MSSwapHullmod_Sabre.png
+高能MEGA步枪,Moci_RX_93_v2_WeaponSwap_hws_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为海牛的 右手 武器安装 高能MEGA步枪，移除插件将更换武器模式。,高能MEGA步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+,,,,,,,,,,,,,,,,,,,
+元祖武器切换器,Moci_RX_78_2_WeaponSwap,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod,你不应该看到这个船插,你不应该看到这个船插,,
+光束步枪,Moci_RX_78_2_WeaponSwap_right_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 右手 武器安装 光束步枪，移除插件将更换武器模式。,光束步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+高能火箭炮,Moci_RX_78_2_WeaponSwap_right_bazooka,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 右手 武器安装 高能火箭炮，移除插件将更换武器模式。,高能火箭炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+光束军刀,Moci_RX_78_2_WeaponSwap_right_Sabre,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 右手 武器安装 光束军刀，移除插件将更换武器模式。,光束军刀,,graphics/hullmods/Moci_MSSwapHullmod_Sabre.png
+高能火箭炮,Moci_RX_78_2_WeaponSwap_left_bazooka,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 右手 武器安装 高能火箭炮，移除插件将更换武器模式。,高能火箭炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+光束军刀,Moci_RX_78_2_WeaponSwap_left_Sabre,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 右手 武器安装 光束军刀，移除插件将更换武器模式。,光束军刀,,graphics/hullmods/Moci_MSSwapHullmod_Sabre.png
+,,,,,,,,,,,,,,,,,,,
+杰刚武器切换器,Moci_RGM_89_leader_WeaponSwap,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod,你不应该看到这个船插,你不应该看到这个船插,,
+光束步枪,Moci_RGM_89_leader_WeaponSwap_right_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为杰刚的 右手 武器安装 光束步枪，移除插件将更换武器模式。,光束步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+高能火箭炮,Moci_RGM_89_leader_WeaponSwap_right_bazooka,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为杰刚的 右手 武器安装 高能火箭炮，移除插件将更换武器模式。,高能火箭炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+光束军刀,Moci_RGM_89_leader_WeaponSwap_right_Sabre,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为杰刚的 右手 武器安装 光束军刀，移除插件将更换武器模式。,光束军刀,,graphics/hullmods/Moci_MSSwapHullmod_Sabre.png
+,,,,,,,,,,,,,,,,,,,
+量产型亡灵武器切换器,Moci_Gespenst_WeaponSwap,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod,你不应该看到这个船插,你不应该看到这个船插,,
+拳套(左),Moci_Gespenst_left_mode_fist,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为量产型亡灵的 左手 武器安装 等离子拳套，移除插件将更换武器模式。,等离子拳套,,graphics/hullmods/Moci_MSSwapHullmod_Fist.png
+冲锋枪(左),Moci_Gespenst_left_mode_gun,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为量产型亡灵的 左手 武器安装 冲锋枪，移除插件将更换武器模式。,冲锋枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+,,,,,,,,,,,,,,,,,,,
+拳套(右),Moci_Gespenst_right_mode_fist,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为量产型亡灵的 左手 武器安装 等离子拳套，移除插件将更换武器模式。,等离子拳套,,graphics/hullmods/Moci_MSSwapHullmod_Fist.png
+冲锋枪(右),Moci_Gespenst_right_mode_gun,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为量产型亡灵的 左手 武器安装 冲锋枪，移除插件将更换武器模式。,冲锋枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+,,,,,,,,,,,,,,,,,,,
+夏日花武器切换器,Moci_Aestivalis_WeaponSwap,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod,你不应该看到这个船插,你不应该看到这个船插,,
+制式突击步枪,Moci_Aestivalis_WeaponSwap_right_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 右手 武器安装 制式突击步枪，移除插件将更换武器模式。,制式突击步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+磁轨加农炮,Moci_Aestivalis_WeaponSwap_right_railcannon,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 右手 武器安装 磁轨加农炮，移除插件将更换武器模式。,磁轨加农炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+,,,,,,,,,,,,,,,,,,,
+制式突击步枪,Moci_Aestivalis_WeaponSwap_left_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 右手 武器安装 制式突击步枪，移除插件将更换武器模式。,制式突击步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+磁轨加农炮,Moci_Aestivalis_WeaponSwap_left_railcannon,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 右手 武器安装 磁轨加农炮，移除插件将更换武器模式。,磁轨加农炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+激钢爆炎,Moci_Aestivalis_WeaponSwap_left_Gekiganflare,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 右手 武器安装 激钢爆炎，移除插件将更换武器模式。,激钢爆炎,,graphics/hullmods/Moci_MSSwapHullmod_Fist.png
+,,,,,,,,,,,,,,,,,,,
+劣质改装舰体,Moci_pyrejudge_slot_randomizer,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_Pa_SlotRandomizer,,随机化舰船的槽位类型,,
+,,,,,,,,,,,,,,,,,,,
+定制化战术系统,Moci_conditional_system_change,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Pa_HiryuSystemSwitcher,高度定制化的舰船允许通过改装的方式更换舰船的战术系统。,更换舰船的战术系统,,graphics/hullmods/Moci_conditional_system_change.png
+,,,,,,,,,,,,,,,,,,,
+高能聚焦系统,Moci_hiryu_system_highenergy,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Pa_HiryuSystemHighEnergy,当前战术系统为高能聚焦,高能聚焦战术系统,,graphics/hullmods/Moci_hiryu_system_highenergy.png
+召回指令系统,Moci_hiryu_system_recall,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Pa_HiryuSystemRecall,当前战术系统为召回指令,召回指令战术系统,,graphics/hullmods/Moci_hiryu_system_recall.png
+等离子推进器系统,Moci_hiryu_system_plasma,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Pa_HiryuSystemPlasma,当前战术系统为等离子推进器,等离子推进器战术系统,,graphics/hullmods/Moci_hiryu_system_plasma.png
+,,,,,,,,,,,,,,,,,,,
+塞克谬系统,Moci_PsycommuSystem,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_PsycommuSystem,通过增幅脑电波来让舰船的操作更加得心应手，使得驾驶员可以做出原本难以想象的动作。战术系统启动期间将提高武器射速并降低幅能消耗，同时赋予舰船能够穿越舰船和障碍物的能力。,,,graphics/hullmods/Moci_PsycommuSystem.png
+生物传感器,Moci_BioSensor,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_BioSensor,通过生物传感器模拟塞克谬系统，战术系统启动期间提供较弱的武器和机动加成；新人类驾驶员仍可获得时流加成。,,,graphics/hullmods/Moci_BioSensor.png
+原生种兵器,Moci_EinstWeapon,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_EinstWeapon,"机体经历了某种改造，表现出一种类似生物性质的特征，舰船的装甲和结构会随着时间流逝缓缓回复。
+每秒修复 %s 的结构和 %s 的装甲。",提高最低装甲值。,,graphics/hullmods/Moci_EinstWeapon.png
+超合金装甲,Moci_SuperAlloyArmor,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_SuperAlloyArmor,"机体的装甲由特殊结晶的合金构成，即便受到了损坏也能保持对结构的保护。
+提高 %s 的最低装甲值。",自动回复船体和装甲损伤。,,graphics/hullmods/Moci_SuperAlloyArmor.png
+HWS装备,Moci_RX93v2HWS,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_RX93_HWS,"加装了额外的装甲和武器，极大地提高了舰船的战斗能力。
+降低 %s 武器受到的伤害和 %s 的EMP伤害，过重的装备也将降低舰船 %s 的最高速度 和%s 的机动性。能量系统也得到了强化，幅能上限提升 %s 并且护盾受到的伤害降低 %s ，但也令舰船的武器和引擎在战斗中 修复所需要的时间延长了 %s ，但部署消耗也增加了 %s 。
+此外，当胸部装甲存在时，内置的小型导弹工厂会源源不断地为该部位的导弹武器回复备弹。",加装额外的装甲和武器。,,graphics/hullmods/Moci_RX93v2_HWS.png
+队长机,Moci_CaptainMachine,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_CaptainMachine,这台MS是一台队长机，借由加装的电台，可以指挥一支小队作战。,协同作战时获得战斗能力加成。,,graphics/hullmods/Moci_CaptainMachine.png
+作战小队,Moci_CombatSquad,,,独行轻骑兵,"req_spaceport, no_build_in",特殊,,TRUE,,,10,15,20,25,data.hullmods.Moci_CombatSquadV2,,召唤专属编队支援作战,,graphics/hullmods/Moci_CombatSquad.png
+赤色彗星,Moci_RedComet,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_RedComet,高超的驾驶技术允许驾驶员解锁引擎的最大限制，始终保持在最大战速。,提高最大速度和机动性并获得零幅能加速。,,graphics/hullmods/Moci_SMS.png
+黑色三连星,Moci_BTS,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_BTS,经由王牌驾驶员之间的协同作战，这台机体擅长找到更大机体的弱点，并一击毙命。,对舰船级别更高的舰船造成额外伤害。,,graphics/hullmods/Moci_SMS.png
+真红闪电,Moci_CrimsonLightning,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_CrimsonLightning,经由王牌驾驶员的改装，抛弃了无用的防御，全部的配置都用来提供更强力的火力。,提高伤害增加受伤。,,graphics/hullmods/Moci_SMS.png
+白狼,Moci_WhiteWolf,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WhiteWolf,定制化的改装让该舰船不仅拥有更厚的装甲，还能在战斗中更加致命。,增加装甲值，开启战术系统后还将获得伤害加成。,,graphics/hullmods/Moci_SMS.png
+,,,,,,,,,,,,,,,,,,,
+相位潜射,Moci_PhaseSubLaunch,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_PhaseSubLaunch,这艘舰船使用了非常规的相位系统，在进入P空间时雷达信号会完全消失，并允许部分武器在相位空间中发射。,内置反舰导弹可在P空间中进行相位潜射。,,
+磁流体控制系统,Moci_ElectroMagneticFluidControl,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Electro_Magnetic_Fluid_Control,,,,
+,,,,,,,,,,,,,,,,,,,
+次元歪曲防壁,Moci_PhaseShiftArmor,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_PhaseShiftArmor,,,,graphics/hullmods/Moci_PhaseShiftArmor.png
+次元歪曲防壁,Moci_PhaseShiftArmor_fighter,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_PhaseShiftArmor_fighter,允许舰船以 %s 的正常耗散速率在护盾开启时耗散硬幅能。,允许舰船在展开护盾时耗散硬幅能。,,graphics/hullmods/Moci_PhaseShiftArmor.png
+,,,,,,,,,,,,,,,,,,,
+GN护盾,Moci_GNShield,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_GNShield,将你的护盾替换为覆盖于机体表面的镀层。该防御系统通过英仙座技术重现了某种需要特殊的反应堆才能实现的效果，但也因此和英仙座舰船所使用的护盾技术一样，在受到攻击时会产生幅能压力。,将你的护盾替换为覆盖于机体表面的镀层。,,graphics/hullmods/Moci_GNShield.png
+GN力场防御系统,Moci_GNFieldDefenseSystem,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_GNFieldDefense,,,,graphics/hullmods/Moci_GNFieldDefenseSystem.png
+I立场,Moci_IField,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_IField,阻止来自舰船正面的光束武器，会产生幅能，当过载时失效。,阻止来自舰船正面的光束武器，会产生幅能，当过载时失效。,,
+米诺夫斯基飞行器,Moci_MinovskyFlightUnit,,,独行轻骑兵,"special,no_drop",引擎,,,,,5,10,15,20,data.hullmods.Moci_MinovskyFlightUnit,提高舰船 %s 机动性，如加速度/减速度/转向加速/转向角速。提高 %s 的最大宇宙航速。提高 %s 突袭殖民地的有效强度，该加成不会超过携带陆战队员的总人数。,提高舰船的机动性、最大宇宙航速、地面支援强度。,"将最大宇宙航速的增益 %s ，并提高 ""零幅能加速"" 状态下的航速增益 %s 点且将旋转速度增益 %s}。同时进一步提高 %s 的机动性和 %s 的地面支援强度。",graphics/hullmods/Moci_MinovskyFlightUnit.png
+,,,,,,,,,,,,,,,,,,,
+99系统,Moci_System99,,,独行轻骑兵,special,特殊,,,TRUE,,0,0,0,0,data.hullmods.Moci_System99,99系统将在机体没有分配军官时接管舰船的控制。,99系统将在机体没有分配军官时接管舰船的控制。,,graphics/portraits/ai_pilot/Moci_system99.png
+哈罗AI系统,Moci_HaroAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_HaroAISystem,哈罗AI系统可在舰船无军官时接管舰船控制，并在有军官时提供辅助词条。,哈罗AI系统可在舰船无军官时接管舰船控制，并在有军官时提供辅助词条。,,graphics/portraits/Moci_haro_Base.png
+阿尔法舰载AI系统,Moci_AlphaCoreAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_AlphaCoreAISystem,,,,graphics/icons/cargo/ai_core_alpha.png
+欧米伽舰载AI系统,Moci_OmegaCoreAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_OmegaCoreAISystem,,,,graphics/icons/cargo/ai_omega_core.png
+波动炮核心修复协议,Moci_YamatoRepairProtocol,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_YamatoRepairProtocol,安装后将舰体替换为对应的修复型号并自动移除该船插。,安装后将舰体替换为修复型号并自动移除。,,graphics/hullmods/Moci_Yamato_repair.png
+,,,,,,,,,,,,,,,,,,,
+实验性反应堆,Moci_excelsiorreactor,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_ExcelsiorReactor,减少 %s 超载时间并提高 %s 幅能排散效率，同时使舰船将部分光束伤害转化为幅能。,显著缩短超载时间并提高幅能排散。,,
+相位驱动系统,Moci_phasedrive,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_PhaseDrive,相位驱动系统会将相位系统冷却时间缩短 %s ，并且不兼容 自适应相位线圈 。,缩短相位系统冷却时间。,,graphics/hullmods/flux_shunt.png
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,

@@ -1,0 +1,72 @@
+{
+  "id": "Moci_tpc_shotgun",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_tpc3_shot",
+  "type": "BALLISTIC",
+  "size": "LARGE",
+  "turretSprite": "graphics/weapons/onslaught_thermal_turret_base.png",
+  "hardpointSprite": "",
+  "hardpointGlowSprite": "graphics/weapons/Moci_onslaught_thermal_glow.png",
+  "glowColor": [
+    255,
+    150,
+    150,
+    255
+  ],
+  "turretOffsets": [
+    25,
+    -1,
+    25,
+    -0.5,
+    25,
+    0,
+    25,
+    0.5,
+    25,
+    1
+  ],
+  "turretAngleOffsets": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    15,
+    -1,
+    15,
+    -0.5,
+    15,
+    0,
+    15,
+    0.5,
+    15,
+    1
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "barrelMode": "ALTERNATING_BURST",
+  "animationType": "GLOW_AND_FLASH",
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 20,
+    "spread": 7,
+    "particleSizeMin": 15,
+    "particleSizeRange": 20,
+    "particleDuration": 0.12,
+    "particleCount": 10,
+    "particleColor": [
+      255,
+      100,
+      100,
+      150
+    ]
+  },
+  "fireSoundTwo": "hellbore_fire"
+}

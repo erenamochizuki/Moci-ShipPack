@@ -1,0 +1,47 @@
+{
+	"baseHullId":"Moci_MS_14",
+	"skinHullId":"Moci_MS_14_Char",
+	"hullName":"勇士(赤色彗星)",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_MS_14",
+	"descriptionPrefix":"该型号为Ace驾驶员进行了特殊改造。借此，该机体将发挥出不同以往的性能。",
+	"tags":["moci_ms", "no_dealer", " no_sell"],
+	"tech":"吉翁尼克重工(特装)",
+	"fleetPoints":15,
+	"ordnancePoints":90,
+	"maxSpeed":100,
+	"baseValueMult":2.5,
+	"systemId":"temporalshell",
+	"spriteName":"graphics/ships/Mobile_Suit/Char/Moci_MS_06/body/MS_06_body.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":[
+    "Moci_CaptainMachine",
+    "Moci_RedComet",
+],
+	"builtInWeapons":{
+    "ARM_L": "Moci_MS_14_Char_arm_left",
+    "ARM_R": "Moci_MS_14_Char_arm_right",
+    "BODY": "Moci_MS_06_Char_body",
+    "HEAD": "Moci_MS_14_Char_head",
+    "LEGS": "Moci_MS_06_Char_legs",
+    "SHOULDER_L": "Moci_MS_14_Char_shoulder_left",
+    "SHOULDER_R": "Moci_MS_14_Char_shoulder_right"
+     },
+ 	"weaponSlotChanges":{
+		"SHOULDERWEAPON_L_SOURCE":{
+          "size": "MEDIUM",
+		  "type": "UNIVERSAL",
+	   },
+		"ARM_L_SOURCE":{
+          "size": "MEDIUM",
+		  "type": "MISSILE",
+	   },
+		"ARM_R_SOURCE":{
+          "size": "LARGE",
+		  "type": "ENERGY",
+	   },
+	},  
+}

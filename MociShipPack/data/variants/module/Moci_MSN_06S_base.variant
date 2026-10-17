@@ -1,0 +1,16 @@
+{
+  "displayName": "Base",
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "goalVariant": false,
+  "hullId": "Moci_MSN_06S",
+  "hullMods": [],
+  "variantId": "Moci_MSN_06S_base",
+  "weaponGroups": [],
+  "wings": [],
+  "modules": [
+    {
+      "SHIELD_L": "Moci_MSN_06S_SHIELD_L_base"
+    }
+  ]
+}

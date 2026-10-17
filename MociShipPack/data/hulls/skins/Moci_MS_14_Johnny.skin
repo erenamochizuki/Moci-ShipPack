@@ -1,0 +1,42 @@
+{
+	"baseHullId":"Moci_MS_14",
+	"skinHullId":"Moci_MS_14_Johnny",
+	"hullName":"勇士(真红闪电)",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_MS_14",
+	"descriptionPrefix":"该型号为Ace驾驶员进行了特殊改造。借此，该机体将发挥出不同以往的性能。",
+	"tags":["moci_ms", "no_dealer", " no_sell"],
+	"tech":"吉翁尼克重工(特装)",
+	"fleetPoints":15,
+	"ordnancePoints":80,
+	"baseValueMult":1.55,
+	"systemId":"Moci_ms_burst_driver",
+	"spriteName":"graphics/ships/Mobile_Suit/Johnny/Moci_MS_06/body/MS_06_body.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":[
+    "Moci_CaptainMachine",
+    "Moci_CrimsonLightning",
+],
+	"builtInWeapons":{
+    "ARM_L": "Moci_MS_14_Johnny_arm_left",
+    "ARM_R": "Moci_MS_14_Johnny_arm_right",
+    "ARM_R_SOURCE": "tpc",
+    "BODY": "Moci_MS_06_Johnny_body",
+    "HEAD": "Moci_MS_14_Johnny_head",
+    "LEGS": "Moci_MS_06_Johnny_legs",
+    "SHOULDER_L": "Moci_MS_14_Johnny_shoulder_left",
+    "SHOULDER_R": "Moci_MS_14_Johnny_shoulder_right"
+     },
+ 	"weaponSlotChanges":{
+		"ARM_L_SOURCE":{
+		  "type": "MISSILE",
+	   },
+		"ARM_R_SOURCE":{
+          "size": "LARGE",
+		  "type": "BUILT_IN",
+	   },
+	},  
+}

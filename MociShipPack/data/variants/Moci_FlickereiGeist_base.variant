@@ -1,0 +1,46 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 10,
+    "fluxVents": 3,
+    "goalVariant": false,
+    "hullId": "Moci_FlickereiGeist",
+    "hullMods": [
+        "autorepair",
+        "auxiliarythrusters",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "missleracks",
+        "reinforcedhull",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_FlickereiGeist_base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_Weapon4",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0001": "Moci_split_missile",
+                "WS0002": "Moci_split_missile",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "Moci_heavry_vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

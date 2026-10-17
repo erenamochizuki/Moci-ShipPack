@@ -1,0 +1,47 @@
+{
+    "displayName": "Elite",
+    "fluxCapacitors": 9,
+    "fluxVents": 0,
+    "goalVariant": true,
+    "hullId": "Moci_Gespenst_pl",
+    "hullMods": [
+        "autorepair",
+        "auxiliarythrusters",
+        "eccm",
+        "fluxbreakers",
+        "fluxcoil",
+        "fluxdistributor",
+        "frontemitter",
+        "hardenedshieldemitter",
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gespenst_pl_Elite",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "ionbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "heavymg",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDERWEAPON_R_SOURCE": "annihilatorpod",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

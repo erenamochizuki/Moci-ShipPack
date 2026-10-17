@@ -1,0 +1,100 @@
+{
+  "hullName": "Moci_Axis",
+  "hullId": "Moci_Axis",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/Moci_Axis.png",
+  "style": "LOW_TECH",
+  "height": 1024,
+  "width": 1204,
+  "center": [602, 512],
+  "collisionRadius": 729.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 722,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_HiddenCover",
+    "stealth_minefield",
+    "stealth_minefield_lt",
+    "supercomputer",
+    "rugged",
+    "ablative_armor"
+  ],
+  "builtInWeapons": {
+    "ENGINE": "Moci_Axis_engine",
+    "LIGHT": "Moci_Axis_glow"
+  },
+  "weaponSlots": [
+    {
+      "id": "LIGHT",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-0, -0],
+      "renderOrderMod": 11
+    },
+    {
+      "id": "ENGINE",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-0, -0],
+      "renderOrderMod": 10
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-142.5, 136],
+      "length": 10,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-134.5, 45],
+      "length": 10,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-135, -46.5],
+      "length": 10,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-143, -136],
+      "length": 10,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    431.5, 3.5,
+    370.5, 43.5,
+    244.5, 99.5,
+    109.5, 185.5,
+    -1.5, 555.5,
+    -4.5, 555.5,
+    -105.5, 407.5,
+    -279.5, 146.5,
+    -490.5, 12.5,
+    -410.5, -58.5,
+    -285.5, -135.5,
+    -143.5, -294.5,
+    -8.5, -549.5,
+    -1.5, -541.5,
+    50.5, -374.5,
+    131.5, -185.5
+  ]
+}

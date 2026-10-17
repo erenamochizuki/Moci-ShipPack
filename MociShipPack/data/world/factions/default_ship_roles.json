@@ -1,0 +1,177 @@
+{
+  "combatSmallForSmallFleet": {
+  },
+  "combatSmall": {
+  
+		"Moci_Ironshark_pirate_Standard":7,
+		
+		"Moci_MS_06_Standard":6,
+		"Moci_MS_06_leader_Standard":3,
+		"Moci_RGM_79_Standard":6,
+		"Moci_RMS_106_Standard":3,
+		"Moci_RMS_179_Standard":3,
+		"Moci_RGM_86_Standard":2,
+		"Moci_MS_14_Standard":2,
+		
+		"Moci_Gospel_Base":2,
+		
+		"Moci_Pyrejudge_p_Base":4,
+		"Moci_Pyrejudge_p_overdrive":4,
+		"Moci_Pyrejudge_p_randomtypeship":4,
+		
+		
+		
+		"Moci_Aestivalis_HIKARI_base":4,
+		"Moci_Aestivalis_IZUMI_base":4,
+  },
+  "combatMedium": {
+		"Moci_hammerhead_LG_Attack":7,
+		"Moci_eagle_LG_Attack":7,
+		"Moci_executor_Attack":7,
+		
+		"Moci_Gespenst_pl_Elite":4,
+		"Moci_Gespenst_tt_Elite":4,
+		"Moci_Gespenst_hg_Elite":4,
+		
+		"Moci_RGM_79P_Standard":3,
+		"Moci_RGM_79SP_Standard":1,
+		"Moci_RGM_89_Standard":3,
+		"Moci_RGZ_91_Standard":3,
+		"Moci_AMS_119_Standard":2,
+		"Moci_MSN_03_Standard":2,
+		
+		"Moci_Thermalskeleton_Base":4,
+  
+		"Moci_Pyrejudge_p_Base":4,
+		"Moci_Pyrejudge_p_overdrive":4,
+		"Moci_Pyrejudge_p_randomtypeship":4,
+		"prometheus2_randomtypeship":2,
+		
+		"Moci_colossus9_Base":3,
+		
+		"Moci_Tsunami_Base":3,
+		
+		"Moci_Gladiator_Base":7,
+		"Moci_Gladiator_LP_Overriden":7,
+		
+		"Moci_Praesidium_Base":5,
+		
+		"Moci_Minotaur_Base":5,
+		
+		"Moci_Gospel_Base":7,
+		
+		"Moci_Gypsfulvus_Base":7,
+		
+		
+		"Moci_Aestivalis_HIKARI_base":4,
+		"Moci_Aestivalis_IZUMI_base":4,
+  },
+  "combatLarge": {
+		"Moci_hammerhead_LG_Attack":7,
+		"Moci_eagle_LG_Attack":7,
+		"Moci_executor_Attack":7,
+		
+		"Moci_Sodon_Base":3,
+	  
+		"Moci_Gespenst_pl_Elite":5,
+		"Moci_Gespenst_tt_Elite":5,
+		"Moci_Gespenst_hg_Elite":5,
+  
+		"Moci_Transient_pro_Base":8,
+		"Moci_Transient_pro_Elite":4,
+		
+		"Moci_Arbitrager_Custom":5,
+		"Moci_Arbitrager_Elite":7,
+		"Moci_Arbitrager_Standard":5,
+		
+		"Moci_Pyrejudge_p_Base":4,
+		"Moci_Pyrejudge_p_overdrive":4,
+		"Moci_Pyrejudge_p_randomtypeship":4,
+		"prometheus2_randomtypeship":2,
+		
+		"Moci_colossus9_Base":3,
+		
+        "Moci_Tsunami_Base":9,
+		
+		"Moci_Aether_Base":7,
+		
+		"Moci_Praesidium_Base":7,
+		"Moci_Praesidium_Elite":5,
+		
+		"Moci_Arbitrex_Base":5,
+		
+		"Moci_Minotaur_Base":5,
+		"Moci_Minotaur_Elite":3,
+		
+		"Moci_Gospel_Base":7,
+		"Moci_Gospel_Elite":7,
+		"Moci_Gospel_LP_Overriden":4,
+		
+		"Moci_Demeterion_Civil":5,
+		"Moci_Demeterion_Carrier":5,
+		
+		
+		"Moci_Gypsfulvus_Base":7,
+		"Moci_Gypsfulvus_Elite":1,
+		
+		"Moci_chaos_theory_Special":10,
+		
+		"Moci_Aestivalis_HIKARI_base":4,
+		"Moci_Aestivalis_IZUMI_base":4,
+  },
+  "combatCapital": {
+		"Moci_hammerhead_LG_Attack":7,
+		"Moci_eagle_LG_Attack":7,
+		"Moci_executor_Attack":7,
+		
+		"Moci_Sodon_Base":3,
+		
+		"Moci_Gespenst_pl_Elite":5,
+		"Moci_Gespenst_tt_Elite":5,
+		"Moci_Gespenst_hg_Elite":5,
+		
+		"Moci_Transient_pro_Base":8,
+		"Moci_Transient_pro_Elite":4,
+		
+		"Moci_Pyrejudge_p_Base":4,
+		"Moci_Pyrejudge_p_overdrive":4,
+		"Moci_Pyrejudge_p_randomtypeship":4,
+		"prometheus2_randomtypeship":2,
+		
+		"Moci_colossus9_Base":3,
+		
+		"Moci_Gospel_Elite":7,
+		
+		"Moci_Minotaur_Elite":5,
+  
+		"Moci_Praesidium_Elite":5,
+		
+		"Moci_Arbitrex_Base":5,
+		
+        "Moci_Tsunami_Base":9,
+		
+		"Moci_Aether_Base":5,
+		"Moci_Aether_Elite":3,
+		
+		"Moci_Gladiator_Base":5,
+		
+		"Moci_Monoceros_Base":10,
+		"Moci_Monoceros_Elite":10,
+		
+		"Moci_Limarch_Standard":10,
+		"Moci_Limarch_xiv_Elite":15,
+	
+		"Moci_Polaris_Base":5,
+		
+		"Moci_Demeterion_Civil":5,
+		"Moci_Demeterion_Carrier":5,
+		
+		
+		"Moci_Gypsfulvus_Elite":7,
+		
+		"Moci_chaos_theory_Special":10,
+		
+		"Moci_Aestivalis_HIKARI_base":4,
+		"Moci_Aestivalis_IZUMI_base":4,
+	},
+}

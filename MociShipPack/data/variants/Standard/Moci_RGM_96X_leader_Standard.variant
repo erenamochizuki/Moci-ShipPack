@@ -1,0 +1,45 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 10,
+    "fluxVents": 10,
+    "goalVariant": true,
+    "hullId": "Moci_RGM_96X_leader",
+    "hullMods": [
+        "Moci_CombatSquad",
+        "armoredweapons",
+        "autorepair",
+        "fluxdistributor",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RGM_96X_leader_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "hellbore",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_RGM_96X_arm_right_sniper_rifle",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "MS_18E_head_vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_SHOULDER_L": "Moci_RGM_96X_backpack_shield_Base"},
+    ],
+}

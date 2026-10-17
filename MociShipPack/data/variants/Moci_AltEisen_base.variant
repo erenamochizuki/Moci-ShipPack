@@ -1,0 +1,53 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_AltEisen",
+    "hullMods": [
+        "armoredweapons",
+        "autorepair",
+        "auxiliarythrusters",
+        "blast_doors",
+        "heavyarmor",
+        "insulatedengine",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_AltEisen_base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "Moci_Weapon1",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDER_L_SOURCE": "Moci_heavry_phasecl",
+                "SHOULDER_R_SOURCE": "Moci_heavry_phasecl",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_Weapon2",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "Moci_heavry_vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

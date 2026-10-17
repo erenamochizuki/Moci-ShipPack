@@ -1,0 +1,15 @@
+{
+	"baseHullId":"Moci_Syunran",
+	"skinHullId":"Moci_Syunran_repaired",
+	"hullName":"春兰",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_Syunran",
+	"descriptionPrefix":"这艘传奇战舰的主武器已经修复并重新上线，现在是时候展现他的威能了。",
+	"tags":["no_dealer", "no_sell"],
+	"baseValueMult":1.5,
+	"spriteName":"graphics/ships/Moci_Syunran.png",
+	"removeBuiltInWeapons":["WAVEGUN"], 		# weapon slot ids
+	"builtInWeapons":{
+    "WAVEGUN": "Moci_Wave_Motion_Dual_Gun"
+     },
+}

@@ -1,0 +1,46 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": true,
+    "hullId": "Moci_Gospel",
+    "hullMods": [
+        "armoredweapons",
+        "autorepair",
+        "converted_hangar",
+        "eccm",
+        "heavyarmor",
+        "missleracks",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gospel_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "jackhammer",
+                "WS0002": "jackhammer",
+                "WS0005": "sabot",
+                "WS0006": "sabot",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003": "mininglaser",
+                "WS0004": "mininglaser",
+                "WS0007": "mininglaser",
+                "WS0008": "mininglaser",
+            }
+        },
+    ],
+    "wings": [
+        "wasp_wing",
+    ],
+    "modules": [],
+}

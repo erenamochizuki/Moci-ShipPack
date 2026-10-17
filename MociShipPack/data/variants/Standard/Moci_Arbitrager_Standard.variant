@@ -1,0 +1,47 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 5,
+    "fluxVents": 7,
+    "goalVariant": true,
+    "hullId": "Moci_Arbitrager",
+    "hullMods": [
+        "expanded_deck_crew",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Arbitrager_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0005": "ionbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0004": "hveldriver",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "mininglaser",
+                "WS0003": "mininglaser",
+                "WS0002": "mininglaser",
+            }
+        },
+    ],
+    "wings": [
+        "broadsword_wing",
+        "broadsword_wing",
+        "warthog_wing",
+        "warthog_wing",
+    ],
+    "modules": [],
+}

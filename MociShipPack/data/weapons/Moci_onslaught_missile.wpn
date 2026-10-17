@@ -1,0 +1,47 @@
+{
+  "id": "Moci_onslaught_missile",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_onslaught_missile",
+  "type": "MISSILE",
+  "mountTypeOverride": "HYBRID",
+  "size": "LARGE",
+  "turretSprite": "graphics/weapons/Moci_onslaught_missile.png",
+  "hardpointSprite": "graphics/weapons/Moci_onslaught_missile.png",
+  "renderHints": [
+    RENDER_LOADED_MISSILES
+  ],
+  "turretOffsets": [
+    -79,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    -30.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "SMOKE",
+  "smokeSpec": {
+    "particleSizeMin": 20,
+    "particleSizeRange": 300,
+    "cloudParticleCount": 8,
+    "cloudDuration": 1.5,
+    "cloudRadius": 100,
+    "blowbackParticleCount": 4,
+    "blowbackDuration": 2,
+    "blowbackLength": 22,
+    "blowbackSpread": 15,
+    "particleColor": [
+      50,
+      50,
+      50,
+      155
+    ]
+  },
+  "fireSoundTwo": "dragonfire_fire"
+}

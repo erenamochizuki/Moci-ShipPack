@@ -1,0 +1,208 @@
+{
+  "hullName": "Moci_MSN_06S",
+  "hullId": "Moci_MSN_06S",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Mobile_Suit/MSN_06S/body/MSN_06S_body_00.png",
+  "style": "MOCI_PT",
+  "height": 142,
+  "width": 150,
+  "center": [75, 74.5],
+  "collisionRadius": 78,
+  "shieldCenter": [-34.5, 11],
+  "shieldRadius": 62,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_MobilitySubsystemHullmod",
+    "Moci_shield_module_controller",
+    "Moci_antibeamcoating",
+    "Moci_MobileSuits",
+    "Moci_GNShield"
+  ],
+  "builtInWeapons": {
+    "ARM_L": "Moci_MSN_06S_arm_left",
+    "ARM_R": "Moci_MSN_06S_arm_right",
+    "ARM_R_SOURCE": "MSN_06S_arm_right_gun_rifle",
+    "BACKPACK": "Moci_MSN_06S_backpack",
+    "BODY": "Moci_MSN_06S_body",
+    "HEAD": "Moci_MSN_06S_head",
+    "LEGS": "Moci_MSN_06S_legs",
+    "SHIELD_L_COVER": "Moci_MSN_06S_SHIELD_COVER",
+    "SHOULDER_L": "Moci_MSN_06S_shoulder_left",
+    "SHOULDER_R": "Moci_MSN_06S_shoulder_right",
+    "WING_L": "Moci_MSN_06S_wing_left",
+    "WING_R": "Moci_MSN_06S_wing_right"
+  },
+  "weaponSlots": [
+    {
+      "id": "LEGS",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-14.5, -0]
+    },
+    {
+      "id": "ARM_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 105,
+      "angle": 0,
+      "locations": [-8.5, 29],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "ARM_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 95,
+      "angle": 0,
+      "locations": [-8.5, -31],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "SHOULDER_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-2.5, -26],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "SHOULDER_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-2.5, 26],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "WING_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-22.5, -12],
+      "renderOrderMod": 6
+    },
+    {
+      "id": "WING_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-22.5, 12],
+      "renderOrderMod": 6
+    },
+    {
+      "id": "HEAD",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-4.5, -0],
+      "renderOrderMod": 6
+    },
+    {
+      "id": "BODY",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-3.5, -0],
+      "renderOrderMod": 2
+    },
+    {
+      "id": "ARM_R_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 95,
+      "angle": 0,
+      "locations": [-8.5, -31]
+    },
+    {
+      "id": "BACKPACK",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-38.5, -0],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "SHIELD_L",
+      "size": "MEDIUM",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 105,
+      "angle": 0,
+      "locations": [-8.5, 29]
+    },
+    {
+      "id": "SHIELD_L_COVER",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-8.5, 29],
+      "renderOrderMod": 8
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-22, -8],
+      "length": 10,
+      "width": 4,
+      "angle": -150,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-22, 8],
+      "length": 10,
+      "width": 4,
+      "angle": 150,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-22, -6.5],
+      "length": 10,
+      "width": 4,
+      "angle": -166,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-22, 6.5],
+      "length": 10,
+      "width": 4,
+      "angle": 166,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -24, -7.5,
+    -13, -19.5,
+    9, -18.5,
+    18, -1.5,
+    18, 1.5,
+    9, 18.5,
+    -13, 19.5,
+    -24, 7.5
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "Moci_MS_06R_mg",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_MS_06R_mg_shot",
+  "type": "BALLISTIC",
+  "size": "LARGE",
+  "turretSprite": "",
+  "turretGunSprite": "graphics/ships/Mobile_Suit/Moci_MS_06/arms/MS_06_arm_left_mg.png",
+  "hardpointSprite": "",
+  "hardpointGunSprite": "graphics/ships/Mobile_Suit/Moci_MS_06/arms/MS_06_arm_left_mg.png",
+  "visualRecoil": 4,
+  "turretOffsets": [
+    57,
+    -2
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    86,
+    -2
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING_BURST",
+  "animationType": "MUZZLE_FLASH",
+  "muzzleFlashSpec": {
+    "length": 40,
+    "spread": 6,
+    "particleSizeMin": 7,
+    "particleSizeRange": 9,
+    "particleDuration": 0.15,
+    "particleCount": 20,
+    "particleColor": [
+      255,
+      200,
+      105,
+      250
+    ]
+  },
+  "fireSoundTwo": "heavy_machinegun_fire"
+}

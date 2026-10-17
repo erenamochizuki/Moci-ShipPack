@@ -1,0 +1,41 @@
+{
+  "variantId": "module_Belle_attack_Base",
+  "hullId": "module_Belle_attack",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 50,
+  "fluxVents": 50,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS 000t": "tachyonlance",
+        "WS 001": "tachyonlance",
+        "WS 002": "tachyonlance",
+        "WS 003": "sabotpod",
+        "WS 004": "sabotpod",
+        "WS 006": "typhoon",
+        "WS 009": "sabotpod",
+        "WS 010": "sabot_single",
+        "WS 012": "sabot_single",
+        "WS0001": "typhoon",
+        "WS0002": "hurricane",
+        "WS0003": "tachyonlance",
+        "WS0004": "typhoon",
+        "WS0005": "sabot_single"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": [
+        "Moci_Basilisk_wing",
+        "Moci_Basilisk_wing",
+        "Moci_Basilisk_wing",
+        "Moci_Basilisk_wing",
+        "Moci_Basilisk_wing",
+		]
+}

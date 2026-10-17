@@ -1,0 +1,55 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 30,
+    "fluxVents": 5,
+    "goalVariant": true,
+    "hullId": "Moci_Tsunami",
+    "hullMods": [
+        "hardenedshieldemitter",
+        "magazines",
+        "safetyoverrides",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Tsunami_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "heavyblaster",
+                "WS0002": "heavyblaster",
+                "WS0010": "autopulse",
+                "WS0009": "autopulse",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0011": "sabotpod",
+                "WS0003": "sabotpod",
+                "WS0004": "sabotpod",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0008": "lrpdlaser",
+                "WS0007": "lrpdlaser",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0005": "heatseeker",
+                "WS0006": "heatseeker",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

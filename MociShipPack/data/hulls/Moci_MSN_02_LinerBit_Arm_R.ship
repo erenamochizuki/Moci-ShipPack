@@ -1,0 +1,166 @@
+{
+  "hullName": "Moci_MSN_02_LinerBit_Arm_R",
+  "hullId": "Moci_MSN_02_LinerBit_Arm_R",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_MSN_02/bit/MSN_02_Line_hand_right.png",
+  "style": "LOW_TECH",
+  "height": 158,
+  "width": 94,
+  "center": [
+    74.5,
+    95
+  ],
+  "collisionRadius": 66,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 66,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_Module_Drone",
+    "Moci_antibeamcoating_shield",
+    "autorepair",
+    "armoredweapons",
+    "insulatedengine"
+  ],
+  "builtInWeapons": {
+    "WS0001": "Moci_MSN_02_arm_bit_beam",
+    "WS0002": "Moci_MSN_02_arm_bit_beam",
+    "WS0003": "Moci_MSN_02_arm_bit_beam",
+    "WS0004": "Moci_MSN_02_arm_bit_beam"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        43,
+        9
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        62,
+        -9.5
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        55,
+        -13.5
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        48,
+        -5
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -15.5,
+        -1
+      ],
+      "length": 57,
+      "width": 25,
+      "angle": 180,
+      "contrailSize": 25,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -15.5,
+        0.5
+      ],
+      "length": 34.380001,
+      "width": 15.36,
+      "angle": 165,
+      "contrailSize": 15.36,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -15.5,
+        -2.5
+      ],
+      "length": 34.380001,
+      "width": 15.36,
+      "angle": -165,
+      "contrailSize": 15.36,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -15.5,
+        1.5
+      ],
+      "length": 12.220912,
+      "width": 5.253306,
+      "angle": 139,
+      "contrailSize": 5.253306,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -15.5,
+        -3.5
+      ],
+      "length": 12.220912,
+      "width": 5.253306,
+      "angle": -139,
+      "contrailSize": 5.253306,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -17.5,
+    -14,
+    -17.5,
+    9,
+    -11.5,
+    15,
+    -3.5,
+    15,
+    9.5,
+    10,
+    25.5,
+    9,
+    39.5,
+    13,
+    44,
+    10,
+    59.5,
+    -6,
+    62.5,
+    -12,
+    47.5,
+    -19,
+    -15.5,
+    -16
+  ]
+}

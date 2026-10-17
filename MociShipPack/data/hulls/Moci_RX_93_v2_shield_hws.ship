@@ -1,0 +1,92 @@
+{
+  "hullName": "Moci_RX_93_v2_shield_hws",
+  "hullId": "Moci_RX_93_v2_shield_hws",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/arms/RX_93_v2_arm_left_shield_hws.png",
+  "style": "MOCI_MS",
+  "height": 204,
+  "width": 90,
+  "center": [
+    20,
+    107
+  ],
+  "collisionRadius": 110,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 110,
+  "viewOffset": 0,
+  "moduleAnchor": [
+    -6,
+    -25
+  ],
+  "builtInMods": [
+    "Moci_antibeamcoating_shield",
+    "Moci_module_collision_controller"
+  ],
+  "builtInWeapons": {
+    "WS0001": "RX_93_v2_shield_cannon",
+    "WS0002": "RX_93_v2_shield_cannon",
+    "WS0003": "Moci_targetinglaser2"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        63.5,
+        14
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        64.5,
+        7
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        69.5,
+        10.5
+      ]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    -29.5,
+    15,
+    -55.5,
+    3,
+    -55.5,
+    -3.5,
+    -50.5,
+    -5,
+    -26.5,
+    -6,
+    30.5,
+    -13,
+    94.5,
+    -3.5,
+    75.5,
+    19.5,
+    14.5,
+    20
+  ]
+}

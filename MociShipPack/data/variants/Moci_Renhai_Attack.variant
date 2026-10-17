@@ -1,0 +1,53 @@
+{
+    "displayName": "Attack",
+    "fluxCapacitors": 19,
+    "fluxVents": 0,
+    "goalVariant": true,
+    "hullId": "Moci_Renhai",
+    "hullMods": [
+        "auxiliarythrusters",
+        "converted_hangar",
+        "fluxdistributor",
+        "frontemitter",
+        "hardenedshieldemitter",
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Renhai_Attack",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003": "Moci_Renhai_Beam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "resonatormrm",
+                "WS0002": "resonatormrm",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0004": "amsrm",
+                "WS0005": "amsrm",
+                "WS0006": "amsrm",
+                "WS0007": "amsrm",
+                "WS0008": "amsrm",
+                "WS0009": "amsrm",
+            }
+        },
+    ],
+    "wings": [
+        "wasp_wing",
+        "wasp_wing",
+    ],
+    "modules": [],
+}

@@ -1,0 +1,63 @@
+{
+    "displayName": "Beam",
+    "fluxCapacitors": 9,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_MSN_03",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "advancedoptics",
+        "armoredweapons",
+        "autorepair",
+        "auxiliarythrusters",
+        "hardenedshieldemitter",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MSN_03_Beam",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "tachyonlance",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "SHOULDER_L_SOURCE": "heatseeker",
+                "SHOULDER_R_SOURCE": "heatseeker",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "MSN_03_arm_left_Sabre",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_FOLLOW": "heavyneedler",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDER_L": "Moci_MSN_03_shoulder_left",
+                "SHOULDER_R": "Moci_MSN_03_shoulder_right",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_MSN_03_shield_Base"},
+    ],
+}

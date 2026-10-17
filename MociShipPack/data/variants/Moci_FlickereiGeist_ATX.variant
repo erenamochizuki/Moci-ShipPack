@@ -1,0 +1,52 @@
+{
+    "displayName": "ATX",
+    "fluxCapacitors": 10,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_FlickereiGeist",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "eccm",
+        "fluxbreakers",
+        "heavyarmor",
+        "magazines",
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_FlickereiGeist_ATX",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "BACKPACK_SOURCE": "phasecl",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_Weapon4",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0001": "Moci_split_missile",
+                "WS0002": "Moci_split_missile",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "ionpulser",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

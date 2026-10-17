@@ -1,0 +1,199 @@
+{
+  "hullName": "Moci_Transient_pro",
+  "hullId": "Moci_Transient_pro",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Moci_Transient.png",
+  "style": "HIGH_TECH",
+  "height": 128,
+  "width": 76,
+  "center": [
+    41,
+    58.5
+  ],
+  "collisionRadius": 72.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 72.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "ex_phase_coils"
+  ],
+  "builtInWings": [
+    "terminator_wing",
+    "terminator_wing"
+  ],
+  "builtInWeapons": {
+    "WS 001": "tachyonlance",
+    "WS0004": "Moci_blinker_blue",
+    "WS0005": "Moci_blinker_pink",
+    "WS0006": "Moci_blinker_pink"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 300,
+      "angle": 45,
+      "locations": [
+        -14.5,
+        16
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 300,
+      "angle": -45,
+      "locations": [
+        -22.5,
+        -10
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "SYNERGY",
+      "mount": "TURRET",
+      "arc": 300,
+      "angle": 90,
+      "locations": [
+        4.5,
+        27
+      ]
+    },
+    {
+      "id": "WS 001",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        44.5,
+        5
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        54.5,
+        5
+      ]
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        5,
+        4
+      ]
+    },
+    {
+      "id": "LB 2",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        5,
+        0
+      ]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        -3.5,
+        3
+      ]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        3.5,
+        -3
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -33.5,
+        20
+      ],
+      "length": 35,
+      "width": 9,
+      "angle": 180,
+      "contrailSize": 9,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -37.5,
+        12
+      ],
+      "length": 40,
+      "width": 15,
+      "angle": 180,
+      "contrailSize": 15,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    58.5,
+    -2,
+    30,
+    26,
+    15,
+    36.5,
+    -3,
+    36.5,
+    -9,
+    30,
+    -17,
+    35,
+    -33.5,
+    23,
+    -36.5,
+    11,
+    -55,
+    -1,
+    -48,
+    -19.5,
+    -29,
+    -28,
+    -11,
+    -28,
+    8,
+    -32,
+    31,
+    -23.5,
+    30,
+    -6.5
+  ]
+}

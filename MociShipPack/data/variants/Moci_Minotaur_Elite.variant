@@ -1,0 +1,57 @@
+{
+    "displayName": "Elite",
+    "fluxCapacitors": 0,
+    "fluxVents": 7,
+    "goalVariant": true,
+    "hullId": "Moci_Minotaur",
+    "hullMods": [
+        "armoredweapons",
+        "eccm",
+        "heavyarmor",
+        "missile_autoloader",
+        "missleracks",
+        "reinforcedhull",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Minotaur_Elite",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "gauss",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0003": "dragon",
+                "WS0002": "dragon",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0009": "gorgon",
+                "WS0008": "gorgon",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0005": "gorgon",
+                "WS0004": "gorgon",
+                "WS0007": "gorgon",
+                "WS0006": "gorgon",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

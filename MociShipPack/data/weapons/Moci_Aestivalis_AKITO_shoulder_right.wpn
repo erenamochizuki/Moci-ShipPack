@@ -1,0 +1,55 @@
+{
+  "id": "Moci_Aestivalis_AKITO_shoulder_right",
+  "specClass": "beam",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "everyFrameEffect": "data.scripts.weapons.Moci_MechShoulderDecoWeaponEffect",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_Aestivalis/shoulders/Moci_Aestivalis_AKITO_shoulder_right.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_Aestivalis/shoulders/Moci_Aestivalis_AKITO_shoulder_right.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    9,
+    -2
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    21.5,
+    -2
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    255,
+    0,
+    30,
+    255
+  ],
+  "coreColor": [
+    255,
+    10,
+    50,
+    155
+  ],
+  "width": 6,
+  "textureType": SMOOTH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "variantId": "Moci_MS_06_SHIELD_L_Char_Base",
+  "hullId": "Moci_MS_06_SHIELD_L_Char",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

@@ -1,0 +1,38 @@
+{
+  "hullName": "Shield Module",
+  "hullId": "module_Belle_shield",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/stations/module_belle_shield.png",
+  "style": "HIGH_TECH",
+  "height": 663,
+  "width": 661,
+  "center": [
+    330.5,
+    331.5
+  ],
+  "collisionRadius": 338,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 338,
+  "viewOffset": 0,
+  "builtInMods": [
+    "anchorrotation",
+    "shield_always_on",
+    "reduced_explosion",
+    "always_detaches"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [],
+  "bounds": [
+    -5.5,
+    329,
+    -330.5,
+    -1,
+    0.5,
+    -325,
+    326.5,
+    -0.5
+  ]
+}

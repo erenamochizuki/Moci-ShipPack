@@ -1,0 +1,38 @@
+{
+  "hullName": "Station Armour",
+  "hullId": "module_Belle_armour",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/stations/module_belle_armour.png",
+  "style": "HIGH_TECH",
+  "height": 491,
+  "width": 503,
+  "center": [
+    251.5,
+    245.5
+  ],
+  "collisionRadius": 294,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 294,
+  "viewOffset": 0,
+  "builtInMods": [
+    "reduced_explosion",
+    "always_detaches",
+    "anchorrotation",
+    "shield_always_on"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [],
+  "bounds": [
+    125,
+    227,
+    -207,
+    113,
+    -118,
+    -223,
+    219,
+    -109
+  ]
+}

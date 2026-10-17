@@ -1,0 +1,39 @@
+{
+    "displayName": "Rocket",
+    "fluxCapacitors": 7,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_MS_06",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "armoredweapons",
+        "auxiliarythrusters",
+        "hardenedshieldemitter",
+        "targetingunit",
+		"missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_06_Rocket",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "hammerrack",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "lightneedler",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_RS": "Moci_MS_06_SHIELD_RS_Base"},
+    ],
+}

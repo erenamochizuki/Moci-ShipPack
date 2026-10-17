@@ -1,0 +1,58 @@
+{
+  "id": "Moci_eutecticpulse",
+  "specClass": "beam",
+  "type": "BALLISTIC",
+  "size": "LARGE",
+  "beamEffect": "data.scripts.weapons.Moci_eutecticpulse_Effect",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/Moci_eutecticpulse_turret_base.png",
+  "turretGlowSprite": "graphics/weapons/Moci_eutecticpulse_turret_glow.png",
+  "hardpointSprite": "graphics/weapons/Moci_eutecticpulse_hardpoint_base.png",
+  "hardpointGlowSprite": "graphics/weapons/Moci_eutecticpulse_hardpoint_glow.png",
+  "glowColor": [
+    255,
+    220,
+    60,
+    235
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    19,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    20,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    255,
+    220,
+    60,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 25,
+  "textureType": ROUGH,
+  "textureScrollSpeed": 292,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ],
+  "fireSoundTwo": "Moci_eutecticpulse_beam"
+}

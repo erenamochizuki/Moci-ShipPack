@@ -1,0 +1,59 @@
+{
+  "playableFaction": true,
+  "startingFaction": true,
+  "enabledByDefault": true,
+  "corvusCompatible": true,
+  "marketSpawnWeight": 0.55,
+  "colonyExpeditionChance": 0.35,
+  "colonyTargetValuator": "exerelin.campaign.colony.IndustrialColonyTargetValuator",
+
+  "ngcTooltip": "一支以航天制造、舰船整备和机动战士销售为核心业务的企业重工集团，舰队主要由独立派系与佣兵风格的原版舰船构成。",
+  "rebelFleetSuffix": "流亡派",
+
+  "factionsLiked": [
+    "independent",
+    "persean_league"
+  ],
+  "factionsDisliked": [
+    "pirates",
+    "luddic_path",
+    "tritachyon"
+  ],
+  "startRelationships": {
+    "hegemony": 0,
+    "tritachyon": -0.15,
+    "independent": 0.2,
+    "persean_league": 0.1,
+    "pirates": -0.65,
+    "luddic_church": -0.05,
+    "luddic_path": -0.4,
+    "sindrian_diktat": 0.05,
+    "remnant": -1,
+    "threat": -1,
+    "derelict": -1
+  },
+
+  "morality": "amoral",
+  "diplomacyTraits": ["industrialist", "monopolist", "neutralist"],
+  "alignments": {
+    "corporate": 1,
+    "technocratic": 0.75,
+    "hierarchical": 0.35,
+    "militarist": 0.2,
+    "diplomatic": 0.1
+  },
+
+  "defenceStations": [
+    { "ids": ["orbitalstation_high", "battlestation_high", "starfortress_high"] }
+  ],
+  "industrySeeds": [
+    { "id": "orbitalworks", "mult": 0.18 },
+    { "id": "lightindustry", "mult": 0.12 }
+  ],
+
+  "startShipsSolo": [["wolf_Starting", "Moci_Aestivalis_HIKARI_base,"]],
+  "startShipsCombatSmall": [["wolf_Starting", "hound_Starting", "mule_Starting"],["Moci_Gypsfulvus_Elite", "Moci_Aestivalis_HIKARI_base", "Moci_Aestivalis_IZUMI_base"]],
+  "startShipsCombatLarge": [["hammerhead_Balanced", "enforcer_Balanced", "condor_Attack"]],
+  "startShipsCarrierLarge": [["heron_Attack", "wolf_Starting", "mule_Starting"]],
+  "startShipsSuper": [["falcon_Escort", "venture_Exploration", "heron_Attack"]]
+}

@@ -1,0 +1,220 @@
+id,trigger,conditions,script,text,options,notes,Column 08,
+# 移除自定义OpenInteractionDialog，使用原版废弃空间站机制,,,,,,,,
+# moci_GachaOpenDialog,OpenInteractionDialog,$tag:moci_gachaEntity,"ShowDefaultVisual
+# FireAll PopulateOptions",背景对话内容,,,,
+,,,,,,,,
+# 自定义选项：只在废弃空间站基础上添加额外选项，不覆盖原版功能,,,,,,,,
+moci_GachaExtraOptions,PopulateOptions,"$tag:moci_gachaEntity
+$hasMarket",,,"10:moci_gacha_ops1:接入""沙仑的玫瑰""",,,
+moci_GachaDevOptions,PopulateOptions,"$tag:moci_gachaEntity
+$hasMarket",,,15:moci_gacha_dev_test:获取测试物资,,,
+moci_GachaDefaultLeave,DialogOptionSelected,$option == moci_gacha_leave score:1000,"ShowDefaultVisual
+FireAll PopulateOptions",,,,,
+,,,,,,,,
+flavorTextMociGachaStation,TradePanelFlavorText,"$global.tradePanelMode == MARKET
+$abandonedStation == true score:100
+$market.id == moci_gacha_entity score: 1000","AddText ""小巧的穿梭机驶入这个神秘的空间站，平稳地降落在了一处仍在运作的机库里。令人惊讶的是，这里还停放着一台闲置的机甲，外观极其先进，但上面没有任何驾驶员活动的迹象。"" marketFlavorTextColor
+AddText ""经过检查，你发现空间站上存在一处几乎完好的，专门用于存放重型战斗单位的区域，这表明里面可能有一些高价值但无人认领的东西。更奇怪的是，空间站的一角还有一个灯火通明的商店。"" marketFlavorTextColor",,,,,
+,,,,,,,,
+#moci_GachaDev,DialogOptionSelected,$option == moci_gacha_dev_test score:1000,"Moci_GachaCommand ""DEV_Item""",,,,,
+,,,,,,,,
+moci_GachaDialogSelect01,DialogOptionSelected,$option == moci_gacha_ops1 score:1000,"SetShortcut moci_gacha_leave ""ESCAPE""",你接入了这个形似未开放的玫瑰花苞的奇怪物体，只是一瞬间——你的眼前仿佛有无数拥有无限色彩的光芒在闪烁。,"moci_gacha_ops2:激活""泽科诺瓦发生装置""
+moci_gacha_ops3:进入""泽科诺瓦定向发生器""
+moci_gacha_leave:离开""沙仑的玫瑰""",,,
+moci_GachaDialogSelect02,DialogOptionSelected,$option == moci_gacha_ops2 score:1000,"Moci_GachaCommand ""showGachaInfo""
+Moci_GachaCommand ""checkCommodity"" ""Moci_Vorttear"" 20 ""moci_gacha_play1""
+Moci_GachaCommand ""checkCommodity"" ""Moci_Mournscale"" 5 ""moci_gacha_play2""
+Moci_GachaCommand ""checkCommodity"" ""Moci_Dracaryx"" 1 ""moci_gacha_play3""
+SetShortcut moci_gacha_ops1 ""ESCAPE""",,"moci_gacha_play1:投入""涡珠""
+moci_gacha_play2:投入""涡鳞珠""
+moci_gacha_play3:投入""涡龙珠""
+moci_gacha_ops1:返回",,,
+,,,,,,,,
+moci_GachaPlayOpsLow,DialogOptionSelected,$option == moci_gacha_play1 score:1000,"Moci_GachaCommand ""checkGacha"" ""Moci_Vorttear"" 20
+SetShortcut moci_gacha_ops2 ""ESCAPE""",,"moci_gacha_gacha100:抽100次
+moci_gacha_gacha50:抽50次
+moci_gacha_gacha20:抽20次
+moci_gacha_gacha10:抽10次
+moci_gacha_gacha1:抽1次
+moci_gacha_ops2:返回",,,
+moci_GachaPlayOpsMid,DialogOptionSelected,$option == moci_gacha_play2 score:1000,"Moci_GachaCommand ""checkGacha"" ""Moci_Mournscale"" 5
+SetShortcut moci_gacha_ops2 ""ESCAPE""",,"moci_gacha_gacha100:抽100次
+moci_gacha_gacha50:抽50次
+moci_gacha_gacha20:抽20次
+moci_gacha_gacha10:抽10次
+moci_gacha_gacha1:抽1次
+moci_gacha_ops2:返回",,,
+moci_GachaPlayOpsHig,DialogOptionSelected,$option == moci_gacha_play3 score:1000,"Moci_GachaCommand ""checkGacha"" ""Moci_Dracaryx"" 1
+SetShortcut moci_gacha_ops2 ""ESCAPE""",,"moci_gacha_gacha100:抽100次
+moci_gacha_gacha50:抽50次
+moci_gacha_gacha20:抽20次
+moci_gacha_gacha10:抽10次
+moci_gacha_gacha1:抽1次
+moci_gacha_ops2:返回",,,
+,,,,,,,,
+moci_GachaGacha100,DialogOptionSelected,$option == moci_gacha_gacha100 score:1000,"Moci_GachaCommand ""gacha"" 100
+ShowImageVisual Moci_gacha_Gacha1
+SetShortcut moci_gacha_ops2 ""ESCAPE""",,moci_gacha_ops2:继续,,,
+moci_GachaGacha50,DialogOptionSelected,$option == moci_gacha_gacha50 score:1000,"Moci_GachaCommand ""gacha"" 50
+ShowImageVisual Moci_gacha_Gacha1
+SetShortcut moci_gacha_ops2 ""ESCAPE""",,moci_gacha_ops2:继续,,,
+moci_GachaGacha20,DialogOptionSelected,$option == moci_gacha_gacha20 score:1000,"Moci_GachaCommand ""gacha"" 20
+ShowImageVisual Moci_gacha_Gacha1
+SetShortcut moci_gacha_ops2 ""ESCAPE""",,moci_gacha_ops2:继续,,,
+moci_GachaGacha10,DialogOptionSelected,$option == moci_gacha_gacha10 score:1000,"Moci_GachaCommand ""gacha"" 10
+ShowImageVisual Moci_gacha_Gacha1
+SetShortcut moci_gacha_ops2 ""ESCAPE""",,moci_gacha_ops2:继续,,,
+moci_GachaGacha1,DialogOptionSelected,$option == moci_gacha_gacha1 score:1000,"Moci_GachaCommand ""gacha"" 1
+ShowImageVisual Moci_gacha_Gacha1
+SetShortcut moci_gacha_ops2 ""ESCAPE""",,moci_gacha_ops2:继续,,,
+,,,,,,,,
+moci_GachaDialogSelect03,DialogOptionSelected,$option == moci_gacha_ops3 score:1000,"SetShortcut moci_gacha_ops1 ""ESCAPE""","这个装置似乎还提供了向特定的时空和地点进行""泽科诺瓦""的功能，这意味着你可以通过花费大量的能量获得指定的物品，而你手头刚好有合适的能量源。","moci_gacha_ops4:进行""定向泽科诺瓦""
+moci_gacha_ops5:查看泽科诺瓦几率
+moci_gacha_ops1:返回",,,
+moci_GachaDialogSelect04,DialogOptionSelected,$option == moci_gacha_ops4 score:1000,"Moci_GachaCommand ""showGachaShop""
+SetShortcut moci_gacha_ops3 ""ESCAPE""",,moci_gacha_ops3:返回,,,
+moci_GachaDialogSelect05,DialogOptionSelected,$option == moci_gacha_ops5 score:1000,"SetShortcut moci_gacha_ops3 ""ESCAPE""","普通 - 95.25%
+稀有 - 4%
+超级稀有 - 0.75%
+",moci_gacha_ops3:返回,,,
+,,,,,,,,
+#打捞大和号,,,,,,,,
+MociYamatoInit,OpenInteractionDialog,"$tag:moci_yamato_derelict
+$moci_yamato_wreck",FireBest MociYamatoCheckState,你的$shipOrFleet靠近了传说中的大和号残骸。,,,,
+MociYamatoAlreadySalvaged,MociYamatoCheckState,$Moci_YamatoSalvaged score:1000,"SetShortcut defaultLeave ""ESCAPE""",这里已经没有什么可打捞的了。,100:defaultLeave:离开,,,
+MociYamatoHostileCheck,MociYamatoCheckState,HostileFleetNearbyAndAware,"SetShortcut defaultLeave ""ESCAPE""",附近的敌对舰队正在追踪你的行动，使你无法进行勘探。,100:defaultLeave:离开,,,
+MociYamatoShowOptions,MociYamatoCheckState,!$Moci_YamatoSalvaged,"SetShortcut salExplore E
+SetShortcut defaultLeave ""ESCAPE""",,"0:salExplore:勘探
+100:defaultLeave:离开",,,
+MociYamatoExploreWithDefenders,DialogOptionSelected,"$option == salExplore
+!$defenderFleetDefeated
+$tag:moci_yamato_derelict
+$moci_yamato_wreck","Moci_YamatoDerelictInteraction initDefenders
+Moci_YamatoDerelictInteraction triggerBattle",传感器检测到一艘巨大的战舰残骸。这是大和号，传说中的超级战列舰！但是残骸周围有6艘自动防御舰队正在巡逻。,,,,
+MociYamatoExploreDefeated,DialogOptionSelected,"$option == salExplore
+$defenderFleetDefeated
+$tag:moci_yamato_derelict
+$moci_yamato_wreck","SetShortcut defaultLeave ""ESCAPE""",打捞小组开始对这艘战舰进行评估，并出人意料的发现了这艘战舰残骸一样的外观仅仅是伪装——它除了引擎能源有一定损坏外，其余子系统均完好无损，只要稍做调整便可启动它。,"0:MociYamatoSalvage:打捞大和号
+100:defaultLeave:离开",,,
+MociYamatoBeatDefenders,BeatDefendersContinue,"$tag:moci_yamato_derelict
+$moci_yamato_wreck","$global.moci_yamato_battle_completed = true
+SetShortcut defaultLeave ""ESCAPE""",打捞小组开始对这艘战舰进行评估，并出人意料的发现了这艘战舰残骸一样的外观仅仅是伪装——它除了引擎能源有一定损坏外，其余子系统均完好无损，只要稍做调整便可启动它。,"0:MociYamatoSalvage:打捞大和号
+100:defaultLeave:离开",,,
+MociYamatoSalvageSelected,DialogOptionSelected,$option == MociYamatoSalvage,FireBest MociYamatoSalvageStory,,,,,
+MociYamatoSalvageStoryKnown,MociYamatoSalvageStory,$global.moci_okita_bar_met,"AddText ""获得了大和号的船员日志。"" highlightColor","在大和号的数据记录中，有一个名字引起了你的注意，冲田十三-舰长。
+你认得这个名字，或许得去找他问个明白了。",0:MociYamatoFinalizeSalvage:继续打捞,,,
+MociYamatoSalvageStoryUnknown,MociYamatoSalvageStory,!$global.moci_okita_bar_met,"AddText ""获得了大和号的船员日志。"" highlightColor",你在内心默默的向这艘传奇战舰的舰长表达了敬意。,0:MociYamatoFinalizeSalvage:继续打捞,,,
+MociYamatoFinalizeSalvage,DialogOptionSelected,$option == MociYamatoFinalizeSalvage,Moci_YamatoDerelictInteraction salvage,,,,,
+MociYamatoLeave,DialogOptionSelected,$option == defaultLeave,DismissDialog,,,,,
+,,,,,,,,
+# Tulip殖民地进港文本,,,,,,,,
+MociTulipFlavorTextInit,TradePanelFlavorText,"$global.tradePanelMode == MARKET
+$market.id == market_moci_tulip score:1000",FireBest MociTulipRandomText,,,,,
+MociTulipRandomText1,MociTulipRandomText,,"AddText ""穿梭机降落在轨道站的对接平台上。透过舷窗，你能看到Tulip荒芜的地表上散布着无数古代战争的痕迹。港口大厅里，几个商人正在热烈讨论着最新发掘出的古代技术，而墙上的全息广告则展示着各式各样的机动战士（MS）机体。"" marketFlavorTextColor
+AddText ""'欢迎来到Tulip——星域最大的MS专卖店所在地。'一个声音从扬声器中传来，'我们这里有最先进的古代技术复原品。'"" marketFlavorTextColor",,,,,
+MociTulipRandomText2,MociTulipRandomText,,"AddText ""你的穿梭机穿过轨道站的防护力场，降落在繁忙的码头区。这里停泊着来自星域各地的舰船，许多舰长都是慕名而来，希望能购买到一台机动战士。"" marketFlavorTextColor
+AddText ""港口大厅的中央展示着一台完整的MS机体，其精密的构造和先进的设计吸引了无数目光。考古队的成员们正在一旁向潜在买家讲解这些古代兵器的技术细节。"" marketFlavorTextColor",,,,,
+MociTulipRandomText3,MociTulipRandomText,,"AddText ""降落过程中，你注意到Tulip地表上正在进行的考古挖掘作业。巨大的挖掘机械在遗迹中穿梭，不时有运输船将新发现的古代技术运往轨道站。"" marketFlavorTextColor
+AddText ""'又有新货到了！'港口里传来兴奋的喊声。几个商人正围着刚运上来的古代装置，讨论着如何将其复原成可用的MS机体。这里的气氛充满了对古代技术的狂热。"" marketFlavorTextColor",,,,,
+MociTulipRandomText4,MociTulipRandomText,,"AddText ""轨道站的对接口处，你看到几台正在维护的MS机体。技术人员们正在仔细检查每一个部件，确保这些复原的古代兵器能够正常运作。"" marketFlavorTextColor
+AddText ""港口大厅里挤满了来自各地的舰长和商人。有人在讨价还价，有人在研究技术规格，还有人只是单纯地欣赏这些机体的风采。"" marketFlavorTextColor",,,,,
+,,,,,,,,
+# 尼尔加重工主市场进港文本,,,,,,,,
+MociNergalFlavorTextInit,TradePanelFlavorText,"$global.tradePanelMode == MARKET
+$market.id == market_moci_nergal_lotus score:1000",FireBest MociNergalRandomText,,,,,
+MociNergalRandomText1,MociNergalRandomText,,"Moci_CampaignTextCommand ""addText"" ""rules.nergal_flavor_1a"" ""marketFlavorTextColor""
+Moci_CampaignTextCommand ""addText"" ""rules.nergal_flavor_1b"" ""marketFlavorTextColor""",,,,,
+MociNergalRandomText2,MociNergalRandomText,,"Moci_CampaignTextCommand ""addText"" ""rules.nergal_flavor_2a"" ""marketFlavorTextColor""
+Moci_CampaignTextCommand ""addText"" ""rules.nergal_flavor_2b"" ""marketFlavorTextColor""",,,,,
+MociNergalRandomText3,MociNergalRandomText,,"Moci_CampaignTextCommand ""addText"" ""rules.nergal_flavor_3a"" ""marketFlavorTextColor""
+Moci_CampaignTextCommand ""addText"" ""rules.nergal_flavor_3b"" ""marketFlavorTextColor""",,,,,
+MociNergalRandomText4,MociNergalRandomText,,"Moci_CampaignTextCommand ""addText"" ""rules.nergal_flavor_4a"" ""marketFlavorTextColor""
+Moci_CampaignTextCommand ""addText"" ""rules.nergal_flavor_4b"" ""marketFlavorTextColor""",,,,,
+,,,,,,, ,
+# 弗拉纳冈机构：强化人培育入口,,,,,,,,
+MociFlanaganInstituteOption,PopulateOptions,"$hasMarket
+Moci_AugmentedHumanCommand canShow","Moci_AugmentedHumanCommand ""checkCost""",,10:moci_flanagan_augmented_human:强化人培育,,,
+MociFlanaganInstituteSelected,DialogOptionSelected,$option == moci_flanagan_augmented_human score:1000,"Moci_AugmentedHumanCommand ""open""",,,,,
+,,,,,,,,
+# Lotus 酒吧：抚子任务线固定入口,,,,,,,,
+MociLotusNadesicoBarEvent,AddBarEvents,$market.id == market_moci_nergal_lotus && $hasMarket,"Moci_CampaignTextCommand ""addBarEvent"" ""moci_lotus_nadesico_selected"" ""rules.lotus_nadesico.option"" ""rules.lotus_nadesico.prompt"" ""highlight""",,,,,
+# MociLotusNadesicoBarEventColor,SetStoryColor moci_lotus_nadesico_selected,$market.id == market_moci_nergal_lotus && $hasMarket,,,,,,
+MociLotusNadesicoBarEventSelected,DialogOptionSelected,$option == moci_lotus_nadesico_selected,Moci_ShowYurikaBarEventCmd,,,,,
+# Lotus 酒吧：抚子任务线测试入口（不需要时直接在下面两行前加#）,,,,,,,,
+MociLotusNadesicoDevAffinityBarEvent,AddBarEvents,$market.id == market_moci_nergal_lotus && $hasMarket,"Moci_CampaignTextCommand ""addBarEvent"" ""moci_lotus_nadesico_dev_affinity"" ""rules.lotus_nadesico_dev.option"" ""rules.lotus_nadesico_dev.prompt""",,,,,
+MociLotusNadesicoDevAffinitySelected,DialogOptionSelected,$option == moci_lotus_nadesico_dev_affinity,"Moci_YurikaDevCommand ""addAffinity"" 15",,,,,
+,,,,,,,,
+# Tulip酒吧：冲田十三首次会面,,,,,,,,
+MociTulipOkitaBarEvent,AddBarEvents,"$market.id == market_moci_tulip && $hasMarket
+!$global.moci_okita_bar_met","AddBarEvent moci_tulip_okita_bar_selected ""和角落里的老船长谈谈。"" ""一位穿着海军制服的老人坐在酒吧的一角，正朝你举杯示意。"" highlight
+SetStoryColor moci_tulip_okita_bar_selected",,,,,
+MociTulipOkitaBarEventSelected,DialogOptionSelected,$option == moci_tulip_okita_bar_selected,Moci_ShowOkitaBarEventCmd,,,,,
+,,,,,,, ,
+# Tulip联络员：冲田十三（大和号追问 + 分阶段简报）,,,,,,,,
+MociTulipOkitaReturn,DialogOptionSelected,$option == moci_okita_return score:1000,FireAll PopulateOptions,,,,,
+MociTulipOkitaIntroOption,PopulateOptions,"$isPerson
+$id == moci_tulip_contact_okita
+$market.id == market_moci_tulip
+$global.moci_yamato_crew_log_acquired
+!$global.moci_okita_intro_done","SetStoryOption moci_okita_intro_start 1 avoidCargoScan ui_char_spent_story_point ""向他询问有关大和号的事情""",,8:moci_okita_intro_start:向他询问有关大和号的事情,,,
+MociTulipOkitaIntroStart,DialogOptionSelected,$option == moci_okita_intro_start,"SetShortcut moci_okita_return ""ESCAPE""","冲田先是会惊讶你能找到那艘战舰，随即长长地叹了一口气。""既然你已经找到了我的战舰，那么有些事情也不需要对你隐瞒了——我的确是大和号的舰长，对你来说，我是一位来自远古时代的人。""","5:moci_okita_intro_explain:询问他为什么会出现在英仙座
+100:moci_okita_return:稍后再说",,,
+MociTulipOkitaIntroExplain,DialogOptionSelected,$option == moci_okita_intro_explain,,"冲田沉默了片刻，这才缓缓开口。""你或许注意到了这艘战舰的能源系统受到了不可逆损伤，这是由我的决策导致的——在面对敌人的进攻时，我让大和号对黑洞使用了波动炮，这一举动引发了次元境界线的不稳定波动，也就是所谓的‘泽克诺瓦现象’。""他抬手按了按额角。""当我恢复意识时，身边只剩自己，还有空无一人的大和号了，于是我设法关停并掩藏了她，然后乘坐逃生机来到了核心星域。""",5:moci_okita_intro_ack:感叹这真是一场劫后余生的奇遇,,,
+MociTulipOkitaIntroAck,DialogOptionSelected,$option == moci_okita_intro_ack,"$global.moci_okita_intro_done = true
+$global.moci_okita_yamato_question_done = true
+SetShortcut moci_okita_return ""ESCAPE""","冲田看着你，神情比先前柔和了几分。""我们换个话题吧。近期，泽克诺瓦现象仍然在不断发生，这说明我所处的时代依然有人在不断地被转移过来。""他把一份整理过的识别档案推到你面前。""如果你愿意替我接触他们，我会把大和号波动引擎的设计图给予你，但能否复原它就全看你的能力了。""",100:moci_okita_return:明白了,,,
+,,,,,,,,
+MociTulipOkitaMission1Option,PopulateOptions,"$isPerson
+$id == moci_tulip_contact_okita
+$market.id == market_moci_tulip
+$global.moci_okita_intro_done
+!$global.moci_okita_mission_running_1
+!$global.moci_okita_mission1_completed",SetStoryColor moci_okita_mission1_intro,,"10:moci_okita_mission1_intro:阶段一简报：""异常空间信号""",,,
+MociTulipOkitaMission1RunningOption,PopulateOptions,"$isPerson
+$id == moci_tulip_contact_okita
+$market.id == market_moci_tulip
+$global.moci_okita_intro_done
+$global.moci_okita_mission_running_1
+!$global.moci_okita_mission1_completed",,,12:moci_okita_mission1_running:汇报阶段一进度,,,
+MociTulipOkitaMission1Intro,DialogOptionSelected,$option == moci_okita_mission1_intro,"SetShortcut moci_okita_return ""ESCAPE""",冲田十三将一段加密航迹投影到你的终端上：在一处星门附近监测到了异常空间信号。先前派出的侦察分队没有带回任何情报，这表明转移到此处的目标极其危险。,"5:moci_okita_mission1_accept:接受任务
+100:moci_okita_return:暂不接取",,,
+MociTulipOkitaMission1Accept,DialogOptionSelected,$option == moci_okita_mission1_accept,"Moci_OkitaMissionCommand start 1
+SetShortcut moci_okita_return ""ESCAPE""",任务【异常空间信号】已接取。目标将刷新在一个星门附近。,100:moci_okita_return:继续,,,
+MociTulipOkitaMission1RunningTalk,DialogOptionSelected,$option == moci_okita_mission1_running,"SetShortcut moci_okita_return ""ESCAPE""","冲田十三看了一眼你终端上的识别档案。""异常空间信号的调查还在进行中，还有什么需要了解的吗？""",100:moci_okita_return:明白了,,,
+,,,,,,,,
+MociTulipOkitaMission2Option,PopulateOptions,"$isPerson
+$id == moci_tulip_contact_okita
+$market.id == market_moci_tulip
+$global.moci_okita_mission1_completed
+!$global.moci_okita_mission_running_2
+!$global.moci_okita_mission2_completed",SetStoryColor moci_okita_mission2_intro,,"10:moci_okita_mission2_intro:阶段二简报：""失踪的小队""",,,
+MociTulipOkitaMission2RunningOption,PopulateOptions,"$isPerson
+$id == moci_tulip_contact_okita
+$market.id == market_moci_tulip
+$global.moci_okita_mission1_completed
+$global.moci_okita_mission_running_2
+!$global.moci_okita_mission2_completed",,,12:moci_okita_mission2_running:汇报阶段二进度,,,
+MociTulipOkitaMission2Intro,DialogOptionSelected,$option == moci_okita_mission2_intro,"SetShortcut moci_okita_return ""ESCAPE""",冲田十三调出了新的任务简报，这是一起在星门航线附近的舰队失踪案，而现场出现了规模庞大的异常空间信号反应。,"5:moci_okita_mission2_accept:接受任务
+100:moci_okita_return:暂不接取",,,
+MociTulipOkitaMission2Accept,DialogOptionSelected,$option == moci_okita_mission2_accept,"Moci_OkitaMissionCommand start 2
+SetShortcut moci_okita_return ""ESCAPE""",任务【失踪的小队】已接取。目标将刷新在一个星门附近。,100:moci_okita_return:继续,,,
+MociTulipOkitaMission2RunningTalk,DialogOptionSelected,$option == moci_okita_mission2_running,"SetShortcut moci_okita_return ""ESCAPE""","冲田十三把当前的情报资料推到了你的面前。""关于这起失踪事件，我所掌握的大概就只有那么多了。""",100:moci_okita_return:明白了,,,
+,,,,,,,,
+MociTulipOkitaMission3Option,PopulateOptions,"$isPerson
+$id == moci_tulip_contact_okita
+$market.id == market_moci_tulip
+$global.moci_okita_mission2_completed
+!$global.moci_okita_mission_running_3
+!$global.moci_okita_mission3_completed",SetStoryColor moci_okita_mission3_intro,,"10:moci_okita_mission3_intro:阶段三简报：""寻找航标""",,,
+MociTulipOkitaMission3RunningOption,PopulateOptions,"$isPerson
+$id == moci_tulip_contact_okita
+$market.id == market_moci_tulip
+$global.moci_okita_mission2_completed
+$global.moci_okita_mission_running_3
+!$global.moci_okita_mission3_completed",,,12:moci_okita_mission3_running:汇报阶段三进度,,,
+MociTulipOkitaMission3Intro,DialogOptionSelected,$option == moci_okita_mission3_intro,"SetShortcut moci_okita_return ""ESCAPE""",冲田十三表示这是最后一个异常空间信号坐标了。目标舰队正在围绕航标残迹活动，若不进行接触，后续它们很可能会脱离追踪范围。,"5:moci_okita_mission3_accept:接受任务
+100:moci_okita_return:暂不接取",,,
+MociTulipOkitaMission3Accept,DialogOptionSelected,$option == moci_okita_mission3_accept,"Moci_OkitaMissionCommand start 3
+SetShortcut moci_okita_return ""ESCAPE""",任务【寻找航标】已接取。目标将刷新在一个星门附近。,100:moci_okita_return:继续,,,
+MociTulipOkitaMission3RunningTalk,DialogOptionSelected,$option == moci_okita_mission3_running,"SetShortcut moci_okita_return ""ESCAPE""",冲田十三没有再多说废话，只是把那个坐标重新发到了你的终端上。,100:moci_okita_return:明白了,,,
+,,,,,,,,

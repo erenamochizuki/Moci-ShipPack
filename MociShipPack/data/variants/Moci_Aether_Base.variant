@@ -1,0 +1,76 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 29,
+    "fluxVents": 9,
+    "goalVariant": true,
+    "hullId": "Moci_Aether",
+    "hullMods": [
+        "advancedoptics",
+        "auxiliarythrusters",
+        "eccm",
+        "hardenedshieldemitter",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Aether_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0007": "harpoonpod",
+                "WS0006": "harpoonpod",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0005": "ionbeam",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003": "gravitonbeam",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0010": "gravitonbeam",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0002": "gravitonbeam",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "gravitonbeam",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0004": "harpoonpod",
+                "WS0009": "lrpdlaser",
+                "WS0008": "lrpdlaser",
+                "WS0011": "lrpdlaser",
+            }
+        },
+    ],
+    "wings": [
+        "wasp_wing",
+    ],
+    "modules": [],
+}

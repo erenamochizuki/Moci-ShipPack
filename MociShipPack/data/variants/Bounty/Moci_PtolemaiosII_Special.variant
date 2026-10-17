@@ -1,0 +1,68 @@
+{
+    "displayName": "Special",
+    "fluxCapacitors": 27,
+    "fluxVents": 50,
+    "goalVariant": false,
+    "hullId": "Moci_PtolemaiosII",
+    "hullMods": [
+        "fluxbreakers",
+        "magazines",
+        "targetingunit",
+    ],
+    "permaMods": [
+        "advancedoptics",
+        "auxiliarythrusters",
+        "fluxdistributor",
+    ],
+    "sMods": [
+        "advancedoptics",
+        "auxiliarythrusters",
+        "fluxdistributor",
+    ],
+    "suppressedMods": [],
+    "variantId": "Moci_PtolemaiosII_Special",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "MAINGUN_R": "Moci_Ptolemaio_GNCannon",
+                "MAINGUN_L": "Moci_Ptolemaio_GNCannon",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0012": "squall",
+                "WS0011": "squall",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001_SOURCE": "shockrepeater",
+                "WS0003_SOURCE": "shockrepeater",
+                "WS0004_SOURCE": "shockrepeater",
+                "WS0002_SOURCE": "shockrepeater",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0006_SOURCE": "Moci_heavyblaster",
+                "WS0005_SOURCE": "Moci_heavyblaster",
+            }
+        },
+    ],
+    "wings": [
+        "Moci_MS_06_fighter_wing",
+        "Moci_MS_06_fighter_wing",
+        "Moci_RX_77_fighter_wing",
+        "Moci_RX_75_fighter_wing",
+        "Moci_RGM_79_fighter_wing",
+    ],
+    "modules": [],
+}

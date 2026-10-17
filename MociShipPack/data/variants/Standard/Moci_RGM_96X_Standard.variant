@@ -1,0 +1,36 @@
+{
+  "variantId": "Moci_RGM_96X_Standard",
+  "hullId": "Moci_RGM_96X",
+  "displayName": "Standard",
+  "goalVariant": false,
+  "fluxCapacitors": 1,
+  "fluxVents": 5,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "armoredweapons",
+    "autorepair",
+    "fluxdistributor",
+    "targetingunit"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "ARM_L_SOURCE": "Moci_RGM_96X_arm_left_gun_Sabre"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "ARM_R_SOURCE": "plasma"
+      }
+    }
+  ],
+  "modules": [
+    {"SHIELD_SHOULDER_L": "Moci_RGM_96X_backpack_shield_Base"},
+    ],
+  "wings": []
+}

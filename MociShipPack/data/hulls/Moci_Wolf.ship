@@ -1,0 +1,168 @@
+{
+  "hullName": "Moci_Wolf",
+  "hullId": "Moci_Wolf",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/Moci_Wolf.png",
+  "style": "LOW_TECH",
+  "height": 295,
+  "width": 216,
+  "center": [100, 110],
+  "collisionRadius": 193.5,
+  "shieldCenter": [15, 3],
+  "shieldRadius": 175.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "auxiliarythrusters"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [72.5, 10.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "LARGE",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 9,
+      "angle": 0,
+      "locations": [116.5, 39.5]
+    },
+    {
+      "id": "WS0003",
+      "size": "LARGE",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [29.5, 39.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [75.5, 6.5]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [78.5, 10.5]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [81.5, 6.5]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [84.5, 10.5]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [87.5, 6.5]
+    },
+    {
+      "id": "WS0009",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [90.5, 10.5]
+    },
+    {
+      "id": "WS0010",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [93.5, 6.5]
+    },
+    {
+      "id": "WS0011",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [96.5, 10.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-51, 43],
+      "length": 43.5,
+      "width": 22,
+      "angle": 180,
+      "contrailSize": 22,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-70.5, -3],
+      "length": 55.5,
+      "width": 34,
+      "angle": 180,
+      "contrailSize": 34,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-0.5, -61.5],
+      "length": 30.395655,
+      "width": 9.456038,
+      "angle": -144.5,
+      "contrailSize": 9.456038,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-7.5, 66.5],
+      "length": 19.401615,
+      "width": 8.961544,
+      "angle": 138.5,
+      "contrailSize": 8.961544,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-43.5, -61.5],
+      "length": 19.644165,
+      "width": 5.140733,
+      "angle": -144.5,
+      "contrailSize": 5.140733,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    176.5, 21.5,
+    153.5, 42.5,
+    116.5, 48.5,
+    -86.5, 94.5,
+    -109.5, 6.5,
+    -88.5, -111.5
+  ]
+}

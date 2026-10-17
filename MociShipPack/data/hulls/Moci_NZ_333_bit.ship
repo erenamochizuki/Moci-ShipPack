@@ -1,0 +1,65 @@
+{
+  "hullName": "Moci_NZ_333_bit",
+  "hullId": "Moci_NZ_333_bit",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_NZ_333/bit/NZ_333_bit.png",
+  "style": "HIGH_TECH",
+  "height": 38,
+  "width": 20,
+  "center": [
+    10,
+    15
+  ],
+  "collisionRadius": 29.5,
+  "shieldCenter": [
+    3,
+    0
+  ],
+  "shieldRadius": 29.5,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 30,
+      "angle": 0,
+      "locations": [
+        12,
+        0
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -12,
+        0.5
+      ],
+      "length": 43.5,
+      "width": 33,
+      "angle": -180,
+      "contrailSize": 33,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -14.5,
+    2.5,
+    -9.5,
+    8.5,
+    0.5,
+    9.5,
+    22.5,
+    2.5,
+    22.5,
+    -2.5,
+    0.5,
+    -9.5,
+    -9.5,
+    -8.5,
+    -14.5,
+    -2.5
+  ]
+}

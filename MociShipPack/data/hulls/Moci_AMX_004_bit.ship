@@ -1,0 +1,80 @@
+{
+  "hullName": "Moci_AMX_004_bit",
+  "hullId": "Moci_AMX_004_bit",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_AMX_004/bit/Moci_AMX_004_bit_00.png",
+  "style": "HIGH_TECH",
+  "height": 30,
+  "width": 16,
+  "center": [
+    8,
+    13
+  ],
+  "collisionRadius": 27.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 27.5,
+  "viewOffset": 0,
+  "builtInWeapons": {
+    "WS0002": "Moci_blinker_AMX_004"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        7,
+        0
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        2,
+        0
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -11,
+        0
+      ],
+      "length": 5,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    16.5,
+    0.5,
+    -4.5,
+    7.5,
+    -6.5,
+    7.5,
+    -11.5,
+    0.5,
+    -11.5,
+    -0.5,
+    -6.5,
+    -7.5,
+    -4.5,
+    -7.5,
+    16.5,
+    -0.5
+  ]
+}

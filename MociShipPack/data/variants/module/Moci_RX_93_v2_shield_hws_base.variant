@@ -1,0 +1,14 @@
+{
+  "variantId": "Moci_RX_93_v2_shield_hws_base",
+  "hullId": "Moci_RX_93_v2_shield_hws",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

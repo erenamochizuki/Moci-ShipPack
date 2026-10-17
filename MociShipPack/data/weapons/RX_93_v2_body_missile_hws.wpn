@@ -1,0 +1,43 @@
+{
+  "id": "RX_93_v2_body_missile_hws",
+  "specClass": "projectile",
+  "projectileSpecId": "RX_93_v2_body_missile_shot",
+  "type": "MISSILE",
+  "size": "SMALL",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/body/RX_93_v2_body_missile_hws.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/body/RX_93_v2_body_missile_hws.png",
+  "turretOffsets": [
+    3.5,
+    -13.5,
+    3.5,
+    13.5
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    7.5,
+    -13.5,
+    7.5,
+    13.5
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+	"barrelMode":"ALTERNATING",
+	"animationType":"SMOKE",
+	"interruptibleBurst":false,
+	"smokeSpec":{"particleSizeMin":20.0,
+				 "particleSizeRange":20.0,
+				 "cloudParticleCount":3,
+				 "cloudDuration":1.0,
+				 "cloudRadius":10.0,
+				 "blowbackParticleCount":3,
+				 "blowbackDuration":2.0,
+				 "blowbackLength":30.0,
+				 "blowbackSpread":10.0,
+				 "particleColor":[100,100,255,100]},
+	"fireSoundTwo":"harpoon_fire",
+}

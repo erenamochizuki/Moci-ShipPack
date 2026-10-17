@@ -1,0 +1,18 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": true,
+    "hullId": "Moci_MSN_02_backpack",
+    "hullMods": [
+        "blast_doors",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MSN_02_backpack_Standard",
+    "weaponGroups": [],
+    "wings": [],
+    "modules": [],
+}

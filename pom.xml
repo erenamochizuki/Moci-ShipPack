@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.fs.starfarer</groupId>
+    <artifactId>moci</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>exerelin</groupId>
+            <artifactId>exerelin</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/ExerelinCore.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/lwjgl.jar</systemPath>
+        </dependency>
+        
+        <dependency>
+            <groupId>net.java.jinput</groupId>
+            <artifactId>jinput</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/jinput.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>BoxUtilMod</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/BoxUtilMod.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>commons-compiler</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/commons-compiler.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>commons-compiler-jdk</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/commons-compiler-jdk.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>fs.common_obf</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/fs.common_obf.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>fs.sound_obf</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/fs.sound_obf.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>Graphics</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/Graphics.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>janino</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/janino.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>jinput</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/jinput.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>jogg-0.0.7</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/jogg-0.0.7.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>jorbis-0.0.15</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/jorbis-0.0.15.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>json</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/json.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>LazyLib</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib97/LazyLib.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>LazyLib-Kotlin</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib97/LazyLib-Kotlin.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>log4j-1.2.9</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/log4j-1.2.9.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>LunaLib</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib97/LunaLib.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>Lunalib-Kotlin</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib97/Lunalib-Kotlin.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>lwjgl</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/lwjgl.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>lwjgl_util</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/lwjgl_util.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>MagicLib</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib97/MagicLib.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>MagicLib-Kotlin</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib97/MagicLib-Kotlin.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>port_obf</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/port_obf.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>starfarer.api</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/starfarer.api.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>starfarer_obf</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/starfarer_obf.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>xstream-1.4.10</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/xstream-1.4.10.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.4.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/jaxb-api-2.4.0-b180830.0359.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>txw2</artifactId>
+            <version>3.0.2</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/txw2-3.0.2.jar</systemPath>
+        </dependency>
+		
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>webp-imageio</artifactId>
+            <version>0.1.6</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/webp-imageio-0.1.6.jar</systemPath>
+        </dependency>
+		
+    </dependencies>
+    
+    <build>
+        <sourceDirectory>${project.basedir}/src</sourceDirectory>
+    </build>
+</project>

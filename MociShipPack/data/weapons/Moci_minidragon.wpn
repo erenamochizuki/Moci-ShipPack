@@ -1,0 +1,46 @@
+{
+  "id": "Moci_minidragon",
+  "specClass": "projectile",
+  "projectileSpecId": "dragon",
+  "type": "MISSILE",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/Moci_minidragonfire_base.png",
+  "hardpointSprite": "graphics/weapons/Moci_minidragonfire_base.png",
+  "renderHints": [
+    RENDER_LOADED_MISSILES
+  ],
+  "turretOffsets": [
+    -3,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    8,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "SMOKE",
+  "smokeSpec": {
+    "particleSizeMin": 16,
+    "particleSizeRange": 18,
+    "cloudParticleCount": 8,
+    "cloudDuration": 1.5,
+    "cloudRadius": 10,
+    "blowbackParticleCount": 4,
+    "blowbackDuration": 2,
+    "blowbackLength": 22,
+    "blowbackSpread": 15,
+    "particleColor": [
+      155,
+      60,
+      50,
+      105
+    ]
+  },
+  "fireSoundTwo": "dragonfire_fire"
+}

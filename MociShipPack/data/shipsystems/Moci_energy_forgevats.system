@@ -1,0 +1,11 @@
+{
+	"id":"Moci_energy_forgevats",
+	"type":"AMMO_RELOAD",
+	"aiType":"AMMO_RELOAD",
+	
+	"weaponTypes":[ENERGY],
+	"minFractionToReload":0.5,
+	
+	"useSound":"system_forgevats",
+	"outOfUsesSound":"gun_out_of_ammo",
+}

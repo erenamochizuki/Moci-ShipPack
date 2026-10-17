@@ -1,0 +1,23 @@
+{
+	"id":"Moci_PhaseCrossing",
+	"type":"DISPLACER",
+	"aiType":"PHASE_DISPLACER",
+	"statsScript":"data.shipsystems.scripts.Moci_PhaseCrossing",
+	
+	"engineGlowColor":[169,161,255,155],
+
+	"range":1000,
+	"randomRange":0,
+	
+	"renderCopyDuringTeleport":false,
+	
+	"fadeActivationSoundOnChargedown":false,
+	"useSound":"system_phase_skimmer",
+	"outOfUsesSound":"gun_out_of_ammo",
+	
+	"aiHints":{
+		"activeSpeedIncrease":0,
+		"burstMovementPotential":1000,
+		"averageSpeedIncrease":0,
+	}
+}

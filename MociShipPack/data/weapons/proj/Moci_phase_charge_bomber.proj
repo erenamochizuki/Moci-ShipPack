@@ -1,0 +1,53 @@
+{
+	"id":"Moci_phase_charge_bomber",
+	"specClass":"missile",	
+	"missileType":"PHASE_MINE",
+	"onHitEffect":"com.fs.starfarer.api.impl.combat.BreachOnHitEffect",
+	"sprite":"graphics/missiles/heavy_mine3.png",
+	"glowSprite":"graphics/missiles/heavy_mine3_glow.png",
+	"glowColor":[190,60,255,255],
+	"size":[48,48],	
+	"center":[24,24],
+	"collisionRadius":16,
+	"collisionClass":"MISSILE_NO_FF",
+	"explosionColor":[148,0,211,255],  # purely visual, will get a white additively blended core on top of this color
+	"explosionRadius":160, # purely visual
+	"flameoutTime":1, # total time from flameout to full fadeout
+	"fadeTime":0.1, # fadeout duration
+	"noEngineGlowTime":0.05, # time spent without the engine glow being rendered	
+	"engineSpec":{"turnAcc":500,
+				  "turnRate":150,
+				  "acc":40,
+				  "dec":40},
+	#"engineSlots":[{"id":"ES1",
+	#				"loc":[-8, 0],
+	#			    "style":"HIGH_TECH",
+	#			    "width":4.0,
+	#			    "length":10.0,
+	#			    "angle":180.0}]
+	"behaviorSpec":{"behavior":"PROXIMITY_FUSE",
+					"range":80,
+					"slowToMaxSpeed":true,
+					"explosionSpec":{"duration":0.5f,
+									 "radius":200,
+									 "coreRadius":100, # full damage within core radius
+									 "collisionClass":PROJECTILE_FF,
+									 "collisionClassByFighter":PROJECTILE_FIGHTER,
+									 "particleSizeMin":3.0,
+									 "particleSizeRange":3.0,
+									 "particleDuration":1,
+									 "particleCount":50,
+									 "particleColor":[148,70,211,255],
+									 "explosionColor":[155,125,255,255],
+									 "useDetailedExplosion":true,
+									 "useDetailedExplosionColorAlpha":true,
+									 "detailedExplosionRadius":100,
+									 "detailedExplosionFlashRadius":250,
+									 "detailedExplosionFlashDuration":0.5,
+									 "detailedExplosionFlashColorFringe":[200,125,255,255],
+									 "detailedExplosionFlashColorCore":[155,155,155,255],
+									 "sound":"prox_charge_explosion"},
+					}
+}
+
+

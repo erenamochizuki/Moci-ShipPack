@@ -1,0 +1,104 @@
+{
+  "hullName": "Moci_RX_124_Core_Fighter",
+  "hullId": "Moci_RX_124_Core_Fighter",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Core_Fighter/Moci_RX_124_Core_Fighter.png",
+  "style": "LOW_TECH",
+  "height": 43.5,
+  "width": 41,
+  "center": [
+    20.5,
+    21.75
+  ],
+  "collisionRadius": 26.75,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 26.5,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 9,
+      "angle": 0,
+      "locations": [
+        14,
+        5.75
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 9,
+      "angle": 0,
+      "locations": [
+        14,
+        -5.75
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -16,
+        4.25
+      ],
+      "length": 9.75,
+      "width": 3,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -16,
+        -4.25
+      ],
+      "length": 9.75,
+      "width": 3,
+      "angle": -180,
+      "contrailSize": 3,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -21,
+    -1.75,
+    -16.5,
+    -4.75,
+    -13,
+    -11.25,
+    -2,
+    -19.75,
+    0,
+    -19.75,
+    0,
+    -14.25,
+    13,
+    -7.25,
+    20.5,
+    -2.75,
+    20.5,
+    2.75,
+    13,
+    7.25,
+    0,
+    14.25,
+    0,
+    19.75,
+    -2,
+    19.75,
+    -13,
+    11.25,
+    -16.5,
+    4.75,
+    -21,
+    1.75
+  ]
+}

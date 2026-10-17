@@ -1,0 +1,50 @@
+{
+  "id": "Moci_Gespenst_right_fist",
+  "specClass": "projectile",
+  "projectileSpecId": "irpulse_shot",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_Gespenst/arms/Gespenst_arm_right.png",
+  "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_Gespenst/arms/Gespenst_arm_right_glow.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_Gespenst/arms/Gespenst_arm_right.png",
+  "hardpointGlowSprite": "graphics/ships/Mobile_Suit/Moci_Gespenst/arms/Gespenst_arm_right_glow.png",
+  "glowColor": [
+    255,
+    100,
+    100,
+    255
+  ],
+  "turretOffsets": [
+    30,
+    -7.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    52.5,
+    -7.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "autocharge": true,
+  "requiresFullCharge": false,
+  "muzzleFlashSpec": {
+    "length": 23,
+    "spread": 5,
+    "particleSizeMin": 10,
+    "particleSizeRange": 12,
+    "particleDuration": 0.12,
+    "particleCount": 12,
+    "particleColor": [
+      255,
+      100,
+      100,
+      255
+    ]
+  },
+  "fireSoundTwo": "ir_pulse_laser_fire"
+}

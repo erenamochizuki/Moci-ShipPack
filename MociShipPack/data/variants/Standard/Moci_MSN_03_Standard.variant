@@ -1,0 +1,71 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 8,
+    "fluxVents": 10,
+    "goalVariant": true,
+    "hullId": "Moci_MSN_03",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "autorepair",
+        "auxiliarythrusters",
+        "fluxbreakers",
+        "fluxdistributor",
+        "hardenedshieldemitter",
+        "missleracks",
+        "stabilizedshieldemitter",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MSN_03_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "MSN_03_arm_left_Sabre",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "SHOULDER_L": "Moci_MSN_03_shoulder_left",
+                "SHOULDER_R": "Moci_MSN_03_shoulder_right",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "plasma",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_FOLLOW": "gorgonpod",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDER_L_SOURCE": "gazer",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDER_R_SOURCE": "gazer",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_MSN_03_shield_Base"},
+    ],
+}

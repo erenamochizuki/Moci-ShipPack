@@ -1,0 +1,39 @@
+{
+    "displayName": "Gunner",
+    "fluxCapacitors": 2,
+    "fluxVents": 8,
+    "goalVariant": false,
+    "hullId": "Moci_MS_06",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "armoredweapons",
+        "fluxdistributor",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_06_Gunner",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "mark9",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "lightmg",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_RS": "Moci_MS_06_SHIELD_RS_Base"},
+    ],
+}

@@ -1,0 +1,56 @@
+id,type,name,item_id,param,rare,max_uses,min_value,max_value,weight,text,require_item_in_shop,shop_require_num,ticket_price,update_when_load
+#独立id，不能重复,Commodity/SpecialItem/ShipId/Credits/Weapon/Fighter/Officer,在商店显示的名字，星币和军官可以不写,一定要保证这个参数填写正确，错误的参数比如错误的战机id可能会导致不可挽回的炸档,specialItem的param 比如蓝图的对象id之类的,稀有度 只有SSR和SR有效，其它均识别为R,最大可抽取次数，默认1 小于0等于无限,给与玩家的最小数量，只对Commodity和specialitem有效 默认1,给与玩家的最大数量 默认1,SSR和SR用代码内置概率，R概率为100%减去前两个后剩下的概率，weight是在这些稀有度内的物品的抽取概率 默认1,获奖后的特殊获奖文本 一般只有特殊商品，比如SSR才用 大部分情况下用不到这个，尤其是非二次元无人值守抽奖机一般用不着大奖恭喜的文本 多个文本同时出现的时候选择最重要的那个，SSR最优先，其它物品其次，星币的最低,直接售卖的所需代币id Credits为星币，无效id识别为星币，不填则不能出售 无限数量的不能出售 珠子会自动换算为兑奖券,所需代币数量 默认1 珠子会自动换算(涡珠x1 涡鳞珠x5 涡龙珠x10),兑奖券价格 优先级高于require_item_in_shop 填写后会使用兑奖券作为兑换货币,默认false 存档加载一次表格的数据后会留存并不再更新，若要刷新数据，在修改表格后，该项目填true，重启游戏后读档便能刷新。 刷新不重置已抽取次数
+moci_gacha_special_item_001,SpecialItem,受损的纳米锻炉,corrupted_nanoforge,,SSR,3,,,0.5,,Moci_Dracaryx,200,,true
+moci_gacha_special_item_002,SpecialItem,完好的纳米锻炉,pristine_nanoforge,,SSR,3,,,0.25,,Moci_Dracaryx,400,,true
+moci_gacha_special_item_003,SpecialItem,全自动地幔钻机,mantle_bore,,SSR,3,,,0.5,,Moci_Dracaryx,200,,true
+moci_gacha_special_item_004,SpecialItem,等离子发电机,plasma_dynamo,,SSR,3,,,0.5,,Moci_Dracaryx,200,,true
+,,,,,,,,,,,,,,
+moci_gacha_r_weapon_001,Weapon,轻型高射炮,Moci_miniflak,,R,50,,,0.5,,Moci_Vorttear,25,,true
+moci_gacha_sr_weapon_001,Weapon,百兆加农炮,Moci_gugacannon,,SR,20,,,0.5,,Moci_Mournscale,50,,true
+moci_gacha_ssr_weapon_001,Weapon,四联装雷神炮,Moci_double_mjolnir,,SSR,10,,,0.5,,Moci_Dracaryx,75,,true
+moci_gacha_ssr_weapon_002,Weapon,双联等离子炮,Moci_double_plasma,,SSR,10,,,0.5,,Moci_Dracaryx,75,,true
+moci_gacha_ssr_weapon_003,Weapon,多头龙 MDEM 发射器,Moci_dracohydra,,SSR,10,,,0.5,,Moci_Dracaryx,75,,true
+moci_gacha_ssr_weapon_004,Weapon,相位裂隙射线,Moci_phaserift_beam,,SSR,5,,,0.25,,Moci_Dracaryx,125,,true
+moci_gacha_ssr_weapon_005,Weapon,四联装赫菲斯托斯突击炮,Moci_double_hephag,,SSR,5,,,0.25,,Moci_Dracaryx,125,,true
+,,,,,,,,,,,,,,
+moci_gacha_vortex_001,SpecialItem,失活的漩涡核心,Moci_vortexcore_Inactivation,,R,10,,,0.05,,,,,true
+,,,,,,,,,,,,,,
+moci_gacha_001,Credits,,,,R,-1,1000,10000,,你获得了一些星币！,,,,
+moci_gacha_002,Commodity,一百个补给,supplies,,R,-1,10,100,,你获得了一些补给！,Moci_Vorttear,5,,
+moci_gacha_003,ShipId,一台原装亡灵,Moci_Gespenst,,SR,1,,,,你获得了一台原装亡灵！,Moci_Mournscale,75,,
+moci_gacha_r_ship_001,ShipId,一台扎古(队长机),Moci_MS_06_leader,,R,1,,,,你获得了一台扎古(队长机),Moci_Vorttear,75,,
+moci_gacha_r_ship_002,ShipId,一台古夫,Moci_MS_07,,R,1,,,,你获得了一台古夫,Moci_Vorttear,100,,
+moci_gacha_r_ship_003,ShipId,一台扎古(赤色彗星),Moci_MS_06_Char,,R,1,,,,你获得了一台扎古(赤色彗星),Moci_Vorttear,100,,
+moci_gacha_r_ship_004,ShipId,一台扎古(黑色三连星),Moci_MS_06_BTS,,R,3,,,,你获得了一台扎古(黑色三连星),Moci_Vorttear,100,,
+moci_gacha_r_ship_005,ShipId,一台扎古(白狼),Moci_MS_06_Shin,,R,1,,,,你获得了一台扎古(白狼),Moci_Vorttear,100,,
+moci_gacha_r_ship_006,ShipId,一台扎古(真红闪电),Moci_MS_06_Johnny,,R,1,,,,你获得了一台扎古(真红闪电),Moci_Vorttear,100,,
+,,,,,,,,,,,,,,
+moci_gacha_r_ship_007,ShipId,一台大功率吉姆,Moci_RGM_79P,,R,1,,,,你获得了一台大功率吉姆,Moci_Vorttear,75,,
+moci_gacha_r_ship_008,ShipId,一台狙击型吉姆,Moci_RGM_79SP,,R,1,,,,你获得了一台狙击型吉姆,Moci_Vorttear,75,,
+,,,,,,,,,,,,,,
+moci_gacha_r_ship_009,ShipId,一台扎古(巴尼),Moci_MS_06_leader_Axe,,R,1,,,,你获得了一台扎古(巴尼),Moci_Vorttear,75,,
+,,,,,,,,,,,,75,,
+moci_gacha_sr_ship_001,ShipId,一台勇士(赤色彗星),Moci_MS_14_Char,,SR,1,,,,你获得了一台勇士(赤色彗星),Moci_Mournscale,125,,
+moci_gacha_sr_ship_002,ShipId,一台勇士(黑色三连星),Moci_MS_14_BTS,,SR,3,,,,你获得了一台勇士(黑色三连星),Moci_Mournscale,125,,
+moci_gacha_sr_ship_003,ShipId,一台勇士(白狼),Moci_MS_14_Shin,,SR,1,,,,你获得了一台勇士(白狼),Moci_Mournscale,125,,
+moci_gacha_sr_ship_004,ShipId,一台勇士(真红闪电),Moci_MS_14_Johnny,,SR,1,,,,你获得了一台勇士(真红闪电),Moci_Mournscale,125,,
+,,,,,,,,,,,,,,
+moci_gacha_sr_ship_005,ShipId,一台基拉多加(队长机),Moci_AMS_119_leader,,SR,3,,,,你获得了一台基拉多加(队长机),Moci_Mournscale,150,,
+moci_gacha_sr_ship_006,ShipId,一台基拉多加(重武装式样型队长型),Moci_AMS_119H_leader,,SR,1,,,,你获得了一台基拉多加(重武装式样型队长型),Moci_Mournscale,150,,
+moci_gacha_sr_ship_007,ShipId,一台乍得·多加,Moci_MSN_03,,SR,3,,,,你获得了一台乍得·多加,Moci_Mournscale,150,,
+,,,,,,,,,,,,,,
+moci_gacha_ssr_ship_001,ShipId,一台乍得·多加(红色涂装),Moci_MSN_03b,,SSR,1,,,,你获得了一台乍得·多加(红色涂装),Moci_Dracaryx,150,,
+moci_gacha_ssr_ship_002,ShipId,一台高达(1号机),Moci_RX_78_1,,SSR,1,,,,你获得了一台高达(1号机),Moci_Dracaryx,150,,
+moci_gacha_ssr_ship_003,ShipId,一台高达(3号机),Moci_RX_78_3,,SSR,1,,,,你获得了一台高达(3号机),Moci_Dracaryx,150,,
+moci_gacha_ssr_ship_004,ShipId,一台杰刚(武装强化型),Moci_RGM_89S,,SSR,1,,,0.25,你获得了一台杰刚(武装强化型),Moci_Dracaryx,400,,
+moci_gacha_ssr_ship_005,ShipId,一台杰刚(队长型),Moci_RGM_89_leader,,SSR,1,,,,你获得了一台杰刚(队长型),Moci_Dracaryx,150,,
+moci_gacha_ssr_ship_006,ShipId,一台百式,Moci_MSN_00100,,SSR,1,,,,你获得了一台百式,Moci_Dracaryx,100,,
+moci_gacha_ssr_ship_007,ShipId,一台全装甲百式改,Moci_FA_00100S,,SSR,1,,,,你获得了一台全装甲百式改,Moci_Dracaryx,150,,
+moci_gacha_ssr_ship_008,ShipId,一台全装甲高达七号机,Moci_FA_78_3,,SSR,1,,,,你获得了一台全装甲高达七号机,Moci_Dracaryx,200,,
+moci_gacha_ssr_ship_009,ShipId,一台精神力扎古,Moci_MS_06R,,SSR,1,,,,你获得了一台精神力扎古,Moci_Dracaryx,200,,
+,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,
+moci_gacha_007,Officer,,SSR_Officer,,SSR,-1,,,,抽到了特等奖 超强力军官 ,,,,
+moci_gacha_008,Officer,,SR_Officer,,SR,-1,,,,抽到了稀有奖 强力军官 ,,,,
+moci_gacha_009,Officer,,R_Officer,,R,-1,,,,抽到了普通奖 军官 ,,,,
+,,,,,,,,,,,,,,

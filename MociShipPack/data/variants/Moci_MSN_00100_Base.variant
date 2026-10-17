@@ -1,0 +1,48 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 10,
+    "fluxVents": 7,
+    "goalVariant": false,
+    "hullId": "Moci_MSN_00100",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "armoredweapons",
+        "autorepair",
+        "fluxbreakers",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "insulatedengine",
+        "targetingunit",
+        "stabilizedshieldemitter",
+        "fluxdistributor",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MSN_00100_Base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "MSN_00100_arm_left_gun_bazooka",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "MSN_00100_arm_right_gun_rifle",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "RX_78_2_head_vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

@@ -1,0 +1,43 @@
+{
+  "hullName": "Moci_ASW_G_08S_bit",
+  "hullId": "Moci_ASW_G_08S_bit",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Mobile_Suit/ASW_G_08S/bit/ASW_G_08S_bit.png",
+  "style": "HIGH_TECH",
+  "height": 86,
+  "width": 19,
+  "center": [9, 43],
+  "collisionRadius": 28,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 28,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-8, 0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-10, 0],
+      "length": 16,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    39.5, -2.5,
+    -23.5, 7.5,
+    -41.5, 0.5,
+    -41.5, -2.5,
+    -27.5, -7.5,
+    9.5, -7.5
+  ]
+}

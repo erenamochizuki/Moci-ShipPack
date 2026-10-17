@@ -1,0 +1,514 @@
+{
+
+ #MUSIC
+  "music":{
+
+		"Nadesico_combat":[
+			{"file":"YOU_GET_TO_BURNING.ogg","source":"sounds/moci/music","volume":0.5,"randomStart":false}	
+		],
+		
+		"Char's_MAINTITLE":[
+			{"file":"Chars_MAINTITLE.ogg","source":"sounds/moci/music","volume":0.5,"randomStart":false}	
+		],
+		
+		"Beyond_The_Time":[
+			{"file":"Beyond_The_Time.ogg","source":"sounds/moci/music","volume":0.5,"randomStart":false}	
+		],
+        "Nergalbgm":[
+            {"file":"Nergalbgm.ogg","source":"sounds/moci/music","volume":0.35,"randomStart":false}
+        ],
+		
+ },
+	
+  # Combatburn
+	"Moci_system_combat_burn_activate":[ 
+		{"file":"sounds/moci/sfx_systems/Moci_combat_burn_activate.ogg","pitch":1.0,"volume":0.7},
+	],
+	
+	"Moci_system_combat_burn_loop":[ 
+		{"file":"sounds/moci/sfx_systems/Moci_combat_burn_loop.ogg","pitch":1.0,"volume":0.7},
+	],
+	
+	"Moci_system_combat_burn_deactivate":[ 
+		{"file":"sounds/moci/sfx_systems/Moci_combat_burn_deactivate.ogg","pitch":1.0,"volume":0.7},
+	],
+  # Beep
+    "Moci_Beep":
+    [
+        {"file":"sounds/moci/effects/Moci_Beep.ogg","pitch":1.00,"volume":1.00},
+    ],
+  # Moci_displacer_active
+    "Moci_displacer_active":
+    [
+        {"file":"sounds/moci/effects/Moci_displacer_active.ogg","pitch":1.00,"volume":1.00},
+    ],
+  # Moci_displacer_active2
+    "Moci_displacer_active2":
+    [
+        {"file":"sounds/moci/effects/Moci_displacer_active2.ogg","pitch":1.00,"volume":1.00},
+    ],
+  # Moci_Whales_call
+    "Moci_Whales_call":
+    [
+        {"file":"sounds/moci/effects/Moci_Whales_call_01.ogg","pitch":1.00,"volume":0.40},
+        {"file":"sounds/moci/effects/Moci_Whales_call_02.ogg","pitch":1.00,"volume":0.40},
+    ],
+  # Eutecticpulse
+    "Moci_eutecticpulse_beam":
+    [
+        {"file":"sounds/moci/effects/Moci_eutecticpulse_beam.ogg","pitch":1.05,"volume":0.7},
+        {"file":"sounds/moci/effects/Moci_eutecticpulse_beam.ogg","pitch":1.00,"volume":0.6},
+        {"file":"sounds/moci/effects/Moci_eutecticpulse_beam.ogg","pitch":0.95,"volume":0.65},
+    ],
+  # Moci_bodybeam_charge
+    "Moci_bodybeam_charge":
+    [
+        {"file":"sounds/moci/effects/Moci_bodybeam_charge.ogg","pitch":1.00,"volume":0.9},
+    ],
+  # Moci_bodybeam_fire
+    "Moci_bodybeam_fire":
+    [
+        {"file":"sounds/moci/effects/Moci_bodybeam_fire1.ogg","pitch":0.95,"volume":0.65},
+        {"file":"sounds/moci/effects/Moci_bodybeam_fire2.ogg","pitch":0.95,"volume":0.65},
+        {"file":"sounds/moci/effects/Moci_bodybeam_fire1.ogg","pitch":1.00,"volume":0.55},
+        {"file":"sounds/moci/effects/Moci_bodybeam_fire2.ogg","pitch":1.00,"volume":0.55},
+    ],
+  # Moci_BeamCharge
+    "Moci_BeamCharge":
+    [
+        {"file":"sounds/moci/effects/Moci_BeamCharge.ogg","pitch":1.00,"volume":0.35},
+        {"file":"sounds/moci/effects/Moci_BeamCharge.ogg","pitch":0.98,"volume":0.30},
+        {"file":"sounds/moci/effects/Moci_BeamCharge.ogg","pitch":0.95,"volume":0.25},
+    ],
+  # Moci_Beam_loop
+    "Moci_Beam_loop":
+    [
+        {"file":"sounds/moci/effects/Moci_Beam_loop.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_Beam_loop.ogg","pitch":0.98,"volume":0.42},
+        {"file":"sounds/moci/effects/Moci_Beam_loop.ogg","pitch":0.95,"volume":0.40},
+    ],
+  # Moci_bit_launch
+    "Moci_bit_launch":
+    [
+        {"file":"sounds/moci/effects/Moci_bit_launch.ogg","pitch":1.00,"volume":0.40},
+        {"file":"sounds/moci/effects/Moci_bit_launch.ogg","pitch":0.98,"volume":0.43},
+        {"file":"sounds/moci/effects/Moci_bit_launch.ogg","pitch":0.95,"volume":0.37},
+    ],
+  # Moci_bit_blink
+    "Moci_bit_blink":
+    [
+        {"file":"sounds/moci/effects/Moci_bit_blink.ogg","pitch":1.00,"volume":0.35},
+        {"file":"sounds/moci/effects/Moci_bit_blink.ogg","pitch":0.98,"volume":0.33},
+        {"file":"sounds/moci/effects/Moci_bit_blink.ogg","pitch":0.95,"volume":0.38},
+    ],
+  # Moci_Lightting
+    "Moci_Lightting":
+    [
+        {"file":"sounds/moci/effects/Moci_Lightting.ogg","pitch":1.00,"volume":0.35},
+        {"file":"sounds/moci/effects/Moci_Lightting.ogg","pitch":0.98,"volume":0.33},
+        {"file":"sounds/moci/effects/Moci_Lightting.ogg","pitch":0.95,"volume":0.38},
+    ],
+  # Moci_Charge_01
+    "Moci_Charge_01":
+    [
+        {"file":"sounds/moci/effects/Moci_Charge_01.ogg","pitch":1.00,"volume":0.85},
+        {"file":"sounds/moci/effects/Moci_Charge_01.ogg","pitch":0.98,"volume":0.83},
+        {"file":"sounds/moci/effects/Moci_Charge_01.ogg","pitch":0.95,"volume":0.88},
+    ],
+  # Moci_Charge_02
+    "Moci_Charge_02":
+    [
+        {"file":"sounds/moci/effects/Moci_Charge_02.ogg","pitch":1.00,"volume":0.85},
+        {"file":"sounds/moci/effects/Moci_Charge_02.ogg","pitch":0.98,"volume":0.83},
+        {"file":"sounds/moci/effects/Moci_Charge_02.ogg","pitch":0.95,"volume":0.88},
+    ],
+  # Moci_Magnum_01
+    "Moci_Magnum_01":
+    [
+        {"file":"sounds/moci/effects/Moci_Magnum_01.ogg","pitch":1.00,"volume":0.85},
+        {"file":"sounds/moci/effects/Moci_Magnum_01.ogg","pitch":0.98,"volume":0.83},
+        {"file":"sounds/moci/effects/Moci_Magnum_01.ogg","pitch":0.95,"volume":0.88},
+    ],
+  # Moci_Magnum_02
+    "Moci_Magnum_02":
+    [
+        {"file":"sounds/moci/effects/Moci_Magnum_02.ogg","pitch":1.00,"volume":0.85},
+        {"file":"sounds/moci/effects/Moci_Magnum_02.ogg","pitch":0.98,"volume":0.83},
+        {"file":"sounds/moci/effects/Moci_Magnum_02.ogg","pitch":0.95,"volume":0.88},
+    ],
+  # Moci_Magnum_03
+    "Moci_Magnum_03":
+    [
+        {"file":"sounds/moci/effects/Moci_Magnum_03.ogg","pitch":1.00,"volume":0.85},
+        {"file":"sounds/moci/effects/Moci_Magnum_03.ogg","pitch":0.98,"volume":0.83},
+        {"file":"sounds/moci/effects/Moci_Magnum_03.ogg","pitch":0.95,"volume":0.88},
+    ],
+  # Moci_deepdive
+    "Moci_deepdive":
+    [
+        {"file":"sounds/moci/effects/Moci_deepdive.ogg","pitch":1.00,"volume":0.85},
+        {"file":"sounds/moci/effects/Moci_deepdive.ogg","pitch":0.98,"volume":0.83},
+        {"file":"sounds/moci/effects/Moci_deepdive.ogg","pitch":0.95,"volume":0.88},
+    ],
+  # WaveCannon
+    "Moci_WaveCannon_loop":
+    [
+        {"file":"sounds/moci/effects/Moci_WaveCannon_loop.ogg","pitch":1.00,"volume":1.00},
+    ],
+    "Moci_WaveCannon_end":
+    [
+        {"file":"sounds/moci/effects/Moci_WaveCannon_end.ogg","pitch":1.00,"volume":1.00},
+    ],
+    "Moci_WaveCannon_charge_light":
+    [
+        {"file":"sounds/moci/effects/Moci_WaveCannon_charge_light.ogg","pitch":1.00,"volume":1.00},
+    ],
+    "Moci_WaveCannon_charge_heavy":
+    [
+        {"file":"sounds/moci/effects/Moci_WaveCannon_charge_heavy.ogg","pitch":1.00,"volume":1.00},
+    ],
+    "Moci_WaveCannon_shot_light":
+    [
+        {"file":"sounds/moci/effects/Moci_WaveCannon_shot_light.ogg","pitch":1.00,"volume":1.00},
+    ],
+    "Moci_WaveCannon_shot_heavy":
+    [
+        {"file":"sounds/moci/effects/Moci_WaveCannon_shot_heavy.ogg","pitch":1.00,"volume":1.00},
+    ],
+  # NT
+    "Moci_NT":
+    [
+        {"file":"sounds/moci/effects/Moci_NT.ogg","pitch":1.00,"volume":0.60},
+    ],
+  # Moci_Aircraft_launch
+    "Moci_Aircraft_launch":
+    [
+        {"file":"sounds/moci/effects/Moci_Aircraft_launch_01.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_Aircraft_launch_02.ogg","pitch":1.00,"volume":0.45},
+    ],
+  # Moci_riftcascade_bomb
+    "Moci_riftcascade_bomb":
+    [
+        {"file":"sounds/moci/effects/Moci_riftcascade_bomb.ogg","pitch":1.00,"volume":0.65},
+        {"file":"sounds/moci/effects/Moci_riftcascade_bomb.ogg","pitch":0.98,"volume":0.55},
+        {"file":"sounds/moci/effects/Moci_riftcascade_bomb.ogg","pitch":0.95,"volume":0.45},
+    ],
+  # Moci_mjolnir_fire
+    "Moci_mjolnir_fire":
+    [
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_02.ogg","pitch":1.00,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_03.ogg","pitch":1.00,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_04.ogg","pitch":1.00,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_02.ogg","pitch":0.99,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_03.ogg","pitch":0.99,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_04.ogg","pitch":0.99,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_02.ogg","pitch":0.98,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_03.ogg","pitch":0.98,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_04.ogg","pitch":0.98,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_02.ogg","pitch":0.96,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_03.ogg","pitch":0.94,"volume":0.85},
+		{"file":"sounds/sfx_wpn_guns/mjolnir_fire_04.ogg","pitch":0.92,"volume":0.85},
+    ],
+  # Moci_BeamSabre
+    "Moci_BeamSabre":
+    [
+        {"file":"sounds/moci/effects/Moci_BeamSabre.ogg","pitch":1.00,"volume":1},
+        {"file":"sounds/moci/effects/Moci_BeamSabre.ogg","pitch":0.98,"volume":0.98},
+        {"file":"sounds/moci/effects/Moci_BeamSabre.ogg","pitch":0.95,"volume":0.95},
+    ],
+  # Moci_BeamSabre_Hit
+    "Moci_BeamSabre_Hit":
+    [
+        {"file":"sounds/moci/effects/Moci_BeamSabre_Hit.ogg","pitch":1.00,"volume":1},
+        {"file":"sounds/moci/effects/Moci_BeamSabre_Hit.ogg","pitch":0.98,"volume":0.98},
+        {"file":"sounds/moci/effects/Moci_BeamSabre_Hit.ogg","pitch":0.95,"volume":0.95},
+    ],
+  # Moci_Bullet_fire
+    "Moci_Bullet_fire":
+    [
+        {"file":"sounds/moci/effects/Moci_Bullet_fire_01.ogg","pitch":1,"volume":1},
+        {"file":"sounds/moci/effects/Moci_Bullet_fire_02.ogg","pitch":1,"volume":1},
+        {"file":"sounds/moci/effects/Moci_Bullet_fire_01.ogg","pitch":0.98,"volume":0.98},
+        {"file":"sounds/moci/effects/Moci_Bullet_fire_02.ogg","pitch":0.98,"volume":0.98},
+    ],
+  # Moci_Yamato_ET_Maingun
+    "Moci_Yamato_ET_Maingun":
+    [
+        {"file":"sounds/moci/effects/Moci_Yamato_ET_Maingun.ogg","pitch":1.05,"volume":0.55},
+        {"file":"sounds/moci/effects/Moci_Yamato_ET_Maingun.ogg","pitch":1.02,"volume":0.52},
+        {"file":"sounds/moci/effects/Moci_Yamato_ET_Maingun.ogg","pitch":1.00,"volume":0.5},
+        {"file":"sounds/moci/effects/Moci_Yamato_ET_Maingun.ogg","pitch":0.98,"volume":0.48},
+        {"file":"sounds/moci/effects/Moci_Yamato_ET_Maingun.ogg","pitch":0.95,"volume":0.45},
+    ],
+  # Moci_Yamato_ET_System
+    "Moci_Yamato_ET_System":
+    [
+        {"file":"sounds/moci/effects/Moci_Yamato_ET_System.ogg","pitch":1.05,"volume":1.05},
+        {"file":"sounds/moci/effects/Moci_Yamato_ET_System.ogg","pitch":1.02,"volume":1.02},
+        {"file":"sounds/moci/effects/Moci_Yamato_ET_System.ogg","pitch":1.00,"volume":1},
+        {"file":"sounds/moci/effects/Moci_Yamato_ET_System.ogg","pitch":0.98,"volume":0.98},
+        {"file":"sounds/moci/effects/Moci_Yamato_ET_System.ogg","pitch":0.95,"volume":0.95},
+    ],
+  # Moci_Yamato_maingun_01
+    "Moci_Yamato_maingun_01":
+    [
+        {"file":"sounds/moci/effects/Moci_Yamato_maingun_01.ogg","pitch":1.12,"volume":1.12},
+        {"file":"sounds/moci/effects/Moci_Yamato_maingun_01.ogg","pitch":1.1,"volume":1.1},
+        {"file":"sounds/moci/effects/Moci_Yamato_maingun_01.ogg","pitch":1.05,"volume":1.05},
+        {"file":"sounds/moci/effects/Moci_Yamato_maingun_01.ogg","pitch":1.02,"volume":1.02},
+        {"file":"sounds/moci/effects/Moci_Yamato_maingun_01.ogg","pitch":1.00,"volume":1},
+    ],
+  # Moci_Yamato_maingun_02
+    "Moci_Yamato_maingun_02":
+    [
+        {"file":"sounds/moci/effects/Moci_Yamato_maingun_02.ogg","pitch":1.05,"volume":1.05},
+        {"file":"sounds/moci/effects/Moci_Yamato_maingun_02.ogg","pitch":1.02,"volume":1.02},
+        {"file":"sounds/moci/effects/Moci_Yamato_maingun_02.ogg","pitch":1.00,"volume":1},
+        {"file":"sounds/moci/effects/Moci_Yamato_maingun_02.ogg","pitch":0.98,"volume":0.98},
+        {"file":"sounds/moci/effects/Moci_Yamato_maingun_02.ogg","pitch":0.95,"volume":0.95},
+    ],
+  # Moci_gugugaga
+    "Moci_gugugaga":
+    [
+        {"file":"sounds/moci/effects/Moci_gugugaga1.ogg","pitch":1.00,"volume":0.7},
+        {"file":"sounds/moci/effects/Moci_gugugaga2.ogg","pitch":1.00,"volume":0.7},
+        {"file":"sounds/moci/effects/Moci_gugugaga3.ogg","pitch":1.00,"volume":0.7},
+        {"file":"sounds/moci/effects/Moci_gugugaga4.ogg","pitch":1.00,"volume":0.7},
+    ],
+  # Moci_beam_hit
+    "Moci_beam_hit":
+    [
+        {"file":"sounds/moci/effects/Moci_beam_hit_01.ogg","pitch":1.00,"volume":1.00},
+        {"file":"sounds/moci/effects/Moci_beam_hit_02.ogg","pitch":1.00,"volume":1.00},
+        {"file":"sounds/moci/effects/Moci_beam_hit_03.ogg","pitch":1.00,"volume":1.00},
+    ],
+  # Moci_WarpSound
+    "Moci_WarpSound":
+    [
+        {"file":"sounds/moci/effects/Moci_WarpSound.ogg","pitch":1.03,"volume":0.91},
+        {"file":"sounds/moci/effects/Moci_WarpSound.ogg","pitch":1.00,"volume":0.84},
+        {"file":"sounds/moci/effects/Moci_WarpSound.ogg","pitch":0.97,"volume":0.79},
+    ],
+  # Moci_WarpSound2
+    "Moci_WarpSound2":
+    [
+        {"file":"sounds/moci/effects/Moci_WarpSound2.ogg","pitch":1.03,"volume":1.01},
+        {"file":"sounds/moci/effects/Moci_WarpSound2.ogg","pitch":1.00,"volume":1.00},
+        {"file":"sounds/moci/effects/Moci_WarpSound2.ogg","pitch":0.97,"volume":0.99},
+    ],
+  # BeamShot
+    "Moci_BeamShot":
+    [
+        {"file":"sounds/moci/effects/Moci_BeamShot.ogg","pitch":1.03,"volume":1.01},
+        {"file":"sounds/moci/effects/Moci_BeamShot.ogg","pitch":1.00,"volume":1.00},
+        {"file":"sounds/moci/effects/Moci_BeamShot.ogg","pitch":0.97,"volume":0.99},
+    ],
+  # BeamShotHit
+    "Moci_BeamShot_Hit":
+    [
+        {"file":"sounds/moci/effects/Moci_BeamShot_Hit.ogg","pitch":1.03,"volume":1.01},
+        {"file":"sounds/moci/effects/Moci_BeamShot_Hit.ogg","pitch":1.00,"volume":1.00},
+        {"file":"sounds/moci/effects/Moci_BeamShot_Hit.ogg","pitch":0.97,"volume":0.99},
+    ],
+  # FlamerShot
+    "Moci_Flamerhot":
+    [
+        {"file":"sounds/moci/effects/Moci_FlamerShot.ogg","pitch":1.03,"volume":0.2},
+        {"file":"sounds/moci/effects/Moci_FlamerShot.ogg","pitch":1.00,"volume":0.15},
+        {"file":"sounds/moci/effects/Moci_FlamerShot.ogg","pitch":0.97,"volume":0.1},
+    ],
+  # ShotShot
+    "Moci_ShotShot":
+    [
+        {"file":"sounds/moci/effects/Moci_ShotShot.ogg","pitch":1.03,"volume":0.35},
+        {"file":"sounds/moci/effects/Moci_ShotShot.ogg","pitch":1.00,"volume":0.25},
+        {"file":"sounds/moci/effects/Moci_ShotShot.ogg","pitch":0.97,"volume":0.20},
+    ],
+  # PlasmaShot
+    "Moci_PlasmaShot":
+    [
+        {"file":"sounds/moci/effects/Moci_PlasmaShot.ogg","pitch":1.03,"volume":0.5},
+        {"file":"sounds/moci/effects/Moci_PlasmaShot.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_PlasmaShot.ogg","pitch":0.97,"volume":0.4},
+    ],
+  # EnergyBulletShot
+    "Moci_EnergyBulletShot":
+    [
+        {"file":"sounds/moci/effects/Moci_EnergyBulletShot.ogg","pitch":1.03,"volume":0.5},
+        {"file":"sounds/moci/effects/Moci_EnergyBulletShot.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_EnergyBulletShot.ogg","pitch":0.97,"volume":0.4},
+    ],
+  # Moci_BeamRifle
+    "Moci_BeamRifle":
+    [
+        {"file":"sounds/moci/effects/Moci_BeamRifle_1.ogg","pitch":1,"volume":0.5},
+        {"file":"sounds/moci/effects/Moci_BeamRifle_4.ogg","pitch":1,"volume":0.48},
+        {"file":"sounds/moci/effects/Moci_BeamRifle_1.ogg","pitch":0.95,"volume":0.55},
+        {"file":"sounds/moci/effects/Moci_BeamRifle_4.ogg","pitch":0.95,"volume":0.52},
+    ],
+  # Moci_HearyEnergy_1
+    "Moci_HearyEnergy_1":
+    [
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_1.ogg","pitch":1.03,"volume":0.5},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_1.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_1.ogg","pitch":0.97,"volume":0.4},
+    ],
+  # Moci_HearyEnergy_2
+    "Moci_HearyEnergy_2":
+    [
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_2.ogg","pitch":1.00,"volume":0.50},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_2.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_2.ogg","pitch":1.00,"volume":0.40},
+    ],
+  # Moci_HearyEnergy_3
+    "Moci_HearyEnergy_3":
+    [
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_3.ogg","pitch":1.03,"volume":0.70},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_3.ogg","pitch":1.00,"volume":0.65},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_3.ogg","pitch":0.97,"volume":0.60},
+    ],
+  # Moci_HearyEnergy_4
+    "Moci_HearyEnergy_4":
+    [
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_4.ogg","pitch":1.03,"volume":0.70},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_4.ogg","pitch":1.00,"volume":0.65},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_4.ogg","pitch":0.97,"volume":0.60},
+    ],
+  # Moci_HearyEnergy_5
+    "Moci_HearyEnergy_5":
+    [
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_5.ogg","pitch":1.03,"volume":0.55},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_5.ogg","pitch":1.00,"volume":0.50},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_5.ogg","pitch":0.97,"volume":0.45},
+    ],
+  # Moci_HearyEnergy_6
+    "Moci_HearyEnergy_6":
+    [
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_6.ogg","pitch":1.03,"volume":0.50},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_6.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_6.ogg","pitch":0.97,"volume":0.40},
+    ],
+  # Moci_HearyEnergy_7
+    "Moci_HearyEnergy_7":
+    [
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_7.ogg","pitch":1.05,"volume":0.80},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_7.ogg","pitch":1.00,"volume":0.75},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_7.ogg","pitch":0.95,"volume":0.70},
+    ],
+  # Moci_HearyEnergy_8
+    "Moci_HearyEnergy_8":
+    [
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_8.ogg","pitch":1.05,"volume":0.80},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_8.ogg","pitch":1.00,"volume":0.75},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_8.ogg","pitch":0.95,"volume":0.70},
+    ],
+  # Moci_HearyEnergy_9
+    "Moci_HearyEnergy_9":
+    [
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_9.ogg","pitch":1.05,"volume":0.80},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_9.ogg","pitch":1.00,"volume":0.75},
+        {"file":"sounds/moci/effects/Moci_HearyEnergy_9.ogg","pitch":0.95,"volume":0.70},
+    ],
+  # Moci_LightEnergy_1
+    "Moci_LightEnergy_1":
+    [
+        {"file":"sounds/moci/effects/Moci_LightEnergy_1.ogg","pitch":1.03,"volume":0.40},
+        {"file":"sounds/moci/effects/Moci_LightEnergy_1.ogg","pitch":1.00,"volume":0.35},
+        {"file":"sounds/moci/effects/Moci_LightEnergy_1.ogg","pitch":0.97,"volume":0.30},
+    ],
+  # Moci_LightEnergy_2
+    "Moci_LightEnergy_2":
+    [
+        {"file":"sounds/moci/effects/Moci_LightEnergy_2.ogg","pitch":1.03,"volume":0.20},
+        {"file":"sounds/moci/effects/Moci_LightEnergy_2.ogg","pitch":1.00,"volume":0.15},
+        {"file":"sounds/moci/effects/Moci_LightEnergy_2.ogg","pitch":0.97,"volume":0.10},
+    ],
+  # Moci_beamnoise_1
+    "Moci_beamnoise_1":
+    [
+        {"file":"sounds/moci/effects/Moci_beamnoise_1.ogg","pitch":1.0,"volume":0.80},
+    ],
+  # Moci_MissileFire_1
+    "Moci_MissileFire_1":
+    [
+        {"file":"sounds/moci/effects/Moci_MissileFire_1.ogg","pitch":1.0,"volume":0.80},
+    ],
+  # Moci_Weapon1Sound
+    "Moci_Weapon1Sound":
+    [
+        {"file":"sounds/moci/effects/Moci_Weapon1Sound.ogg","pitch":1.00,"volume":1.00},
+        {"file":"sounds/moci/effects/Moci_Weapon1Sound.ogg","pitch":1.00,"volume":0.97},
+        {"file":"sounds/moci/effects/Moci_Weapon1Sound.ogg","pitch":1.00,"volume":0.95},
+    ],
+  # Moci_Weapon2Sound
+    "Moci_Weapon2Sound":
+    [
+        {"file":"sounds/moci/effects/Moci_Weapon1Sound.ogg","pitch":1.00,"volume":1.00},
+        {"file":"sounds/moci/effects/Moci_Weapon1Sound.ogg","pitch":1.00,"volume":0.97},
+        {"file":"sounds/moci/effects/Moci_Weapon1Sound.ogg","pitch":1.00,"volume":0.95},
+    ],
+  # Moci_Weapon3Sound
+    "Moci_Weapon3Sound":
+    [
+        {"file":"sounds/moci/effects/Moci_Weapon3Sound1.ogg","pitch":1.00,"volume":1.00},
+        {"file":"sounds/moci/effects/Moci_Weapon3Sound2.ogg","pitch":1.00,"volume":0.97},
+        {"file":"sounds/moci/effects/Moci_Weapon3Sound3.ogg","pitch":1.00,"volume":0.95},
+    ],
+  # Moci_RX93v2_bitbeam
+    "Moci_RX93v2_bitbeam":
+    [
+        {"file":"sounds/moci/effects/Moci_RX93v2_bitbeam.ogg","pitch":1.00,"volume":2.0},
+    ],
+  # Moci_Light_1
+    "Moci_Light_1":
+    [
+        {"file":"sounds/moci/effects/Moci_Light_1.ogg","pitch":1.00,"volume":0.5},
+        {"file":"sounds/moci/effects/Moci_Light_1.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_Light_1.ogg","pitch":1.00,"volume":0.4},
+    ],
+  # Moci_Missile_launcher_01
+    "Moci_Missile_launcher_01":
+    [
+        {"file":"sounds/moci/effects/Moci_Missile_launcher_01.ogg","pitch":1.00,"volume":0.5},
+        {"file":"sounds/moci/effects/Moci_Missile_launcher_01.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_Missile_launcher_01.ogg","pitch":1.00,"volume":0.4},
+    ],
+  # Moci_Missile_launcher_02
+    "Moci_Missile_launcher_02":
+    [
+        {"file":"sounds/moci/effects/Moci_Missile_launcher_02.ogg","pitch":1.00,"volume":0.5},
+        {"file":"sounds/moci/effects/Moci_Missile_launcher_02.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_Missile_launcher_03.ogg","pitch":1.00,"volume":0.5},
+        {"file":"sounds/moci/effects/Moci_Missile_launcher_03.ogg","pitch":1.00,"volume":0.45},
+    ],
+  # Moci_Trop_launcher_01
+    "Moci_Trop_launcher_01":
+    [
+        {"file":"sounds/moci/effects/Moci_Trop_launcher_01.ogg","pitch":1.00,"volume":0.5},
+        {"file":"sounds/moci/effects/Moci_Trop_launcher_01.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/moci/effects/Moci_Trop_launcher_01.ogg","pitch":1.00,"volume":0.4},
+    ],
+  # Moci_Heary_Hit
+    "Moci_Heary_Hit":
+    [
+        {"file":"sounds/sfx_impacts/collision_asteroid_vs_asteroid_03.ogg","pitch":1.00,"volume":0.5},
+        {"file":"sounds/sfx_impacts/collision_asteroid_vs_asteroid_03.ogg","pitch":1.00,"volume":0.45},
+        {"file":"sounds/sfx_impacts/collision_asteroid_vs_asteroid_03.ogg","pitch":1.00,"volume":0.4},
+    ],
+  # Moci_System1_Active
+    "Moci_System1_Active":
+    [
+        {"file":"sounds/moci/effects/Moci_System1_Active.ogg","pitch":1.00,"volume":1.0},
+    ],
+  # Moci_System1_Loop
+    "Moci_System1_Loop":
+    [
+        {"file":"sounds/moci/effects/Moci_System1_Loop.ogg","pitch":1.00,"volume":1.0},
+    ],
+
+    "Moci_engine_loop":{
+        "sounds":[
+            {"file":"sounds/moci/effects/Moci_engine_loop1.ogg","pitch":0.67,"volume":1},
+            ],
+        },
+}

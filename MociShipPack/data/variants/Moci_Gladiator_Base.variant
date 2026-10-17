@@ -1,0 +1,50 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 4,
+    "fluxVents": 0,
+    "goalVariant": true,
+    "hullId": "Moci_Gladiator",
+    "hullMods": [
+        "armoredweapons",
+        "pointdefenseai",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gladiator_Base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "devastator",
+                "WS0002": "devastator",
+                "WS0010": "devastator",
+                "WS0009": "devastator",
+                "WS0008": "devastator",
+                "WS0007": "devastator",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0012": "mininglaser",
+                "WS0011": "mininglaser",
+                "WS0004": "mininglaser",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003": "heavymg",
+                "WS0005": "heavymg",
+                "WS0006": "heavymg",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

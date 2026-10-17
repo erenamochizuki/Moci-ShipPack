@@ -1,0 +1,44 @@
+{
+    "displayName": "B_Special",
+    "fluxCapacitors": 44,
+    "fluxVents": 50,
+    "goalVariant": false,
+    "hullId": "ziggurat",
+    "hullMods": [],
+    "permaMods": [
+        "Moci_GNFieldDefenseSystem",
+        "adaptive_coils",
+        "eccm",
+        "high_frequency_attractor",
+        "missleracks",
+    ],
+    "sMods": [
+        "adaptive_coils",
+        "eccm",
+        "missleracks",
+    ],
+    "suppressedMods": [],
+    "variantId": "ziggurat_B_Special",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 000": "rifttorpedo",
+                "WS 001": "rifttorpedo",
+                "WS 002": "resonatormrm",
+                "WS 003": "resonatormrm",
+                "WS 004": "resonatormrm",
+                "WS 005": "resonatormrm",
+                "WS 006": "amsrm",
+                "WS 007": "amsrm",
+                "WS 008": "amsrm",
+                "WS 009": "amsrm",
+                "WS 010": "amsrm",
+                "WS 011": "amsrm",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

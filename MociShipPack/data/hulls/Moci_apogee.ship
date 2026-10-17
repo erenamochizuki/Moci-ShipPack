@@ -1,0 +1,367 @@
+{
+  "hullName": "Moci_Apogee",
+  "hullId": "Moci_apogee",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/Moci_apogee.png",
+  "style": "HIGH_TECH",
+  "coversColor": "255,255,255,255",
+  "height": 278,
+  "width": 146,
+  "center": [
+    69,
+    132.5
+  ],
+  "collisionRadius": 182.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 182.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "hiressensors",
+    "advancedcore",
+    "vast_hangar"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS 001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 210,
+      "angle": 110,
+      "locations": [
+        -72.5,
+        42
+      ]
+    },
+    {
+      "id": "WS 002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 210,
+      "angle": 250,
+      "locations": [
+        -72.5,
+        -48
+      ]
+    },
+    {
+      "id": "WS 003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 130,
+      "angle": -80,
+      "locations": [
+        -35.5,
+        -42
+      ]
+    },
+    {
+      "id": "WS 004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 40.5,
+      "locations": [
+        61.5,
+        61
+      ]
+    },
+    {
+      "id": "WS 005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": -138.5,
+      "locations": [
+        38.5,
+        -59
+      ]
+    },
+    {
+      "id": "WS 006",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        123.5,
+        33
+      ]
+    },
+    {
+      "id": "WS 007",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        124.5,
+        -3
+      ]
+    },
+    {
+      "id": "WS 008",
+      "size": "LARGE",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        129.5,
+        -25
+      ]
+    },
+    {
+      "id": "WS 009",
+      "size": "LARGE",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 45,
+      "locations": [
+        -19.5,
+        34
+      ]
+    },
+    {
+      "id": "WS 010",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": -45,
+      "locations": [
+        -13.5,
+        -39
+      ]
+    },
+    {
+      "id": "WS 011",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 45,
+      "locations": [
+        -54.5,
+        39
+      ]
+    },
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": -45,
+      "locations": [
+        10.5,
+        -33
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "LARGE",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -44,
+        -6
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -126.5,
+        44
+      ],
+      "length": 64,
+      "width": 16,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -127.5,
+        33
+      ],
+      "length": 80,
+      "width": 16,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -128,
+        -34
+      ],
+      "length": 80,
+      "width": 16,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -127,
+        -45
+      ],
+      "length": 64,
+      "width": 16,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -129,
+        14.5
+      ],
+      "length": 32,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -130,
+        8
+      ],
+      "length": 32,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -130,
+        -9
+      ],
+      "length": 32,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -129.5,
+        -15
+      ],
+      "length": 32,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -129.5,
+        0
+      ],
+      "length": 48,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    29.5,
+    52,
+    52.5,
+    61,
+    87.5,
+    60,
+    116.5,
+    52,
+    127,
+    24,
+    127,
+    -6.5,
+    137,
+    -23,
+    124,
+    -47.5,
+    123.5,
+    -62.5,
+    91.5,
+    -72,
+    65.5,
+    -54,
+    39,
+    -64,
+    32,
+    -58,
+    53,
+    -23.5,
+    20.5,
+    -23.5,
+    30,
+    -38,
+    14.5,
+    -54.5,
+    -10,
+    -32,
+    -36.5,
+    -60.5,
+    -49,
+    -35.5,
+    -56.5,
+    -55,
+    -86.5,
+    -61,
+    -87,
+    -41.5,
+    -108.5,
+    -55,
+    -125.5,
+    -50,
+    -125.5,
+    -28,
+    -115.5,
+    -23,
+    -128.5,
+    -17,
+    -128.5,
+    15,
+    -112.5,
+    20,
+    -125.5,
+    26,
+    -126.5,
+    48.5,
+    -117.5,
+    55.5,
+    -94.5,
+    40,
+    -81.5,
+    60,
+    -48,
+    35.5,
+    -19,
+    54,
+    -1.5,
+    38.5,
+    -12,
+    23.5,
+    51.5,
+    24
+  ]
+}

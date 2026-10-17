@@ -1,0 +1,43 @@
+{
+  "id": "MSN_00100_arm_left_gun_bazooka",
+  "specClass": "projectile",
+  "projectileSpecId": "MSN_00100_arm_left_gun_bazooka_shot",
+  "type": "BALLISTIC",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_MSN_00100/arms/MSN_00100_WEAPON_BAZOOKA.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MSN_00100/arms/MSN_00100_WEAPON_BAZOOKA.png",
+  "turretOffsets": [
+    55,
+    -7.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    89,
+    -7.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "SMOKE",
+  "smokeSpec": {
+    "particleSizeMin": 5,
+    "particleSizeRange": 12,
+    "cloudParticleCount": 8,
+    "cloudDuration": 2.5,
+    "cloudRadius": 10,
+    "blowbackParticleCount": 4,
+    "blowbackDuration": 2,
+    "blowbackLength": 22,
+    "blowbackSpread": 15,
+    "particleColor": [
+      120,
+      120,
+      120,
+      100
+    ]
+  },
+  "fireSoundTwo": "hurricane_mirv_fire"
+}

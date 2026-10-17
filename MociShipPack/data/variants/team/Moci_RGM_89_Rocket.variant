@@ -1,0 +1,50 @@
+{
+    "displayName": "Rocket",
+    "fluxCapacitors": 10,
+    "fluxVents": 6,
+    "goalVariant": false,
+    "hullId": "Moci_RGM_89",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "armoredweapons",
+        "eccm",
+        "fluxcoil",
+        "fluxdistributor",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "insulatedengine",
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RGM_89_Rocket",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "RGM_89_arm_left_gun_Sabre",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "hydra",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RGM_89_SHIELD_L_Base"},
+    ],
+}

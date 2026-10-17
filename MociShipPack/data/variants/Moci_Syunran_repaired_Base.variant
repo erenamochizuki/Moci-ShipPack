@@ -1,0 +1,19 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Syunran_repaired",
+    "hullMods": [
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Syunran_repaired_Base",
+    "weaponGroups": [],
+    "wings": [],
+    "modules": [
+        {"WINGWEAPON_01": "Moci_Cosmo_Zero_Base"},
+        {"WINGWEAPON_02": "Moci_Cosmo_Zero_Base"},
+    ],
+}

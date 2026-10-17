@@ -1,0 +1,37 @@
+{
+  "id": "Moci_Vangnix_right_cannon",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_Vangray_right_cannon_shot",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "turretSprite": "",
+  "turretGunSprite": "graphics/ships/Mobile_Suit/Moci_Vangnix/arms/Vangnix_arm_right_gun.png",
+  "hardpointSprite": "",
+  "hardpointGunSprite": "graphics/ships/Mobile_Suit/Moci_Vangnix/arms/Vangnix_arm_right_gun.png",
+  "glowColor": [
+    255,
+    155,
+    150,
+    255
+  ],
+  "visualRecoil": 12,
+  "turretOffsets": [
+    86,
+    4
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    82,
+    2
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "autocharge": true,
+  "animationType": "NONE",
+  "fireSoundOne": "Moci_Charge_02",
+  "fireSoundTwo": "Moci_HearyEnergy_1"
+}

@@ -1,0 +1,50 @@
+{
+  "variantId": "Moci_Limarch_broken_variant",
+  "hullId": "Moci_Limarch",
+  "displayName": "Broken",
+  "goalVariant": false,
+  "fluxCapacitors": 40,
+  "fluxVents": 50,
+  "quality": 1,
+  "permaMods": [
+    "rugged",
+    "comp_armor",
+    "comp_hull",
+    "comp_structure",
+    "damaged_mounts",
+    "degraded_engines",
+    "faulty_grid",
+    "fragile_subsystems",
+    "faulty_auto"
+  ],
+  "hullMods": [
+    "heavyarmor",
+    "missleracks"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "lightmg",
+        "WS0002": "lightmg",
+        "WS0003": "lightmg",
+        "WS0004": "lightmg",
+        "WS0005": "lightmg",
+        "WS0006": "lightmg",
+        "WS0011": "flak",
+        "WS0013": "breachpod",
+        "WS0014": "breachpod",
+        "WS0015": "breachpod",
+        "WS0016": "breachpod",
+        "WS0018": "Moci_tpc_cannon",
+        "WS0019": "Moci_tpc_cannon",
+        "WS0020": "Moci_tpc_cannon",
+        "WS0021": "Moci_tpc_cannon",
+        "WS0022": "Moci_tpc_cannon"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

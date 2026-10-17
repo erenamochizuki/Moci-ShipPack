@@ -1,0 +1,25 @@
+{
+  "variantId": "Moci_Aestivalis_fighter",
+  "hullId": "Moci_Aestivalis_fighter",
+  "displayName": "激钢型",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "ARM_L_SOURCE": "Moci_Aestivalis_AKITO_left_gun_rifle",
+        "ARM_R_SOURCE": "Moci_Aestivalis_AKITO_right_gun_rifle",
+        "BACKPACK_SOURCE": "Moci_Aestivalis_EX_missile_launcher",
+        "HEAD_SOURCE": "Moci_Aestivalis_Gekiganbeam"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

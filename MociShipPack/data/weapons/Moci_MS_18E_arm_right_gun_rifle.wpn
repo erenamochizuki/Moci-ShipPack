@@ -1,0 +1,61 @@
+{
+  "id": "Moci_MS_18E_arm_right_gun_rifle",
+  "specClass": "projectile",
+  "projectileSpecId": "MA_18E_arm_right_gun",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_MS_18E/arms/MS_18E_arm_right_gun.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MS_18E/arms/MS_18E_arm_right_gun.png",
+  "glowColor": [255,200,200,180],
+  "visualRecoil": 2,
+  "turretOffsets": [
+    54,
+    9,
+    54,
+    9,
+    54,
+    9,
+    54,
+    9,
+    54,
+    9
+  ],
+  "turretAngleOffsets": [
+    0,
+    5,
+    -5,
+    10,
+    -10
+  ],
+  "hardpointOffsets": [
+    82,
+    9,
+    82,
+    9,
+    82,
+    9,
+    82,
+    9,
+    82,
+    9
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    2,
+    -2,
+    4,
+    -4
+  ],
+  "barrelMode": "LINKED",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 30,
+    "spread": 30,
+    "particleSizeMin": 12,
+    "particleSizeRange": 12,
+    "particleDuration": 0.5,
+    "particleCount": 25,
+    "particleColor": [255,200,70,225]
+  },
+  "fireSoundTwo": "heavy_adjudicator_fire"
+}

@@ -1,0 +1,64 @@
+{
+  "id": "Moci_RGM_89S_nukebackpack",
+  "specClass": "projectile",
+  "projectileSpecId": "RGM_89S_nuke",
+  "type": "MISSILE",
+  "size": "LARGE",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_RGM_89/backpack/RGM_89S_backpack.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_RGM_89/backpack/RGM_89S_backpack.png",
+  "renderHints": [
+    RENDER_LOADED_MISSILES
+  ],
+  "turretOffsets": [
+    6.5,
+    -30,
+    6.5,
+    30,
+    6.5,
+    -15,
+    6.5,
+    15
+  ],
+  "turretAngleOffsets": [
+    0,
+    -0,
+    -0,
+    0
+  ],
+  "hardpointOffsets": [
+    24,
+    -30,
+    24,
+    30,
+    24,
+    -15,
+    24,
+    15
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    -0,
+    -0,
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "SMOKE",
+  "smokeSpec": {
+    "particleSizeMin": 12,
+    "particleSizeRange": 12,
+    "cloudParticleCount": 6,
+    "cloudDuration": 1.5,
+    "cloudRadius": 10,
+    "blowbackParticleCount": 4,
+    "blowbackDuration": 2,
+    "blowbackLength": 22,
+    "blowbackSpread": 15,
+    "particleColor": [
+      100,
+      100,
+      100,
+      200
+    ]
+  },
+  "fireSoundTwo": "hammer_fire"
+}

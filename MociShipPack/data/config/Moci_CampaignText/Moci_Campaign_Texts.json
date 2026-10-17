@@ -1,0 +1,171 @@
+{
+  "Moci_CampaignText": {
+    "rules": {
+      "nergal_flavor_1a": "穿梭机穿过 \"Lotus\" 上空密集有序的进港航道，脚下是一望无际的蓝色海面，以及漂浮其上的船坞、装配站和点亮导航灯的海上平台。进入港口时，你能看见一处显眼的全息屏上写满了\"尼尔加重工\"的业务项目：舰船整备、MS 定制、驾驶员雇佣与培训服务……",
+      "nergal_flavor_1b": "港务大厅里到处是正在接待客户的销售员，洽谈声与全息广告的背景音混在一起，商业气息十分浓厚。",
+      "nergal_flavor_2a": "透过舷窗，你能看见 \"Lotus\" 海面上缓慢移动的巨型浮动船坞，以及沿着海上平台列队起降的工程穿梭机。港区内部比想象中更明亮整洁，几台已经完成整备的机动战士被陈列在透明隔舱后方。",
+      "nergal_flavor_2b": "虽说是一座工业港口，但这里的生活设施一应俱全，甚至还能看见几家游戏厅与私人会所。看得出尼尔加重工在港口的环境上花了不少心思。",
+      "nergal_flavor_3a": "停靠完成后，你走过一段环形观景廊桥。下方是被阳光照亮的海面和整齐排列的泊位，上方的大屏则滚动播放着交付时刻表、测试排期和临时合同。相比 \"Tulip\" 那种自由散漫的淘金热氛围，\"Lotus\" 的一切都按大企业的规矩运转，显得井井有条。",
+      "nergal_flavor_3b": "偶尔有技术员推着装满部件箱的磁悬平台从你身边匆匆走过，不远处还有穿制服的员工正把访客引向独立会谈室，整个港区都在高效运转。",
+      "nergal_flavor_4a": "从港务区的高层观察窗望去，近处是 \"Lotus\" 海面上的灯火，远处是带环的 \"Peony\" 与更外侧安静的冰世界，黄色恒星的光线把这一切照得清晰而柔和。很少有企业会把自己的据点建设得这么像一颗度假星球。",
+      "nergal_flavor_4b": "或许正是\"尼尔加重工\"的高福利政策，他们在网络上的口碑比某个同行要好得多。",
+      "lotus_nadesico": {
+        "option": "和\"尼尔加\"内部联络人谈谈。",
+        "prompt": "酒吧靠里那间包厢的门牌被刻意留空了，\"尼尔加\"的人正在里面等你。"
+      },
+      "lotus_nadesico_dev": {
+        "option": "[测试] 百合香 +15 好感",
+        "prompt": "调试用选项。"
+      }
+    },
+    "common": {
+      "continue": "继续",
+      "return_to_bar": "返回酒吧",
+      "guard_gate": "巡守星门",
+      "unknown_fleet": "未知舰队",
+      "unknown_mission": "未知任务",
+      "some_gate": "某个星门",
+      "mission_completed": "任务已完成。",
+      "section_summary": "任务简述",
+      "section_status": "当前状态",
+      "target_location": "目标位置：{place}"
+    },
+    "okita_bar": {
+      "prompt": "酒吧角落里，一位穿着陌生海军制服的老人独自坐着。他抬眼看见你时，轻轻举杯示意。",
+      "main_text": "一位穿着海军制服的老人坐在酒吧的一角，你认不出他制服上的军衔，但你看得出来他是这里的常客，当你与他视线接触时，他对你做了个“请过来”的手势。",
+      "offer_text": "“请坐，我猜你是个星舰舰长？”他看到你的认同后点了点头“我以前也是一位舰长，直到我失去了战舰，现在只能在这颗小星球上做点向其他舰长派任务的杂活了。”说到这里他停顿了一下“如果不介意的话和我这个老头子聊一聊，怎样？”",
+      "decline_text": "老人只是微微点头，示意自己并不介意。也许等你准备好了，再回来和他谈也不迟。",
+      "accept_text_1": "一开始你们还只是浅浅聊了聊近期的新闻，但渐渐的话题偏向了各个势力的军事动向，进而发展成了战场推演的氛围，此时你意识到了他不仅对各势力战斗舰艇的性能了如指掌，还有着极高的军事素养，就像他真的指挥过一场战役一样。",
+      "accept_text_2": "“你很像之前我手底下的一位年轻人。”他最后这么说道“如果你需要找活干的话，就回来找我吧。”",
+      "contact_received": "你的速子平板上收到了新的通讯ID申请。",
+      "option_approach": "过去和那位老船长谈一谈，并且请他一杯酒",
+      "option_accept": "接受他的提议",
+      "option_decline": "礼貌地拒绝他"
+    },
+    "yamato": {
+      "defender_fleet_name": "大和号守卫舰队",
+      "already_salvaged": "这里已经没有什么可打捞的了。",
+      "error_create_ship": "错误：无法创建大和号舰船。请检查 hull_id 是否正确。",
+      "salvage_success": "成功打捞大和号！这艘传说中的超级战列舰现在归你所有了。",
+      "blueprint_gained": "从守卫舰队的数据库中获得了\"悬舟-级\"的舰船蓝图。"
+    },
+    "gacha": {
+      "command": {
+        "info_first": "你坐在了这台被称为\"泽科诺瓦发生装置\"的仪器前，旁边写着已经模糊掉了的字样，但你的技术人员识别后得出了这个装置是通过名为\"涡族\"的虚空生命体体内掉落的珍珠状物体运行的。你对此感到震惊，你显然不能理解这种东西的存在，尤其是它与这些奇怪生物之间的关联。",
+        "info_repeat": "你带着狩猎获得的各种\"涡珠\"，准备启动\"泽科诺瓦发生装置\"来获取神秘的奖励。",
+        "error_missing_resource": "异常错误 未记录抽卡资源id",
+        "error_zero_draws": "异常错误 抽卡次数0"
+      },
+      "shop": {
+        "title": "兑换",
+        "confirm": "确认",
+        "cancel": "取消",
+        "no_items_exchanged": "未兑换商品",
+        "insufficient_commodity": "资源不足，无法兑换 {name} (需要 {required} 个 {commodity}，当前拥有 {current} 个)",
+        "insufficient_credits": "星币不足，无法兑换 {name} (需要 {required} 星币，当前拥有 {current} 星币)",
+        "exchange_failed": "兑换失败：资源不足",
+        "exchanged_item": "兑换了：{name}",
+        "unsupported_sale_item": "不支持直接出售的奖品：{id}",
+        "cancelled": "取消兑换",
+        "ticket_heading": "当前拥有的兑奖券:",
+        "ticket_count": "兑奖券 x {tickets}",
+        "cost_heading": "购买开销",
+        "credits_count": "星币 x {num}",
+        "partial_due_to_shortage": "持有的兑换物不足 仅能兑换部分选中物品",
+        "current_action": "当前操作：",
+        "credits_delta": "星币{delta}"
+      },
+      "manager": {
+        "ticket_missing": "系统错误：兑奖券未注册，已转换为 {credits} 星币"
+      },
+      "limit": {
+        "all_ssr_obtained": "SSR道具已经全部获得",
+        "next_guaranteed": "下次抽奖必得稀有道具",
+        "remaining": "剩余保底次数 {num}"
+      },
+      "error": {
+        "empty_pool": "异常错误！奖品池中没有物品",
+        "invalid_pool_item": "未知错误,奖品池中存在没有数据的非法物资id：{id} 已移出卡池",
+        "missing_variant": "未知错误,舰船变体不存在：{id}",
+        "invalid_ship": "未知错误,抽到非法舰船：{id}",
+        "unknown_prize_type": "未知类型奖品：{id}"
+      },
+      "officer": {
+        "convert_duplicate": "获得已有军官，自动转化为{core}"
+      }
+    },
+    "bar": {
+      "prompt": "Lotus 酒吧安静的包厢里，{contact} 正等着和你谈一笔\"尼尔加\"的内部委托。",
+      "option_talk": "与{contact}交谈",
+      "intro_prospector": "{contact} 已经把预算报表、停靠许可和截获的航线资料投在了桌面上，打算先和你核对一下这次外勤的开销与风险。",
+      "intro_yurika": "{contact} 靠在窗边，面前展开着战术投影和传感器记录。她说话依旧温和，看得出经过之前的合作，她已经把你当成了最可靠的帮手。",
+      "accept_remnant_success": "{contact} 迅速把一段新的\"余辉\"活动轨迹发到了你的终端。目标已经被标记，随时可以出发。",
+      "accept_remnant_failed": "目前还没有追踪到新的目标，过段时间再来问问吧。",
+      "accept_story_failed": "这条行动线暂时无法启动，可能已经有同阶段任务正在执行。",
+      "accept_story_a": "{contact} 把\"抚子A\"的识别档案推到了你面前，并提醒你这次行动非常关键，将直接决定后续的试验项目由谁来接手。",
+      "accept_story_b": "{contact} 把最新整理出的\"玻色子尾迹\"和追踪坐标发给了你，催促你尽快动身，以免跟丢目标。",
+      "accept_story_tdd": "{contact} 低声说明了\"秘银\"那边刚发来的汇合时间与坐标。只要你按时赶到，就能配合他们展开最后的行动。",
+      "accept_story_default": "{contact} 把新的任务资料发到了你的终端。",
+      "no_report": "目前没有新的行动总结。",
+      "option_show_report": "听取最近一次行动汇报",
+      "option_accept_remnant": "接取余辉清剿委托",
+      "option_story_a": "接取主线：抚子A",
+      "option_story_b": "接取主线：抚子B",
+      "option_story_tdd": "接取主线：丹努之子",
+      "option_story_default": "接取主线",
+      "option_continue": "继续",
+      "option_leave": "返回酒吧",
+      "fallback_contact": "尼尔加联络员",
+      "route_uninitialized": "未初始化",
+      "debug_route": "当前路线：{route}",
+      "debug_affinity": "当前好感：{affinity}",
+      "debug_remnant_jobs": "已完成余辉委托：{count}",
+      "dev_affinity_result": "测试：已增加 {amount} 点好感，当前好感为 {affinity}。"
+    },
+    "yurika_mission": {
+      "start_failed": "任务启动失败：未找到合适目标，请稍后再试。",
+      "report_remnant_completed": "对方确认余辉舰队已经被清除。本次报酬：{reward}。\"Yurika\" 对你的信任继续增加（+{amount}，当前好感 {affinity}）。你被告知，后续还会有类似目标需要处理。",
+      "report_story_a_completed": "\"Prospector\" 确认了\"抚子A\"的识别码，\"尼尔加\"接受了这次回收结果，并把后续线索转交给了 \"Yurika\"。",
+      "report_story_b_completed": "\"Yurika\" 完成了\"玻色子尾迹\"数据整理。\"尼尔加\"补全了试验线，并把注意力引向了另一艘与\"秘银\"有关的船。",
+      "report_story_tdd_completed": "\"秘银\"确认电子压制窗口执行成功。\"丹努之子\"被拖回现实空间，\"尼尔加\"与\"秘银\"之间建立起了最低限度的互信。",
+      "fleet_remnant": "余辉清剿目标",
+      "fleet_story_a": "抚子A 特别行动队",
+      "fleet_story_b": "抚子B 特别行动队",
+      "fleet_story_tdd": "秘银协作舰队",
+      "name_remnant": "余辉清剿委托",
+      "name_story_a": "抚子A",
+      "name_story_b": "抚子B",
+      "name_story_tdd": "丹努之子",
+      "desc_remnant": "清理一支在边缘星门附近活动的余辉目标，为\"尼尔加\"换取更多观察窗口。",
+      "desc_story_a": "确认并截获\"抚子A\"，防止其继续脱离\"尼尔加\"的情报链。",
+      "desc_story_b": "追击\"抚子B\"并回收\"玻色子跳跃\"相关数据。",
+      "desc_story_tdd": "和\"秘银\"协作，围绕\"丹努之子\"的航标残迹展开最终行动。",
+      "bullet_active": "前往 {place} 处理目标舰队。",
+      "status_completed": "行动完成，正在汇总报告。",
+      "report_remnant_advanced_completed": "强化余辉舰队已被清除。本次报酬：{reward}。Yurika 对你的信任继续增加（+{amount}，当前好感 {affinity}）。",
+      "report_remnant_omega_completed": "欧米伽异常舰队已被清除。本次报酬：{reward}。Yurika 对你的信任继续增加（+{amount}，当前好感 {affinity}）。",
+      "reward_credits": "星币 +{credits}",
+      "reward_advanced": "目标规模约 {fleetFp} 点：星币 +{credits}、{core} x{count}",
+      "reward_omega": "目标规模约 {fleetFp} 点：星币 +{credits}、原版制品：{artifact}",
+      "reward_artifact_fallback": "原版稀有制品",
+      "core_gamma_core": "伽马 AI 核心",
+      "core_beta_core": "贝塔 AI 核心",
+      "core_alpha_core": "阿尔法 AI 核心",
+      "fleet_omega": "欧米伽异常舰队",
+      "advanced_contract_details": "目标规模约 {fleetFp} FP。清剿报酬：星币 {credits}，{core} x{count}。规模及报酬已在接取时锁定。",
+      "omega_contract_details": "目标为欧米伽舰队，规模约 {fleetFp} FP。清剿报酬：星币 {credits}，随机制品 x1。规模及报酬已在接取时锁定。"
+    },
+    "okita_mission": {
+      "name_stage1": "异常空间信号",
+      "name_stage2": "失踪的小队",
+      "name_stage3": "寻找航标",
+      "start_failed": "任务启动失败：未找到可用目标，请稍后重试。",
+      "enemy_fleet": "未知部队",
+      "bullet_active": "前往 {place}，清理未知部队。",
+      "desc_stage1": "调查并清理星门附近的异常舰队。",
+      "desc_stage2": "追踪失踪小队并清除威胁。",
+      "desc_stage3": "围绕航标残迹的最终行动。",
+      "status_completed": "行动完成，正在汇总战斗数据。"
+    }
+  }
+}

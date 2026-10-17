@@ -1,0 +1,50 @@
+{
+  "id": "Moci_ReinWeissRitter_arm_right_gun",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_Roaring_Cannon_X",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "everyFrameEffect": "data.scripts.weapons.Moci_Weapon3Effect",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_ReinWeissRitter/arms/ReinWeissRitter_arm_right_gun.png",
+  "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_ReinWeissRitter/arms/ReinWeissRitter_arm_right_gun_glow.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_ReinWeissRitter/arms/ReinWeissRitter_arm_right_gun.png",
+  "hardpointGlowSprite": "graphics/ships/Mobile_Suit/Moci_ReinWeissRitter/arms/ReinWeissRitter_arm_right_gun_glow.png",
+  "renderBelowAllWeapons": true,
+  "glowColor": [
+    255,
+    100,
+    150,
+    255
+  ],
+  "turretOffsets": [
+    73,
+    -9
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    114,
+    -9
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 75,
+    "spread": 50,
+    "particleSizeMin": 5,
+    "particleSizeRange": 20,
+    "particleDuration": 0.25,
+    "particleCount": 30,
+    "particleColor": [
+      255,
+      137,
+      176,
+      200
+    ]
+  },
+  "fireSoundTwo": "Moci_Weapon3Sound"
+}

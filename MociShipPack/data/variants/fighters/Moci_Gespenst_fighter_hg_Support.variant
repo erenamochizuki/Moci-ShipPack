@@ -1,0 +1,39 @@
+{
+    "displayName": "支援联队",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Gespenst_fighter_hg",
+    "hullMods": [
+        "autorepair",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gespenst_fighter_hg_Support",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "hveldriver",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "heavymauler",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDERWEAPON_R_SOURCE": "Moci_minipilum",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

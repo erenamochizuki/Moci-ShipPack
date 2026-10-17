@@ -1,0 +1,42 @@
+{
+    "displayName": "突击联队",
+    "fluxCapacitors": 5,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_Gespenst_fighter",
+    "hullMods": [
+        "armoredweapons",
+        "autorepair",
+        "auxiliarythrusters",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gespenst_fighter_Fighter",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "Moci_Gespenst_left_gun",
+                "ARM_R_SOURCE": "Moci_Gespenst_right_gun",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDERWEAPON_R_SOURCE": "heatseeker",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDERWEAPON_L_SOURCE": "heatseeker",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

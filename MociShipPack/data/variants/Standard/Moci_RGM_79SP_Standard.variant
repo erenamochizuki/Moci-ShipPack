@@ -1,0 +1,47 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 10,
+    "fluxVents": 2,
+    "goalVariant": false,
+    "hullId": "Moci_RGM_79SP",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "armoredweapons",
+        "autorepair",
+        "ecm",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RGM_79SP_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_RGM_79SP_arm_right_rifle",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "RX_78_2_arm_left_gun_Sabre",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RGM_79SP_SHIELD_L_Base"},
+    ],
+}

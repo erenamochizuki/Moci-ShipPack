@@ -1,0 +1,102 @@
+{
+  "hullName": "Moci_Granzon",
+  "hullId": "Moci_Granzon",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/Mobile_Suit/Granzon/body/Granzon.png",
+  "style": "MOCI_MS",
+  "height": 116,
+  "width": 180,
+  "center": [90, 58],
+  "collisionRadius": 96,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 96,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_MobilitySubsystemHullmod",
+    "Moci_antibeamcoating",
+    "Moci_MobileSuits",
+    "Moci_GNShield"
+  ],
+  "builtInWeapons": {
+    "HEAD_SOURCE": "Moci_heavry_vulcan",
+    "MAIN_GUN": "Moci_Granzon_arms_double",
+    "RING": "Moci_Granzon_ring"
+  },
+  "weaponSlots": [
+    {
+      "id": "RING",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-8, 0],
+      "renderOrderMod": 2
+    },
+    {
+      "id": "MAIN_GUN",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 40,
+      "angle": 0,
+      "locations": [18, 0],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "HEAD_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 70,
+      "angle": 0,
+      "locations": [36, 0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-30, -10],
+      "length": 18,
+      "width": 6,
+      "angle": -175,
+      "contrailSize": 6,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-30, 10],
+      "length": 18,
+      "width": 6,
+      "angle": 175,
+      "contrailSize": 6,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-22, -16],
+      "length": 12,
+      "width": 4,
+      "angle": -150,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-22, 16],
+      "length": 12,
+      "width": 4,
+      "angle": 150,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -28, 18,
+    -8, 28,
+    16, 24,
+    34, 12,
+    42, 4,
+    42, -4,
+    34, -12,
+    16, -24,
+    -8, -28,
+    -28, -18
+  ]
+}

@@ -1,0 +1,20 @@
+{
+	"ranks":{
+		"Moci_spaceLieutenantCommander":{"name":"海军少校"},
+		"ATX_1":{"name":"王牌机师"},
+		"MS_pilot":{"name":"MS机师"},
+		"Moci_AI_01":{"name":"舰载AI"},
+	},
+	
+	"posts":{
+		"Moci_Store_Manager":{"name":"店长"},
+		"Moci_Liaison_Officer":{"name":"大和号舰长"},
+	},
+}
+
+
+
+
+
+
+

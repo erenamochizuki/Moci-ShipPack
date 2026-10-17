@@ -1,0 +1,264 @@
+{
+  "hullName": "Moci_MSZ_010",
+  "hullId": "Moci_MSZ_010",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/Mobile_Suit/MSZ_010/body/MSZ_010_body_00.png",
+  "style": "MOCI_PT",
+  "height": 114,
+  "width": 108,
+  "center": [54, 57],
+  "collisionRadius": 74,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 74,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_MobilitySubsystemHullmod",
+    "Moci_MobileSuits",
+    "Moci_VariableFrame",
+    "Moci_GNShield",
+    "Moci_antibeamcoating",
+    "Moci_BioSensor"
+  ],
+  "builtInWeapons": {
+    "ARM_L": "Moci_MSZ_010_arm_left",
+    "ARM_L_SOURCE": "MSZ_010_arm_left_gun_Sabre",
+    "ARM_R": "Moci_MSZ_010_arm_right",
+    "ARM_R_SOURCE": "MSZ_010_arm_right_gun_rifle",
+    "BACKPACK": "Moci_MSZ_010_backpack",
+    "BODY": "Moci_MSZ_010_body",
+    "HEAD": "Moci_MSZ_010_head",
+    "HEAD_BEAM": "MSZ_010_head_beam",
+    "HEAD_SOURCE": "MSZ_010_head_vulcan",
+    "LEGS": "Moci_MSZ_010_legs",
+    "SHOULDER_L": "Moci_MSZ_010_shoulder_left",
+    "SHOULDER_R": "Moci_MSZ_010_shoulder_right",
+    "WR_MAINGUN": "MSZ_010_WR_MAINGUN"
+  },
+  "weaponSlots": [
+    {
+      "id": "LEGS",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 143,
+      "angle": 0,
+      "locations": [26, -0]
+    },
+    {
+      "id": "ARM_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-4, 40],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "ARM_L_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 95,
+      "angle": 0,
+      "locations": [-4, 40],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "ARM_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 95,
+      "angle": 0,
+      "locations": [6, -43],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "SHOULDER_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-1, -26],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "SHOULDER_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-1, 26],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "HEAD",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 120,
+      "angle": 0,
+      "locations": [2, -0],
+      "renderOrderMod": 6
+    },
+    {
+      "id": "BODY",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, -0],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "ARM_R_SOURCE",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 95,
+      "angle": 0,
+      "locations": [6, -43],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "HEAD_SOURCE",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 120,
+      "angle": 0,
+      "locations": [2, -0]
+    },
+    {
+      "id": "HEAD_BEAM",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 120,
+      "angle": 0,
+      "locations": [2, -0],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "BACKPACK",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-15, -0],
+      "renderOrderMod": 50
+    },
+    {
+      "id": "WR_LEFT_WP_1",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-30, 37]
+    },
+    {
+      "id": "WR_RIGHT_WP_1",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": -0,
+      "locations": [-30, -37]
+    },
+    {
+      "id": "WR_LEFT_WP_3",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 90,
+      "locations": [-60, 16]
+    },
+    {
+      "id": "WR_RIGHT_WP_3",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": -90,
+      "locations": [-60, -16]
+    },
+    {
+      "id": "WR_LEFT_WP_2",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 90,
+      "locations": [-53.5, 16]
+    },
+    {
+      "id": "WR_RIGHT_WP_2",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": -90,
+      "locations": [-53.5, -16]
+    },
+    {
+      "id": "WR_MAINGUN",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [53, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-12, 4],
+      "length": 18,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-12, 22],
+      "length": 18,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-12, 1],
+      "length": 14,
+      "width": 3,
+      "angle": -165,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-12, 25],
+      "length": 14,
+      "width": 3,
+      "angle": 165,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -4, 39,
+    6, 39,
+    22, 25,
+    22, 1,
+    6, -13,
+    -4, -13,
+    -16, 5,
+    -16, 21
+  ]
+}

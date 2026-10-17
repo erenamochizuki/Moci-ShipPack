@@ -1,0 +1,42 @@
+{
+  "id": "Moci_MSN_03_shoulder_left",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_MSN03_WingmanL",
+  "type": "MISSILE",
+  "size": "SMALL",
+  "everyFrameEffect": "data.scripts.weapons.Moci_MechShoulderDecoWeaponEffect",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_MSN_03/shoulders/MSN_03_shoulder_left.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MSN_03/shoulders/MSN_03_shoulder_left.png",
+  "renderHints": [
+    RENDER_LOADED_MISSILES
+  ],
+  "turretOffsets": [
+    2.5,
+    14,
+    4.5,
+    12,
+    6.5,
+    10
+  ],
+  "turretAngleOffsets": [
+    0,
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    10,
+    14,
+    12,
+    12,
+    14,
+    10
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0,
+    0
+  ],
+  "fireSoundTwo": "Moci_bit_launch",
+  "barrelMode": "ALTERNATING",
+  "animationType": "NONE"
+}

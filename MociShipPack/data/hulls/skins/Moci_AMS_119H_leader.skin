@@ -1,0 +1,39 @@
+{
+	"baseHullId":"Moci_AMS_119",
+	"skinHullId":"Moci_AMS_119H_leader",
+	"hullName":"基拉·多加(重武装式样型队长型)",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_AMS_119",
+	"descriptionPrefix":"该型号加装了额外的指挥电台，借此。这艘舰船可以指挥一支小队而非单打独斗。",
+	"tags":["moci_ms", "no_dealer", " no_sell", "merc"],
+	"tech":"阿纳海姆电子",
+	"fleetPoints":19,
+	"ordnancePoints":70,
+	"maxSpeed":60,
+	"baseValueMult":1.45,
+	"systemId":"ammofeed",
+	"spriteName":"graphics/ships/Mobile_Suit/Moci_AMS_119/body/AMS_119_leader_body.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":["ARM_R_TYPE"], 		# weapon slot ids
+	"builtInMods":[
+    "Moci_CaptainMachine",
+],
+  "builtInWeapons": {
+    "ARM_L": "Moci_AMS_119_leader_arm_left",
+    "ARM_R": "Moci_AMS_119H_leader_arm_right",
+    "ARM_R_SOURCE": "Moci_AMS_119_leader_arm_right_rifle",
+    "BACKPACK": "Moci_AMS_119H_backpack",
+    "BODY": "Moci_AMS_119_leader_body",
+    "HEAD": "Moci_AMS_119_leader_head",
+    "LEGS": "Moci_AMS_119_leader_legs",
+    "SHOULDER_R": "Moci_AMS_119_leader_shoulder_right"
+  },
+ 	"weaponSlotChanges":{
+		"ARM_R_SOURCE":{
+          "size": "LARGE",
+		  "type": "BUILT_IN",
+	   },
+	},  
+}

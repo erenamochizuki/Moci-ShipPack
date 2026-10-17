@@ -1,0 +1,61 @@
+{
+  "id": "MSN_04_2_arm_right_Sabre",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "everyFrameEffect": "data.scripts.weapons.Moci_BladeEffectPlugin",
+  "beamEffect": "data.scripts.weapons.Moci_Blade_BeamEffect",
+  "collisionClass": "RAY_FIGHTER",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/arms/MSN_04_2_arm_left_sabre.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/arms/MSN_04_2_arm_left_sabre.png",
+  "glowColor": [
+    255,
+    155,
+    0,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    49,
+    -6
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    74.5,
+    -6
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "beamFireOnlyOnFullCharge": true,
+  "fringeColor": [
+    255,
+    220,
+    0,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 30,
+  "textureType": [
+    "graphics/fx/Moci_beam_fringe_2.png",
+    "graphics/fx/Moci_beam_core_2.png"
+  ],
+  "textureScrollSpeed": 252,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ],
+  "fireSoundTwo": "Moci_BeamSabre"
+}

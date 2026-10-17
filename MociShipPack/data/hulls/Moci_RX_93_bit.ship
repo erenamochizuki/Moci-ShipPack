@@ -1,0 +1,63 @@
+{
+  "hullName": "Moci_RX_93_bit",
+  "hullId": "Moci_RX_93_bit",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RX_93/bit/RX_93_bit.png",
+  "style": "HIGH_TECH",
+  "height": 66,
+  "width": 20,
+  "center": [10, 33],
+  "collisionRadius": 39.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 39.5,
+  "viewOffset": 0,
+  "builtInWeapons": {
+    "DECO001": "Moci_blinker_RX_93"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-25, 0]
+    },
+    {
+      "id": "DECO001",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [0, 0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-29, 0],
+      "length": 20,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "Moci_RX_93_Bit_1"
+    },
+    {
+      "location": [-29, 0],
+      "length": 40,
+      "width": 20,
+      "angle": -180,
+      "contrailSize": 3,
+      "style": "Moci_RX_93_Bit_2"
+    }
+  ],
+  "bounds": [
+    -25, -7,
+    29.5, -5.5,
+    29.5, 5.5,
+    -25, 7,
+    -31.5, 1.5,
+    -31.5, -1.5
+  ]
+}

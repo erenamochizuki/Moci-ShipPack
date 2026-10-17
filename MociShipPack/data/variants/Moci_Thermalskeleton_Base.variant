@@ -1,0 +1,67 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 19,
+    "fluxVents": 30,
+    "goalVariant": false,
+    "hullId": "Moci_Thermalskeleton",
+    "hullMods": [
+        "autorepair",
+        "ballistic_rangefinder",
+        "fluxbreakers",
+        "fluxcoil",
+        "fluxdistributor",
+        "hardenedshieldemitter",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Thermalskeleton_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "MAIN_01": "Moci_tpc_cannon",
+                "MAIN_02": "Moci_tpc_cannon",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0010": "lightneedler",
+                "WS0009": "lightneedler",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003": "devastator",
+                "WS0004": "devastator",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0012": "mininglaser",
+                "WS0013": "mininglaser",
+                "WS0008": "mininglaser",
+                "WS0005": "mininglaser",
+                "WS0007": "mininglaser",
+                "WS0006": "mininglaser",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0011": "dualflak",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

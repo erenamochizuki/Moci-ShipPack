@@ -1,0 +1,44 @@
+{
+  "hullName": "Moci_MS_06_SHIELD_L",
+  "hullId": "Moci_MS_06_SHIELD_L",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_MS_06/arms/MS_06_arm_left_shield.png",
+  "style": "MOCI_MS",
+  "height": 56,
+  "width": 42,
+  "center": [21, 28],
+  "collisionRadius": 19.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 19.5,
+  "viewOffset": 0,
+  "moduleAnchor": [
+    0,
+    0
+  ],
+  "builtInMods": [
+    "Moci_module_collision_controller",
+    "Moci_antibeamcoating_shield"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 53,
+      "locations": [19.5, 13.5]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    22, 14.5,
+    27.5, 8.5,
+    27.5, 1.5,
+    20.5, -1.5,
+    -0.5, 5.5,
+    -3.5, 9.5,
+    -3.5, 18.5,
+    -1.5, 20.5
+  ]
+}

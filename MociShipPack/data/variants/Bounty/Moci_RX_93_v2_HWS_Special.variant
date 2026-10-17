@@ -1,0 +1,81 @@
+{
+    "displayName": "Special",
+    "fluxCapacitors": 20,
+    "fluxVents": 20,
+    "goalVariant": false,
+    "hullId": "Moci_RX_93_v2_HWS",
+    "hullMods": [
+        "auxiliarythrusters",
+        "ecm",
+        "fluxbreakers",
+        "targetingunit",
+        "stabilizedshieldemitter",
+    ],
+    "permaMods": [
+        "autorepair",
+        "eccm",
+        "hardenedshieldemitter",
+        "hardened_subsystems",
+        "escort_package",
+    ],
+    "sMods": [
+        "autorepair",
+        "eccm",
+        "hardenedshieldemitter",
+        "hardened_subsystems",
+        "escort_package",
+    ],
+    "suppressedMods": [],
+    "variantId": "Moci_RX_93_v2_HWS_Special",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0001": "Moci_split_missile",
+                "WS0002": "Moci_split_missile",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003": "RX_93_v2_body_missile_hws",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "RX_93_v2_arm_right_gun_hws_rifle",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "RX_93_v2_arm_left_gun_bazooka",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WING_R": "Moci_RX_93_v2_wing_right_hws",
+                "WING_L": "Moci_RX_93_v2_wing_left_hws",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "RX_93_v2_head_vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RX_93_v2_shield_hws_base"},
+        {"BODY_ARMOR_HWS": "Moci_RX_93_v2_body_armor_hws_base"},
+    ],
+}

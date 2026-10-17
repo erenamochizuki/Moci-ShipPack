@@ -1,0 +1,33 @@
+{
+  "hullName": "Moci_MSZ_006_SHIELD_L",
+  "hullId": "Moci_MSZ_006_SHIELD_L",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/MSZ_006/arms/MSZ_006_shield_00.png",
+  "style": "MOCI_MS",
+  "height": 206,
+  "width": 48,
+  "center": [24, 103],
+  "collisionRadius": 59,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 59,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_antibeamcoating_shield",
+    "Moci_module_collision_controller"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [],
+  "bounds": [
+    39.5, 4.5,
+    39.5, 9.5,
+    32.5, 15.5,
+    16.5, 19.5,
+    1.5, 23.5,
+    -7.5, 23.5,
+    -34.5, 19.5,
+    -51.5, 14.5,
+    -47.5, 10.5,
+    -18.5, 6.5,
+    8.5, 3.5
+  ]
+}

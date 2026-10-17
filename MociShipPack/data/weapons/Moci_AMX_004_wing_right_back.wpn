@@ -1,0 +1,26 @@
+{
+  "id": "Moci_AMX_004_wing_right_back",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_MSN04_Wingman",
+  "type": "DECORATIVE",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_AMX_004/wings/AMX_004_wing_right_back.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_AMX_004/wings/AMX_004_wing_right_back.png",
+  "turretOffsets": [
+    -19.5,
+    -65.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    46,
+    -65.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "LINKED",
+  "animationType": "NONE",
+  "fireSoundTwo": "Moci_MissileFire_1"
+}

@@ -1,0 +1,41 @@
+{
+    "displayName": "Elite",
+    "fluxCapacitors": 9,
+    "fluxVents": 10,
+    "goalVariant": true,
+    "hullId": "Moci_Gespenst",
+    "hullMods": [
+        "Moci_high_energy_focus",
+        "armoredweapons",
+        "autorepair",
+        "fluxbreakers",
+        "fluxcoil",
+        "fluxdistributor",
+        "hardenedshieldemitter",
+        "magazines",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gespenst_Elite",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "Moci_Gespenst_left_gun",
+                "ARM_R_SOURCE": "Moci_Gespenst_right_gun",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "SHOULDERWEAPON_R_SOURCE": "heatseeker",
+                "SHOULDERWEAPON_L_SOURCE": "heatseeker",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

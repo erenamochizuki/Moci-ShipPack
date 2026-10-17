@@ -1,0 +1,35 @@
+{
+    "displayName": "轰炸联队",
+    "fluxCapacitors": 5,
+    "fluxVents": 5,
+    "goalVariant": false,
+    "hullId": "Moci_MS_06_fighter",
+    "hullMods": [
+        "eccm",
+        "auxiliarythrusters",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_06_fighter_Bomber",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "lightmg",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "MS_06_right_arm_bazooka",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_RS": "Moci_MS_06_SHIELD_RS_Base"},
+    ],
+}

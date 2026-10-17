@@ -1,0 +1,14 @@
+{
+  "variantId": "Moci_RMS_106_SHIELD_L_Base",
+  "hullId": "Moci_RMS_106_SHIELD_L",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

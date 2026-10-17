@@ -1,0 +1,64 @@
+{
+  "id": "Moci_FA_00100S_backcannon",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "everyFrameEffect": "data.scripts.weapons.Moci_BackpackGun",
+  "beamEffect": "data.scripts.weapons.Moci_BeamEMP",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_FA_00100S/backpack/FA_00100S_backcannon_00.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_FA_00100S/backpack/FA_00100S_backcannon_00.png",
+  "numFrames": 4,
+  "frameRate": 11,
+  "beamFireOnlyOnFullCharge": true,
+  "glowColor": [
+    255,
+    100,
+    100,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    8,
+    11.5,
+    8,
+    -11.5
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    20.5,
+    11.5,
+    20.5,
+    -11.5
+  ],
+  "hardpointAngleOffsets": [
+    -0,
+    0
+  ],
+  "fringeColor": [
+    255,
+    220,
+    50,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 30,
+  "textureType": LASER,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER
+  ],
+  "fireSoundTwo":"ion_beam_loop",
+}

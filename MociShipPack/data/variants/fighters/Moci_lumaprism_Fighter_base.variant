@@ -1,0 +1,36 @@
+{
+  "variantId": "Moci_lumaprism_Fighter_base",
+  "hullId": "Moci_lumaprism_fighter",
+  "displayName": "重型无人支援机",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "plasma"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "Moci_guardian"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "Moci_guardian"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

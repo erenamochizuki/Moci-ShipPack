@@ -1,0 +1,46 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 9,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_MS_14_Char",
+    "hullMods": [
+        "autorepair",
+        "auxiliarythrusters",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_14_Char_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "tachyonlance",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "sabotpod",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDERWEAPON_L_SOURCE": "heavyneedler",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_MS_14_SHIELD_L_Char_Base"},
+        {"SHIELD_R": "Moci_MS_14_SHIELD_R_Char_Base"},
+    ],
+}

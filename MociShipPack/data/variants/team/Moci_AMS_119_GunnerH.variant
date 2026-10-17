@@ -1,0 +1,49 @@
+{
+    "displayName": "GunnerH",
+    "fluxCapacitors": 10,
+    "fluxVents": 5,
+    "goalVariant": false,
+    "hullId": "Moci_AMS_119",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "missleracks",
+        "targetingunit",
+        "unstable_injector",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_AMS_119_GunnerH",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "sabotpod",
+            }
+        },
+        {
+            "autofire": Ture,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "hephag",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "lightdualmg",
+                "WS0002": "lightdualmg",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_AMS_119_SHIELD_L_Base"},
+        {"SHIELD_RS": "Moci_AMS_119_SHIELD_RS_Base"},
+    ],
+}

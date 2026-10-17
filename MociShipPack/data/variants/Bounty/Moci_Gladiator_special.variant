@@ -1,0 +1,37 @@
+{
+    "displayName": "Overriden",
+    "fluxCapacitors": 0,
+    "fluxVents": 24,
+    "goalVariant": true,
+    "hullId": "Moci_Gladiator",
+    "hullMods": [
+        "autorepair",
+        "auxiliarythrusters",
+        "reinforcedhull",
+        "safetyoverrides",
+        "unstable_injector",
+    ],
+    "permaMods": [
+        "comp_storage",
+        "erratic_injector",
+        "malfunctioning_comms",
+    ],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gladiator_special",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "devastator",
+                "WS0003": "heavymg",
+                "WS0002": "devastator",
+                "WS0005": "heavymg",
+                "WS0006": "heavymg",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

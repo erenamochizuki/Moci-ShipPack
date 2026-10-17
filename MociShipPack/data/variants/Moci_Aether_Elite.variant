@@ -1,0 +1,55 @@
+{
+    "displayName": "Elite",
+    "fluxCapacitors": 27,
+    "fluxVents": 23,
+    "goalVariant": true,
+    "hullId": "Moci_Aether",
+    "hullMods": [
+        "eccm",
+        "hardenedshieldemitter",
+        "high_scatter_amp",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Aether_Elite",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0004": "sabotpod",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0007": "sabotpod",
+                "WS0006": "sabotpod",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "phasebeam",
+                "WS0003": "phasebeam",
+                "WS0002": "phasebeam",
+                "WS0010": "phasebeam",
+                "WS0005": "phasebeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0009": "ioncannon",
+            }
+        },
+    ],
+    "wings": [
+        "sarissa_wing",
+    ],
+    "modules": [],
+}

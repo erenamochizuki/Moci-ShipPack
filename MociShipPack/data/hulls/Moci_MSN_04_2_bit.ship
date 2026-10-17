@@ -1,0 +1,41 @@
+{
+  "hullName": "Moci_MSN_04_2_bit",
+  "hullId": "Moci_MSN_04_2_bit",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/bit/MSN_04_2_bit.png",
+  "style": "HIGH_TECH",
+  "height": 34,
+  "width": 16,
+  "center": [8, 15],
+  "collisionRadius": 24,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 24,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 30,
+      "angle": 0,
+      "locations": [9, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-13, -0],
+      "length": 70.5,
+      "width": 28,
+      "angle": -180,
+      "contrailSize": 28,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -12, 6,
+    8, 5,
+    8, -5,
+    -12, -6
+  ]
+}

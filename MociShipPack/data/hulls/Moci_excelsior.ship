@@ -1,0 +1,116 @@
+{
+  "hullName": "美不胜收",
+  "hullId": "Moci_excelsior",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Moci_excelsior.png",
+  "style": "HIGH_TECH",
+  "height": 87,
+  "width": 88,
+  "center": [44, 43.5],
+  "collisionRadius": 65,
+  "shieldCenter": [17, -2],
+  "shieldRadius": 57.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_excelsiorreactor",
+    "Moci_phasedrive",
+    "high_maintenance",
+    "phasefield",
+    "delicate"
+  ],
+  "builtInWeapons": {
+    "WS0001": "Moci_excelsiorcannon",
+    "WS0004": "Moci_excelsior_auxglow"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [4.5, 15]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [-22.5, 21]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [-22.5, -21]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [0, -0]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [-1.5, -15]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-41.5, -0],
+      "length": 51,
+      "width": 18,
+      "angle": 180,
+      "contrailSize": 18,
+      "style": "MOCI_HSI_LOW"
+    },
+    {
+      "location": [-38.5, 15],
+      "length": 34.774471,
+      "width": 13.451567,
+      "angle": 172,
+      "contrailSize": 13.451567,
+      "style": "MOCI_HSI_LOW"
+    },
+    {
+      "location": [-38.5, -15],
+      "length": 34.774471,
+      "width": 13.451567,
+      "angle": -172,
+      "contrailSize": 13.451567,
+      "style": "MOCI_HSI_LOW"
+    }
+  ],
+  "bounds": [
+    -43, -1.5,
+    -39, -18.5,
+    -6, -43.5,
+    4, -43.5,
+    5, -40.5,
+    -4, -27.5,
+    1, -7.5,
+    40, -1.5,
+    40, 1.5,
+    1, 7.5,
+    -4, 27.5,
+    5, 40.5,
+    4, 43.5,
+    -6, 43.5,
+    -39, 18.5,
+    -43, 1.5
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "hullName": "Moci_Black_Sarena",
+  "hullId": "Moci_Black_Sarena",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_Black_Sarena/body/Black_Sarena_body_00.png",
+  "style": "MOCI_PT",
+  "height": 104,
+  "width": 150,
+  "center": [75, 52],
+  "collisionRadius": 110.5,
+  "shieldCenter": [1.5, 0],
+  "shieldRadius": 109.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_MobilitySubsystemHullmod",
+    "Moci_MobileSuits",
+    "Moci_PhaseShiftArmor_fighter",
+    "Moci_GravityReceiver"
+  ],
+  "builtInWeapons": {
+    "ARM_L": "Moci_Aestivalis_AKITO_arm_left",
+    "ARM_L_SOURCE": "Moci_Aestivalis_AKITO_arm_left_rifle",
+    "ARM_R": "Moci_Aestivalis_AKITO_arm_right",
+    "ARM_R_SOURCE": "Moci_Aestivalis_AKITO_arm_right_rifle",
+    "BODY": "Moci_Black_Sarena_body",
+    "HEAD": "Moci_Black_Sarena_head",
+    "HEAD_SOURCE": "Moci_Black_Gekiganflare",
+    "LEGS": "Moci_Black_Sarena_legs",
+    "SHOULDER_L": "Moci_Black_Sarena_shoulder_left",
+    "SHOULDER_R": "Moci_Black_Sarena_shoulder_right",
+    "TAIL": "Moci_Black_Sarena_tail",
+    "WINGS": "Moci_Black_Sarena_wings"
+  },
+  "weaponSlots": [
+    {
+      "id": "LEGS",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [14, 0]
+    },
+    {
+      "id": "ARM_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 10,
+      "locations": [5, 27],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "ARM_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": -10,
+      "locations": [5, -27],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "SHOULDER_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [1, -38],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "SHOULDER_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [1, 38],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "HEAD",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 120,
+      "angle": 0,
+      "locations": [3, -0],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "BODY",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, -0],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "ARM_L_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 10,
+      "locations": [5, 27],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "ARM_R_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": -10,
+      "locations": [5, -27],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "WINGS",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-41, -0],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "HEAD_SOURCE",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [3, -0],
+      "renderOrderMod": 6
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -11.5, 0.5,
+        -11.5, -0.5
+      ]
+    },
+    {
+      "id": "TAIL",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-86, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-28, -12.5],
+      "length": 6,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "COBRA_BOMBER"
+    },
+    {
+      "location": [-28, 12.5],
+      "length": 6,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "COBRA_BOMBER"
+    },
+    {
+      "location": [-22, -8.5],
+      "length": 9.5,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "COBRA_BOMBER"
+    },
+    {
+      "location": [-22, 8.5],
+      "length": 9.5,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "COBRA_BOMBER"
+    }
+  ],
+  "bounds": [
+    -40.5, -0.5,
+    -28.5, -26.5,
+    0.5, -30.5,
+    14.5, -24.5,
+    23.5, -4.5,
+    23.5, 4.5,
+    14.5, 24.5,
+    0.5, 30.5,
+    -28.5, 26.5,
+    -40.5, 0.5
+  ]
+}

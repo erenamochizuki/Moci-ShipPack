@@ -1,0 +1,7 @@
+name,id,demand class,base price,export value,price variability,utility,origin,tags,stack size,cargo space,icon,sound id,sound id drop,order,economyTier,econUnitOrigUnused,econUnit,baseRaidDanger,eU * base value,iconWidthMult,plugin,desc
+涡珠,Moci_Vorttear,Moci_Vorttear,100,10000,3,1,,,1000,0,graphics/icons/cargo/Moci_item_base_pearl.png,ui_cargo_volatiles,ui_cargo_volatiles_drop,11001,0,0,100,,10000,1,,
+涡鳞珠,Moci_Mournscale,Moci_Mournscale,300,30000,3,1,,,1000,0,graphics/icons/cargo/Moci_item_high_pearl.png,ui_cargo_volatiles,ui_cargo_volatiles_drop,11002,0,0,300,,30000,1,,
+涡龙珠,Moci_Dracaryx,Moci_Dracaryx,800,80000,3,1,,,1000,0,graphics/icons/cargo/Moci_item_veryhigh_pearl.png,ui_cargo_volatiles,ui_cargo_volatiles_drop,11003,0,0,800,,80000,1,,
+哈罗AI核心,Moci_AICore_Haro,ai_cores,300000,300000,0,1,,,10,1,graphics/icons/cargo/Moci_haro_core_base.png,ai_core_pickup,ui_gamma_core_drop,11004,0,0,300000,,300000,1,,一个独特的AI核心，具有友好的个性和出色的战术协调能力。
+欧米茄·Lex核心,Moci_AICore_Omega_Lexington,ai_cores,100000000,100000000,0,1,,,1,1,graphics/icons/cargo/Moci_omega_lexington_core.png,ai_core_pickup,ui_gamma_core_drop,11005,0,0,100000000,,100000000,1,,"""为什么我的欧米茄人工智能核心看起来这么可爱？明明我一周前才和我的霸主女友分手，现在却和人工智能开始了新的恋情，而且还专门为她建造了一艘特殊的飞船。"""
+兑奖券,Moci_GachaTicket,Moci_GachaTicket,10,100,0,1,,,10000,0,graphics/icons/cargo/Moci_gacha_ticket.png,ui_cargo_volatiles,ui_cargo_volatiles_drop,11006,0,0,10,,100,1,,可用于在扭蛋商店兑换珍贵物品的凭证。

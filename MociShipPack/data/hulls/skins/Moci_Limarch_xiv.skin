@@ -1,0 +1,61 @@
+{
+	"baseHullId":"Moci_Limarch",
+	"skinHullId":"Moci_Limarch_xiv",
+	"hullName":"边境 (XIV)",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_Limarch",
+	"descriptionPrefix":"基于 霸主 的建立者 - 人之领第十四战斗群 为蓝本而建造的战舰，其利用大崩塌前的工业技术所进行的一系列激进化的结构改装方案，使该舰成为了研究 人之领海军\"决战\"教条 的主要样本",
+	"tags":["XIV_bp", "hist3t", "ungp_onslaught"],
+	"tech":"第十四战斗群",
+	"fleetPoints":75,
+	"ordnancePoints":350,
+	"maxSpeed":25,
+	"baseValueMult":1.5,
+	"systemId":"lidararray",
+	"spriteName":"graphics/ships/Moci_Limarch_XIV.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":["dedicated_targeting_core"], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":[
+    "Moci_fourteenth_front",
+    "distributed_fire_control"
+],
+	"builtInWeapons":{
+    "WS0101": "lidardish",
+    "WS0102": "lidardish",
+    "WS0103": "lidardish",
+    "WS0104": "lidardish",
+    "WS0105": "lidardish"
+     },
+ 	"weaponSlotChanges":{
+		"WS0007":{
+		  "type": "MISSILE",
+	   },
+		"WS0008":{
+		  "type": "MISSILE",
+	   },
+		"WS0009":{
+		  "type": "MISSILE",
+	   },
+		"WS0010":{
+		  "type": "MISSILE",
+	   },
+		"WS0013":{
+		  "type": "BALLISTIC",
+          "angle": -30,
+	   },
+		"WS0014":{
+		  "type": "BALLISTIC",
+          "angle": 30,
+	   },
+		"WS0015":{
+		  "type": "BALLISTIC",
+          "angle": 40,
+	   },
+		"WS0016":{
+		  "type": "BALLISTIC",
+          "angle": -40,
+	   },
+	},    
+}

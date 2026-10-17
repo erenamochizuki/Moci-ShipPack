@@ -1,0 +1,78 @@
+{
+	"id":"Moci_heavry_phase_charge",
+	"specClass":"missile",	
+	"missileType":"PHASE_CHARGE",
+	"sprite":"graphics/missiles/Moci_shell_mine.png",
+    "glowSprite":"",
+	#"fringeColor":[240,120,100,50], # 默认拖尾颜色
+	#"coreColor":[255,255,255,50], # 弹体颜色
+    #"glowColor":[175,140,50,50], # 发光的颜色
+    #"glowRadius":1,
+	#"hitGlowRadius":60,
+	"size":[10,10],	
+	"center":[5,5],
+    "length":6.0,
+    "width":6,
+	"collisionRadius":12,
+	"collisionClass":"MISSILE_FF",
+	"explosionColor":[220,150,150,200],  # purely visual, will get a white additively blended core on top of this color
+	"explosionRadius":150, # purely visual
+	"flameoutTime":0.1, # total time from flameout to full fadeout
+	"fadeTime":0.1, # fadeout duration
+	"noEngineGlowTime":0.05, # time spent without the engine glow being rendered	
+	"engineSpec":{"turnAcc":500,
+				  "turnRate":150,
+				  "acc":50,
+				  "dec":50},
+	#"engineSlots":[
+	#	{
+	#		"id":"ES1",
+	#		"loc":[-5, 0],
+	#		"style":"CUSTOM",
+	#		"styleSpec":{
+	#			"mode":"QUAD_STRIP", # PARTICLES or QUAD_STRIP, determines which params are used
+	#			"engineColor":[150,150,100,150],
+	#			"contrailDuration":1,
+	#			"contrailWidthMult":0.75,
+	#			"contrailWidthAddedFractionAtEnd":-0.8,  # can be negative. makes trail spread out/narrow at the end
+	#			"contrailMinSeg":5, # min segment length, in pixels
+	#			"contrailMaxSpeedMult":0f,
+	#			"contrailAngularVelocityMult":0.5f,
+	#			"contrailSpawnDistMult":0f, # how far away from engine it starts
+	#			"contrailColor":[255,155,155,180],
+	#			"glowSizeMult":0.75,
+	#			"glowAlternateColor":[255,192,123,185],
+	#			"type":"GLOW" # GLOW or SMOKE; additive or regular blend mode
+	#		},
+	#    "width":10.0,
+	#    "length":10.0,
+	#    "angle":180.0
+	#  },
+	#
+	#],
+	"behaviorSpec":{"behavior":"PROXIMITY_FUSE",
+					"range":40,
+					"slowToMaxSpeed":true,
+					"explosionSpec":{"duration":0.12f,
+									 "radius":150,
+									 "coreRadius":75, # full damage within core radius
+									 "collisionClass":PROJECTILE_FF,
+									 "collisionClassByFighter":PROJECTILE_FIGHTER,
+									 "particleSizeMin":3.0,
+									 "particleSizeRange":3.0,
+									 "particleDuration":1,
+									 "particleCount":50,
+									 "particleColor":[220,150,150,200],
+									 "explosionColor":[255,200,200,200],
+									 "useDetailedExplosion":true,
+									 "useDetailedExplosionColorAlpha":true,
+									 "detailedExplosionRadius":100,
+									 "detailedExplosionFlashRadius":250,
+									 "detailedExplosionFlashDuration":0.5,
+									 "detailedExplosionFlashColorFringe":[255,200,200,200],
+									 "detailedExplosionFlashColorCore":[155,155,155,200],
+									 "sound":"prox_charge_explosion"},
+					}
+}
+
+

@@ -1,0 +1,58 @@
+{
+  "id": "AMX_004_arm_right_rifle",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "beamEffect": "com.fs.starfarer.api.impl.combat.TachyonLanceEffect",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_AMX_004/arms/AMX_004_arm_right_rifle.png",
+  "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_AMX_004/arms/AMX_004_arm_right_rifle_glow.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_AMX_004/arms/AMX_004_arm_right_rifle.png",
+  "hardpointGlowSprite": "graphics/ships/Mobile_Suit/Moci_AMX_004/arms/AMX_004_arm_right_rifle_glow.png",
+  "glowColor": [
+    165,
+    100,
+    255,
+    235
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    117,
+    18.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    179,
+    18.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    85,
+    25,
+    215,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 100,
+  "textureType": ROUGH,
+  "textureScrollSpeed": 252,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ],
+	"fireSoundOne":"Moci_HearyEnergy_3",
+}

@@ -1,0 +1,81 @@
+{
+    "displayName": "标准",
+    "fluxCapacitors": 10,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "astral",
+    "hullMods": [
+        "Moci_fighter_expand",
+        "auxiliarythrusters",
+    ],
+    "permaMods": [
+        "Moci_easytobreak",
+        "comp_storage",
+        "damaged_mounts",
+        "degraded_drive_field",
+        "degraded_shields",
+        "erratic_injector",
+        "hardenedshieldemitter",
+    ],
+    "sMods": [
+        "hardenedshieldemitter",
+    ],
+    "suppressedMods": [],
+    "variantId": "astral_BoutnyC",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 011": "Moci_viper_trace",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 012": "Moci_viper_trace",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 001": "mininglaser",
+                "WS 002": "mininglaser",
+                "WS 003": "mininglaser",
+                "WS 008": "mininglaser",
+                "WS 005": "mininglaser",
+                "WS 004": "mininglaser",
+                "WS 007": "mininglaser",
+                "WS 006": "mininglaser",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 024": "pdlaser",
+                "WS 014": "pdlaser",
+                "WS 023": "pdlaser",
+                "WS 013": "pdlaser",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 015": "pdlaser",
+            }
+        },
+    ],
+    "wings": [
+        "Moci_RX_77_fighter_wing",
+        "Moci_RX_77_fighter_wing",
+        "Moci_RGM_79_fighter_wing",
+        "Moci_RGM_79_fighter_wing",
+        "Moci_RX_75_fighter_wing",
+        "Moci_RX_75_fighter_wing",
+    ],
+    "modules": [],
+}

@@ -1,0 +1,46 @@
+{
+  "id": "MSN_04_2_arm_right_rifle",
+  "specClass": "projectile",
+  "projectileSpecId": "MSN_04_2_arm_right_rifle_shot",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "everyFrameEffect": "data.scripts.weapons.Moci_ChargeFireEffect",
+  "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/arms/MSN_04_2_arm_right_rifle_glow.png",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/arms/MSN_04_2_arm_right_rifle.png",
+  "hardpointGlowSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/arms/MSN_04_2_arm_right_rifle_glow.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/arms/MSN_04_2_arm_right_rifle.png",
+  "glowColor": [196,255,70,255],
+  "visualRecoil": 5,
+  "autocharge": true,
+  "turretOffsets": [
+    139,
+    12
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    210,
+    12
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 80,
+    "spread": 70,
+    "particleSizeMin": 15,
+    "particleSizeRange": 30,
+    "particleDuration": 0.25,
+    "particleCount": 60,
+    "particleColor": [
+      120,
+      255,
+      0,
+      255
+    ]
+  },
+  "fireSoundTwo": "Moci_BeamRifle"
+}

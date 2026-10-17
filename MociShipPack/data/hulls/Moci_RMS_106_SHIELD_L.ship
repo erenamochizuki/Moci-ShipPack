@@ -1,0 +1,46 @@
+{
+  "hullName": "Moci_RMS_106_SHIELD_L",
+  "hullId": "Moci_RMS_106_SHIELD_L",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RMS_106/arms/RMS_106_arm_left_shield.png",
+  "style": "MOCI_MS",
+  "height": 36,
+  "width": 23,
+  "center": [11, 18.5],
+  "collisionRadius": 22,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 22,
+  "viewOffset": 0,
+  "moduleAnchor": [
+    -15,
+    -9
+  ],
+  "builtInMods": [
+    "Moci_module_collision_controller",
+    "Moci_antibeamcoating_shield"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 53,
+      "locations": [8.5, 1.5]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    17, -10.5,
+    17, -5.5,
+    7, 3.5,
+    -7, 10.5,
+    -16, 10.5,
+    -18, 7.5,
+    -18, 3.5,
+    -3, -8.5,
+    -1, -7.5,
+    16, -11.5
+  ]
+}

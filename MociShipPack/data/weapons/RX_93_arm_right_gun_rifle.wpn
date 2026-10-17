@@ -1,0 +1,51 @@
+{
+  "id": "RX_93_arm_right_gun_rifle",
+  "specClass": "projectile",
+  "projectileSpecId": "RX_93_v2_arm_right_gun_rifle_shot",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "turretSprite": "",
+  "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_RX_93/arms/RX_93_arm_right_gun_rifle_glow.png",
+  "turretGunSprite": "graphics/ships/Mobile_Suit/Moci_RX_93/arms/RX_93_arm_right_gun_rifle.png",
+  "hardpointSprite": "",
+  "hardpointGlowSprite": "graphics/ships/Mobile_Suit/Moci_RX_93/arms/RX_93_arm_right_gun_rifle_glow.png",
+  "hardpointGunSprite": "graphics/ships/Mobile_Suit/Moci_RX_93/arms/RX_93_arm_right_gun_rifle.png",
+  "glowColor": [
+    255,
+    155,
+    150,
+    255
+  ],
+  "visualRecoil": 2.5,
+  "turretOffsets": [
+    119,
+    -5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    183,
+    -5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 40,
+    "spread": 15,
+    "particleSizeMin": 20,
+    "particleSizeRange": 10,
+    "particleDuration": 0.12,
+    "particleCount": 12,
+    "particleColor": [
+      224,
+      56,
+      142,
+      255
+    ]
+  },
+  "fireSoundTwo": "kinetic_blaster_fire"
+}

@@ -1,0 +1,55 @@
+{
+  "id": "Moci_Aestivalis_AKITO_right_gun_rifle",
+  "specClass": "projectile",
+  "projectileSpecId": "heavymauler_shot",
+  "type": "BALLISTIC",
+  "size": "MEDIUM",
+  "turretSprite": "",
+  "turretGunSprite": "graphics/ships/Mobile_Suit/Moci_Aestivalis_EX/arms/Moci_Aestivalis_EX_right_gun_rifle.png",
+  "hardpointSprite": "",
+  "hardpointGunSprite": "graphics/ships/Mobile_Suit/Moci_Aestivalis_EX/arms/Moci_Aestivalis_EX_right_gun_rifle.png",
+  "glowColor": [
+    255,
+    155,
+    150,
+    255
+  ],
+  "visualRecoil": 2,
+  "turretOffsets": [
+    41,
+    2.5,
+    41,
+    3
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    62.5,
+    3,
+    62.5,
+    2.5
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+  "barrelMode": "LINKED",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 40,
+    "spread": 15,
+    "particleSizeMin": 20,
+    "particleSizeRange": 10,
+    "particleDuration": 0.12,
+    "particleCount": 12,
+    "particleColor": [
+      224,
+      56,
+      142,
+      255
+    ]
+  },
+  "fireSoundTwo": "light_assault_gun_fire"
+}

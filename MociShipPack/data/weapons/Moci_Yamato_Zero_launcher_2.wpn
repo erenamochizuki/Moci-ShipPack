@@ -1,0 +1,28 @@
+{
+  "id": "Moci_Yamato_Zero_launcher_2",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_Zero_Wingman",
+  "type": "MISSILE",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/Moci_Yamato_Zero_launcher_R.png",
+  "hardpointSprite": "graphics/weapons/Moci_Yamato_Zero_launcher_R.png",
+  "everyFrameEffect": "data.scripts.weapons.Moci_ZeroWingman2_Effect",
+  "renderHints": [RENDER_LOADED_MISSILES],
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    180
+  ],
+  "hardpointOffsets": [
+    21,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    180
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "NONE",
+  "fireSoundTwo": "Moci_Aircraft_launch"
+}

@@ -1,0 +1,4 @@
+id,name,shortDescription,longDescription,order,iconPath,plugin
+Moci_NewType,新人类,你拥有超越常人的感知能力和空间认知。,"你似乎做了一个梦，在梦里，没有机动战士，没有米诺夫斯基粒子，也没有联邦和吉翁，只有无边无垠的太空等你去探索。
+
+开局获得技能：新人类",1000,graphics/icons/skills/Moci_NT.png,data.campaign.backgrounds.Moci_NewtypeBackground

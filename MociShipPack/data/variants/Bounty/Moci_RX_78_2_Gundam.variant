@@ -1,0 +1,48 @@
+{
+    "displayName": "Gundam",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_RX_78_2",
+    "hullMods": [
+        "Moci_RX_78_2_WeaponSwap_left_bazooka",
+        "Moci_RX_78_2_WeaponSwap_right_rifle",
+    ],
+    "permaMods": [
+        "comp_armor",
+        "comp_hull",
+        "comp_storage",
+        "degraded_life_support",
+        "faulty_auto",
+	],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RX_78_2_Gundam",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "RX_78_2_arm_left_gun_bazooka",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "RX_78_2_arm_right_gun_rifle",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "RX_78_2_head_vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RX_78_2_SHIELD_L_Base"},
+    ],
+}

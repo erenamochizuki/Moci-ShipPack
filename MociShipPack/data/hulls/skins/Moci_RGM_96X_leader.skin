@@ -1,0 +1,41 @@
+{
+	"baseHullId":"Moci_RGM_96X",
+	"skinHullId":"Moci_RGM_96X_leader",
+	"hullName":"杰斯塔(队长机)",
+	"incompatibleWithBaseHull":true, # for the autofit dialog
+	"descriptionId":"Moci_MSN_03",
+	"descriptionPrefix":"该型号为指挥小队作战进行了特殊改造，借此，该机体将发挥出不同以往的性能。",
+	"tags":["moci_ms", "no_dealer", " no_sell"],
+	"tech":"阿纳海姆电子(特装)",
+	"fleetPoints":25,
+	"ordnancePoints":60,
+	"baseValueMult":1.15,
+	"spriteName":"graphics/ships/Mobile_Suit/Moci_RGM_96X/body/RGM_96X_body_standerd.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":["ARM_R_TYPE",
+	"ARM_R",
+	"HEAD",
+	"BACKPACK",
+	"ARM_L_SOURCE"
+	], 		# weapon slot ids
+	"builtInMods":[
+    "Moci_CaptainMachine",
+],
+	"builtInWeapons":{
+	"ARM_R": "Moci_RGM_96X_arm_right_weapon",
+    "ARM_R_SOURCE": "Moci_RGM_96X_arm_right_sniper_rifle",
+	"ARM_L_TYPE": "Moci_RGM_96X_arm_left_rifle_type",
+    "BACKPACK": "Moci_RGM_96X_backpack_leader",
+    "HEAD": "Moci_RGM_96X_head_leader",
+     },
+ 	"weaponSlotChanges":{
+		"ARM_R_SOURCE":{
+		  "type": "BUILT_IN",
+	   },
+	   "ARM_L_SOURCE":{
+		  "type": "HYBRID",
+	   },
+	}
+}

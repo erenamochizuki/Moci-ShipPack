@@ -1,0 +1,56 @@
+{
+  "id": "Moci_Aestivalis_EX_missile_launcher",
+  "specClass": "projectile",
+  "projectileSpecId": "type_1_srm",
+  "type": "MISSILE",
+  "size": "SMALL",
+  "turretSprite": "",
+  "hardpointSprite": "",
+  "turretOffsets": [
+    -4.5,
+    -4.5,
+    -4.5,
+    4.5,
+    -1.5,
+    4.5,
+    -1.5,
+    -4.5
+  ],
+  "turretAngleOffsets": [
+    -65,
+    65,
+    90,
+    -90
+  ],
+  "hardpointOffsets": [
+    -5,
+    -5,
+    -5,
+    5
+  ],
+  "hardpointAngleOffsets": [
+    -45,
+    45
+  ],
+  "barrelMode": "LINKED",
+  "animationType": "SMOKE",
+  "autocharge": true,
+  "smokeSpec": {
+    "particleSizeMin": 7,
+    "particleSizeRange": 7,
+    "cloudParticleCount": 5,
+    "cloudDuration": 1,
+    "cloudRadius": 7,
+    "blowbackParticleCount": 0,
+    "blowbackDuration": 2,
+    "blowbackLength": 30,
+    "blowbackSpread": 10,
+    "particleColor": [
+      100,
+      155,
+      255,
+      50
+    ]
+  },
+  "fireSoundTwo": "swarmer_fire"
+}

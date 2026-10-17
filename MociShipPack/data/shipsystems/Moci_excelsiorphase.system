@@ -1,0 +1,37 @@
+{
+    "id":"Moci_excelsiorphase",
+    "type":"PHASE_CLOAK",
+    "aiType":"PHASE_CLOAK",
+
+    "statsScript":"data.shipsystems.scripts.Moci_ExcelsiorPhaseStats",
+    "runScriptWhilePaused":true,
+    "runScriptWhileIdle":true,
+    "blockActionsWhileChargingDown":false,
+    
+    "canNotCauseOverload":true,
+
+    "phaseHighlight":"_glow1",
+    "phaseDiffuse":"_glow2",
+
+    "effectColor1":[255,150,200,255],
+    "effectColor2":[255,0,200,255],
+
+    "clampTurnRateAfter":true,
+    "clampMaxSpeedAfter":true,
+
+    "engineGlowColor":[255,150,200,255],
+    "engineGlowContrailColor":[255,150,200,0],
+    "engineGlowLengthMult":1.0,
+    "engineGlowWidthMult":1.0,
+    "engineGlowGlowMult":1.0,
+
+    "soundFilterType":"LOWPASS",
+    "soundFilterGain":0.75,
+    "soundFilterGainHF":0,
+
+    "shipAlpha":1,
+
+    "useSound":"system_phase_cloak_activate",
+    "deactivateSound":"system_phase_cloak_deactivate",
+    "outOfUsesSound":"system_phase_cloak_collision",
+}

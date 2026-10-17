@@ -1,0 +1,36 @@
+{
+  "id": "Moci_MS_07_HeavryMg",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_MS_07_HeavryMg_shot",
+  "type": "BALLISTIC",
+  "size": "LARGE",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_MS_07/arms/MS_07_arm_left_stunnder_00.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MS_07/arms/MS_07_arm_left_stunnder_00.png",
+  "turretOffsets": [
+    46,
+    9
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    70.5,
+    9
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "MUZZLE_FLASH",
+  "numFrames": 2,
+  "frameRate": 30,
+  "interruptibleBurst": true,
+	"muzzleFlashSpec":{"length":50.0,   # only used if animationType = MUZZLE_FLASH
+					   "spread":16.0,
+					   "particleSizeMin":8.0,
+					   "particleSizeRange":10.0,
+					   "particleDuration":0.35,
+					   "particleCount":25,
+					  "particleColor":[255,155,105,185]},
+	"fireSoundTwo":"light_assault_gun_fire",
+}

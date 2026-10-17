@@ -1,0 +1,39 @@
+{
+    "displayName": "能量测试",
+    "fluxCapacitors": 0,
+    "fluxVents": 45,
+    "goalVariant": false,
+    "hullId": "Moci_Testship_attack",
+    "hullMods": [
+        "targetingunit",
+        "turretgyros",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "a1_Testship_attack_ENG",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0008": "plasma",
+                "WS0006": "plasma",
+                "WS0014": "plasma",
+                "WS0013": "plasma",
+                "WS0012": "plasma",
+                "WS0010": "plasma",
+                "WS0009": "plasma",
+                "WS0007": "plasma",
+                "WS0004": "plasma",
+                "WS0005": "plasma",
+                "WS0001": "plasma",
+                "WS0003": "plasma",
+                "WS0002": "plasma",
+                "WS0011": "plasma",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

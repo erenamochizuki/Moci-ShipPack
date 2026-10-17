@@ -1,0 +1,188 @@
+{
+  "hullName": "Moci_RX_93_v2_SupportShip",
+  "hullId": "Moci_RX_93_v2_SupportShip",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/valkyrie/valkyrie_ap.png",
+  "style": "MIDLINE",
+  "height": 264,
+  "width": 84,
+  "center": [
+    42,
+    113
+  ],
+  "collisionRadius": 200,
+  "shieldCenter": [
+    17,
+    0
+  ],
+  "shieldRadius": 200,
+  "viewOffset": 0,
+  "builtInMods": [
+    "ground_support"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS 001",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 190,
+      "angle": 90,
+      "locations": [
+        -63,
+        28
+      ]
+    },
+    {
+      "id": "WS 002",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 190,
+      "angle": -90,
+      "locations": [
+        -63,
+        -28
+      ]
+    },
+    {
+      "id": "WS 003",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 150,
+      "angle": 60,
+      "locations": [
+        62,
+        23
+      ]
+    },
+    {
+      "id": "WS 004",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 150,
+      "angle": -60,
+      "locations": [
+        62,
+        -23
+      ]
+    },
+    {
+      "id": "WS 005",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        144,
+        16
+      ]
+    },
+    {
+      "id": "WS 006",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        144,
+        -15
+      ]
+    },
+    {
+      "id": "WS 007",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        147,
+        0
+      ]
+    },
+    {
+      "id": "WEAPON",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        18,
+        0
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -111,
+        29
+      ],
+      "length": 48,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -110,
+        20
+      ],
+      "length": 64,
+      "width": 16,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -109,
+        0
+      ],
+      "length": 80,
+      "width": 20,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -110,
+        -19
+      ],
+      "length": 64,
+      "width": 16,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -111,
+        -28
+      ],
+      "length": 48,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    }
+  ],
+  "bounds": [
+    -105,
+    37,
+    144,
+    21,
+    144,
+    -21,
+    -105,
+    -36
+  ]
+}

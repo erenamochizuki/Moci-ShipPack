@@ -1,0 +1,41 @@
+{
+  "hullName": "Moci_ZGMF_X20A_bit",
+  "hullId": "Moci_ZGMF_X20A_bit",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Mobile_Suit/ZGMF_X20A/bit/ZGMF_X20A_bit.png",
+  "style": "HIGH_TECH",
+  "height": 78,
+  "width": 18,
+  "center": [9, 39],
+  "collisionRadius": 26,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 26,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-8, 0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-10, 0],
+      "length": 16,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -8, -10,
+    10, -10,
+    10, 10,
+    -8, 10
+  ]
+}

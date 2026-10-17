@@ -1,0 +1,26 @@
+{
+  "variantId": "Moci_Collapsepoint_base",
+  "hullId": "Moci_Collapsepoint",
+  "displayName": "反相位战斗机",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "high_scatter_amp"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "mininglaser",
+        "WS0002": "mininglaser",
+        "WS0003": "ionbeam"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

@@ -1,0 +1,112 @@
+{
+  "hullName": "Moci_Cosmo_Zero",
+  "hullId": "Moci_Cosmo_Zero",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/wings/Moci_Cosmo_Zero.png",
+  "style": "HIGH_TECH",
+  "height": 48,
+  "width": 28,
+  "center": [
+    14,
+    19
+  ],
+  "collisionRadius": 60,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 60,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_ZeroWeaponEffect",
+    "Moci_GNFieldDefenseSystem",
+    "Moci_HiddenMissile",
+    "Moci_WingmanAIManager"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 21,
+      "angle": 0,
+      "locations": [
+        0,
+        8
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 21,
+      "angle": 0,
+      "locations": [
+        0,
+        -8
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -16,
+        2
+      ],
+      "length": 13.5,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -16,
+        -2
+      ],
+      "length": 13.5,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -12.5,
+        -7.5
+      ],
+      "length": 8.5,
+      "width": 3,
+      "angle": -180,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -12.5,
+        7.5
+      ],
+      "length": 8.5,
+      "width": 3,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -15.5,
+    2.5,
+    -3,
+    13,
+    21.5,
+    1.5,
+    21.5,
+    -1.5,
+    -3,
+    -13,
+    -15.5,
+    -2.5
+  ]
+}

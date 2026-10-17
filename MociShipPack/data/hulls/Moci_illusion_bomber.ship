@@ -1,0 +1,149 @@
+{
+  "hullName": "Moci_illusion_bomber",
+  "hullId": "Moci_illusion_bomber",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/wings/Moci_illusion_bomber.png",
+  "style": "HIGH_TECH",
+  "height": 54,
+  "width": 88,
+  "center": [
+    44,
+    27
+  ],
+  "collisionRadius": 54,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 54,
+  "viewOffset": 0,
+  "builtInMods": [
+    "eccm"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        -3,
+        -17
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        -3,
+        17
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        -1,
+        -25
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        -1,
+        25
+      ]
+    },
+    {
+      "id": "WS0005",
+      "size": "LARGE",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -2,
+        0
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -19,
+        13.5
+      ],
+      "length": 14.5,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 8,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -19,
+        -13.5
+      ],
+      "length": 14.5,
+      "width": 8,
+      "angle": -180,
+      "contrailSize": 8,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -19,
+        -10
+      ],
+      "length": 10.5,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -19,
+        10
+      ],
+      "length": 10.5,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    25.5,
+    2,
+    3,
+    10,
+    1,
+    42.5,
+    -23,
+    3,
+    -23,
+    -3,
+    1,
+    -42.5,
+    3,
+    -10,
+    25.5,
+    -2
+  ]
+}

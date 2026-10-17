@@ -1,0 +1,18 @@
+{
+	"id":"Moci_Weapon4",  # this id must match what's in the spreadsheet
+	"specClass":"projectile",
+	"type":"BALLISTIC",
+	"size":"MEDIUM",
+	"turretSprite":"graphics/weapons/AltEisen_arm_weapon.png",
+	"hardpointSprite":"graphics/weapons/AltEisen_arm_weapon.png",
+	"visualRecoil":7.0,  # the gun sprites are only used if this is non-0
+	#"renderHints":[RENDER_BARREL_BELOW],
+	"turretOffsets":[16, 0],
+	"turretAngleOffsets":[0],
+	"hardpointOffsets":[26, 0],
+	"hardpointAngleOffsets":[0],	
+	"barrelMode":"ALTERNATING", # or LINKED.  whether barrels fire at the same time or alternate.
+	"animationType":"NONE",  # NONE, GLOW, MUZZLE_FLASH, SMOKE
+	"projectileSpecId":"Moci_weapon4proj",  # projectile that will be fired
+	"fireSoundTwo":"heavy_mauler_fire",	
+}

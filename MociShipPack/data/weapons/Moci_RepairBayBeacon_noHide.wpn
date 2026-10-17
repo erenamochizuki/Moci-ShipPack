@@ -1,0 +1,22 @@
+{
+	"id":"Moci_RepairBayBeacon_noHide",  # this id must match what's in the spreadsheet
+	"specClass":"beam",
+	"type":"DECORATIVE",
+	"size":"SMALL",
+	"showDamageWhenDecorative":false,
+	#"renderBelowAllWeapons":true,
+	#"renderHints":["RENDER_ADDITIVE"],
+	"turretSprite":"",
+	"hardpointSprite":"",
+	"turretOffsets":[0, 0],
+	"turretAngleOffsets":[0],
+	"hardpointOffsets":[0, 0],
+	"hardpointAngleOffsets":[0],	
+	"fringeColor":[255,255,255,255],
+	"coreColor":[255,255,255,255],
+	"glowColor":[255,255,255,255],
+	"width":1.0,
+    "textureScrollSpeed": 64,
+    "textureType": ROUGH,
+	"pixelsPerTexel":1.0,	
+}

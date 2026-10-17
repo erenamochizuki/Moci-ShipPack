@@ -1,0 +1,34 @@
+{
+    "displayName": "LionsHeart",
+    "fluxCapacitors": 0,
+    "fluxVents": 3,
+    "goalVariant": false,
+    "hullId": "brawler_LG",
+    "hullMods": [
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "brawler_LG_LionsHeart",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 001": "Moci_gugacannon",
+                "WS 002": "Moci_gugacannon",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 003": "sabot",
+                "WS 004": "sabot",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

@@ -1,0 +1,53 @@
+{
+    "displayName": "Civil",
+    "fluxCapacitors": 0,
+    "fluxVents": 7,
+    "goalVariant": true,
+    "hullId": "Moci_Demeterion",
+    "hullMods": [
+        "auxiliary_fuel_tanks",
+        "expanded_cargo_holds",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Demeterion_Civil",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0012": "lightneedler",
+                "WS0011": "lightneedler",
+                "WS0003": "lightneedler",
+                "WS0010": "lightneedler",
+                "WS0009": "lightneedler",
+                "WS0008": "lightneedler",
+                "WS0005": "lightneedler",
+                "WS0004": "lightneedler",
+                "WS0007": "lightneedler",
+                "WS0006": "lightneedler",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0014": "lightneedler",
+                "WS0013": "lightneedler",
+                "WS0016": "lightneedler",
+                "WS0015": "lightneedler",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "flak",
+                "WS0002": "flak",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

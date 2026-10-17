@@ -1,0 +1,30 @@
+{
+	"baseHullId":"Moci_MS_18E",
+	"skinHullId":"Moci_YMS_18",
+	"hullName":"试作型京宝梵",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_MS_18E",
+	"descriptionPrefix":"该型号为试验型机体，因此与常见的型号之间略有差异。",
+	"tags":["moci_ms","no_dealer","no_sell"],
+	"tech":"吉翁尼克重工",
+	"fleetPoints":13,
+	"ordnancePoints":70,
+	"baseValueMult":1.25,
+	"spriteName":"graphics/ships/Mobile_Suit/Moci_YMS_18/body/YMS_18_body.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":[],
+	"builtInWeapons":{
+    "ARM_L": "Moci_YMS_18_arm_left",
+    "ARM_R": "Moci_YMS_18_arm_right",
+    "BODY": "Moci_YMS_18_body",
+    "HEAD": "Moci_YMS_18_head",
+    "LEGS": "Moci_YMS_18_legs",
+    "SHOULDER_L": "Moci_YMS_18_shoulder_left",
+    "SHOULDER_R": "Moci_YMS_18_shoulder_right"
+     },
+ 	"weaponSlotChanges":{
+	},  
+}

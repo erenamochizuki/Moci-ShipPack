@@ -1,0 +1,70 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 26,
+    "fluxVents": 30,
+    "goalVariant": true,
+    "hullId": "Moci_WhiteBase",
+    "hullMods": [
+        "Moci_radical_modification",
+        "advancedoptics",
+        "fluxbreakers",
+        "fluxcoil",
+        "fluxdistributor",
+        "hardenedshieldemitter",
+        "magazines",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_WhiteBase_Base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "MAIN_R": "Moci_WhiteBase_maingun_R",
+                "MAIN_L": "Moci_WhiteBase_maingun_L",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0014": "pilum",
+                "WS0013": "pilum",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0011": "ionbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "Moci_miniflak",
+                "WS0012": "flak",
+                "WS0003": "Moci_miniflak",
+                "WS0002": "Moci_miniflak",
+                "WS0010": "Moci_miniflak",
+                "WS0009": "Moci_miniflak",
+                "WS0008": "Moci_miniflak",
+                "WS0005": "Moci_miniflak",
+                "WS0004": "Moci_miniflak",
+                "WS0007": "Moci_miniflak",
+                "WS0006": "Moci_miniflak",
+            }
+        },
+    ],
+    "wings": [
+        "Moci_RGM_79_fighter_wing",
+        "Moci_RGM_79_fighter_wing",
+        "Moci_RX_77_fighter_wing",
+        "Moci_RX_75_fighter_wing",
+    ],
+    "modules": [],
+}

@@ -1,0 +1,47 @@
+{
+  "id": "Moci_TDD_1_MISSILE_R",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_TDD_1_MISSILE_proj",
+  "type": "MISSILE",
+  "size": "LARGE",
+  "everyFrameEffect": "data.scripts.weapons.Moci_TDD_1_missileAnimEffect",
+  "onFireEffect": "data.scripts.weapons.Moci_TDD_1_missileAnimEffect",
+  "turretSprite": "graphics/weapons/Moci_TDD_1/Moci_TDD_1_MISSILE_R_00.png",
+  "hardpointSprite": "graphics/weapons/Moci_TDD_1/Moci_TDD_1_MISSILE_R_00.png",
+  "turretOffsets": [
+    0,
+    0.5
+  ],
+  "turretAngleOffsets": [
+    90
+  ],
+  "hardpointOffsets": [
+    3.5,
+    0.5
+  ],
+  "hardpointAngleOffsets": [
+    90
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "SMOKE",
+  "numFrames": 13,
+  "frameRate": 10,
+  "smokeSpec": {
+    "particleSizeMin": 8,
+    "particleSizeRange": 12,
+    "cloudParticleCount": 10,
+    "cloudDuration": 1,
+    "cloudRadius": 20,
+    "blowbackParticleCount": 10,
+    "blowbackDuration": 2,
+    "blowbackLength": 30,
+    "blowbackSpread": 360,
+    "particleColor": [
+      200,
+      200,
+      200,
+      100
+    ]
+  },
+  "fireSoundTwo": "Moci_Missile_launcher_01"
+}

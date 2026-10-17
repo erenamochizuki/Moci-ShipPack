@@ -1,0 +1,48 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 1,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_RGM_89S",
+    "hullMods": [
+        "hardenedshieldemitter",
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RGM_89S_Standard",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "dragonpod",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "locust",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "BACKPACK": "Moci_RGM_89S_backpack",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "SHOULDER_L_SOURCE": "typhoon",
+                "SHOULDER_R_SOURCE": "typhoon",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

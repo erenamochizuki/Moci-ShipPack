@@ -1,0 +1,100 @@
+{
+  "hullName": "Moci_ASW_G_08",
+  "hullId": "Moci_ASW_G_08",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Mobile_Suit/ASW_G_08/body/ASW_G_08.png",
+  "style": "MOCI_MS",
+  "height": 118,
+  "width": 139,
+  "center": [70, 59],
+  "collisionRadius": 84,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 84,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_MobilitySubsystemHullmod",
+    "Moci_antibeamcoating",
+    "Moci_MobileSuits",
+    "Moci_GNShield"
+  ],
+  "builtInWeapons": {
+    "ARM_L_SOURCE": "ASW_G_08_arm_left_gun",
+    "ARM_R_SOURCE": "ASW_G_08_arm_right_gun",
+    "HEAD_SOURCE": "Moci_heavry_vulcan"
+  },
+  "weaponSlots": [
+    {
+      "id": "ARM_L_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 95,
+      "angle": 0,
+      "locations": [8, 28]
+    },
+    {
+      "id": "ARM_R_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 95,
+      "angle": 0,
+      "locations": [8, -28]
+    },
+    {
+      "id": "HEAD_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 70,
+      "angle": 0,
+      "locations": [28, 0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-20, -9],
+      "length": 18,
+      "width": 5,
+      "angle": -178,
+      "contrailSize": 5,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-20, 9],
+      "length": 18,
+      "width": 5,
+      "angle": 178,
+      "contrailSize": 5,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-15, -18],
+      "length": 10,
+      "width": 3,
+      "angle": -150,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-15, 18],
+      "length": 10,
+      "width": 3,
+      "angle": 150,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -20, 18,
+    -2, 28,
+    18, 26,
+    32, 12,
+    38, 4,
+    38, -4,
+    32, -12,
+    18, -26,
+    -2, -28,
+    -20, -18
+  ]
+}

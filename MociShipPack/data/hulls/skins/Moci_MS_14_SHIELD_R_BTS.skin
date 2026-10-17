@@ -1,0 +1,18 @@
+{
+	"baseHullId":"Moci_MS_14_SHIELD_R",
+	"skinHullId":"Moci_MS_14_SHIELD_R_BTS",
+	"hullName":"泛用肩盾(黑色三连星)",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_MS_14",
+	"descriptionPrefix":"该型号为Ace驾驶员进行了特殊改造。借此，该机体将发挥出不同以往的性能。",
+	"tags":["module_unselectable","no_autofit","restricted","no_dealer","no_sell"],
+	"tech":"吉翁尼克重工(特装)",
+	"spriteName":"graphics/ships/Mobile_Suit/BTS/Moci_MS_14/arms/MS_14_arm_right_shield.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":[],
+	"builtInWeapons":{},
+ 	"weaponSlotChanges":{},  
+}

@@ -1,0 +1,44 @@
+{
+    "displayName": "Overriden",
+    "fluxCapacitors": 0,
+    "fluxVents": 12,
+    "goalVariant": true,
+    "hullId": "Moci_Gladiator_LP",
+    "hullMods": [
+        "Moci_highspeed_missilerack",
+        "armoredweapons",
+        "autorepair",
+        "blast_doors",
+        "missleracks",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gladiator_LP_Overriden",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "hammerrack",
+                "WS0002": "hammerrack",
+                "WS0003": "jackhammer",
+                "WS0005": "jackhammer",
+                "WS0006": "jackhammer",
+                "WS0007": "hammerrack",
+                "WS0008": "hammerrack",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0009": "flak",
+                "WS0010": "flak",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

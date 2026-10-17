@@ -1,0 +1,21 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Great_Wall",
+    "hullMods": [],
+    "quality": 0.0,
+    "variantId": "Moci_Great_Wall_Base",
+    "weaponGroups": [],
+    "modules": {
+        "LEFT_01": "Moci_Great_Wall_left_module_base",
+        "LEFT_03": "Moci_Great_Wall_left_carrier_module_base",
+        "ENGINE": "Moci_Great_Wall_engine_module_base",
+        "LEFT_02": "Moci_Great_Wall_left_sub_module_base",
+        "RIGHT_01": "Moci_Great_Wall_right_module_base",
+        "RIGHT_02": "Moci_Great_Wall_right_sub_module_base",
+        "RIGHT_03": "Moci_Great_Wall_right_carrier_module_base",
+        "CORE": "Moci_Great_Wall_core_base"
+    }
+}

@@ -1,0 +1,14 @@
+{
+  "variantId": "module_Belle_shield_Base",
+  "hullId": "module_Belle_shield",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 50,
+  "fluxVents": 50,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

@@ -1,0 +1,23 @@
+{
+    "displayName": "Elite",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": true,
+    "hullId": "Moci_Arbitrager",
+    "hullMods": [
+        "expanded_deck_crew",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Arbitrager_Elite",
+    "weaponGroups": [],
+    "wings": [
+        "Moci_FireDragon_wing",
+        "Moci_FireDragon_wing",
+        "Moci_FireDragon_wing",
+        "Moci_FireDragon_wing",
+    ],
+    "modules": [],
+}

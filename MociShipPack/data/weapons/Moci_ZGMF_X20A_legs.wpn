@@ -1,0 +1,58 @@
+{
+  "specClass": "beam",
+  "id": "Moci_ZGMF_X20A_legs",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "everyFrameEffect": "data.scripts.weapons.Moci_MechFullBodyAnimationController",
+  "turretSprite": "graphics/ships/Mobile_Suit/ZGMF_X20A/legs/ZGMF_X20A_legs_00.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/ZGMF_X20A/legs/ZGMF_X20A_legs_00.png",
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    0,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    255,
+    0,
+    30,
+    255
+  ],
+  "coreColor": [
+    255,
+    10,
+    50,
+    155
+  ],
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "useGlowColorForHitGlow": true,
+  "hitGlowBrightenDuration": 0.1,
+  "width": 6,
+  "textureType": SMOOTH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "",
+  "numFrames": 9,
+  "frameRate": 8
+}

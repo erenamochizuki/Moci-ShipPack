@@ -1,0 +1,71 @@
+{
+  "id": "Moci_Wave_Motion_Dual_Gun",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "beamEffect": "data.scripts.weapons.Moci_WaveMotionGunBeamEffect",
+  "everyFrameEffect": "data.scripts.weapons.Moci_WaveMotionGunChargeEffect",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/tachyon_lance_turret_base.png",
+  "turretGlowSprite": "graphics/weapons/tachyon_lance_turret_glow.png",
+  "hardpointSprite": "",
+  "glowColor": [
+    165,
+    100,
+    255,
+    0
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    -20,
+    45,
+    -20,
+    -45
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    -25,
+    45,
+    -25,
+    -45
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+  "beamFireOnlyOnFullCharge": true,
+  "fringeColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 128,
+  "textureType": [
+    "graphics/fx/Moci_WaveGun_fringe.png",
+    "graphics/fx/Moci_WaveGun_core.png"
+  ],
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    ASTEROID,
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF,
+    FIGHTER,
+    SHIP
+  ],
+  "fireSoundTwo": "Moci_WaveCannon_loop"
+}

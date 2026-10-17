@@ -1,0 +1,58 @@
+{
+  "variantId": "Moci_Aestivalis_EX",
+  "hullId": "Moci_Aestivalis_EX",
+  "displayName": "截击",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 1,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "ARM_L_SOURCE": "Moci_Aestivalis_Gekiganflare"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "ARM_R_SOURCE": "Moci_Aestivalis_EX_right_gun_rifle"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "BACKPACK_SOURCE": "Moci_Aestivalis_EX_missile_launcher"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "HEAD_SOURCE": "Moci_Aestivalis_Gekiganbeam"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

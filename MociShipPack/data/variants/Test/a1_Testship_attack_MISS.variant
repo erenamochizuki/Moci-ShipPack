@@ -1,0 +1,25 @@
+{
+    "displayName": "导弹测试",
+    "fluxCapacitors": 0,
+    "fluxVents": 50,
+    "goalVariant": false,
+    "hullId": "Moci_Testship_attack",
+    "hullMods": [
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "a1_Testship_attack_MISS",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0008": "harpoonpod",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

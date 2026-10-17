@@ -1,0 +1,61 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 8,
+    "fluxVents": 10,
+    "goalVariant": true,
+    "hullId": "Moci_MS_18E",
+    "hullMods": [
+        "armoredweapons",
+        "autorepair",
+        "blast_doors",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "reinforcedhull",
+        "stabilizedshieldemitter",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_18E_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "BACKPACK_WEAPON": "Moci_MS_18E_backcbazooka",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "Moci_miniphase_charge",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_MS_18E_arm_right_gun_rifle",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "MINIBAZOOKA_R": "MS_18E_minibazooka",
+                "MINIBAZOOKA_L": "MS_18E_minibazooka",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "MS_18E_head_vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

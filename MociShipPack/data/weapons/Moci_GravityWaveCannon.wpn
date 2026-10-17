@@ -1,0 +1,57 @@
+{
+  "id": "Moci_GravityWaveCannon",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "beamEffect": "data.scripts.weapons.Moci_GravityBeamCannonEffect",
+  "everyFrameEffect": "data.scripts.weapons.Moci_GravityBeamCannonEffect",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/Moci_Nadesico_MAINGUN.png",
+  "turretGlowSprite": "graphics/weapons/Moci_Nadesico_MAINGUN_GLOW.png",
+  "hardpointSprite": "",
+  "hardpointGlowSprite": "graphics/weapons/Moci_Nadesico_MAINGUN_GLOW.png",
+  "glowColor": [
+    20,
+    200,
+    255,
+    200
+  ],
+  "hitGlowRadius": 50,
+  "turretOffsets": [
+    36.5,
+    0.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    145.5,
+    0.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    60,
+    0,
+    255,
+    100
+  ],
+  "coreColor": [
+    165,
+    160,
+    255,
+    255
+  ],
+  "width": 335,
+  "textureType": [
+    "graphics/fx/Moci_beam_laser_fringe.png",
+    "graphics/fx/Moci_beam_laser_core.png"
+  ],
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet":[PROJECTILE_FF,PROJECTILE_NO_FF,PROJECTILE_FIGHTER,MISSILE_FF,MISSILE_NO_FF,FIGHTER],
+  "fireSoundTwo": "riftcascade_loop",
+  "coreWidthMult": 0.35
+}

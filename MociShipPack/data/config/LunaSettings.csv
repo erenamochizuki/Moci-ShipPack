@@ -1,0 +1,25 @@
+fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
+,,,,,,,,
+moci_combatSquadHeader,CombatSquad 机师系统,Header,CombatSquad 机师系统,,,,,CombatSquad
+Moci_enablePilotSystem,启用机师系统,Boolean,true,,是否启用CombatSquad机师系统。关闭后僚机将没有军官。,,,CombatSquad
+Moci_useDynamicPilots,自定义作战小队,Boolean,true,,开启后允许为舰长军官建立并自定义专属作战小队；关闭后使用舰船配置中的默认小队，不创建军官专属编队。,,,CombatSquad
+,,,,,,,,
+moci_gnShieldHeader,GN护盾性能优化,Header,GN护盾性能优化,,,,,GNShield
+Moci_gnShieldSkipFighter,禁用舰载机特效,Boolean,true,,关闭舰载机的GN护盾视觉特效以提升性能。主力舰特效不受影响。,,,GNShield
+Moci_gnShieldEnableLimit,启用数量限制,Boolean,false,,当战场舰载机数量超过阈值时自动禁用舰载机特效。,,,GNShield
+Moci_gnShieldFighterLimit,舰载机数量阈值,Int,150,,超过此数量的舰载机将不渲染GN护盾特效。需要启用数量限制。,1,600,GNShield
+,,,,,,,,
+moci_wingmanHeader,浮游炮系统,Header,浮游炮系统,,,,,Wingman
+Moci_showWingmanStatus,显示浮游炮状态,Boolean,true,,在玩家状态栏显示当前浮游炮数量（例如：浮游炮: 2 / 4）。关闭可减少状态栏信息。,,,Wingman
+,,,,,,,,
+moci_officerHeader,军官系统,Header,军官系统,,,,,Officer
+,,,,,,,,
+moci_transformHeader,变形系统,Header,变形系统,,,,,Transform
+moci_transform_hold_time,变身长按时间,Float,1.0,,长按X键触发变身所需的时间（秒）,0.1,2.0,机体设置
+,,,,,,,,
+moci_mechturretHeader,炮塔模式,Header,炮塔模式,,,,,机体设置
+Moci_MechTurretReleaseKey,炮塔模式释放键,Keycode,48,,炮塔模式的释放/禁止停靠按键（默认 B 键）。,,,机体设置
+,,,,,,,,
+moci_weaponSoundHeader,武器音效,Header,武器音效,,,,,机体设置
+Moci_YamatoMainGunAmmoSwitchKey,大和主炮弹药切换键,Keycode,48,,大和号主炮在玩家手操时切换脉冲镭射弹/三式高爆弹的按键（默认 B 键）。,,,机体设置
+Moci_gugacannonFireSound,百兆加农炮开火音效,Radio,gigacannon_fire,"gigacannon_fire,Moci_gugugaga",切换百兆加农炮的开火音效。gigacannon_fire=默认音效，Moci_gugugaga=咕咕嘎嘎音效。,,,机体设置

@@ -1,0 +1,44 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 2,
+    "fluxVents": 20,
+    "goalVariant": true,
+    "hullId": "Moci_Seaman",
+    "hullMods": [
+        "hardenedshieldemitter",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Seaman_Base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "mjolnir",
+                "ARM_R_SOURCE": "mjolnir",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0006": "sabot",
+                "WS0005": "sabot",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0004": "Moci_miniflak",
+                "WS0001": "Moci_miniflak",
+                "WS0003": "Moci_miniflak",
+                "WS0002": "Moci_miniflak",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

@@ -1,0 +1,359 @@
+{
+  "hullName": "RGM_96X",
+  "hullId": "Moci_RGM_96X",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RGM_96X/body/RGM_96X_body_standerd.png",
+  "style": "MOCI_PT",
+  "height": 28,
+  "width": 48,
+  "center": [
+    24,
+    14
+  ],
+  "collisionRadius": 39,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 39,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_GNShield",
+    "Moci_MobileSuits",
+    "Moci_MobilitySubsystemHullmod",
+    "Moci_antibeamcoating"
+  ],
+  "builtInWeapons": {
+    "ARM_L": "Moci_RGM_96X_arm_left",
+    "ARM_L_SOURCE": "Moci_RGM_96X_arm_left_gun_Sabre",
+    "ARM_R": "Moci_RGM_96X_arm_right",
+    "ARM_R_TYPE": "Moci_RGM_96X_arm_right_rifle_type",
+    "BACKPACK": "Moci_RGM_96X_backpack",
+    "BODY": "Moci_RGM_96X_body",
+    "HEAD": "Moci_RGM_96X_head",
+    "HEAD_SOURCE": "MS_18E_head_vulcan",
+    "LEGS": "Moci_RGM_96X_legs",
+    "SHOULDER_L": "Moci_RGM_96X_shoulder_left",
+    "SHOULDER_R": "Moci_RGM_96X_shoulder_right"
+  },
+  "weaponSlots": [
+    {
+      "id": "BODY",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        -7,
+        0
+      ],
+      "renderOrderMod": 10
+    },
+    {
+      "id": "HEAD",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        0,
+        0
+      ],
+      "renderOrderMod": 30
+    },
+    {
+      "id": "ARM_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        -1,
+        -17
+      ],
+      "renderOrderMod": 9
+    },
+    {
+      "id": "ARM_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        -1,
+        17
+      ],
+      "renderOrderMod": 9
+    },
+    {
+      "id": "ARM_R_TYPE",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        -1,
+        -17
+      ],
+      "renderOrderMod": 10
+    },
+    {
+      "id": "ARM_R_SOURCE",
+      "size": "LARGE",
+      "type": "HYBRID",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        -1,
+        -17
+      ]
+    },
+    {
+      "id": "ARM_L_SOURCE",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        -1,
+        17
+      ],
+      "renderOrderMod": 10
+    },
+    {
+      "id": "SHOULDER_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        -4,
+        -18
+      ],
+      "renderOrderMod": 20
+    },
+    {
+      "id": "SHOULDER_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        -4,
+        18
+      ],
+      "renderOrderMod": 20
+    },
+    {
+      "id": "BACKPACK",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        -31,
+        0
+      ],
+      "renderOrderMod": 25
+    },
+    {
+      "id": "SHOULDERWEAPON_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        -9.5,
+        -15.5
+      ],
+      "renderOrderMod": 30
+    },
+    {
+      "id": "SHOULDERWEAPON_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        -9.5,
+        15.5
+      ],
+      "renderOrderMod": 30
+    },
+    {
+      "id": "LEGS",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        -6,
+        0
+      ],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "SHIELD_L",
+      "size": "LARGE",
+      "type": "STATION_MODULE",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        2,
+        29
+      ],
+      "renderOrderMod": 12
+    },
+    {
+      "id": "SHIELD_SHOULDER_L",
+      "size": "LARGE",
+      "type": "STATION_MODULE",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        -8,
+        0
+      ],
+      "renderOrderMod": 30
+    },
+    {
+      "id": "ARM_L_TYPE",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        -1,
+        17
+      ],
+      "renderOrderMod": 9
+    },
+    {
+      "id": "SHOULDERWEAPON_L_SOURCE",
+      "size": "MEDIUM",
+      "type": "DECORATIVE",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        -13,
+        15.5
+      ]
+    },
+    {
+      "id": "SHOULDERWEAPON_R_SOURCE",
+      "size": "MEDIUM",
+      "type": "DECORATIVE",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        -13,
+        -15.5
+      ]
+    },
+    {
+      "id": "HAT",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        0,
+        1
+      ],
+      "renderOrderMod": 30
+    },
+    {
+      "id": "HEAD_SOURCE",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        0,
+        0
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -19,
+        -5
+      ],
+      "length": 26,
+      "width": 9,
+      "angle": 180,
+      "contrailSize": 9,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -19,
+        5
+      ],
+      "length": 26,
+      "width": 9,
+      "angle": -180,
+      "contrailSize": 9,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -14,
+    7,
+    -12,
+    10,
+    -11,
+    11,
+    -5,
+    22,
+    -3,
+    24,
+    -1,
+    24,
+    10,
+    9,
+    10,
+    6.5,
+    13,
+    3,
+    13,
+    -3,
+    10,
+    -6.5,
+    10,
+    -9,
+    -1,
+    -24,
+    -3,
+    -24,
+    -5,
+    -22,
+    -11,
+    -11,
+    -12,
+    -10,
+    -14,
+    -7
+  ]
+}

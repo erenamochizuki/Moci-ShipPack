@@ -1,0 +1,1564 @@
+{
+  "Moci_CaptainMachine": {
+    "name": "队长机",
+    "description": {
+      "deployment_cost": "舰船部署点消耗增加}%s}。",
+      "deployment_cost_highlights": [
+        "+{cost}%"
+      ],
+      "base_effects_heading": "基础效果",
+      "base_effects": "幅能容量提高}%s}，散幅能力、命令点回复速度、伤害减免各提高}%s}。",
+      "base_effects_highlights": [
+        "{flux_capacity}%",
+        "{base_bonus}%"
+      ],
+      "synergy_heading": "协同效果",
+      "synergy_range": "}%s}范围内每有一艘同级舰船，散幅、命令点回复、伤害减免、硬幅能耗散各获得额外加成。最多叠加}%s}艘。",
+      "synergy_range_highlights": [
+        "{range}",
+        "{max_ships}"
+      ],
+      "synergy_per_ship": "每艘同级舰加成: 散幅}%s}，伤害减免}%s}，命令点回复}%s}，硬幅能耗散}%s}。",
+      "synergy_per_ship_highlights": [
+        "{flux_per_ship}%",
+        "{defense_per_ship}%",
+        "{cp_per_ship}%",
+        "{hard_flux_per_ship}%"
+      ],
+      "full_squad_heading": "满编队效果",
+      "full_flux": "}%s}散幅能力总计:}%s}(}%s}+}%s}×}%s})",
+      "full_flux_highlights": [
+        "#",
+        "{max_flux}%",
+        "{base_flux}%",
+        "{flux_per_ship}%",
+        "{max_ships}"
+      ],
+      "full_defense": "}%s}伤害减免总计:}%s}(}%s}+}%s}×}%s})",
+      "full_defense_highlights": [
+        "#",
+        "{max_defense}%",
+        "{base_defense}%",
+        "{defense_per_ship}%",
+        "{max_ships}"
+      ],
+      "full_cp": "}%s}命令点回复总计:}%s}(}%s}+}%s}×}%s})",
+      "full_cp_highlights": [
+        "#",
+        "{max_cp}%",
+        "{base_cp}%",
+        "{cp_per_ship}%",
+        "{max_ships}"
+      ],
+      "full_hard_flux": "}%s}硬幅能耗散总计:}%s}(}%s}+}%s}×}%s})",
+      "full_hard_flux_highlights": [
+        "#",
+        "{max_hard_flux}%",
+        "{base_hard_flux}%",
+        "{hard_flux_per_ship}%",
+        "{max_ships}"
+      ]
+    },
+    "status": {
+      "captain_title": "队长机",
+      "captain_support": "支援舰船: {count}/{max}",
+      "captain_no_support": "无同级舰支援",
+      "synergy_title": "协同效果",
+      "synergy_effects": "散幅+{flux}% 减伤+{defense}% 命令点+{cp}% 硬幅耗散+{hard_flux}%",
+      "wingman_title": "队长机光环",
+      "wingman_effects": "机动性+30% 速度+30%"
+    }
+  },
+  "Moci_MobileSuitsIDcard": {
+    "name": "机动兵器ID卡",
+    "description": {
+      "main": "这种舰船作为一种独特的设计类型， %s 不受大多数的殉爆和撞击伤害。无法安装 %s 。",
+      "main_highlights": [
+        "机动兵器(MS)",
+        "改装机库、整合点防御 AI、勘探设备"
+      ],
+      "immunity_both": "完全 %s 和 %s 。",
+      "immunity_both_highlights": [
+        "免疫碰撞伤害",
+        "殉爆伤害"
+      ],
+      "immunity_collision": "完全 %s 。",
+      "immunity_collision_highlights": [
+        "免疫碰撞伤害"
+      ],
+      "immunity_explosion": "完全 %s 。",
+      "immunity_explosion_highlights": [
+        "免疫殉爆伤害"
+      ],
+      "anti_missile_fighter": "对 %s 和 %s 造成额外 %s 伤害。",
+      "anti_missile_fighter_highlights": [
+        "导弹",
+        "战机",
+        "{damage}%"
+      ],
+      "disabled_by_hullmod": "当前舰船已经安装了 %s 的 %s 系列插件，因此当前船插不再生效。",
+      "disabled_by_hullmod_highlights": [
+        "骤雨军事公司",
+        "重战机"
+      ],
+      "sensor_profile": "信号半径减少 %s 。",
+      "sensor_profile_highlights": [
+        "{profile}%"
+      ],
+      "engine_stats": "引擎耐久度提高 %s ，过载时间增加 %s 。",
+      "engine_stats_highlights": [
+        "{health}%",
+        "{overload}%"
+      ],
+      "repair_speed": "引擎和武器维修速度提高 %s 。",
+      "repair_speed_highlights": [
+        "{repair}%"
+      ],
+      "zero_flux_boost": "在零幅能加速时获得 %s 的航速加成，但在安装了 %s 时无效。",
+      "zero_flux_boost_highlights": [
+        "双倍",
+        "安全协议超驰"
+      ],
+      "safety_overrides_penalty": "{%s}:安装了 %s ，部署点 %s 。",
+      "safety_overrides_penalty_highlights": [
+        "惩罚",
+        "安全协议超驰",
+        "+{dp}"
+      ],
+      "frigate_rules_heading": "特殊规则",
+      "frigate_disabled": "该效果对于拥有 %s %s 等特殊改装的机体禁用。",
+      "frigate_disabled_highlights": [
+        "原生种兵器",
+        "超合金装甲"
+      ],
+      "frigate_collision_only": "安装了 %s 的护卫舰享受特殊待遇：",
+      "frigate_collision_only_highlights": [
+        "赛克缪系统"
+      ],
+      "frigate_collision_only_benefit1": "%s 碰撞类型变为战机( %s )",
+      "frigate_collision_only_benefit1_highlights": [
+        "#",
+        "可穿越陨石、舰船、残骸"
+      ],
+      "frigate_collision_only_benefit2": "%s %s 不受到护卫舰的数值惩罚",
+      "frigate_collision_only_benefit2_highlights": [
+        "#",
+        "但是"
+      ],
+      "frigate_rules_intro": "当护卫舰未安装特定高级船插时，将被视为 %s ：",
+      "frigate_rules_intro_highlights": [
+        "轻型机动兵器"
+      ],
+      "frigate_rule1": "%s 碰撞类型变为战机( %s )",
+      "frigate_rule1_highlights": [
+        "#",
+        "可穿越陨石、舰船、残骸"
+      ],
+      "frigate_rule2": "%s 战备衰减速率增加 %s",
+      "frigate_rule2_highlights": [
+        "#",
+        "{cr_decay}%"
+      ],
+      "frigate_rule3": "%s 受到点防武器攻击时伤害增加 %s",
+      "frigate_rule3_highlights": [
+        "#",
+        "{pd_damage}%"
+      ],
+      "frigate_rule4": "%s 受到有点防专精军官攻击时伤害增加 %s",
+      "frigate_rule4_highlights": [
+        "#",
+        "{pd_damage}%"
+      ],
+      "frigate_rule5": "%s 无军官驾驶时最大战备值减少 %s",
+      "frigate_rule5_highlights": [
+        "#",
+        "{no_officer_cr}%"
+      ]
+    },
+    "combat": {
+      "anti_missile_damage": "机动兵器对导弹增伤",
+      "anti_fighter_damage": "机动兵器对战机增伤",
+      "frigate_pd_damage": "护卫舰受到点防攻击",
+      "explosion_immunity": "机动兵器免疫殉爆",
+      "collision_immunity": "机动兵器免疫碰撞"
+    }
+  },
+  "Moci_cargo_carrier_deck": {
+    "name": "货船改装航母甲板",
+    "description": {
+      "intro": "将货舱空间改造为舰载机维护区域，这种非专业改造会显著影响舰载机作战效率，提高舰载机整备时间 %s 。",
+      "intro_highlights": [
+        "{refit_time}%"
+      ],
+      "rearm": "同时所有回舰重新装填的轰炸机和回舰维修的战斗机需要花费其基础整备时间的 %s 才能重新起飞。",
+      "rearm_highlights": [
+        "{rearm_time}%"
+      ],
+      "cargo_penalty": "每在舰载机上花费 %s 装配点就会减少 %s 货舱容量，最高减少 %s 。",
+      "cargo_penalty_highlights": [
+        "{op_per_cargo}",
+        "{cargo_step}",
+        "{max_reduction}%"
+      ],
+      "current_cargo": "当前配置下货舱容量减少: %s",
+      "current_cargo_highlights": [
+        "{current_reduction}%"
+      ]
+    }
+  },
+  "Moci_emergency_missile_factory": {
+    "name": "紧急导弹工厂",
+    "description": {
+      "intro": "紧急导弹工厂通过牺牲弹药储备空间来换取战场上的持续补给能力。",
+      "ammo_reduction": "- 所有导弹武器备弹量减少 %s",
+      "ammo_reduction_highlights": [
+        "{ammo_reduction}%"
+      ],
+      "incompatible": "- 不兼容 %s",
+      "incompatible_highlights": [
+        "扩展发射架"
+      ],
+      "reload_heading": "根据导弹武器尺寸，每隔一定时间为导弹武器补充弹药:",
+      "small_reload": " - 小型导弹: 每 %s 补充 %s 枚",
+      "small_reload_highlights": [
+        "{small_interval}秒",
+        "1"
+      ],
+      "medium_reload": " - 中型导弹: 每 %s 补充 %s 枚",
+      "medium_reload_highlights": [
+        "{medium_interval}秒",
+        "1"
+      ],
+      "large_reload": " - 大型导弹: 每 %s 补充 %s 枚",
+      "large_reload_highlights": [
+        "{large_interval}秒",
+        "1"
+      ],
+      "unapplicable_reason": "不能与扩展发射架同时安装"
+    }
+  },
+  "Moci_MobileArmour": {
+    "name": "机动装甲",
+    "description": {
+      "main": "这种舰船作为一种独特的设计类型， %s 的战斗表现与通常的舰船有所不同。",
+      "main_highlights": [
+        "机动装甲(MA)"
+      ],
+      "defense_heading": "全面防护",
+      "defense_main": "大幅降低受到的 %s 和 %s 伤害。",
+      "defense_main_highlights": [
+        "殉爆",
+        "碰撞"
+      ],
+      "weapon_engine_damage": "武器和引擎受到的伤害减少 %s 。",
+      "weapon_engine_damage_highlights": [
+        "{weapon_engine_damage}%"
+      ],
+      "emp_damage": "受到的EMP伤害减少 %s 。",
+      "emp_damage_highlights": [
+        "{emp_damage}%"
+      ],
+      "flux_heading": "幅能系统",
+      "hard_flux": "获得 %s 的在展开护盾时耗散 %s 能力。",
+      "hard_flux_highlights": [
+        "{hard_flux}%",
+        "硬幅能"
+      ],
+      "vent_penalty": "舰船的强制排幅速度降低 %s 。",
+      "vent_penalty_highlights": [
+        "{vent_penalty}%"
+      ],
+      "sensor_heading": "感知系统",
+      "sensor_profile": "传感器信号降低 %s 。",
+      "sensor_profile_highlights": [
+        "{sensor_profile}%"
+      ],
+      "sight_range": "战场视野提高 %s 。",
+      "sight_range_highlights": [
+        "{sight_range}%"
+      ],
+      "traits_heading": "舰船特性",
+      "no_officer_cr": "无军官驾驶时最大战备值减少 %s 。",
+      "no_officer_cr_highlights": [
+        "{no_officer_cr}%"
+      ],
+      "no_officer_crew": "无军官驾驶时舰船所需船员数量提升 %s 。",
+      "no_officer_crew_highlights": [
+        "{no_officer_crew}%"
+      ]
+    },
+    "combat": {
+      "explosion_protection": "机动装甲殉爆防护",
+      "collision_protection": "机动装甲碰撞防护"
+    }
+  },
+  "Moci_advanced_flight_deck": {
+    "name": "先进甲板改装",
+    "description": {
+      "extra_bays": "获得 %s 个额外的战机甲板。",
+      "extra_bays_highlights": [
+        "{extra_bays}"
+      ],
+      "replacement_protection": "战机遭到损坏时的整备率不会下降。"
+    }
+  },
+  "Moci_ElectroMagneticFluidControl": {
+    "name": "磁流体控制系统",
+    "description": {
+      "intro": "通过磁流体控制系统，该系统能够大幅降低舰船的传感器信号，并提高对抗糟糕环境的能力。",
+      "sensor_profile": "传感器信号降低 %s ，传统的雷达无法跟踪这艘舰船。",
+      "sensor_profile_highlights": [
+        "{sensor_profile}%"
+      ],
+      "environment_immunity": "完全 %s 。",
+      "environment_immunity_highlights": [
+        "免疫日冕和类似危害"
+      ],
+      "immunity_both": "完全 %s 和 %s 。",
+      "immunity_both_highlights": [
+        "免疫碰撞伤害",
+        "殉爆伤害"
+      ],
+      "immunity_collision": "完全 %s 。",
+      "immunity_collision_highlights": [
+        "免疫碰撞伤害"
+      ],
+      "immunity_explosion": "完全 %s 。",
+      "immunity_explosion_highlights": [
+        "免疫殉爆伤害"
+      ]
+    },
+    "combat": {
+      "explosion_immunity": "磁流体控制系统免疫殉爆",
+      "collision_immunity": "磁流体控制系统免疫碰撞"
+    }
+  },
+  "Moci_PhaseShiftArmor": {
+    "name": "次元歪曲防壁",
+    "description": {
+      "intro": "通过先进的次元歪曲转换技术，该装甲系统为舰船提供额外的防护能力。",
+      "sensor_profile": "传感器信号降低 %s ，减少被敌方发现的概率。",
+      "sensor_profile_highlights": [
+        "{sensor_profile}%"
+      ],
+      "hard_flux": "允许舰船以 %s 的速率在开启护盾时耗散硬幅能。",
+      "hard_flux_highlights": [
+        "{hard_flux}%"
+      ],
+      "immunity_both": "完全 %s 和 %s 。",
+      "immunity_both_highlights": [
+        "免疫碰撞伤害",
+        "殉爆伤害"
+      ],
+      "immunity_collision": "完全 %s 。",
+      "immunity_collision_highlights": [
+        "免疫碰撞伤害"
+      ],
+      "immunity_explosion": "完全 %s 。",
+      "immunity_explosion_highlights": [
+        "免疫殉爆伤害"
+      ]
+    },
+    "combat": {
+      "explosion_immunity": "相位转换装甲免疫殉爆",
+      "collision_immunity": "相位转换装甲免疫碰撞"
+    }
+  },
+  "Moci_AlphaCoreAISystem": {
+    "name": "阿尔法核心AI系统",
+    "description": {
+      "core_cost": "1个{core_name}",
+      "install": "安装时消耗{core_cost}，随机获得一名苍蓝舰载AI。",
+      "install_highlights": [
+        "{core_cost}",
+        "随机获得一名苍蓝舰载AI"
+      ],
+      "ai_fallback_name": "阿尔法舰载AI",
+      "control": "{ai_name}将在机体没有分配军官时接管舰船的控制，或在有军官时提供辅助能力。",
+      "control_highlights": [
+        "{ai_name}"
+      ]
+    }
+  },
+  "Moci_OmegaCoreAISystem": {
+    "name": "欧米伽核心AI系统",
+    "description": {
+      "core_cost": "1个{core_name}",
+      "install": "安装时消耗{core_cost}，随机获得一名苍蓝舰载AI。",
+      "install_highlights": [
+        "{core_cost}",
+        "随机获得一名苍蓝舰载AI"
+      ],
+      "ai_fallback_name": "欧米伽舰载AI",
+      "control": "{ai_name}将在机体没有分配军官时接管舰船的控制，或在有军官时提供辅助能力。",
+      "control_highlights": [
+        "{ai_name}"
+      ]
+    }
+  },
+  "Moci_hidden_hullmod": {
+    "name": "隐藏插件",
+    "description": {
+      "stealth_heading": "隐身效果",
+      "stealth_intro": "舰船完全隐身：",
+      "stealth_sprite": "- 贴图完全隐藏",
+      "stealth_collision": "- 碰撞类型设为 %s",
+      "stealth_collision_highlights": [
+        "NONE"
+      ],
+      "stealth_effects": "- 护盾和引擎特效隐藏",
+      "deployment_heading": "部署优化",
+      "deployment_dp": "部署点消耗降为 %s 。",
+      "deployment_dp_highlights": [
+        "0"
+      ],
+      "deployment_peak": "峰值战备时间增加 %s 倍。",
+      "deployment_peak_highlights": [
+        "1000"
+      ],
+      "deployment_maintenance": "维护成本降为 %s 。",
+      "deployment_maintenance_highlights": [
+        "0"
+      ],
+      "warning_heading": "注意",
+      "warning_text": "此船插用于测试目的，隐身舰船无法正常参与战斗。"
+    }
+  },
+  "Moci_pyrejudge_slot_randomizer": {
+    "name": "劣质改装舰体",
+    "description": {
+      "param_any_ship": "任何舰船",
+      "unapplicable_invalid_ship": "舰船数据无效",
+      "unapplicable_mod_conflict": "与主随机化模组冲突",
+      "intro": "这条舰船并非由标准蓝图制造，而是由人工改造而成，因此其武器配置有所不同。",
+      "randomized_slots": "槽位数据：已随机化 %s 个武器槽位",
+      "randomized_slots_highlights": [
+        "{slot_count}"
+      ],
+      "ship_type": "舰船类型：%s",
+      "ship_type_highlights": [
+        "{hull_id}"
+      ],
+      "unknown_ship": "未知",
+      "pending": "槽位数据：等待随机化"
+    }
+  },
+  "Moci_GNFieldDefenseSystem": {
+    "name": "GN力场防御系统",
+    "description": {
+      "title": "GN力场防御系统",
+      "main": "这种由太阳炉产生的GN粒子形成的保护性立场提供了独立于幅能的护盾保护，护盾容量为最大幅能的 %s ，回复速度为幅能耗散的 %s ，护盾装甲值为最大幅能的 %s (上限 %s 点)。",
+      "main_highlights": [
+        "{shield_cap}",
+        "{regen_speed}",
+        "{armor_frac}",
+        "{armor_max}"
+      ],
+      "restart": "护盾被击破后需要重启延迟和充能至 %s 才能重新激活。",
+      "restart_highlights": [
+        "50%"
+      ],
+      "emp_immunity": "护盾激活时免疫 %s 伤害。",
+      "emp_immunity_highlights": [
+        "EMP"
+      ],
+      "detail_heading": "详细说明",
+      "detail_text": "GN力场防御系统是一个独立于幅能的护盾防御系统，受到伤害后会自动回复。护盾被击破后需要经过重启延迟，然后充能至 %s 才能重新激活。",
+      "detail_text_highlights": [
+        "50%"
+      ],
+      "detail_hint": "按住 %s 查看详细说明",
+      "detail_hint_highlights": [
+        "LAlt"
+      ],
+      "table_heading": "护盾数据",
+      "table_col_attr": "属性",
+      "table_col_value": "数值",
+      "table_shield_cap": "护盾容量",
+      "table_regen_speed": "回复速度",
+      "table_regen_speed_suffix": "/秒",
+      "table_regen_delay": "回复冷却",
+      "table_seconds_suffix": "秒",
+      "table_shield_armor": "护盾装甲",
+      "table_restart_delay": "重启延迟",
+      "table_explain_cap": "护盾容量：护盾能承受的最大伤害值",
+      "table_explain_regen": "回复速度：每秒回复的护盾值",
+      "table_explain_cooldown": "回复冷却：受到伤害后多久开始回复",
+      "table_explain_armor": "护盾装甲：减少高穿透武器的伤害",
+      "table_explain_restart": "重启延迟：护盾被击破后的等待时间"
+    }
+  },
+  "Moci_open_maintenance_gantry": {
+    "name": "开放式维修龙门架",
+    "description": {
+      "limit_heading": "该效果有最高上限",
+      "main": "舰队中每拥有一艘拥有该船插的舰船，提高舰队 %s 的维修速度 %s 的CR恢复速率，降低舰队 %s 的补给消耗，但搭载舰载机最低会消耗 %s 点OP。",
+      "main_highlights": [
+        "{repair_bonus}%",
+        "{cr_recovery_bonus}%",
+        "{supply_reduction}%",
+        "{fighter_op}"
+      ],
+      "stack_limit": "该效果最高能够叠加 %s 次。",
+      "stack_limit_highlights": [
+        "3"
+      ]
+    }
+  },
+  "Moci_armor_to_hull": {
+    "name": "钙质装甲",
+    "description": {
+      "param_source": "涡兽",
+      "param_purpose": "替代装甲",
+      "unapplicable_ablative": "无法安装在烧蚀装甲的舰船上",
+      "unapplicable_living": "无法安装在活体舰船的舰船上",
+      "unapplicable_heavy": "与重型装甲冲突",
+      "unapplicable_armoredweapons": "与炮塔装甲冲突",
+      "current_heading": "当前舰船改装效果",
+      "remove_armor": "该改装将 %s ",
+      "remove_armor_highlights": [
+        "移除舰船的所有装甲"
+      ],
+      "hull_bonus": "舰船结构值：+ %s",
+      "hull_bonus_highlights": [
+        "{converted_hull}"
+      ],
+      "ratio_damaged": "转换比例： %s （受损装甲）",
+      "ratio_damaged_highlights": [
+        "{ratio_summary}"
+      ],
+      "ratio_normal": "转换比例： %s ",
+      "ratio_normal_highlights": [
+        "{ratio_summary}"
+      ]
+    }
+  },
+  "Moci_fighter_expand": {
+    "name": "战机后备部署",
+    "description": {
+      "param_double": "翻倍",
+      "param_disabled_system": "后备部署",
+      "unapplicable_reason": "舰船没有飞行甲板",
+      "limit_heading": "限制",
+      "limit_main": "装载该船插会导致战术系统为 %s 的舰船的战术系统无效",
+      "limit_main_highlights": [
+        "后备部署"
+      ]
+    }
+  },
+  "Moci_nanobot_factory": {
+    "name": "纳米虫导弹工厂",
+    "description": {
+      "warning_heading": "注意",
+      "warning_main": "非直击武器可能无法正常触发回弹，如 %s 鱼雷。",
+      "warning_main_highlights": [
+        "DEM/MEM"
+      ],
+      "mechanism_heading": "击杀回弹机制",
+      "mechanism_main": "对敌舰造成伤害后，若目标在%s内被击毁，将根据目标舰船等级补充导弹武器弹药",
+      "mechanism_main_highlights": [
+        "{kill_timeout}秒"
+      ],
+      "target_heading": "击杀目标",
+      "table_ship_size": "舰船大小",
+      "table_replenish_ratio": "补充比例",
+      "table_frigate": "护卫舰",
+      "table_destroyer": "驱逐舰",
+      "table_cruiser": "巡洋舰",
+      "table_capital": "主力舰",
+      "effect_limited": " 仅对非内置的有限弹药导弹武器生效",
+      "repair_penalty": " 过载和引擎、武器修复时间增加 %s ",
+      "repair_penalty_highlights": [
+        "{repair_penalty}%"
+      ],
+      "unapplicable_reason": "仅限非主力舰"
+    }
+  },
+  "Moci_highspeed_missilerack": {
+    "name": "高速导弹挂架改装",
+    "description": {
+      "intro": "高速导弹挂架将大大加快导弹的发射速度，但会产生大量幅能。",
+      "effect_heading": "效果",
+      "flux_intro": "- 发射导弹时将按照武器尺寸产生相当于总幅能一定比例的硬幅能：",
+      "flux_small": "  小型导弹武器 %s",
+      "flux_small_highlights": [
+        "{small_flux}%"
+      ],
+      "flux_medium": "  中型导弹武器 %s",
+      "flux_medium_highlights": [
+        "{medium_flux}%"
+      ],
+      "flux_large": "  大型导弹武器 %s",
+      "flux_large_highlights": [
+        "{large_flux}%"
+      ],
+      "cooldown": "- 发射后将快速冷却导弹武器",
+      "diminish": "- 连续发射会导致 %s ，对尺寸更大的武器更明显",
+      "diminish_highlights": [
+        "效果降低"
+      ],
+      "ammo_reduction": "- 非自动装填导弹武器的备弹量减少 %s",
+      "ammo_reduction_highlights": [
+        "50%"
+      ],
+      "limit_heading": "限制",
+      "limit_auto": "- 对能够自动装填弹药的导弹武器无效",
+      "limit_incompatible": "- 与 %s 不兼容",
+      "limit_incompatible_highlights": [
+        "导弹自动装填器"
+      ],
+      "unapplicable_vector_design": "与维克多工业设计不兼容。",
+      "param_ammo_reduction": "50%"
+    }
+  },
+  "Moci_high_energy_focus": {
+    "name": "高能聚焦武器改装",
+    "description": {
+      "warning_heading": "将禁用舰船的战术系统",
+      "damage_bonus": " - 提高能量武器 %s 的伤害",
+      "damage_bonus_highlights": [
+        "{damage_bonus}%"
+      ],
+      "flux_penalty": " - 提高能量武器 %s 的幅能消耗",
+      "flux_penalty_highlights": [
+        "{flux_penalty}%"
+      ],
+      "disable_system": " - %s ",
+      "disable_system_highlights": [
+        "禁用舰船的战术系统"
+      ]
+    }
+  },
+  "Moci_entropy_suppressor": {
+    "name": "集成式熵抑制器",
+    "description": {
+      "repair": " - %s 下线的武器和引擎",
+      "repair_highlights": [
+        "瞬间修复"
+      ],
+      "armor_penalty": " - 降低舰船 %s 的护甲值",
+      "armor_penalty_highlights": [
+        "20%"
+      ],
+      "flux_penalty": " - 降低舰船 %s 的最大辐能",
+      "flux_penalty_highlights": [
+        "20%"
+      ]
+    }
+  },
+  "Moci_ballisticweaponcountrangefinder": {
+    "name": "实弹武器协调系统",
+    "description": {
+      "intro": "通过协调不同尺寸实弹武器的测距仪来进一步提高武器射程，不影响导弹、复合武器和点防武器。",
+      "intro_highlights": [
+        "不影响导弹、复合武器和点防武器"
+      ],
+      "current_loadout": "当前实弹武器配置:大型 %s ,中型 %s ,小型 %s",
+      "range_heading": "射程协调效果",
+      "large_rule": "- 大型武器为 %s 武器提供射程加成",
+      "large_rule_highlights": [
+        "中、小型"
+      ],
+      "large_rule_value": "  基础加成: %s 射程，每额外大型武器降低 %s ",
+      "large_rule_value_highlights": [
+        "+150",
+        "-50"
+      ],
+      "medium_rule": "- 中型武器为 %s 武器提供射程加成",
+      "medium_rule_highlights": [
+        "大、小型"
+      ],
+      "medium_rule_large": "  大型武器加成: %s 射程，每额外中型武器降低 %s ",
+      "medium_rule_large_highlights": [
+        "+50",
+        "-50"
+      ],
+      "medium_rule_small": "  小型武器加成: %s 射程，每额外中型武器降低 %s ",
+      "medium_rule_small_highlights": [
+        "+250",
+        "-50"
+      ],
+      "small_rule": "- 小型武器为 %s 武器提供射程加成",
+      "small_rule_highlights": [
+        "中、大型"
+      ],
+      "small_rule_value": "  基础加成: %s 射程，每额外小型武器降低 %s ",
+      "small_rule_value_highlights": [
+        "+50",
+        "-10"
+      ],
+      "current_heading": "当前加成效果",
+      "current_large": "大型实弹武器: %s 射程",
+      "current_medium": "中型实弹武器: %s 射程",
+      "current_small": "小型实弹武器: %s 射程",
+      "no_weapon": "当前船只没有符合条件的实弹武器",
+      "interaction_heading": "与其他修正的交互",
+      "interaction": "由于增加的是基础射程，此修正会被来自其他船体改装和技能的百分比修正进一步增强。",
+      "unapplicable_conflict": "与能量武器协调系统互斥",
+      "unapplicable_capital": "不能安装在主力舰上"
+    }
+  },
+  "Moci_energyweaponcountrangefinder": {
+    "name": "能量武器协调系统",
+    "description": {
+      "intro": "通过协调不同尺寸能量武器的测距仪来进一步提高武器射程，不影响导弹、复合武器和点防武器。",
+      "intro_highlights": [
+        "不影响导弹、复合武器和点防武器"
+      ],
+      "current_loadout": "当前能量武器配置:大型 %s ,中型 %s ,小型 %s",
+      "range_heading": "射程协调效果",
+      "large_rule": "- 大型武器为 %s 武器提供射程加成",
+      "large_rule_highlights": [
+        "中、小型"
+      ],
+      "large_rule_value": "  基础加成: %s 射程，每额外大型武器降低 %s ",
+      "large_rule_value_highlights": [
+        "+150",
+        "-50"
+      ],
+      "medium_rule": "- 中型武器为 %s 武器提供射程加成",
+      "medium_rule_highlights": [
+        "大、小型"
+      ],
+      "medium_rule_large": "  大型武器加成: %s 射程，每额外中型武器降低 %s ",
+      "medium_rule_large_highlights": [
+        "+50",
+        "-50"
+      ],
+      "medium_rule_small": "  小型武器加成: %s 射程，每额外中型武器降低 %s ",
+      "medium_rule_small_highlights": [
+        "+250",
+        "-50"
+      ],
+      "small_rule": "- 小型武器为 %s 武器提供射程加成",
+      "small_rule_highlights": [
+        "中、大型"
+      ],
+      "small_rule_value": "  基础加成:  %s 射程，每额外小型武器降低 %s ",
+      "small_rule_value_highlights": [
+        "+50",
+        "-10"
+      ],
+      "current_heading": "当前加成效果",
+      "current_large": "大型能量武器: %s 射程",
+      "current_medium": "中型能量武器: %s 射程",
+      "current_small": "小型能量武器: %s 射程",
+      "no_weapon": "当前船只没有符合条件的能量武器",
+      "interaction_heading": "与其他修正的交互",
+      "interaction": "由于增加的是基础射程，此修正会被来自其他船体改装和技能的百分比修正进一步增强。",
+      "unapplicable_conflict": "与实弹武器协调系统互斥",
+      "unapplicable_capital": "不能安装在主力舰上"
+    }
+  },
+  "Moci_WideAreaRadar": {
+    "name": "广域作战雷达",
+    "description": {
+      "intro": "加装了额外的战斗雷达，使得航母的舰载机能够在更远的范围内战斗。",
+      "effect_heading": "效果",
+      "sight_bonus": "战斗视野增加 %s 。",
+      "sight_bonus_highlights": [
+        "{sight_bonus}%"
+      ],
+      "fighter_bonus": "舰载机交战距离增加 %s 。",
+      "fighter_bonus_highlights": [
+        "{fighter_bonus}%"
+      ],
+      "limit_heading": "限制",
+      "limit_intro": "战斗雷达带来的额外能耗将会限制舰船的部分功能。",
+      "disable_zero_flux": " %s 零幅能加速。",
+      "disable_zero_flux_highlights": [
+        "禁用"
+      ],
+      "disable_shield": " %s 护盾。",
+      "disable_shield_highlights": [
+        "禁用"
+      ],
+      "disable_vent": " %s 强制排幅。",
+      "disable_vent_highlights": [
+        "禁用"
+      ]
+    }
+  },
+  "Moci_LandingSequence": {
+    "name": "着陆程序",
+    "description": {
+      "unapplicable_ship_null": "舰船为空",
+      "unapplicable_variant_null": "舰船变体为空",
+      "unapplicable_only_ms": "只能安装在机动战士上",
+      "ai_heading": "AI自动着陆条件",
+      "ai_intro": "%s 控制的 %s 会在以下情况下自动触发着陆序列：",
+      "ai_intro_highlights": [
+        "AI",
+        "MS"
+      ],
+      "ai_cond_hull": "  # 结构值不高于 %s；部署结构为50%～不足70%时，触发阈值改为50%",
+      "ai_cond_hull_highlights": [
+        "70%"
+      ],
+      "ai_cond_cr": "  # 当前CR低于部署CR的一半，触发阈值最低为 %s",
+      "ai_cond_cr_highlights": [
+        "40%"
+      ],
+      "ai_cond_ammo": "  # %s 的情况。",
+      "ai_cond_ammo_highlights": [
+        "弹药不足"
+      ],
+      "player_heading": "玩家手动着陆操作",
+      "player_intro": "玩家可以通过以下步骤手动控制MS着陆：",
+      "player_step_target": "  # 按 %s 键锁定目标：选择一艘友军航母",
+      "player_step_target_highlights": [
+        "R"
+      ],
+      "player_step_auto": "  # 按 %s 键启用自动驾驶：启用后MS会自动执行着陆整备",
+      "player_step_auto_highlights": [
+        "U"
+      ],
+      "notes_heading": "注意事项",
+      "notes_carrier": "  # 目标航母必须安装有 %s 插件并且有 %s ",
+      "notes_carrier_highlights": [
+        "整备湾",
+        "空闲的港口"
+      ],
+      "notes_cancel": "  # 着陆过程中可以随时 %s 来中止着陆",
+      "notes_cancel_highlights": [
+        "取消自动驾驶"
+      ],
+      "notes_deployment": "  # 部署CR低于40%，或部署结构值低于50%，本场战斗无法整备。",
+      "notes_cooldown": "  # 整备结束或中止后，至少等待3秒才能再次整备。"
+    },
+    "status": {
+      "landing_nav": "降落导航",
+      "enable_autopilot": "启用自动驾驶以着陆",
+      "landing_error": "降落导航错误",
+      "invalid_target": "目标无法着陆",
+      "deployment_cr_too_low": "机体部署CR过低，无法整备",
+      "deployment_hull_too_low": "机体部署结构值低于50%，无法整备",
+      "refit_cooldown": "整备冷却中，还需{seconds}秒"
+    }
+  },
+  "Moci_MechTurretMode": {
+    "name": "炮塔模式",
+    "description": {
+      "unapplicable_ship_null": "舰船为空",
+      "unapplicable_variant_null": "舰船配置为空",
+      "unapplicable_only_frigate": "仅限护卫舰级机动兵器安装",
+      "unapplicable_only_ms": "仅限安装了 Moci_MobileSuits 的机体",
+      "unapplicable_advanced_hullmod": "安装了高级机动兵器船插的机体无法使用",
+      "effect_heading": "炮塔模式效果",
+      "effect_intro": "%s 能够使用友军舰船空置的 %s 作为临时炮塔进行战斗。",
+      "effect_intro_highlights": [
+        "机动兵器",
+        "大型炮塔武器槽"
+      ],
+      "effect_flux_transfer": "%s 在停靠后将暂时锁定在目标位置，获得额外的 %s ，并能够将自身的幅能以 {flux_transfer_mult} 倍的速率通过武器槽位的能量管线传导至停靠的舰船。",
+      "effect_flux_transfer_highlights": [
+        "机动兵器",
+        "武器射程",
+        "{flux_transfer_mult}"
+      ],
+      "effect_reload": "此外，如果目标槽位类型为 %s/%s/%s/%s ，则会每 {reload_interval} 秒补满机体的弹药。",
+      "effect_reload_highlights": [
+        "导弹",
+        "协同",
+        "混合",
+        "通用",
+        "{reload_interval}"
+      ],
+      "range_heading": "射程加成",
+      "table_host_hull_size": "停靠舰船级别",
+      "table_range_bonus": "机体实弹/能量射程加成",
+      "table_destroyer": "驱逐舰",
+      "table_destroyer_bonus": "+{destroyer_bonus}%",
+      "table_cruiser": "巡洋舰",
+      "table_cruiser_bonus": "+{cruiser_bonus}%",
+      "table_capital": "主力舰",
+      "table_capital_bonus": "+{capital_bonus}%"
+    }
+  },
+  "Moci_MechTurretAI": {
+    "status": {
+      "navigation_title_turret": "导航模式：炮塔模式",
+      "navigation_title_refit": "导航模式：整备模式",
+      "mode_switch_to_refit": "按{switch_key}切换为整备模式",
+      "mode_switch_to_turret": "按{switch_key}切换为炮塔模式",
+      "target_title_available": "友军目标状态：可用",
+      "target_title_unavailable": "友军目标状态：不可用",
+      "target_enter_turret": "按U进入炮塔模式",
+      "target_enter_refit": "按U进入整备模式",
+      "dock_status_title": "炮塔模式",
+      "dock_release_all": "按下{release_key} 释放全部机甲 并禁止停靠",
+      "dock_enable_dock": "按下{release_key} 解除 禁止机甲停靠 状态",
+      "dock_detach_title": "炮塔模式：按下{release_key}脱离",
+      "dock_range_bonus": "实弹/能量射程 +{range_bonus}%"
+    }
+  },
+  "Moci_GravityReceiver": {
+    "name": "重力波接收器",
+    "description": {
+      "unapplicable_reason": "无法与重力波天线同时安装",
+      "main": "在拥有 %s 的舰船 %s 内，安装有重力波接收器的机体 %s 与 %s 不会衰减，同时每 %s 后会恢复所有武器的 %s 的备弹。",
+      "main_highlights": [
+        "重力波天线",
+        "{range}范围",
+        "峰值",
+        "CR",
+        "{interval}秒",
+        "{reload_percent}"
+      ],
+      "manufacturer_penalty": "当设计类型不为 %s 时，重力波接收器的有效范围和弹药补充比例都会衰减至 %s 。",
+      "manufacturer_penalty_highlights": [
+        "尼尔加重工",
+        "40%"
+      ],
+      "smod_nelgar": "内置效果：获得 %s 。",
+      "smod_nelgar_highlights": [
+        "零幅能常驻"
+      ],
+      "smod_other": "内置效果：%s 。",
+      "smod_other_highlights": [
+        "不再受到非尼尔加制造的衰减惩罚"
+      ],
+      "smod_param_nelgar": "零幅能常驻",
+      "smod_param_other": "不再受到非尼尔加制造的衰减惩罚",
+      "param_cr_decay_reduction": "50%",
+      "param_reload_interval": "10",
+      "param_reload_reduced": "20%",
+      "param_reload_default": "50%"
+    },
+    "status": {
+      "title": "重力波接收器",
+      "in_range_countdown": "范围内 - 弹药补充倒计时: {seconds}秒",
+      "in_range_ready": "范围内 - 补充就绪",
+      "out_of_range": "范围外"
+    }
+  },
+  "Moci_adaptive_weapon_system": {
+    "name": "自适应武器系统",
+    "description": {
+      "op_reduction": "大型能量武器的OP需求减少 %s 点。",
+      "op_reduction_highlights": [
+        "{op_reduction}"
+      ],
+      "so_range": "当舰船安装了 %s 时，武器射程阈值从 %s 提升至 %s 。",
+      "so_range_highlights": [
+        "安全协议超驰",
+        "450",
+        "{range_threshold}"
+      ],
+      "penalty": "但是，高强度的火控运算会消耗额外的舰船资源，导致超过峰值时间后CR衰减速率增加 %s 。并且，决策系统会在战斗中变得更加 %s 。",
+      "penalty_highlights": [
+        "{cr_penalty}%",
+        "鲁莽"
+      ],
+      "note": "注意：射程阈值提升和额外效果仅在装备 %s 时生效。",
+      "note_highlights": [
+        "安全协议超驰"
+      ]
+    }
+  },
+  "Moci_UnstableReactor": {
+    "name": "临界核反应堆",
+    "description": {
+      "flux_bonus": "提升了反应堆功率，增加 %s 点幅能容量。",
+      "flux_bonus_highlights": [
+        "{flux_bonus}"
+      ],
+      "warning": "但反应堆设计存在致命缺陷，当舰船被摧毁时会失去控制并冲向杀死它的敌人，随后发生剧烈爆炸。",
+      "damage": "爆炸伤害为最大结构值的 %s ，对范围内的 %s 造成伤害。",
+      "damage_highlights": [
+        "{damage_percent}%",
+        "所有单位"
+      ],
+      "param_radius_suffix": " + 舰船碰撞半径"
+    },
+    "status": {
+      "floating_text": "反应堆失控！",
+      "status_title": "不稳定反应堆",
+      "status_target": "失控舰船接近中！",
+      "status_self": "反应堆失控"
+    }
+  },
+  "Moci_PsycommuSystem": {
+    "name": "塞克谬系统",
+    "description": {
+      "intro": "通过增幅脑电波来让舰船的操作更加得心应手，使得驾驶员可以做出原本难以想象的动作。",
+      "heading": "战术系统启动时激活以下效果",
+      "capital_speed": "- 舰船的最大速度提高 %s 点",
+      "capital_speed_highlights": [
+        "{speed_bonus}"
+      ],
+      "capital_maneuver": "- 舰船的 %s 大幅提升",
+      "capital_maneuver_highlights": [
+        "机动性"
+      ],
+      "rof_bonus": "- 武器射速提高 %s ",
+      "rof_bonus_highlights": [
+        "50%"
+      ],
+      "flux_reduction": "- 武器幅能消耗降低 %s ",
+      "flux_reduction_highlights": [
+        "50%"
+      ],
+      "phase_collision": "- 获得穿越 %s 和 %s 的能力",
+      "phase_collision_highlights": [
+        "舰船",
+        "障碍物"
+      ],
+      "newtype_time": "- 若驾驶员为 %s ，系统生效期间额外获得 %s 倍时间流速",
+      "newtype_time_highlights": [
+        "新人类",
+        "1.2"
+      ]
+    }
+  },
+  "Moci_BioSensor": {
+    "name": "生物传感器",
+    "description": {
+      "intro": "以活体神经组织和舰载传感器构成的准塞克谬接口，能够在战术系统启动时放大驾驶员的反应信号。",
+      "heading": "战术系统启动时激活以下效果",
+      "capital_speed": "- 舰船的最大速度提高 %s 点",
+      "capital_speed_highlights": [
+        "{speed_bonus}"
+      ],
+      "capital_maneuver": "- 舰船的 %s 提升",
+      "capital_maneuver_highlights": [
+        "机动性"
+      ],
+      "rof_bonus": "- 武器射速提高 %s ",
+      "rof_bonus_highlights": [
+        "25%"
+      ],
+      "flux_reduction": "- 武器幅能消耗降低 %s ",
+      "flux_reduction_highlights": [
+        "25%"
+      ],
+      "phase_collision": "- 获得穿越 %s 和 %s 的能力",
+      "phase_collision_highlights": [
+        "舰船",
+        "障碍物"
+      ],
+      "newtype_time": "- 若驾驶员为 %s ，系统生效期间额外获得 %s 倍时间流速",
+      "newtype_time_highlights": [
+        "新人类",
+        "1.2"
+      ]
+    }
+  },
+  "Moci_RedComet": {
+    "name": "赤色彗星",
+    "description": {
+      "speed_bonus": "最大速度提高 %s 。",
+      "speed_bonus_highlights": [
+        "{speed_bonus}%"
+      ],
+      "maneuver_bonus": "机动性提高 %s 。",
+      "maneuver_bonus_highlights": [
+        "{maneuver_bonus}%"
+      ],
+      "zero_flux": "无论何时都能获得 %s 。",
+      "zero_flux_highlights": [
+        "零幅能加速"
+      ],
+      "incompatible": "无法与 %s 同时安装。",
+      "incompatible_highlights": [
+        "安全协议超驰"
+      ],
+      "legend_heading": "赤色彗星的传说",
+      "legend_text": "那个红色的家伙，速度比我们快 %s ！",
+      "legend_text_highlights": [
+        "三倍"
+      ]
+    }
+  },
+  "Moci_BTS": {
+    "name": "黑色三连星",
+    "description": {
+      "heading": "大型目标杀手",
+      "main": "对级别高于自身的敌舰造成额外 %s 伤害。",
+      "main_highlights": [
+        "{damage_bonus}%"
+      ],
+      "detail_heading": "伤害加成详情",
+      "table_ship_type": "舰船类型",
+      "table_bonus_targets": "对以下目标伤害+{damage_bonus}%",
+      "table_frigate": "护卫舰",
+      "table_frigate_targets": "驱逐舰、巡洋舰、主力舰",
+      "table_destroyer": "驱逐舰",
+      "table_destroyer_targets": "巡洋舰、主力舰",
+      "table_cruiser": "巡洋舰",
+      "table_cruiser_targets": "主力舰",
+      "table_capital": "主力舰",
+      "table_capital_targets": "无加成",
+      "note": "伤害加成对所有武器类型生效，包括导弹、能量武器和实弹武器。"
+    }
+  },
+  "Moci_CrimsonLightning": {
+    "name": "真红闪电",
+    "description": {
+      "system_bonus": "战术系统最大充能和充能速度提升 %s 冷却时间减少 %s 。",
+      "system_bonus_highlights": [
+        "{system_bonus}%",
+        "{system_bonus}%"
+      ],
+      "turn_rate": "武器转速增加 %s 点。",
+      "turn_rate_highlights": [
+        "{turn_rate_bonus}"
+      ],
+      "damage_taken": "护盾、装甲、结构受到的伤害增加 %s 。",
+      "damage_taken_highlights": [
+        "{damage_penalty}%"
+      ],
+      "ammo_reload": "使用战术系统时，为所有弹夹武器（包括内置武器）补充 %s 的弹药，最少补充 1 发。",
+      "ammo_reload_highlights": [
+        "{ammo_reload}%"
+      ]
+    }
+  },
+  "Moci_WhiteWolf": {
+    "name": "白狼",
+    "description": {
+      "base_heading": "基础效果",
+      "armor_bonus": "装甲值提高 %s 点，再额外提高 %s 。",
+      "armor_bonus_highlights": [
+        "{armor_flat}",
+        "{armor_percent}%"
+      ],
+      "maneuver_penalty": "舰船机动性下降 %s 。",
+      "maneuver_penalty_highlights": [
+        "{maneuver_penalty}%"
+      ],
+      "system_heading": "战术系统激活效果",
+      "system_intro": "当激活战术系统时，获得以下效果：",
+      "damage_reduction": "受伤减少 %s ",
+      "damage_reduction_highlights": [
+        "{damage_reduction}%"
+      ],
+      "speed_penalty": "速度和机动性降低 %s ",
+      "speed_penalty_highlights": [
+        "{speed_penalty}%"
+      ],
+      "rof_penalty": "射速降低 %s ",
+      "rof_penalty_highlights": [
+        "{rof_penalty}%"
+      ],
+      "range_bonus": "武器射程提高 %s",
+      "range_bonus_highlights": [
+        "{range_bonus}%"
+      ],
+      "weapon_damage": "实弹、能量武器伤害提高 %s",
+      "weapon_damage_highlights": [
+        "{weapon_damage}%"
+      ],
+      "projectile_speed": "弹速提高 %s",
+      "projectile_speed_highlights": [
+        "{projectile_speed}%"
+      ]
+    }
+  },
+  "Moci_conditional_system_change": {
+    "name": "定制化战术系统",
+    "description": {
+      "title": "飞龙战术系统切换器",
+      "intro": "允许飞龙在三种战术系统间切换：",
+      "line_highenergy": "- %s - 提供高能聚焦战术系统",
+      "line_highenergy_highlights": [
+        "高能聚焦"
+      ],
+      "line_recall": "- %s - 提供召回指令战术系统",
+      "line_recall_highlights": [
+        "召回指令"
+      ],
+      "line_plasma": "- %s - 提供等离子推进器战术系统",
+      "line_plasma_highlights": [
+        "等离子推进器"
+      ],
+      "unapplicable_reason": "只能安装在飞龙级战舰上",
+      "config_highenergy_name": "高能聚焦",
+      "config_highenergy_desc": "提供高能聚焦战术系统",
+      "config_recall_name": "召回指令",
+      "config_recall_desc": "提供召回指令战术系统",
+      "config_plasma_name": "等离子推进器",
+      "config_plasma_desc": "提供等离子推进器战术系统"
+    }
+  },
+  "Moci_hiryu_system_highenergy": {
+    "name": "高能聚焦系统",
+    "description": {
+      "title": "高能聚焦系统",
+      "install": "- 为飞龙安装%s战术系统",
+      "install_highlights": [
+        "高能聚焦"
+      ],
+      "switch_next": "拆卸此船插将切换到%s。",
+      "switch_next_highlights": [
+        "召回指令"
+      ],
+      "unapplicable_reason": "只能安装在飞龙级战舰上"
+    }
+  },
+  "Moci_hiryu_system_recall": {
+    "name": "召回指令系统",
+    "description": {
+      "title": "召回指令系统",
+      "install": "- 为飞龙安装%s战术系统",
+      "install_highlights": [
+        "召回指令"
+      ],
+      "switch_next": "拆卸此船插将切换到%s。",
+      "switch_next_highlights": [
+        "等离子推进器"
+      ],
+      "unapplicable_reason": "只能安装在飞龙级战舰上"
+    }
+  },
+  "Moci_hiryu_system_plasma": {
+    "name": "等离子推进器系统",
+    "description": {
+      "title": "等离子推进器系统",
+      "install": "- 为飞龙安装%s战术系统",
+      "install_highlights": [
+        "等离子推进器"
+      ],
+      "switch_next": "拆卸此船插将切换到%s。",
+      "switch_next_highlights": [
+        "高能聚焦"
+      ],
+      "unapplicable_reason": "只能安装在飞龙级战舰上"
+    }
+  },
+  "Moci_CombatSquadDeployment": {
+    "description": {
+      "fixed_penalty": "安装此船插的舰船部署点消耗 %s 。",
+      "fixed_penalty_highlights": [
+        "+{penalty}%"
+      ],
+      "details_heading": "僚机部署点贡献详情:",
+      "details_total": "总僚机贡献: %s",
+      "details_total_highlights": [
+        "+{total}%"
+      ],
+      "explanation": "计算规则: 每个僚机贡献其部署点的 %s 作为惩罚，最小 %s ，最大 %s 。",
+      "explanation_highlights": [
+        "50%",
+        "37.5%",
+        "50%"
+      ],
+      "error": "注意: 动态计算出现异常，使用固定惩罚。",
+      "detail_fail": "计算详情生成失败: {message}",
+      "details_line": "僚机{index}: {dp}DP → +{contribution}% "
+    }
+  },
+  "Moci_RepairBayHullModEffect": {
+    "description": {
+      "unapplicable_ship_null": "舰船为空",
+      "unapplicable_hullspec_null": "舰船规格为空",
+      "unapplicable_size": "舰体级别必须为驱逐舰及以上",
+      "unapplicable_no_bays": "舰船必须拥有飞行甲板",
+      "unapplicable_builtin_only": "舰船必须拥有非内置的飞行甲板",
+      "param_landing_sequence": "着陆程序",
+      "param_ms": "MS",
+      "param_maintenance": "整备维护"
+    }
+  },
+  "Moci_GNShieldStatus": {
+    "status": {
+      "module_title": "模块GN护盾",
+      "main_title": "GN护盾",
+      "active": "激活",
+      "inactive": "关闭"
+    }
+  },
+  "Moci_GNShieldUI": {
+    "status": {
+      "active": "力场：开启",
+      "inactive": "力场：关闭"
+    }
+  },
+  "Moci_RepairBayScript": {
+    "status": {
+      "title": "修理程序",
+      "repairing": "修理中，还有{seconds}秒"
+    }
+  },
+  "Moci_YamatoRepairProtocol": {
+    "name": "波动炮核心修复协议",
+    "description": {
+      "unapplicable_reason": "只能安装在大和号、大和早期型、春兰号上"
+    }
+  },
+  "Moci_GravityCannonChargeGlow": {
+    "status": {
+      "title": "引力干扰器",
+      "repair_debuff": "修复速度降低: {seconds} 秒"
+    }
+  },
+  "Moci_PhaseSubLaunch": {
+    "name": "相位潜射",
+    "description": {
+      "title": "相位潜射机制",
+      "effect_1": "当舰船在 %s 时，内置的 %s 在发射时将进入 %s 状态，直到敌人出现在其足够近的范围内才会脱离 %s 。",
+      "effect_1_highlights": [
+        "P空间",
+        "反舰导弹",
+        "相位移动",
+        "P空间"
+      ],
+      "unapplicable_reason": "仅限丹努之子级使用"
+    }
+  },
+  "Moci_advance_weaponIntegration": {
+    "description": {
+      "param_large_weapons": "大型武器",
+      "param_fighters": "舰载机"
+    }
+  },
+  "Moci_allterrainadaptation": {
+    "description": {
+      "param_cr": "战备值(CR)",
+      "param_hull_integrity": "结构完整度",
+      "param_missile_stealth": "导弹武器隐形"
+    }
+  },
+  "Moci_antibeamcoating_shield": {
+    "description": {
+      "param_disable_vent": "禁用强制排幅"
+    }
+  },
+  "Moci_autofighter": {
+    "description": {
+      "param_auto_ai_fighter": "全自动AI舰载机",
+      "param_gamma_core": "Gamma"
+    }
+  },
+  "Moci_damped_armor": {
+    "description": {
+      "unapplicable_shield_shunt": "与护盾分流器冲突",
+      "unapplicable_front_shield": "与定向护盾生成器冲突",
+      "unapplicable_no_shield": "舰船没有护盾"
+    }
+  },
+  "Moci_EinstWeapon": {
+    "status": {
+      "title": "原生种兵器",
+      "repairing": "正在修复结构和装甲"
+    }
+  },
+  "Moci_GNFieldDefenseStatus": {
+    "status": {
+      "title": "GN力场防御",
+      "charging": "充能中 {percent}%",
+      "restarting": "重启中 {seconds}s",
+      "depleted": "护盾耗尽",
+      "inactive": "关闭"
+    }
+  },
+  "Moci_GNFieldDefenseUI": {
+    "status": {
+      "interface_label": "力场值",
+      "label": "力场",
+      "restarting": "力场  重启中 %.1fs"
+    }
+  },
+  "Moci_GravityAntenna": {
+    "name": "重力波天线",
+    "description": {
+      "unapplicable_reason": "无法与重力波接收器同时安装",
+      "param_crew_reduction": "90%"
+    }
+  },
+  "Moci_HaroAISystem": {
+    "name": "哈罗AI系统",
+    "description": {
+      "param_ai_name": "哈罗AI",
+      "param_ai_category": "舰载AI"
+    }
+  },
+  "Moci_HighScatterAmp": {
+    "name": "高散射增幅器",
+    "description": {
+      "unapplicable_advanced_optics": "与先进光学器件冲突",
+      "unapplicable_high_scatter_amp": "与高散射增幅器冲突",
+      "unapplicable_unknown": "未知错误",
+      "param_hard_flux": "硬幅能",
+      "param_advanced_optics": "先进光学器件",
+      "param_high_scatter_amp": "高散射增幅器"
+    }
+  },
+  "Moci_IField": {
+    "name": "I力场发生器",
+    "description": {
+      "param_protection_arc": "前方180度",
+      "param_damage_reduction": "10%",
+      "param_push_distance": "{distance}像素"
+    }
+  },
+  "Moci_MechTurretHullMod": {
+    "name": "炮塔模式兼容层",
+    "description": {
+      "unapplicable_only_ms": "仅限机动兵器单位安装"
+    }
+  },
+  "Moci_MinovskyAISwitch": {
+    "name": "米诺夫斯基AI开关",
+    "description": {
+      "hidden_marker": "错误显示，你不该看到这个船插"
+    }
+  },
+  "Moci_MinovskyFlightUnit": {
+    "name": "米诺夫斯基飞行器",
+    "description": {
+      "smod_param_zero_flux_turn_mult": "翻倍",
+      "unapplicable_allowed_hulls": "只能安装在 佐冬-级 或 白色基地-级 舰船上"
+    }
+  },
+  "Moci_Module_Drone": {
+    "combat": {
+      "explosion_immunity": "殉爆免疫",
+      "collision_immunity": "碰撞免疫"
+    }
+  },
+  "Moci_ModuleCollisionSync": {
+    "description": {
+      "param_module": "模块",
+      "param_parent": "母舰",
+      "param_collision_type": "碰撞类型",
+      "unapplicable_invalid_ship": "舰船无效",
+      "unapplicable_module_only": "此船插只能安装在模块舰船上"
+    },
+    "combat": {
+      "pd_attack_inherited": "模块受到点防攻击（继承母舰护卫舰规则）"
+    }
+  },
+  "Moci_MSRepairBay": {
+    "status": {
+      "title": "MS专用整备库",
+      "cooldown": "MS整备中 ({bay_count}个机库)",
+      "idle": "待机中"
+    }
+  },
+  "Moci_PhaseDrive": {
+    "description": {
+      "unapplicable_adaptive_coils": "Incompatible with Adaptive Phase Coils"
+    }
+  },
+  "Moci_System99": {
+    "description": {
+      "param_system_name": "99系统"
+    }
+  },
+  "Moci_Syunran_hullmod1": {
+    "status": {
+      "title": "赴汤蹈火",
+      "active": "炮塔旋转 +{turret_rotation_bonus}%, 弹丸速度 +{projectile_speed_bonus}%"
+    }
+  },
+  "Moci_Syunran_hullmod2": {
+    "description": {
+      "param_reinforced_bulkheads": "强化舱壁",
+      "param_blast_doors": "防爆舱门",
+      "conflict_reinforced_hull": "与强化船体冲突",
+      "conflict_blast_doors": "与防爆舱门冲突"
+    }
+  },
+  "Moci_TpcWeaponSwap": {
+    "description": {
+      "hidden_error": "错误显示，你不该看到这个船插"
+    }
+  },
+  "Moci_VariableFrame": {
+    "description": {
+      "transform_intro": "该机体搭载可变式骨架，可在 MS 形态与 Wave Rider 形态之间切换。玩家驾驶时长按 X 键触发变形或复归。",
+      "transform_intro_highlights": [
+        "MS",
+        "Wave Rider",
+        "长按 X"
+      ],
+      "form_effects": "MS 形态不额外渲染推进器尾焰，并获得机动性加成；Wave Rider 形态使用背包武器的开火点作为推进器位置，并获得速度加成。",
+      "form_effects_highlights": [
+        "不额外渲染",
+        "背包武器的开火点"
+      ],
+      "animation_rules": "变形视觉由背包帧动画驱动：第 0 帧为 MS 形态，Wave Rider 完成帧由具体机体决定；复归时按各机体的背包动画规则回到第 0 帧。",
+      "animation_rules_highlights": [
+        "第 0 帧",
+        "Wave Rider",
+        "第 0 帧"
+      ]
+    }
+  },
+  "Moci_Yamato_hullmod2": {
+    "description": {
+      "unapplicable_yamato_only": "只能安装在 大和-级 战舰上"
+    }
+  },
+  "Moci_Ymato_ET_hullmods1": {
+    "description": {
+      "param_advanced_optics": "先进光学器件",
+      "param_high_scatter_amp": "高散射增幅器",
+      "conflict_advanced_optics": "与先进光学器件冲突",
+      "conflict_high_scatter_amp": "与高散射增幅器冲突"
+    }
+  },
+  "Moci_PlayerSkill1": {
+    "name": "新人类",
+    "description": {
+      "level1": "无视米诺夫斯基粒子的干扰效果",
+      "level2": "降低 100% 导弹被电子反制或热诱弹拦截的概率。",
+      "level3": "当周围 {enemy_range} 范围内有敌人或 {projectile_range} 范围内有高威胁弹药时触发效果，获得 {ship_time_mult} 倍的时流，并在 {active_duration} 秒内逐渐恢复至 1 倍，冷却 {cooldown_duration} 秒。"
+    },
+    "status": {
+      "title": "N.T.",
+      "time_mult": "当前时流倍率 x{ship_time_mult}"
+    }
+  },
+  "Moci_AugmentedHumanSkill": {
+    "name": "强化人",
+    "description": {
+      "level1": "无视米诺夫斯基粒子的干扰效果。"
+    }
+  },
+  "Moci_CelestiteHalo": {
+    "name": "天青辉环",
+    "description": {
+      "intro": "舰体外壳与可见武器会共同生成一层稳定的轮廓辉光，可通过舰船状态实时改变亮度与形态。",
+      "visual_only": "该船插为 %s ，不会直接提供任何伤害、护盾或幅能数值加成。",
+      "visual_only_highlights": [
+        "纯视觉效果"
+      ],
+      "flux_reactive": "随着 %s 提升，舰体与武器轮廓辉光的厚度、强度、闪烁与颜色偏移会同步增强；战术系统激活时会进一步强化。",
+      "flux_reactive_highlights": [
+        "幅能水平"
+      ],
+      "tech_hint": "技术实现：SDF轮廓 + 自定义着色器（位于 data/shaders/Moci_celestite_underglow.*）。"
+    }
+  },
+  "Moci_MobilitySubsystem": {
+    "display": "喷气背包",
+    "brief": "大幅提高速度",
+    "state": {
+      "ready": "就绪",
+      "in": "启动中",
+      "active": "增强中",
+      "out": "结束中",
+      "cooldown": "冷却中"
+    },
+    "extra": {
+      "active": "速度+ %s 机动+ %s"
+    }
+  },
+  "Moci_NTDSubsystem": {
+    "display": "NTD模式",
+    "brief": "觉醒模式",
+    "state": {
+      "ready": "就绪",
+      "in": "觉醒中",
+      "active": "觉醒状态",
+      "out": "还原中",
+      "cooldown": "冷却中"
+    },
+    "extra": {
+      "awakened": "觉醒形态",
+      "awakening": "觉醒中"
+    }
+  }
+}

@@ -1,0 +1,246 @@
+{
+  "hullName": "Moci_NotLimarch",
+  "hullId": "Moci_NotLimarch",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/Moci_NotLimarch.png",
+  "style": "LOW_TECH",
+  "height": 366,
+  "width": 276,
+  "center": [
+    138,
+    183
+  ],
+  "collisionRadius": 257,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 257,
+  "viewOffset": 0,
+  "builtInMods": [
+    "auxiliarythrusters",
+    "blast_doors",
+    "rugged"
+  ],
+  "builtInWeapons": {
+    "MAIN_MISSILE_01": "Moci_onslaught_missile"
+  },
+  "weaponSlots": [
+    {
+      "id": "MAIN_MISSILE_01",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        -13.5,
+        0
+      ]
+    },
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 163,
+      "angle": 90,
+      "locations": [
+        -48,
+        112
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 163,
+      "angle": -90,
+      "locations": [
+        -48,
+        -112
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 163,
+      "angle": -138.5,
+      "locations": [
+        -103,
+        -90
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 163,
+      "angle": 138.5,
+      "locations": [
+        -103,
+        90
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -160,
+        61
+      ],
+      "length": 30,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 30,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -160,
+        -61
+      ],
+      "length": 30,
+      "width": 10,
+      "angle": -180,
+      "contrailSize": 30,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -159,
+        56
+      ],
+      "length": 23,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 5,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -159,
+        -56
+      ],
+      "length": 23,
+      "width": 5,
+      "angle": -180,
+      "contrailSize": 5,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -167,
+        43
+      ],
+      "length": 134,
+      "width": 35,
+      "angle": 180,
+      "contrailSize": 35,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -167,
+        -43
+      ],
+      "length": 134,
+      "width": 35,
+      "angle": -180,
+      "contrailSize": 35,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -170,
+        26
+      ],
+      "length": 131.5,
+      "width": 15,
+      "angle": 180,
+      "contrailSize": 15,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -170,
+        -26
+      ],
+      "length": 131.5,
+      "width": 15,
+      "angle": -180,
+      "contrailSize": 15,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -165,
+        -12
+      ],
+      "length": 131.5,
+      "width": 15,
+      "angle": -180,
+      "contrailSize": 15,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -165,
+        12
+      ],
+      "length": 131.5,
+      "width": 15,
+      "angle": 180,
+      "contrailSize": 15,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    144.5,
+    34,
+    132,
+    50.5,
+    144.5,
+    76.5,
+    -11,
+    127,
+    -74.5,
+    117,
+    -136.5,
+    81.5,
+    -166,
+    76,
+    -153.5,
+    66,
+    -157,
+    6.5,
+    -178.5,
+    3.5,
+    -178.5,
+    -3.5,
+    -157,
+    -6.5,
+    -153.5,
+    -66,
+    -166,
+    -76,
+    -136.5,
+    -81.5,
+    -74.5,
+    -117,
+    -11,
+    -127,
+    144.5,
+    -76.5,
+    121,
+    -25.5,
+    131.5,
+    -21.5,
+    145.5,
+    15
+  ]
+}

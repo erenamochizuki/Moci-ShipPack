@@ -1,0 +1,49 @@
+{
+  "id": "Moci_Yamato_ET_SideWeapon1_R",
+  "specClass": "projectile",
+  "projectileSpecId": "atropos_torp",
+  "type": "MISSILE",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/Moci_Yamato_ET/Moci_Yamato_ET_SideWeapon1_R.png",
+  "hardpointSprite": "graphics/weapons/Moci_Yamato_ET/Moci_Yamato_ET_SideWeapon1_R.png",
+  "turretOffsets": [
+    16.5,
+    -1,
+    15.5,
+    -4
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    26.5,
+    -1,
+    25.5,
+    -4
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "SMOKE",
+  "smokeSpec": {
+    "particleSizeMin": 12,
+    "particleSizeRange": 12,
+    "cloudParticleCount": 6,
+    "cloudDuration": 1.5,
+    "cloudRadius": 10,
+    "blowbackParticleCount": 4,
+    "blowbackDuration": 2,
+    "blowbackLength": 22,
+    "blowbackSpread": 15,
+    "particleColor": [
+      125,
+      75,
+      25,
+      105
+    ]
+  },
+  "fireSoundTwo": "atropos_fire"
+}

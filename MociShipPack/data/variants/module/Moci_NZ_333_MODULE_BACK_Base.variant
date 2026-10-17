@@ -1,0 +1,14 @@
+{
+  "variantId": "Moci_NZ_333_MODULE_BACK_Base",
+  "hullId": "Moci_NZ_333_MODULE_BACK",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

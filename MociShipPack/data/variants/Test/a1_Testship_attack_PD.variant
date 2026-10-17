@@ -1,0 +1,39 @@
+{
+    "displayName": "实弹防空",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Testship_attack",
+    "hullMods": [
+        "targetingunit",
+        "turretgyros",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "a1_Testship_attack_PD",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0008": "devastator",
+                "WS0009": "devastator",
+                "WS0006": "devastator",
+                "WS0007": "devastator",
+                "WS0004": "devastator",
+                "WS0005": "devastator",
+                "WS0014": "devastator",
+                "WS0001": "devastator",
+                "WS0013": "devastator",
+                "WS0012": "devastator",
+                "WS0003": "devastator",
+                "WS0002": "devastator",
+                "WS0011": "devastator",
+                "WS0010": "devastator",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

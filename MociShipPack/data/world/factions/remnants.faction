@@ -1,0 +1,12 @@
+{
+    "hullFrequency":{
+        "hulls":{
+            "Moci_Polaris_Base":0.25,
+        },
+    },
+    "knownShips":{
+        "hulls":[
+            "Moci_Polaris",
+        ],
+    },
+},

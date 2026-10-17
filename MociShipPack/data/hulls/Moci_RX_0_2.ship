@@ -1,0 +1,288 @@
+{
+  "hullName": "Moci_RX_0_2",
+  "hullId": "Moci_RX_0_2",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RX_0/body/RX_0_2_body_00.png",
+  "style": "MOCI_MS",
+  "height": 312,
+  "width": 142,
+  "center": [
+    71,
+    158
+  ],
+  "collisionRadius": 128.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 129,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_MobilitySubsystemHullmod",
+    "Moci_NTDSubsystemHullmod",
+    "Moci_antibeamcoating",
+    "Moci_PsycommuSystem",
+    "Moci_MobileSuits",
+    "Moci_GNShield"
+  ],
+  "builtInWeapons": {
+    "ARM_L": "Moci_RX_0_2_arm_left",
+    "ARM_L_SOURCE": "RX_0_1_arm_left_weapon_machinegun",
+    "ARM_R": "Moci_RX_0_2_arm_right",
+    "ARM_R_SOURCE": "RX_0_1_arm_right_weapon_magnum",
+    "BODY": "Moci_RX_0_2_body",
+    "HEAD": "Moci_RX_0_2_head",
+    "LEGS": "Moci_RX_0_2_legs",
+    "SHIELD_L_COVER": "Moci_RX_0_2_SHIELD_COVER",
+    "SHOULDER_L": "Moci_RX_0_2_shoulder_left",
+    "SHOULDER_R": "Moci_RX_0_2_shoulder_right",
+    "BACKPACK": "Moci_RX_0_2_backpack"
+  },
+  "weaponSlots": [
+    {
+      "id": "LEGS",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        24,
+        0
+      ]
+    },
+    {
+      "id": "BODY",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -2,
+        0
+      ],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "SHOULDER_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        0,
+        -29
+      ],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "SHOULDER_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        0,
+        29
+      ],
+      "renderOrderMod": 8
+    },
+    {
+      "id": "ARM_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        3,
+        -39
+      ],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "ARM_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        3,
+        37
+      ],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "ARM_R_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        3,
+        -39
+      ],
+      "renderOrderMod": -1
+    },
+    {
+      "id": "ARM_L_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        3,
+        37
+      ],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "HEAD_SOURCE",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        12.5,
+        0
+      ]
+    },
+    {
+      "id": "SHIELD_L",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        3,
+        37
+      ]
+    },
+    {
+      "id": "HEAD",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        1,
+        0
+      ],
+      "renderOrderMod": 6
+    },
+    {
+      "id": "BACKPACK",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -50.5,
+        -1
+      ]
+    },
+    {
+      "id": "BACKPACK_SHIELD",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 180,
+      "locations": [
+        -63,
+        -1
+      ]
+    },
+    {
+      "id": "SHIELD_L_COVER",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        3,
+        37
+      ],
+      "renderOrderMod": 7
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -23,
+        -11.5
+      ],
+      "length": 30,
+      "width": 10,
+      "angle": -160.5,
+      "contrailSize": 30,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -23,
+        11.5
+      ],
+      "length": 30,
+      "width": 10,
+      "angle": 160.5,
+      "contrailSize": 30,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -23,
+        -10
+      ],
+      "length": 19.073879,
+      "width": 8.108556,
+      "angle": 180,
+      "contrailSize": 8.108556,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -23,
+        10
+      ],
+      "length": 19.073879,
+      "width": 8.108556,
+      "angle": -180,
+      "contrailSize": 8.108556,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -27.5,
+    -10.5,
+    -2.5,
+    -26.5,
+    1.5,
+    -26.5,
+    18.5,
+    -16.5,
+    21.5,
+    -5.5,
+    21.5,
+    5.5,
+    18.5,
+    16.5,
+    1.5,
+    26.5,
+    -2.5,
+    26.5,
+    -27.5,
+    10.5
+  ]
+}

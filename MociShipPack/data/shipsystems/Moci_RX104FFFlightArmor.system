@@ -1,0 +1,15 @@
+{
+    "id": "Moci_RX104FFFlightArmor",
+    "type": "STAT_MOD",
+    "aiType": "CUSTOM",
+    "aiScript": "data.shipsystems.scripts.ai.Moci_LateralThrustAI2",
+    "statsScript": "data.shipsystems.scripts.Moci_RX104FFFlightArmorStats",
+    "runScriptWhileIdle": true,
+    "useSound": "Moci_Yamato_ET_System",
+    "outOfUsesSound": "gun_out_of_ammo",
+    "aiHints": {
+        "activeSpeedIncrease": 150,
+        "burstMovementPotential": 300,
+        "averageSpeedIncrease": 50
+    }
+}

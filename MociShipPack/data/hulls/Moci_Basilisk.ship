@@ -1,0 +1,113 @@
+{
+  "hullName": "Moci_Basilisk",
+  "hullId": "Moci_Basilisk",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/wings/Moci_FireDragon_bomber2.png",
+  "style": "HIGH_TECH",
+  "height": 46,
+  "width": 38,
+  "center": [
+    19,
+    22
+  ],
+  "collisionRadius": 40,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 40,
+  "viewOffset": 0,
+  "builtInMods": [
+    "auxiliarythrusters"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS 000",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 4,
+      "angle": 0,
+      "locations": [
+        7,
+        0
+      ]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 4,
+      "angle": 0,
+      "locations": [
+        15,
+        7
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 4,
+      "angle": 0,
+      "locations": [
+        15,
+        -7
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -20,
+        0
+      ],
+      "length": 48,
+      "width": 11,
+      "angle": 180,
+      "contrailSize": 11,
+      "style": "CUSTOM",
+      "styleId": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -20,
+        7
+      ],
+      "length": 25,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 5,
+      "style": "CUSTOM",
+      "styleId": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -20,
+        -7
+      ],
+      "length": 25,
+      "width": 5,
+      "angle": -180,
+      "contrailSize": 5,
+      "style": "CUSTOM",
+      "styleId": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -20,
+    10,
+    -7,
+    17,
+    16,
+    9.5,
+    16,
+    -9.5,
+    -7,
+    -17,
+    -20,
+    -10
+  ]
+}

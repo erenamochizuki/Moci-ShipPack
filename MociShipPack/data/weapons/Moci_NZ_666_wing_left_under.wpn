@@ -1,0 +1,20 @@
+{
+  "specClass": "beam",
+  "id": "Moci_NZ_666_wing_left_under",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "turretSprite": "graphics/ships/Mobile_Suit/NZ_666/wings/NZ_666_wing_left_under.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/NZ_666/wings/NZ_666_wing_left_under.png",
+  "turretOffsets": [0, 0],
+  "turretAngleOffsets": [0],
+  "hardpointOffsets": [0, 0],
+  "hardpointAngleOffsets": [0],
+  "fringeColor": [255, 255, 255, 0],
+  "coreColor": [255, 255, 255, 0],
+  "glowColor": [255, 255, 255, 0],
+  "width": 0,
+  "textureType": SMOOTH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [PROJECTILE_FF, PROJECTILE_NO_FF, PROJECTILE_FIGHTER, MISSILE_FF, MISSILE_NO_FF]
+}

@@ -1,0 +1,14 @@
+{
+  "variantId": "Moci_RGM_96X_arm_left_shield_Base",
+  "hullId": "Moci_RGM_96X_arm_left_shield",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

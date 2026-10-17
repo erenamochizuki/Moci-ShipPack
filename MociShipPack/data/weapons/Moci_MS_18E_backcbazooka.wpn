@@ -1,0 +1,52 @@
+{
+  "id": "Moci_MS_18E_backcbazooka",
+  "specClass": "projectile",
+  "projectileSpecId": "MS_18E_bazooka_shot",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "everyFrameEffect": "data.scripts.weapons.Moci_BackpackGun_simple",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_MS_18E/backpack/MS_18E_backcbazooka_00.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MS_18E/backpack/MS_18E_backcbazooka_00.png",
+  "turretOffsets": [
+    31.5,
+    20.5,
+    31.5,
+    -20.5
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    48,
+    20.5,
+    48,
+    -20.5
+  ],
+  "hardpointAngleOffsets": [
+    -0,
+    0
+  ],
+  "barrelMode": "LINKED",
+  "animationType": "SMOKE",
+  "numFrames": 3,
+  "frameRate": 8,
+  "smokeSpec": {
+    "particleSizeMin": 5,
+    "particleSizeRange": 12,
+    "cloudParticleCount": 8,
+    "cloudDuration": 2.5,
+    "cloudRadius": 10,
+    "blowbackParticleCount": 4,
+    "blowbackDuration": 2,
+    "blowbackLength": 22,
+    "blowbackSpread": 15,
+    "particleColor": [
+      255,
+      200,
+      200,
+      100
+    ]
+  },
+  "fireSoundTwo": "hammer_fire"
+}

@@ -1,0 +1,39 @@
+{
+    "displayName": "压制联队",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Gespenst_fighter_tt",
+    "hullMods": [
+        "advancedoptics",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gespenst_fighter_tt_Fighter",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "ionbeam",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "gravitonbeam",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDERWEAPON_R_SOURCE": "Moci_minipilum",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

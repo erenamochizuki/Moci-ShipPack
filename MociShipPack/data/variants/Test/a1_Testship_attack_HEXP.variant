@@ -1,0 +1,39 @@
+{
+    "displayName": "高爆实弹",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Testship_attack",
+    "hullMods": [
+        "targetingunit",
+        "turretgyros",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "a1_Testship_attack_HEXP",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0008": "hellbore",
+                "WS0009": "hellbore",
+                "WS0006": "hellbore",
+                "WS0007": "hellbore",
+                "WS0004": "hellbore",
+                "WS0005": "hellbore",
+                "WS0014": "hellbore",
+                "WS0001": "hellbore",
+                "WS0013": "hellbore",
+                "WS0012": "hellbore",
+                "WS0003": "hellbore",
+                "WS0002": "hellbore",
+                "WS0011": "hellbore",
+                "WS0010": "hellbore",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

@@ -1,0 +1,52 @@
+{
+	"baseHullId":"Moci_Gespenst",
+	"skinHullId":"Moci_Gespenst_tt",
+	"hullName":"量产型亡灵 (TT)",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_Gespenst",
+	"descriptionPrefix":"该舰除了涂装有 速子科技 的标志以及更换了战术系统以外，其他方面几乎没有受到任何修改",
+	"tags":["hightech_bp"],
+	"tech":"高新技术",
+	"fleetPoints":15,
+	"ordnancePoints":70,
+	"baseValueMult":0.55,
+	"systemId":"entropyamplifier",
+	"spriteName":"graphics/ships/Mobile_Suit/Moci_Gespenst/body/Moci_Gespenst_tt_body.png",
+	"removeWeaponSlots":["SHOULDERWEAPON_L", "SHOULDERWEAPON_L_SOURCE"], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":["Moci_Gespenst_WeaponSwap"], 		# hullmod ids
+	"removeBuiltInWeapons":["SHOULDERWEAPON_L", "SHOULDERWEAPON_L_SOURCE", "ARM_L_SOURCE", "ARM_R_SOURCE"], 		# weapon slot ids
+	"builtInMods":[
+    "fluxshunt",
+],
+	"builtInWeapons":{
+    "ARM_L": "Moci_Gespenst_tt_arm_left_gun",
+    "ARM_R": "Moci_Gespenst_tt_arm_right_gun",
+    "BODY": "Moci_Gespenst_tt_body",
+    "HEAD": "Moci_Gespenst_tt_head",
+    "LEGS": "Moci_Gespenst_tt_legs",
+    "SHOULDER_L": "Moci_Gespenst_tt_shoulder_left",
+    "SHOULDER_R": "Moci_Gespenst_tt_shoulder_right",
+    "WING_L": "Moci_Gespenst_tt_wing_left",
+    "WING_R": "Moci_Gespenst_tt_wing_right",
+     },
+ 	"weaponSlotChanges":{
+		"ARM_L_SOURCE":{
+		  "type": "ENERGY",
+	   },
+		"ARM_R_SOURCE":{
+		  "type": "ENERGY",
+	   },
+		"SHOULDERWEAPON_R_SOURCE":{
+		  "type": "MISSILE",
+	   },
+	},
+	
+	"engineSlotChanges":{
+		"0":{"style":"HIGH_TECH"},
+		"1":{"style":"HIGH_TECH"},
+		"2":{"style":"HIGH_TECH"},
+		"3":{"style":"HIGH_TECH"},
+		"4":{"style":"HIGH_TECH"},
+	},    
+}

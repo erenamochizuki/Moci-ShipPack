@@ -1,0 +1,40 @@
+{
+    "displayName": "Special",
+    "fluxCapacitors": 30,
+    "fluxVents": 30,
+    "goalVariant": false,
+    "hullId": "mora",
+    "hullMods": ["safetyoverrides"],
+    "permaMods": [
+    "comp_storage",
+    "malfunctioning_comms",
+    "erratic_injector",
+],
+  "sMods": [
+    "expanded_deck_crew",
+    "reinforcedhull",
+    "armoredweapons",
+    "autorepair"
+  ],
+    "variantId": "Moci_mora_Special",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {"WS 007": "lightmg"}
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS 003": "phasecl",
+                "WS 004": "phasecl"
+            }
+        }
+    ],
+    "wings": [
+        "sarissa_wing",
+        "sarissa_wing",
+        "sarissa_wing"
+    ]
+}

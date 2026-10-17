@@ -1,0 +1,153 @@
+{
+  "hullName": "Moci_NZ_333_MODULE_FRONT",
+  "hullId": "Moci_NZ_333_MODULE_FRONT",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_NZ_333/body/NZ_333_body_module.png",
+  "style": "LOW_TECH",
+  "height": 134,
+  "width": 66,
+  "center": [
+    33,
+    95.5
+  ],
+  "collisionRadius": 49.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 49.5,
+  "viewOffset": 0,
+  "moduleAnchor": [
+    7,
+    0
+  ],
+  "builtInMods": [
+    "Moci_antibeamcoating",
+    "Moci_module_collision_controller",
+    "Moci_IField",
+    "Moci_MobileArmour"
+  ],
+  "builtInWeapons": {
+    "DECO003": "Moci_NZ_333_weapon_cover_1",
+    "WS0001": "Moci_NZ_333_weapon_fl",
+    "WS0002": "Moci_NZ_333_weapon_fr"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001_SOURCE",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        19.5,
+        24
+      ]
+    },
+    {
+      "id": "WS0002_SOURCE",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        19.5,
+        -24
+      ]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        19.5,
+        24
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        19.5,
+        -24
+      ]
+    },
+    {
+      "id": "DECO003",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        -28.5,
+        0
+      ],
+      "renderOrderMod": 5
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    3,
+    21.5,
+    0,
+    22.5,
+    0,
+    24.5,
+    4,
+    28.5,
+    13,
+    28.5,
+    19,
+    24.5,
+    19,
+    17.5,
+    25,
+    15.5,
+    27,
+    13.5,
+    27,
+    10,
+    31,
+    5.5,
+    31,
+    3.5,
+    30,
+    2.5,
+    30,
+    -2.5,
+    31,
+    -3.5,
+    31,
+    -5.5,
+    27,
+    -10,
+    27,
+    -13.5,
+    25,
+    -15.5,
+    19,
+    -17.5,
+    19,
+    -24.5,
+    13,
+    -28.5,
+    4,
+    -28.5,
+    0,
+    -24.5,
+    0,
+    -22.5,
+    3,
+    -21.5
+  ]
+}

@@ -1,0 +1,39 @@
+{
+    "displayName": "动能实弹",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Testship_attack",
+    "hullMods": [
+        "targetingunit",
+        "turretgyros",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "a1_Testship_attack_BAL",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0008": "gauss",
+                "WS0009": "gauss",
+                "WS0006": "gauss",
+                "WS0007": "gauss",
+                "WS0004": "gauss",
+                "WS0005": "gauss",
+                "WS0014": "gauss",
+                "WS0001": "gauss",
+                "WS0013": "gauss",
+                "WS0012": "gauss",
+                "WS0003": "gauss",
+                "WS0002": "gauss",
+                "WS0011": "gauss",
+                "WS0010": "gauss",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

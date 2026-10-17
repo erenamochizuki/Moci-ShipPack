@@ -1,0 +1,14 @@
+{
+  "variantId": "Moci_MSN_03b_shield_Base",
+  "hullId": "Moci_MSN_03b_shield",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

@@ -1,0 +1,15 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Vangray",
+    "hullMods": [],
+    "variantId": "Moci_Vangray_base",
+    "weaponGroups": [],
+    "wings": [],
+    "modules": [
+        {"SHIELD_R": "Moci_Vangray_right_shield_base"},
+        {"SHIELD_L": "Moci_Vangray_left_shield_base"},
+    ],
+}

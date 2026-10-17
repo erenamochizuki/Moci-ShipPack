@@ -1,0 +1,2 @@
+id,name,faction,desc,script,icon,order
+Moci_MobileSuitMarket,机动战士市场,independent,专门销售各类机动战士及其配套装备的特殊市场。这里汇集了来自各个势力的精英机体，包括各种类型机动战士、独行游骑兵。,data.scripts.world.submarkets.Moci_MobileSuitMarket,graphics/factions/moci_mobile_suit_market.png,200

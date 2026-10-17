@@ -1,0 +1,21 @@
+{
+	"baseHullId":"Moci_General_Revil",
+	"skinHullId":"Moci_General_Revil_LXVI",
+	"hullName":"雷比尔将军 (XIV)",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_General_Revil",
+	"descriptionPrefix":"六十六卫队的改装型号。",
+	"tags":["no_dealer", "no_sell"],
+	"tech":"第六十六卫队 ",
+	"fleetPoints":75,
+	"ordnancePoints":420,
+	"baseValueMult":1.55,
+	"spriteName":"graphics/ships/Moci_General_Revil_LXVI.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":["Moci_legion_LXVI"],
+	"builtInWeapons":{
+     },
+}

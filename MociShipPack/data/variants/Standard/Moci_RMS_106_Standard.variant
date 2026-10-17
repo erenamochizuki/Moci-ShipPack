@@ -1,0 +1,42 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 10,
+    "fluxVents": 6,
+    "goalVariant": true,
+    "hullId": "Moci_RMS_106",
+    "hullMods": [
+        "armoredweapons",
+        "autorepair",
+        "auxiliarythrusters",
+        "eccm",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "missleracks",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RMS_106_Standard",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "hammerrack",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "reaper",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RMS_106_SHIELD_L_Base"},
+        {"SHIELD_RS": "Moci_RMS_106_SHIELD_RS_Base"},
+    ],
+}

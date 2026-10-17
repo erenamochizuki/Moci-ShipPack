@@ -1,0 +1,19 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Yamato_ET_repaired",
+    "hullMods": [
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Yamato_ET_repaired_Base",
+    "weaponGroups": [],
+    "wings": [],
+    "modules": [
+        {"WINGWEAPON_01": "Moci_DWG_262_Base"},
+        {"WINGWEAPON_02": "Moci_DWG_262_Base"},
+    ],
+}

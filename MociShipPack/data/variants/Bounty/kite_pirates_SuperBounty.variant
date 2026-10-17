@@ -1,0 +1,62 @@
+{
+    "displayName": "SuperBounty",
+    "fluxCapacitors": 55,
+    "fluxVents": 55,
+    "goalVariant": false,
+    "hullId": "kite_pirates",
+    "hullMods": [
+        "extendedshieldemitter",
+    ],
+    "permaMods": [
+        "Moci_advanced_flight_deck",
+        "Moci_easytobreak",
+        "automated",
+        "autorepair",
+        "auxiliarythrusters",
+        "eccm",
+        "ecm",
+        "fluxshunt",
+        "frontemitter",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "missile_reload",
+        "missleracks",
+        "stabilizedshieldemitter",
+        "supercomputer",
+    ],
+    "sMods": [
+        "autorepair",
+        "auxiliarythrusters",
+        "eccm",
+        "ecm",
+        "frontemitter",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "missleracks",
+        "stabilizedshieldemitter",
+    ],
+    "suppressedMods": [],
+    "variantId": "kite_pirates_SuperBounty",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 001": "amsrm",
+                "WS 002": "amsrm",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 003": "lightmg",
+            }
+        },
+    ],
+    "wings": [
+        "aspect_missile_wing",
+        "aspect_missile_wing",
+    ],
+    "modules": [],
+}

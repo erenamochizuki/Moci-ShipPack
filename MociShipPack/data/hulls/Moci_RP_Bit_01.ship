@@ -1,0 +1,87 @@
+{
+  "hullName": "Moci_RP_Bit_01",
+  "hullId": "Moci_RP_Bit_01",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Ruthless_Pirate/wing/Belle_bit_01.png",
+  "style": "LOW_TECH",
+  "height": 31,
+  "width": 29,
+  "center": [
+    14,
+    15.5
+  ],
+  "collisionRadius": 21,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 21,
+  "viewOffset": 0,
+  "builtInMods": [
+    "no_weapon_flux"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "HIDDEN",
+      "arc": 11,
+      "angle": 0,
+      "locations": [
+        2.5,
+        6.5
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 11,
+      "angle": 0,
+      "locations": [
+        0,
+        -8.5
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -13,
+        -2.5
+      ],
+      "length": 22.5,
+      "width": 15,
+      "angle": 180,
+      "contrailSize": 15,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -13.5,
+        8.5
+      ],
+      "length": 17,
+      "width": 7,
+      "angle": 180,
+      "contrailSize": 7,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    15,
+    -1.5,
+    15,
+    1.5,
+    -5,
+    13.5,
+    -14,
+    7.5,
+    -5,
+    -13.5,
+    3,
+    -13.5
+  ]
+}

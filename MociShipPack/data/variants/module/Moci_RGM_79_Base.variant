@@ -1,0 +1,19 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_RGM_79",
+    "hullMods": [],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RGM_79_Base",
+    "weaponGroups": [],
+    "wings": [],
+  "modules": [
+    {
+      "SHIELD_L": "Moci_RX_78_2_SHIELD_L_Base",
+    }
+  ],
+}

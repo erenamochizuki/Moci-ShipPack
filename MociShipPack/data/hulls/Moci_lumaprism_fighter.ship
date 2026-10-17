@@ -1,0 +1,122 @@
+{
+  "hullName": "Moci_lumaprism_fighter",
+  "hullId": "Moci_lumaprism_fighter",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/wings/Moci_lumaprism_fighter.png",
+  "style": "HIGH_TECH",
+  "height": 41,
+  "width": 102,
+  "center": [
+    51,
+    23
+  ],
+  "collisionRadius": 56.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 56.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "no_weapon_flux",
+    "Moci_IntegratedPointDefenseAI"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 55,
+      "angle": 0,
+      "locations": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "LARGE",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 146,
+      "angle": 45,
+      "locations": [
+        6.5,
+        16.5
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "LARGE",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 146,
+      "angle": -45,
+      "locations": [
+        6.5,
+        -16.5
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -16,
+        -14
+      ],
+      "length": 18,
+      "width": 8,
+      "angle": -180,
+      "contrailSize": 8,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -16,
+        14
+      ],
+      "length": 18,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 8,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -16,
+        -21
+      ],
+      "length": 18,
+      "width": 13,
+      "angle": -180,
+      "contrailSize": 13,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -16,
+        21
+      ],
+      "length": 18,
+      "width": 13,
+      "angle": 180,
+      "contrailSize": 13,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -17,
+    29,
+    3.5,
+    42.5,
+    11,
+    10,
+    11,
+    -10,
+    3.5,
+    -42.5,
+    -17,
+    -29
+  ]
+}

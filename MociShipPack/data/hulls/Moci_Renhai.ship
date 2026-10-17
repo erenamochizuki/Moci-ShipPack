@@ -1,0 +1,281 @@
+{
+  "hullName": "Moci_Renhai",
+  "hullId": "Moci_Renhai",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/VIII/Renhai/Moci_Renhai.png",
+  "style": "HIGH_TECH",
+  "height": 223,
+  "width": 157,
+  "center": [
+    78.5,
+    99.5
+  ],
+  "collisionRadius": 135,
+  "shieldCenter": [
+    12,
+    0
+  ],
+  "shieldRadius": 135,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_legion_VIII",
+    "vast_hangar",
+    "automated",
+    "ecm"
+  ],
+  "builtInWeapons": {
+    "WS0003": "Moci_Renhai_Beam"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "SYNERGY",
+      "mount": "TURRET",
+      "arc": 150,
+      "angle": 56.5,
+      "locations": [
+        -2.5,
+        15.5
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "SYNERGY",
+      "mount": "TURRET",
+      "arc": 150,
+      "angle": -56.5,
+      "locations": [
+        -2.5,
+        -15.5
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        29.5,
+        0
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": -42.5,
+      "locations": [
+        10,
+        -42.5
+      ]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 42.5,
+      "locations": [
+        10,
+        42.5
+      ]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": -48,
+      "locations": [
+        7,
+        -45
+      ]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 48,
+      "locations": [
+        7,
+        45
+      ]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": -45,
+      "locations": [
+        3,
+        -47.5
+      ]
+    },
+    {
+      "id": "WS0009",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 45,
+      "locations": [
+        3,
+        47.5
+      ]
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -49.5,
+        -30.5,
+        -49.5,
+        -27,
+        -47,
+        -27.5,
+        -46.5,
+        -31,
+        -44,
+        -28.5,
+        -44,
+        -32
+      ]
+    },
+    {
+      "id": "LB 2",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -48,
+        31,
+        -48,
+        28,
+        -46,
+        31,
+        -45.5,
+        28.5,
+        -44,
+        31,
+        -43.5,
+        28
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -68.5,
+        10.5
+      ],
+      "length": 23,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -68.5,
+        -10.5
+      ],
+      "length": 23,
+      "width": 12,
+      "angle": -180,
+      "contrailSize": 12,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -69.5,
+        -10.5
+      ],
+      "length": 8.5,
+      "width": 3,
+      "angle": -180,
+      "contrailSize": 3,
+      "style": "CUSTOM",
+      "styleId": "COBRA_BOMBER"
+    },
+    {
+      "location": [
+        -69.5,
+        10.5
+      ],
+      "length": 8.5,
+      "width": 3,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "CUSTOM",
+      "styleId": "COBRA_BOMBER"
+    }
+  ],
+  "bounds": [
+    -97,
+    1,
+    -83,
+    17,
+    -59,
+    23,
+    -64,
+    32,
+    -52,
+    43,
+    -55,
+    46,
+    -53,
+    52,
+    -23,
+    66,
+    24,
+    74,
+    5,
+    52,
+    25,
+    39,
+    122,
+    6,
+    122,
+    -6,
+    25,
+    -39,
+    5,
+    -52,
+    24,
+    -74,
+    -23,
+    -66,
+    -53,
+    -52,
+    -55,
+    -46,
+    -52,
+    -43,
+    -64,
+    -32,
+    -59,
+    -23,
+    -83,
+    -17,
+    -97,
+    -1
+  ]
+}

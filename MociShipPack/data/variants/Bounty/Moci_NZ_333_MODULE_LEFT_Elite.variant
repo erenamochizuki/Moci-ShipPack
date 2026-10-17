@@ -1,0 +1,49 @@
+{
+    "displayName": "Elite",
+    "fluxCapacitors": 10,
+    "fluxVents": 10,
+    "goalVariant": true,
+    "hullId": "Moci_NZ_333_MODULE_LEFT",
+    "hullMods": [
+        "advancedoptics",
+        "armoredweapons",
+        "autorepair",
+        "blast_doors",
+        "ecm",
+        "fluxcoil",
+        "fluxdistributor",
+        "heavyarmor",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_NZ_333_MODULE_LEFT_Elite",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001_SOURCE": "ionbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003_SOURCE": "taclaser",
+                "WS0004_SOURCE": "taclaser",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0002_SOURCE": "taclaser",
+                "WS0005_SOURCE": "taclaser",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

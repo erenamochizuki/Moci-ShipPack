@@ -1,0 +1,66 @@
+{
+    "displayName": "B_AntiArmor",
+    "fluxCapacitors": 13,
+    "fluxVents": 20,
+    "goalVariant": false,
+    "hullId": "facet",
+    "hullMods": [
+        "escort_package",
+        "fluxdistributor",
+    ],
+    "permaMods": [
+        "extendedshieldemitter",
+        "frontemitter",
+        "targetingunit",
+    ],
+    "sMods": [
+        "extendedshieldemitter",
+        "frontemitter",
+        "targetingunit",
+    ],
+    "suppressedMods": [],
+    "variantId": "facet_B_AntiArmor",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 000": "disintegrator",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 004": "disintegrator",
+                "WS 003": "disintegrator",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 002": "riftlance",
+                "WS 001": "riftlance",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 008": "riftlance",
+                "WS 005": "riftlance",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 006": "shockrepeater",
+                "WS 007": "shockrepeater",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

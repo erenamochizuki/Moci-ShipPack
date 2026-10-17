@@ -1,0 +1,65 @@
+{
+  "id": "Moci_Syunran_maingun",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_Syunran_maingu_shot",
+  "type": "BALLISTIC",
+  "size": "LARGE",
+  "turretSprite": "graphics/weapons/Moci_Syunran/Moci_Syunran_Weapon_L.png",
+  "turretGunSprite": "graphics/weapons/Moci_Syunran/Moci_Syunran_Weapon_L_relico.png",
+  "hardpointSprite": "graphics/weapons/Moci_Syunran/Moci_Syunran_Weapon_L.png",
+  "hardpointGunSprite": "graphics/weapons/Moci_Syunran/Moci_Syunran_Weapon_L_relico.png",
+  "visualRecoil": 10,
+  "renderHints": [
+    RENDER_BARREL_BELOW
+  ],
+  "turretOffsets": [
+    46,
+    13.5,
+    46,
+    4.5,
+    46,
+    -4.5,
+    46,
+    -13.5
+  ],
+  "turretAngleOffsets": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    72,
+    13.5,
+    72,
+    4.5,
+    72,
+    -4.5,
+    72,
+    -13.5
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "MUZZLE_FLASH",
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 70,
+    "spread": 30,
+    "particleSizeMin": 15,
+    "particleSizeRange": 15,
+    "particleDuration": 0.5,
+    "particleCount": 40,
+    "particleColor": [
+      255,
+      190,
+      200,
+      200
+    ]
+  },
+  "fireSoundTwo": "mjolnir_fire"
+}

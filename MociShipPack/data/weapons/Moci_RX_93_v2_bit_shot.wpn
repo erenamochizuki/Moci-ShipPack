@@ -1,0 +1,27 @@
+{
+	"id":"Moci_RX_93_v2_bit_shot",  # this id must match what's in the spreadsheet
+	"specClass":"projectile",
+	"type":"ENERGY",
+	"size":"MEDIUM",
+	"turretSprite":"",
+	"turretGlowSprite":"",
+	"hardpointSprite":"",
+	"hardpointGlowSprite":"",
+	"turretOffsets":[0, 0],
+	"turretAngleOffsets":[0],
+	"hardpointOffsets":[0, 0],
+	"hardpointAngleOffsets":[0],
+	"barrelMode":"ALTERNATING", # or LINKED.  whether barrels fire at the same time or alternate.
+	"animationType":"GLOW_AND_FLASH",
+	"glowColor":[224,56,142,255],
+	"muzzleFlashSpec":{"length":15.0,
+					   "spread":5.0,
+					   "particleSizeMin":3.0,
+					   "particleSizeRange":5.0,
+					   "particleDuration":0.12,
+					   "particleCount":10,
+					   "particleColor":[224,56,142,255]},		
+	"autocharge":true,  # whether the weapon will continue charging and fire if the LMB is tapped instead of held
+	"projectileSpecId":"Moci_RX_93_v2_bit_shot_proj",  # projectile that will be fired
+	"fireSoundTwo":"kinetic_blaster_fire",
+}

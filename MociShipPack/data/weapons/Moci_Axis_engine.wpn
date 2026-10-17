@@ -1,0 +1,65 @@
+{
+  "id": "Moci_Axis_engine",
+  "specClass": "beam",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "everyFrameEffect": "data.scripts.weapons.Moci_AxisEngine",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/Moci_Axis_engine.png",
+  "hardpointSprite": "graphics/weapons/Moci_Axis_engine.png",
+  "glowColor": [
+    175,
+    154,
+    214,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    -143,
+    135.5,
+    -134.5,
+    44.5,
+    -135,
+    -46,
+    -142.5,
+    -135.5
+  ],
+  "turretAngleOffsets": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    -18.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    180
+  ],
+  "fringeColor": [
+    255,
+    0,
+    30,
+    0
+  ],
+  "coreColor": [
+    255,
+    10,
+    50,
+    0
+  ],
+  "width": 6,
+  "textureType": SMOOTH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ],
+  "fireSoundTwo": "targeting_laser_loop"
+}

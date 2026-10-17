@@ -1,0 +1,80 @@
+{
+  "hullName": "Moci_Great_Wall_left_sub_module",
+  "hullId": "Moci_Great_Wall_left_sub_module",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/stations/Moci_Great_Wall_left_sub_module.png",
+  "style": "LOW_TECH",
+  "height": 133,
+  "width": 116,
+  "center": [58, 66.5],
+  "collisionRadius": 96.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 136.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "always_detaches",
+    "advancedcore",
+    "reduced_explosion",
+    "missile_reload"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 79,
+      "angle": 0,
+      "locations": [24.5, -0]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 106,
+      "angle": 90,
+      "locations": [-20.5, 40]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 106,
+      "angle": -90,
+      "locations": [-20.5, -40]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 106,
+      "angle": 0,
+      "locations": [12.5, 37]
+    },
+    {
+      "id": "WS0005",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 106,
+      "angle": -0,
+      "locations": [12.5, -37]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    -66, -2.5,
+    -64, -9.5,
+    -43, -46.5,
+    17, -56.5,
+    49, -16.5,
+    49, 16.5,
+    17, 56.5,
+    -43, 46.5,
+    -64, 9.5,
+    -66, 2.5
+  ]
+}

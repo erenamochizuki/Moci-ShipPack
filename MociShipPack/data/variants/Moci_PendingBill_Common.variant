@@ -1,0 +1,90 @@
+{
+    "displayName": "Common",
+    "fluxCapacitors": 43,
+    "fluxVents": 50,
+    "goalVariant": true,
+    "hullId": "Moci_PendingBill",
+    "hullMods": [
+        "armoredweapons",
+        "fluxbreakers",
+        "fluxcoil",
+        "fluxdistributor",
+        "hardenedshieldemitter",
+        "stabilizedshieldemitter",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_PendingBill_Common",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "MAINGUN_01": "Moci_PendingBill_MAINGUN",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0023": "pilum",
+                "WS0022": "pilum",
+                "WS0025": "Moci_PendingBill_Missile_L",
+                "WS0024": "Moci_PendingBill_Missile_R",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0019": "hil",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0012": "hveldriver",
+                "WS0011": "hveldriver",
+                "WS0003": "hveldriver",
+                "WS0005": "hveldriver",
+                "WS0004": "hveldriver",
+                "WS0006": "hveldriver",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0013": "ioncannon",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0016": "devastator",
+                "WS0015": "devastator",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "Moci_miniflak",
+                "WS0014": "Moci_miniflak",
+                "WS0002": "Moci_miniflak",
+                "WS0010": "Moci_miniflak",
+                "WS0009": "Moci_miniflak",
+                "WS0008": "Moci_miniflak",
+                "WS0007": "Moci_miniflak",
+                "WS0018": "Moci_miniflak",
+                "WS0017": "Moci_miniflak",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

@@ -1,0 +1,254 @@
+{
+  "hullName": "Moci_Gypsfulvus",
+  "hullId": "Moci_Gypsfulvus",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Moci_Gypsfulvus.png",
+  "style": "MIDLINE",
+  "height": 206,
+  "width": 115,
+  "center": [
+    57.5,
+    99.5
+  ],
+  "collisionRadius": 132,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 132,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 131,
+      "angle": 0,
+      "locations": [
+        69.5,
+        22.5
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 171,
+      "angle": -66,
+      "locations": [
+        8.5,
+        -27.5
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 164,
+      "angle": 64.5,
+      "locations": [
+        9.5,
+        45.5
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 241,
+      "angle": 0,
+      "locations": [
+        32.5,
+        33.5
+      ]
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        15,
+        0.5,
+        16,
+        3,
+        13,
+        -2.5,
+        21,
+        3,
+        16,
+        6,
+        13.5,
+        5.5
+      ]
+    },
+    {
+      "id": "LB 2",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        12.5,
+        -7.5,
+        13,
+        -10.5,
+        17,
+        -13,
+        20,
+        -11.5,
+        17,
+        -9.5,
+        20,
+        -15,
+        22,
+        -14.5
+      ]
+    },
+    {
+      "id": "LB 3",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        25,
+        -20,
+        27,
+        -18,
+        27,
+        -21.5,
+        30,
+        -19.5,
+        29.5,
+        -22,
+        33.5,
+        -19.5,
+        33.5,
+        -21.5
+      ]
+    },
+    {
+      "id": "LB 4",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        39.5,
+        -19.5,
+        39.5,
+        -22,
+        43,
+        -20,
+        43,
+        -21.5,
+        46,
+        -19.5,
+        46.5,
+        -22,
+        50,
+        -19.5
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -96.5,
+        28
+      ],
+      "length": 30,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 30,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -96.5,
+        -33
+      ],
+      "length": 30,
+      "width": 10,
+      "angle": -180,
+      "contrailSize": 30,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -95.5,
+        -21.5
+      ],
+      "length": 48,
+      "width": 19,
+      "angle": -180,
+      "contrailSize": 19,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -95.5,
+        16.5
+      ],
+      "length": 48,
+      "width": 19,
+      "angle": -180,
+      "contrailSize": 19,
+      "style": "MIDLINE"
+    }
+  ],
+  "bounds": [
+    100,
+    26,
+    61.5,
+    49.5,
+    49.5,
+    50.5,
+    15.5,
+    56.5,
+    9.5,
+    56.5,
+    -84.5,
+    41.5,
+    -97.5,
+    31.5,
+    -96.5,
+    10.5,
+    -85,
+    -2.5,
+    -96.5,
+    -15.5,
+    -97.5,
+    -35.5,
+    -87.5,
+    -39.5,
+    -84.5,
+    -47.5,
+    -56,
+    -43.5,
+    -36.5,
+    -48.5,
+    3.5,
+    -54.5,
+    20.5,
+    -56.5,
+    52.5,
+    -45.5,
+    66.5,
+    -27.5,
+    99.5,
+    7.5,
+    104.5,
+    18.5
+  ]
+}

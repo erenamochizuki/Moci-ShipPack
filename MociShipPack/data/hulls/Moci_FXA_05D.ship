@@ -1,0 +1,100 @@
+{
+  "hullName": "Moci_FXA_05D",
+  "hullId": "Moci_FXA_05D",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Core_Fighter/Moci_FXA_05D.png",
+  "style": "LOW_TECH",
+  "height": 47.5,
+  "width": 43,
+  "center": [
+    21.5,
+    23.75
+  ],
+  "collisionRadius": 34,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 33.75,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 7,
+      "angle": 0,
+      "locations": [
+        6.75,
+        7
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 7,
+      "angle": 0,
+      "locations": [
+        6.75,
+        -7
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -16.25,
+        7.75
+      ],
+      "length": 10.25,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -16.25,
+        -7.75
+      ],
+      "length": 10.25,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -16.5,
+    -4.75,
+    -18,
+    -11.75,
+    -23.5,
+    -20.25,
+    -22,
+    -21.25,
+    -3,
+    -15.25,
+    3,
+    -7.75,
+    23,
+    -4.25,
+    23,
+    4.25,
+    3,
+    7.75,
+    -3,
+    15.25,
+    -22,
+    21.25,
+    -23.5,
+    20.25,
+    -18,
+    11.75,
+    -16.5,
+    4.75
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "variantId": "Moci_illusion_Bomber_base",
+  "hullId": "Moci_illusion_bomber",
+  "displayName": "重型无人轰炸机",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "no_weapon_flux"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "Moci_phasecl_bomber",
+        "WS0002": "Moci_phasecl_bomber",
+        "WS0003": "Moci_phasecl_bomber",
+        "WS0004": "Moci_phasecl_bomber",
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0005": "Moci_guardian"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

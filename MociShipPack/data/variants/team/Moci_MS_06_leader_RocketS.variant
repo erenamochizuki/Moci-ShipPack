@@ -1,0 +1,39 @@
+{
+    "displayName": "RocketS",
+    "fluxCapacitors": 6,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_MS_06_leader",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "armoredweapons",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_06_leader_RocketS",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "cyclone",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "sabot",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_RS": "Moci_MS_06_SHIELD_RS_Base"},
+        {"SHIELD_L": "Moci_MS_06_SHIELD_L_Base"},
+    ],
+}

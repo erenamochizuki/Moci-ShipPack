@@ -1,0 +1,19 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_MSZ_006",
+    "hullMods": [],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MSZ_006_Base",
+    "weaponGroups": [],
+    "wings": [],
+  "modules": [
+    {
+      "SHIELD_L": "Moci_MSZ_006_SHIELD_L_Base",
+    }
+  ],
+}

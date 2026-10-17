@@ -1,0 +1,66 @@
+{
+  "hullName": "Moci_MSN_04_2_shield",
+  "hullId": "Moci_MSN_04_2_shield",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/arms/MSN_04_2_arm_left_shield.png",
+  "style": "MOCI_MS",
+  "height": 142,
+  "width": 46,
+  "center": [
+    21,
+    57
+  ],
+  "collisionRadius": 105,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 105,
+  "viewOffset": 0,
+  "moduleAnchor": [
+    -11.5,
+    -14.5
+  ],
+  "builtInMods": [
+    "Moci_antibeamcoating_shield",
+    "Moci_module_collision_controller"
+  ],
+  "builtInWeapons": {
+    "WS0001": "MSN_04_2_shield_missile"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": -11.5,
+      "locations": [
+        111,
+        -19
+      ]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    83.5,
+    -20.5,
+    84.5,
+    -16.5,
+    27.5,
+    4.5,
+    -4.5,
+    20.5,
+    -8.5,
+    20.5,
+    -22.5,
+    16.5,
+    -55.5,
+    10.5,
+    -55.5,
+    6,
+    -37.5,
+    -7.5
+  ]
+}

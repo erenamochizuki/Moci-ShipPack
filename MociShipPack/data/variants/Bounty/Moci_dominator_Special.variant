@@ -1,0 +1,77 @@
+{
+    "displayName": "Special",
+    "fluxCapacitors": 30,
+    "fluxVents": 30,
+    "goalVariant": false,
+    "hullId": "dominator",
+    "hullMods": [
+        "ballistic_rangefinder",
+        "fluxbreakers",
+        "heavyarmor",
+        "shield_shunt",
+        "targetingunit",
+    ],
+    "permaMods": [
+    "comp_storage",
+    "malfunctioning_comms",
+    "erratic_injector",
+    ],
+    "sMods": [
+        "armoredweapons",
+        "autorepair",
+        "fluxcoil",
+        "fluxdistributor",
+    ],
+    "suppressedMods": [],
+    "variantId": "Moci_dominator_Special",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 013": "hephag",
+                "WS 012": "hephag",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS 015": "sabotpod",
+                "WS 016": "sabotpod",
+                "WS 014": "sabotpod",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 003": "lightneedler",
+                "WS 004": "lightneedler",
+                "WS 005": "lightneedler",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 008": "mininglaser",
+                "WS 009": "mininglaser",
+                "WS 006": "mininglaser",
+                "WS 007": "mininglaser",
+                "WS 002": "mininglaser",
+                "WS 001": "mininglaser",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 010": "hveldriver",
+                "WS 011": "hveldriver",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

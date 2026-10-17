@@ -1,0 +1,14 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_MS_14_Shin",
+    "hullMods": [],
+    "variantId": "Moci_MS_14_Shin_Base",
+    "weaponGroups": [],
+    "modules": [
+        {"SHIELD_L": "Moci_MS_14_SHIELD_L_Shin_Base"},
+        {"SHIELD_R": "Moci_MS_14_SHIELD_R_Shin_Base"},
+    ],
+}

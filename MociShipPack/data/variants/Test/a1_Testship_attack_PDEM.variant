@@ -1,0 +1,39 @@
+{
+    "displayName": "能量防空改",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Testship_attack",
+    "hullMods": [
+        "targetingunit",
+        "turretgyros",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "a1_Testship_attack_PDEM",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0008": "Moci_guardian",
+                "WS0009": "Moci_guardian",
+                "WS0006": "Moci_guardian",
+                "WS0007": "Moci_guardian",
+                "WS0004": "Moci_guardian",
+                "WS0005": "Moci_guardian",
+                "WS0014": "Moci_guardian",
+                "WS0001": "Moci_guardian",
+                "WS0013": "Moci_guardian",
+                "WS0012": "Moci_guardian",
+                "WS0003": "Moci_guardian",
+                "WS0002": "Moci_guardian",
+                "WS0011": "Moci_guardian",
+                "WS0010": "Moci_guardian",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

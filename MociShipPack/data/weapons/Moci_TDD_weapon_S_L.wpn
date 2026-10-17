@@ -1,0 +1,60 @@
+{
+  "id": "Moci_TDD_weapon_S_L",
+  "specClass": "beam",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "everyFrameEffect": "data.scripts.weapons.Moci_DeepDiveSourceFrameWeaponEffect",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/Moci_TDD_1/Moci_TDD_weapon_S_L_00.png",
+  "hardpointSprite": "graphics/weapons/Moci_TDD_1/Moci_TDD_weapon_S_L_00.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "renderHints": [
+    RENDER_BARREL_BELOW
+  ],
+  "turretOffsets": [
+    1.5,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    6,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "numFrames": 8,
+  "frameRate": 30,
+  "fringeColor": [
+    255,
+    0,
+    30,
+    255
+  ],
+  "coreColor": [
+    255,
+    10,
+    50,
+    155
+  ],
+  "width": 6,
+  "textureType": SMOOTH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ]
+}

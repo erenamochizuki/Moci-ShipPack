@@ -1,0 +1,295 @@
+{
+  "hullName": "Moci_Minotau",
+  "hullId": "Moci_Minotaur",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/Moci_Minotaur.png",
+  "style": "MIDLINE",
+  "height": 150,
+  "width": 298,
+  "center": [
+    149,
+    75
+  ],
+  "collisionRadius": 189.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 189.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "ecm"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "BALLISTIC",
+      "mount": "HARDPOINT",
+      "arc": 20,
+      "angle": 0,
+      "locations": [
+        21.5,
+        0
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        31.5,
+        -32
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        31.5,
+        32
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "COMPOSITE",
+      "mount": "TURRET",
+      "arc": 222,
+      "angle": -50,
+      "locations": [
+        44.5,
+        -132
+      ]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "COMPOSITE",
+      "mount": "TURRET",
+      "arc": 222,
+      "angle": 50,
+      "locations": [
+        44.5,
+        132
+      ]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "COMPOSITE",
+      "mount": "TURRET",
+      "arc": 150,
+      "angle": -143,
+      "locations": [
+        -16.5,
+        -47
+      ]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "COMPOSITE",
+      "mount": "TURRET",
+      "arc": 150,
+      "angle": 143,
+      "locations": [
+        -16.5,
+        47
+      ]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": -135,
+      "locations": [
+        7.5,
+        -105.5
+      ]
+    },
+    {
+      "id": "WS0009",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 135,
+      "locations": [
+        7.5,
+        105.5
+      ]
+    },
+    {
+      "id": "LB 3",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        3,
+        -45,
+        1.5,
+        -42.5,
+        5,
+        -48.5,
+        1.5,
+        -50,
+        0,
+        -47,
+        -2.5,
+        -44
+      ]
+    },
+    {
+      "id": "LB 4",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        5,
+        48,
+        2,
+        50,
+        0,
+        47,
+        -2,
+        44,
+        1.5,
+        42,
+        3,
+        45
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -53.5,
+        -64.5
+      ],
+      "length": 45.111114,
+      "width": 21.562708,
+      "angle": -151.5,
+      "contrailSize": 21.562708,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -53.5,
+        64.5
+      ],
+      "length": 45.111114,
+      "width": 21.562708,
+      "angle": 151.5,
+      "contrailSize": 21.562708,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -69,
+        -52.5
+      ],
+      "length": 52.054069,
+      "width": 21.988523,
+      "angle": -151.5,
+      "contrailSize": 21.988523,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -69,
+        52.5
+      ],
+      "length": 52.054069,
+      "width": 21.988523,
+      "angle": 151.5,
+      "contrailSize": 21.988523,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -16,
+        -82
+      ],
+      "length": 49,
+      "width": 21,
+      "angle": 180,
+      "contrailSize": 21,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -16,
+        82
+      ],
+      "length": 49,
+      "width": 21,
+      "angle": -180,
+      "contrailSize": 21,
+      "style": "MIDLINE"
+    }
+  ],
+  "bounds": [
+    -49.5,
+    68.5,
+    -20.5,
+    58,
+    25,
+    140.5,
+    53,
+    147,
+    71.5,
+    128.5,
+    55,
+    110.5,
+    62,
+    83.5,
+    57,
+    54.5,
+    24.5,
+    22,
+    24.5,
+    -22,
+    57,
+    -54.5,
+    62,
+    -83.5,
+    55,
+    -110.5,
+    71.5,
+    -128.5,
+    53,
+    -147,
+    25,
+    -140.5,
+    -20.5,
+    -58,
+    -49.5,
+    -68.5,
+    -70.5,
+    -46.5,
+    -44,
+    -30,
+    -52,
+    -10.5,
+    -52,
+    10.5,
+    -44,
+    30,
+    -70.5,
+    46.5
+  ]
+}

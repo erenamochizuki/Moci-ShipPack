@@ -1,0 +1,27 @@
+{
+    "displayName": "轰炸联队",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_Gespenst_fighter_pl",
+    "hullMods": [
+        "eccm",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gespenst_fighter_pl_Bomber",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_gorgon_figher",
+                "ARM_L_SOURCE": "Moci_gorgon_figher",
+                "SHOULDERWEAPON_R_SOURCE": "Moci_gazer_fighter",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

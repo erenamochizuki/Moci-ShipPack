@@ -1,0 +1,28 @@
+{
+	"id":"Moci_PhaseCrossing_Simple",
+	"type":"TELEPORTER",
+	"aiType":"PHASE_TELEPORTER_2",
+	"statsScript":"data.shipsystems.scripts.Moci_PhaseCrossing_Simple",
+	
+	"engineGlowColor":[169,161,255,155],
+	
+	"range":2000,
+	"randomRange":0,
+	
+	"vulnerableChargeup":false,
+	"vulnerableChargedown":false,
+	"renderCopyDuringTeleport":false,
+	
+	"fadeActivationSoundOnChargedown":false,
+	
+	#"useSound":"system_teleport",
+	"useSound":"system_phase_teleporter",	
+	"outOfUsesSound":"gun_out_of_ammo",
+	
+	
+	"aiHints":{
+		"activeSpeedIncrease":0,
+		"burstMovementPotential":2000,
+		"averageSpeedIncrease":350,
+	}
+}

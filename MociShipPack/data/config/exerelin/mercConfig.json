@@ -1,0 +1,62 @@
+{
+    "companies":{
+        "ATX":{
+            "name":"ATX小队",
+            "desc":"ATX",
+            #"logo":"graphics/factions/ATX_Logo.png",
+            "shipNamePrefix":"ATX",
+            "feeUpfront":30000,
+            "feeMonthly":2000,
+            "fleetFeeMult":0.01,
+            "faction":"independent",
+            "minRep":"SUSPICIOUS",
+            "minLevel":1,
+            "ships":[
+                ["Moci_AltEisen_ATX"],
+                ["Moci_ReinWeissRitter_ATX"],
+                ["Moci_FlickereiGeist_ATX"],
+            ],
+			 "officers":
+            [
+                {
+                    "firstName":"Kyosuke",
+                    "lastName":"Nanbu",
+                    "gender": "m",
+                    "level":6,
+                    "portrait":"graphics/portraits/characters/ATX_Kyosuke_Nanbu.png",
+                    "rankId": "ATX_1",
+                    "personality":"reckless",
+                    "skills":{
+                        "impact_mitigation":2,
+                        "polarized_armor":2,
+                    },
+                    "skillsReplace":false,
+                    "persistentId":"ATX_A",        
+                },
+                {
+                    "firstName":"Excellen",
+                    "lastName":"Browning",
+                    "gender": "f",
+                    "level":6,
+                    "portrait":"graphics/portraits/characters/ATX_Excellen_Browning.png",
+                    "rankId": "ATX_1",
+                    "personality":"aggressive",
+                    "skills":{
+                        "target_analysis":2,
+                        "systems_expertise":2,
+                    },
+                    "skillsReplace":false,
+                    "persistentId":"ATX_B",
+                },
+            ],
+            "noAutofit":true,
+            "averageSMods":0,
+            "blockScuttle":true,
+            "canPatrol":true,
+            "pickChance":5,
+            "miscData":{
+                "angeredByInsults":true
+            }
+        }
+    }
+}

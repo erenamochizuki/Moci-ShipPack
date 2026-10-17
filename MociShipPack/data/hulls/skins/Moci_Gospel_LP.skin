@@ -1,0 +1,22 @@
+{
+	"baseHullId":"Moci_Gospel",
+	"skinHullId":"Moci_Gospel_LP",
+	"hullName":"福音 (LP)",
+	"descriptionId":"Moci_Gospel",  # optional
+	"descriptionPrefix":"被 卢德左径 的狂热分子们强行占用，并通过剔除掉所有非必要的设备改造成的一个随时与意外相伴的圣战船",
+	"tags":["LP_bp"],
+	"tech":"卢德左径",
+	"ordnancePoints":90,
+	"systemId":"burndrive",
+	"spriteName":"graphics/ships/Moci_Gospel_LG.png",
+	"baseValueMult":0.75,
+	"suppliesToRecover":18,
+	"suppliesPerMonth":18,
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":["Moci_VolatileAmmunition","safetyoverrides"],
+	"builtInWeapons":{
+    },
+}

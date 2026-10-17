@@ -1,0 +1,27 @@
+{
+    "displayName": "Elite",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": true,
+    "hullId": "Moci_NZ_333_LinerBit",
+    "hullMods": [],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_NZ_333_LinerBit_Elite",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0006": "NZ_333_linerbit_beam",
+                "WS0004": "NZ_333_linerbit_beam",
+                "WS0001": "NZ_333_linerbit_beam",
+                "WS0003": "NZ_333_linerbit_beam",
+                "WS0002": "NZ_333_linerbit_beam",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

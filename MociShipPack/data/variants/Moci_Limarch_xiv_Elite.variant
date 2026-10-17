@@ -1,0 +1,70 @@
+{
+    "displayName": "Elite",
+    "fluxCapacitors": 15,
+    "fluxVents": 50,
+    "goalVariant": true,
+    "hullId": "Moci_Limarch_xiv",
+    "hullMods": [
+        "autorepair",
+        "auxiliarythrusters",
+        "blast_doors",
+        "fluxbreakers",
+        "fluxdistributor",
+        "heavyarmor",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Limarch_xiv_Elite",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0022": "Moci_tpc_cannon",
+                "WS0021": "Moci_tpc_cannon",
+                "WS0020": "Moci_tpc_cannon",
+                "WS0019": "Moci_tpc_cannon",
+                "WS0018": "Moci_tpc_cannon",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0010": "pilum",
+                "WS0009": "pilum",
+                "WS0008": "pilum",
+                "WS0007": "pilum",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0016": "hveldriver",
+                "WS0015": "hveldriver",
+                "WS0017": "hveldriver",
+                "WS0012": "hveldriver",
+                "WS0011": "hveldriver",
+                "WS0014": "hveldriver",
+                "WS0013": "hveldriver",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "mininglaser",
+                "WS0003": "mininglaser",
+                "WS0002": "mininglaser",
+                "WS0005": "mininglaser",
+                "WS0004": "mininglaser",
+                "WS0006": "mininglaser",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

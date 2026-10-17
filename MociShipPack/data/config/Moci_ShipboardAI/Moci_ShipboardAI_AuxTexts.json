@@ -1,0 +1,94 @@
+{
+  "Moci_Aux_Mobility": {
+    "name": "动力协调",
+    "description": "速度 +{speed}%, 加减速 +{accel}%"
+  },
+  "Moci_Aux_FluxStability": {
+    "name": "幅能稳态",
+    "description": "幅能耗散 +{dissipation}%, 幅能容量 +{capacity}%"
+  },
+  "Moci_Aux_Targeting": {
+    "name": "目标解析",
+    "description": "武器转速 +{turn}%, 自动瞄准 +{aim}%"
+  },
+  "Moci_Aux_DamageMitigation": {
+    "name": "损伤缓释",
+    "description": "装甲受伤 -{armor}%, 船体受伤 -{hull}%"
+  },
+  "Moci_Aux_DamageControl": {
+    "name": "战损管制",
+    "description": "武器/引擎维修时间 -{repair}%"
+  },
+  "Moci_Aux_ShieldModulation": {
+    "name": "护盾调制",
+    "description": "护盾受伤 -{damage}%, 护盾维持耗散 -{upkeep}%"
+  },
+  "Moci_Aux_BallisticCalibration": {
+    "name": "实弹校准",
+    "description": "实弹伤害 +{value}%"
+  },
+  "Moci_Aux_EnergyFocus": {
+    "name": "能量聚焦",
+    "description": "能量伤害 +{value}%"
+  },
+  "Moci_Aux_MissileGuidance": {
+    "name": "导弹制导",
+    "description": "导弹伤害 +{value}%"
+  },
+  "Moci_Aux_SystemOverclock": {
+    "name": "系统超频",
+    "description": "系统冷却加速 +{value}%"
+  },
+  "Moci_Aux_PDMatrix": {
+    "name": "近防矩阵",
+    "description": "对导弹伤害 +{value}%"
+  },
+  "Moci_Aux_AttitudeControl": {
+    "name": "姿态调整",
+    "description": "转向速度/加速度 +{value}%"
+  },
+  "Moci_Aux_RapidCycle": {
+    "name": "火控循环",
+    "description": "全武器射速 +{value}%"
+  },
+  "Moci_Aux_Rangefinder": {
+    "name": "射程测绘",
+    "description": "实弹/能量射程 +{value}"
+  },
+  "Moci_Aux_OverloadDamping": {
+    "name": "过载抑制",
+    "description": "过载时间 -{value}%"
+  },
+  "Moci_Aux_ZeroFluxBoost": {
+    "name": "零幅驱动",
+    "description": "零幅能加速额外 +{value}%"
+  },
+  "Moci_Aux_HardFluxVent": {
+    "name": "硬幅泄放",
+    "description": "硬幅能被动泄放 +{value}%"
+  },
+  "Moci_Aux_ProjectileOptimization": {
+    "name": "弹道优化",
+    "description": "实弹/能量弹速 +{value}%"
+  },
+  "Moci_Aux_MissileSupport": {
+    "name": "导弹支援",
+    "description": "导弹速度 +{speed}%, 加速度 +{accel}%, 制导 +{guidance}%"
+  },
+  "Moci_Aux_ShieldGeometry": {
+    "name": "护盾几何",
+    "description": "护盾角度 +{arc}, 展开速度 +{unfold}%"
+  },
+  "Moci_Aux_ArmorPackage": {
+    "name": "装甲包覆",
+    "description": "装甲 +{armor}, 船体 +{hull}%"
+  },
+  "Moci_Aux_HangarCoordination": {
+    "name": "机库协同",
+    "description": "战机替换时间 -{value}%"
+  },
+  "Moci_Aux_VentEfficiency": {
+    "name": "散热导流",
+    "description": "主动散热效率 +{value}%"
+  }
+}

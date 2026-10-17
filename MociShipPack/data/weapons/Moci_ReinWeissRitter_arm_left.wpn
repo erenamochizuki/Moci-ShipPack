@@ -1,0 +1,38 @@
+{
+  "id": "Moci_ReinWeissRitter_arm_left",
+  "specClass": "beam",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "showDamageWhenDecorative":false,
+  "renderBelowAllWeapons":false,
+  "everyFrameEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_ReinWeissRitter/arms/ReinWeissRitter_arm_left.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_ReinWeissRitter/arms/ReinWeissRitter_arm_left.png",
+  "turretOffsets": [
+    40,
+    10
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    60,
+    10
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "MUZZLE_FLASH",
+  "muzzleFlashSpec": {},
+  "fringeColor":[255,0,30,255],
+  "coreColor":[255,10,50,155],
+  "glowColor":[255,255,255,255],
+  "useGlowColorForHitGlow":true,
+  "hitGlowBrightenDuration":0.1,
+  "width":6.0,
+  "textureType":SMOOTH,
+  "textureScrollSpeed":128.0,
+  "pixelsPerTexel":5.0,
+  "pierceSet":[PROJECTILE_FF,PROJECTILE_NO_FF,PROJECTILE_FIGHTER,MISSILE_FF,MISSILE_NO_FF],
+}

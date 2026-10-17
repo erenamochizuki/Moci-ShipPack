@@ -1,0 +1,48 @@
+{
+  "id": "Moci_excelsiorcannon_0",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_excelsiorcannon_shot_0",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/weapons/Moci_excelsior/Moci_excelsior_railcannon_blank.png",
+  "turretGlowSprite": "graphics/weapons/Moci_excelsior/Moci_excelsior_railcannon_glow.png",
+  "hardpointSprite": "graphics/weapons/Moci_excelsior/Moci_excelsior_railcannon.png",
+  "hardpointGlowSprite": "graphics/weapons/Moci_excelsior/Moci_excelsior_railcannon_glow.png",
+  "glowColor": [
+    255,
+    100,
+    150,
+    255
+  ],
+  "turretOffsets": [
+    -7,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    7.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "LINKED",
+  "animationType": "GLOW_AND_FLASH",
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 15,
+    "spread": 15,
+    "particleSizeMin": 5,
+    "particleSizeRange": 10,
+    "particleDuration": 0.2,
+    "particleCount": 10,
+    "particleColor": [
+      255,
+      100,
+      150,
+      255
+    ]
+  }
+}

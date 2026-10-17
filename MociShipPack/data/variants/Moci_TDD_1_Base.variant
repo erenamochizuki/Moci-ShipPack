@@ -1,0 +1,75 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 11,
+    "goalVariant": true,
+    "hullId": "Moci_TDD_1",
+    "hullMods": [
+        "adaptive_coils",
+        "eccm",
+        "missleracks",
+        "reinforcedhull",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_TDD_1_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0030": "Moci_TDD_1_MISSILE_R",
+                "WS0029": "Moci_TDD_1_MISSILE_L",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0019_SOURCE": "harpoon",
+                "WS0018_SOURCE": "harpoon",
+                "WS0009_SOURCE": "harpoon",
+                "WS0008_SOURCE": "harpoon",
+                "WS0014_SOURCE": "harpoon",
+                "WS0015_SOURCE": "harpoon",
+                "WS0016_SOURCE": "harpoon",
+                "WS0017_SOURCE": "harpoon",
+                "WS0022_SOURCE": "harpoon",
+                "WS0021_SOURCE": "harpoon",
+                "WS0020_SOURCE": "harpoon",
+                "WS0012_SOURCE": "harpoon",
+                "WS0011_SOURCE": "harpoon",
+                "WS0013_SOURCE": "harpoon",
+                "WS0010_SOURCE": "harpoon",
+                "WS0007_SOURCE": "harpoon",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0027_SOURCE": "sabotpod",
+                "WS0028_SOURCE": "sabotpod",
+                "WS0024_SOURCE": "sabotpod",
+                "WS0026_SOURCE": "sabotpod",
+                "WS0023_SOURCE": "sabotpod",
+                "WS0025_SOURCE": "sabotpod",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "typhoon",
+                "WS0003": "typhoon",
+                "WS0002": "typhoon",
+                "WS0005": "typhoon",
+                "WS0004": "typhoon",
+                "WS0006": "typhoon",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

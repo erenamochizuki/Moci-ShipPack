@@ -1,0 +1,58 @@
+{
+	"id":"Moci_MSN03_WingmanL",
+	"specClass":"missile",	
+	"missileType":"PHASE_CHARGE",
+	"onFireEffect":"data.scripts.weapons.Moci_MSN03Wingman_Effect",
+	"behaviorSpec":{"behavior":"PROXIMITY_FUSE",
+					"range":0,
+					"slowToMaxSpeed":true,
+					"explosionSpec":{"duration":0.01f,
+									 "radius":0,
+									 "coreRadius":0, # full damage within core radius
+									 "collisionClass":PROJECTILE_FF,
+									 "collisionClassByFighter":PROJECTILE_FIGHTER,
+									 "particleSizeMin":0.0,
+									 "particleSizeRange":0.0,
+									 "particleDuration":0,
+									 "particleCount":0,
+									 "particleColor":[0,0,0,0],
+									 "explosionColor":[0,0,0,0],
+									 "useDetailedExplosion":false,
+									 "useDetailedExplosionColorAlpha":false,
+									 },
+					"onExplosionEffect":"data.scripts.weapons.Moci_MSN03Wingman_Effect",
+					"droneId":"Moci_MSN_03_bit",
+					"weaponId":"Moci_MSN_04_2_bit_blaster",
+					"maxDrones":6,
+	},
+	"sprite":"graphics/ships/Mobile_Suit/Moci_MSN_03/bit/MSN_03_bit_l.png",
+	"size":[6,14],	
+	"center":[3, 7],
+	"collisionRadius":12,
+	"collisionClass":"MISSILE_NO_FF",
+	"explosionColor":[255,255,255,255],  # purely visual, will get a white additively blended core on top of this color
+	"explosionRadius":12, # purely visual	
+	"engineSpec":{"turnAcc":1000,
+				  "turnRate":400,
+				  "acc":400,
+				  "dec":200},
+	"engineSlots":[{"id":"ES1",
+					"loc":[-9, 0],
+				    "style":"CUSTOM",
+					"styleSpec":{
+						"mode":"QUAD_STRIP", # PARTICLES or QUAD_STRIP, determines which params are used
+						"engineColor":[255,255,255,255],
+						"contrailDuration":0,
+						"contrailWidthMult":1,
+						"contrailWidthAddedFractionAtEnd":2.5,  # can be negative. makes trail spread out/narrow at the end
+						"contrailMinSeg":5, # min segment length, in pixels
+						"contrailMaxSpeedMult":0.5f,
+						"contrailAngularVelocityMult":0.5f,
+						"contrailColor":[255,255,255,75],
+						"type":"SMOKE" # GLOW or SMOKE; additive or regular blend mode
+					},
+				    "width":4.0,
+				    "length":12.0,
+				    "angle":180.0},
+				    ]
+}

@@ -1,0 +1,59 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 9,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_RGM_89_leader",
+    "hullMods": [
+        "Moci_CombatSquad",
+        "Moci_LandingSequence",
+        "Moci_RGM_89_leader_WeaponSwap_right_rifle",
+        "armoredweapons",
+        "autorepair",
+        "auxiliarythrusters",
+        "fluxbreakers",
+        "fluxdistributor",
+        "hardenedshieldemitter",
+        "insulatedengine",
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RGM_89_leader_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "RGM_89_arm_right_gun_rifle",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "SHOULDER_L_SOURCE": "sabotpod",
+                "SHOULDER_R_SOURCE": "sabotpod",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "RGM_89_arm_left_gun_Sabre",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "lightneedler",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RGM_89_SHIELD_L_Base"},
+    ],
+}

@@ -1,0 +1,75 @@
+{
+  "hullName": "RGM_96X_arm_left_shield",
+  "hullId": "Moci_RGM_96X_arm_left_shield",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RGM_96X/arms/RGM_96X_arm_left_shield.png",
+  "style": "MOCI_MS",
+  "height": 180,
+  "width": 36,
+  "center": [
+    15,
+    95.5
+  ],
+  "collisionRadius": 39.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 39.5,
+  "viewOffset": 0,
+  "moduleAnchor": [
+    -2,
+    10
+  ],
+  "builtInMods": [
+    "Moci_module_collision_controller",
+    "Moci_antibeamcoating_shield"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 53,
+      "locations": [
+        9.5,
+        14.5
+      ]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    26.5,
+    6,
+    27.5,
+    -2,
+    21.5,
+    -2,
+    12.5,
+    1,
+    5.5,
+    1,
+    4.5,
+    0,
+    -2,
+    0,
+    -7.5,
+    3,
+    -13.5,
+    6,
+    -13.5,
+    13,
+    -12.5,
+    14,
+    -3.5,
+    15,
+    9.5,
+    15,
+    10.5,
+    14,
+    14.5,
+    13
+  ]
+}

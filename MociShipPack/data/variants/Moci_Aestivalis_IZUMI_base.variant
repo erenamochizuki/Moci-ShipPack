@@ -1,0 +1,56 @@
+{
+    "displayName": "base",
+    "fluxCapacitors": 8,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_Aestivalis_IZUMI",
+    "hullMods": [
+        "Moci_Aestivalis_WeaponSwap_left_rifle",
+        "Moci_Aestivalis_WeaponSwap_right_rifle",
+        "Moci_LandingSequence",
+        "Moci_entropy_suppressor",
+        "auxiliarythrusters",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "insulatedengine",
+        "magazines",
+        "stabilizedshieldemitter",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Aestivalis_IZUMI_base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_Aestivalis_AKITO_right_gun_rifle",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "BACKPACK_SOURCE": "Moci_Aestivalis_EX_missile_launcher",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "Moci_Aestivalis_AKITO_left_gun_rifle",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "Moci_Aestivalis_Gekiganbeam",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

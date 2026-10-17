@@ -1,0 +1,23 @@
+{
+    "hullFrequency":{
+        "hulls":{
+		"Moci_Pyrejudge_p_Base":4,
+		"Moci_Pyrejudge_p_overdrive":4,
+		"Moci_Pyrejudge_p_randomtypeship":2,
+		"prometheus2_randomtypeship":2,
+		"Moci_Gladiator_LP_Overriden":6,
+		"Moci_Gospel_LP_Overriden":4,
+        },
+    },
+    "knownShips":{
+        "hulls":[
+            "Moci_Pyrejudge_p",	
+		    "Moci_Gladiator_LP",
+		    "Moci_Gospel_LP",
+        ],
+    },
+	"knownFighters":{
+		"fighters":[
+		],
+	},
+},

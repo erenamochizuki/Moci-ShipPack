@@ -1,0 +1,18 @@
+{
+	"id":"Moci_MS_07_HeavryMg_shot",
+	"specClass":"projectile",
+	"spawnType":"BALLISTIC",
+	"collisionClass":"PROJECTILE_FF",
+	"collisionClassByFighter":"PROJECTILE_FIGHTER",
+	
+	"length":150.0,
+	"width":7,
+	"hitGlowRadius":30,
+	"fadeTime":0.15,
+	"fringeColor":[255,155,105,255],
+	"coreColor":[255,255,255,155],	
+	"textureScrollSpeed":64.0,
+	"pixelsPerTexel":5.0,
+	"bulletSprite":"graphics/missiles/flechette_sml.png"
+}
+

@@ -1,0 +1,59 @@
+{
+    "displayName": "Carrier",
+    "fluxCapacitors": 0,
+    "fluxVents": 5,
+    "goalVariant": true,
+    "hullId": "Moci_Demeterion",
+    "hullMods": [],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Demeterion_Carrier",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0012": "lightneedler",
+                "WS0011": "lightneedler",
+                "WS0003": "lightneedler",
+                "WS0010": "lightneedler",
+                "WS0009": "lightneedler",
+                "WS0008": "lightneedler",
+                "WS0005": "lightneedler",
+                "WS0004": "lightneedler",
+                "WS0007": "lightneedler",
+                "WS0006": "lightneedler",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0014": "mininglaser",
+                "WS0013": "mininglaser",
+                "WS0016": "mininglaser",
+                "WS0015": "mininglaser",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "flak",
+                "WS0002": "flak",
+            }
+        },
+    ],
+    "wings": [
+        "piranha_wing",
+        "piranha_wing",
+        "piranha_wing",
+        "piranha_wing",
+        "piranha_wing",
+        "piranha_wing",
+        "piranha_wing",
+        "piranha_wing",
+    ],
+    "modules": [],
+}

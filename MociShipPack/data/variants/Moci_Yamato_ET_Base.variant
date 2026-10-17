@@ -1,0 +1,94 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 42,
+    "fluxVents": 50,
+    "goalVariant": true,
+    "hullId": "Moci_Yamato_ET",
+    "hullMods": [
+        "armoredweapons",
+        "autorepair",
+        "fluxbreakers",
+        "heavyarmor",
+        "reinforcedhull",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Yamato_ET_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "Side1_L": "Moci_Yamato_ET_SideWeapon1_L",
+                "Side2_L": "Moci_Yamato_ET_SideWeapon2_L",
+                "Side1_R": "Moci_Yamato_ET_SideWeapon1_R",
+                "Side2_R": "Moci_Yamato_ET_SideWeapon2_R",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WINGMAN_01": "Moci_Yamato_ET_DWG262_launcher_1",
+                "WINGMAN_02": "Moci_Yamato_ET_DWG262_launcher_2",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "Moci_Yamato_ET_maingun",
+                "WS0002": "Moci_Yamato_ET_maingun",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WAVEGUN": "Moci_Yamato_WaveMotionGun",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0004": "Moci_Yamato_ET_maingun",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0005_SOURCE": "ionbeam",
+                "WS0006_SOURCE": "ionbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0020_SOURCE": "mininglaser",
+                "WS0019_SOURCE": "mininglaser",
+                "WS0018_SOURCE": "mininglaser",
+                "WS0009_SOURCE": "mininglaser",
+                "WS0008_SOURCE": "mininglaser",
+                "WS0015_SOURCE": "mininglaser",
+                "WS0016_SOURCE": "mininglaser",
+                "WS0014_SOURCE": "mininglaser",
+                "WS0017_SOURCE": "mininglaser",
+                "WS0012_SOURCE": "mininglaser",
+                "WS0011_SOURCE": "mininglaser",
+                "WS0013_SOURCE": "mininglaser",
+                "WS0010_SOURCE": "mininglaser",
+                "WS0007_SOURCE": "mininglaser",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"WINGWEAPON_01": "Moci_DWG_262_Base"},
+        {"WINGWEAPON_02": "Moci_DWG_262_Base"},
+    ],
+}

@@ -1,0 +1,22 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_FA_78_3",
+    "hullMods": [],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_FA_78_3_Base",
+    "weaponGroups": [],
+    "wings": [],
+  "modules": [
+    {
+      "SHIELD_L": "Moci_FA_78_3_SHIELD_L_Base",
+    },
+    {
+      "BODY_ARMOR": "Moci_FA_78_3_body_armor_Base",
+    }
+  ],
+}

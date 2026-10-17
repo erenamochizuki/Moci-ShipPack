@@ -1,0 +1,86 @@
+{
+    "displayName": "会战",
+    "fluxCapacitors": 0,
+    "fluxVents": 30,
+    "goalVariant": false,
+    "hullId": "astral",
+    "hullMods": [
+        "Moci_LandingBay",
+        "Moci_radical_modification",
+        "ecm",
+    ],
+    "permaMods": [
+        "Moci_WideAreaRadar",
+        "Moci_fighter_expand",
+        "Moci_ms_repair_bay",
+        "expanded_deck_crew",
+        "reinforcedhull",
+        "comp_storage",
+        "damaged_mounts",
+        "degraded_drive_field",
+        "degraded_shields",
+        "erratic_injector",
+    ],
+    "sMods": [
+        "expanded_deck_crew",
+        "reinforcedhull",
+    ],
+    "suppressedMods": [],
+    "variantId": "astral_BoutnyB",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 011": "Moci_viper_trace",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 012": "Moci_viper_trace",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 013": "gravitonbeam",
+                "WS 014": "gravitonbeam",
+                "WS 024": "gravitonbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 015": "ionbeam",
+                "WS 023": "ionbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 001": "pdburst",
+                "WS 002": "pdburst",
+                "WS 003": "pdburst",
+                "WS 008": "pdburst",
+                "WS 005": "pdburst",
+                "WS 004": "pdburst",
+                "WS 007": "pdburst",
+                "WS 006": "pdburst",
+            }
+        },
+    ],
+    "wings": [
+        "Moci_RX_77_fighter_wing",
+        "Moci_RX_77_fighter_wing",
+        "Moci_RGM_79_fighter_wing",
+        "Moci_RGM_79_fighter_wing",
+        "Moci_RX_75_fighter_wing",
+        "Moci_RX_75_fighter_wing",
+    ],
+    "modules": [],
+}

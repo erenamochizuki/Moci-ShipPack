@@ -1,0 +1,57 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 17,
+    "fluxVents": 0,
+    "goalVariant": true,
+    "hullId": "Moci_Pyrejudge_p",
+    "hullMods": [
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "missile_autoloader",
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Pyrejudge_p_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0001": "phasecl",
+                "WS0003": "phasecl",
+                "WS0002": "phasecl",
+                "WS0004": "phasecl",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0005": "reaper",
+                "WS0006": "reaper",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0014": "heavymg",
+                "WS0008": "lightmg",
+                "WS0007": "lightmg",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0013": "devastator",
+                "WS0015": "devastator",
+            }
+        },
+    ],
+    "wings": [],
+  "modules": [
+  ],
+}

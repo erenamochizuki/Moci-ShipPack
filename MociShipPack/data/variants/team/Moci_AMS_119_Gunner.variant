@@ -1,0 +1,51 @@
+{
+    "displayName": "Gunner",
+    "fluxCapacitors": 10,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_AMS_119",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "armoredweapons",
+        "fluxbreakers",
+        "fluxcoil",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "missleracks",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_AMS_119_Gunner",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "phasecl",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "mark9",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "lightdualmg",
+                "WS0002": "lightdualmg",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_AMS_119_SHIELD_L_Base"},
+        {"SHIELD_RS": "Moci_AMS_119_SHIELD_RS_Base"},
+    ],
+}

@@ -1,0 +1,31 @@
+{
+  "hullName": "Moci_Vangray_right_shield",
+  "hullId": "Moci_Vangray_right_shield",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_Vangray/arms/Moci_Vangray_arm_right_shield.png",
+  "style": "LOW_TECH",
+  "height": 70,
+  "width": 44,
+  "center": [22, 35],
+  "collisionRadius": 30,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 30,
+  "viewOffset": 0,
+  "weaponSlots": [],
+  "engineSlots": [],
+  "builtInMods": [
+    "Moci_module_collision_controller",
+    "Moci_antibeamcoating_shield"
+  ],
+  "bounds": [
+    34.5, -10.5,
+    30.5, -3.5,
+    12.5, 0.5,
+    -4.5, 0.5,
+    -11.5, -2.5,
+    -13.5, -4.5,
+    -13.5, -11.5,
+    -4.5, -15.5,
+    30.5, -13.5
+  ]
+}

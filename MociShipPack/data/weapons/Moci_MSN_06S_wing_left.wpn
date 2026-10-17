@@ -1,0 +1,56 @@
+{
+  "id": "Moci_MSN_06S_wing_left",
+  "specClass": "beam",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "collisionClass": "RAY_FIGHTER",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/ships/Mobile_Suit/MSN_06S/wings/MSN_06S_left_wing_00.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/MSN_06S/wings/MSN_06S_left_wing_00.png",
+  "numFrames": 4,
+  "frameRate": 0,
+  "glowColor": [
+    255,
+    255,
+    255,
+    0
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    8,
+    6
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    28,
+    6
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    255,
+    0,
+    30,
+    0
+  ],
+  "coreColor": [
+    255,
+    10,
+    50,
+    0
+  ],
+  "width": 1,
+  "textureType": ROUGH,
+  "textureScrollSpeed": 64,
+  "pixelsPerTexel": 1,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ]
+}

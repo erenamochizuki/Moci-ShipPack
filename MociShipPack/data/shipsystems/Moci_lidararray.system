@@ -1,0 +1,19 @@
+{
+	"id":"Moci_lidararray",
+	"type":"STAT_MOD",
+	"aiType":"CUSTOM",
+	"aiScript":"data.shipsystems.scripts.ai.Moci_LidararraySystemAI",
+	
+	"statsScript":"data.shipsystems.scripts.Moci_Lidararray",
+	
+	"fadeActivationSoundOnChargedown":true,
+	#"useSound":"",
+	"outOfUsesSound":"gun_out_of_ammo",
+	
+	"aiHints":{
+	}
+}
+
+
+
+

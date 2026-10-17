@@ -1,0 +1,69 @@
+{
+  "variantId": "Moci_Limarch_Standard",
+  "hullId": "Moci_Limarch",
+  "displayName": "Standard",
+  "goalVariant": true,
+  "fluxCapacitors": 26,
+  "fluxVents": 50,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "autorepair",
+    "fluxbreakers",
+    "heavyarmor",
+    "missleracks",
+    "reinforcedhull",
+    "auxiliarythrusters"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0018": "Moci_tpc_cannon",
+        "WS0019": "Moci_tpc_cannon",
+        "WS0020": "Moci_tpc_cannon",
+        "WS0021": "Moci_tpc_cannon",
+        "WS0022": "Moci_tpc_cannon"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+		 
+        "WS0013": "pilum",
+        "WS0014": "pilum",
+        "WS0015": "pilum",
+        "WS0016": "pilum",
+	  }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "mininglaser",
+        "WS0002": "mininglaser",
+        "WS0003": "mininglaser",
+        "WS0004": "mininglaser",
+        "WS0005": "mininglaser",
+        "WS0006": "mininglaser"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0017": "dualflak",
+        "WS0011": "flak",
+        "WS0012": "flak",
+        "WS0007": "flak",
+        "WS0008": "flak",
+        "WS0009": "flak",
+        "WS0010": "flak"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

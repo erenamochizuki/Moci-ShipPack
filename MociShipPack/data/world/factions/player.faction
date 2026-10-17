@@ -1,0 +1,19 @@
+{
+	"id":"player",
+
+	"flags":[
+		{
+			"logo":"graphics/factions/custom/Moci_Nergal.png",
+			"crest":"graphics/factions/custom/Moci_Nergal_2.png",
+		},
+		{
+			"logo":"graphics/factions/custom/Moci_Celestial_Being‌.png",
+			"crest":"graphics/factions/custom/Moci_Celestial_Being‌_2.png",
+		},
+	],
+	"portraits":{
+		"standard_male":[
+			"graphics/portraits/Moci_mob.png",
+		],
+	},
+}

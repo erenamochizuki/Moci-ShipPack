@@ -1,0 +1,66 @@
+{
+    "displayName": "Attack",
+    "fluxCapacitors": 24,
+    "fluxVents": 50,
+    "goalVariant": false,
+    "hullId": "executor",
+    "hullMods": [
+        "converted_hangar",
+        "hardenedshieldemitter",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_executor_Attack",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 000": "gigacannon",
+                "WS 001": "gigacannon",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS 012": "Moci_viper_trace",
+                "WS 013": "Moci_viper_trace",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 004": "Moci_gugacannon",
+                "WS 002": "Moci_gugacannon",
+                "WS 003": "Moci_gugacannon",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 005": "Moci_gugacannon",
+                "WS 006": "Moci_gugacannon",
+                "WS 007": "Moci_gugacannon",
+                "WS 011": "flak",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 009": "heavyac",
+                "WS 010": "heavyac",
+                "WS 008": "heavyac",
+            }
+        },
+    ],
+    "wings": [
+        "sarissa_wing",
+    ],
+    "modules": [],
+}

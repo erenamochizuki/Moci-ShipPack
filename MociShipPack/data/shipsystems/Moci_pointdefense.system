@@ -1,0 +1,27 @@
+{
+	"id":"Moci_pointdefense",
+	"type":"STAT_MOD",
+	"aiType":"CUSTOM",
+	"aiScript":"data.shipsystems.scripts.ai.Moci_PointDefenseAI",
+	
+	"statsScript":"data.shipsystems.scripts.Moci_PointDefenseSystem",
+	
+	"runScriptWhileIdle":true, # unapply() never gets called
+
+	"jitterUnderColor":[255,0,0,155],
+	"jitterUnderCopies":25,
+	"jitterUnderMinRange":0,
+	"jitterUnderRange":10,
+	"jitterUnderRangeRadiusFraction":0,
+
+	"fadeActivationSoundOnChargedown":true,
+	#"useSound":"",
+	"outOfUsesSound":"gun_out_of_ammo",
+	
+	"aiHints":{
+	}
+}
+
+
+
+

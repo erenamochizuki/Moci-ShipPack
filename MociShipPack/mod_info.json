@@ -1,0 +1,28 @@
+{
+  "id": "moci_shippack",
+  "name": "Moci的随意之作",
+  "author": "Moci",
+  "version":"2.3.0",
+  "description": "不只是一个普通的船包了。",
+  "gameVersion": "0.98",
+  "dependencies": [
+    {
+      "id": "lw_lazylib",
+      "name": "LazyLib"
+    },
+    {
+      "id": "MagicLib",
+      "name": "MagicLib"
+    },
+    {
+      "id": "BoxUtil",
+      "name": "zz BoxUtil"
+    },
+    {
+      "id": "shaderLib",
+      "name": "GraphicLib"
+    }
+  ],
+	"jars":["jars/MociShipPack.jar"],
+	"modPlugin":"data.scripts.Moci_bounty_plugin",
+}

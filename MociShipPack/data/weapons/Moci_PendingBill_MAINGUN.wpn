@@ -1,0 +1,50 @@
+{
+  "id": "Moci_PendingBill_MAINGUN",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_PendingBill_MAINGUN_shot",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "turretSprite": "graphics/weapons/Moci_PendingBill/Moci_PendingBill_MAINGUN.png",
+  "turretGlowSprite": "graphics/weapons/Moci_PendingBill/Moci_PendingBill_MAINGUN_GLOW.png",
+  "hardpointSprite": "",
+  "hardpointGlowSprite": "graphics/weapons/Moci_PendingBill/Moci_PendingBill_MAINGUN_GLOW.png",
+  "glowColor": [
+    255,
+    150,
+    255,
+    255
+  ],
+  "turretOffsets": [
+    -4,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    23.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 45,
+    "spread": 5,
+    "particleSizeMin": 15,
+    "particleSizeRange": 20,
+    "particleDuration": 0.12,
+    "particleCount": 20,
+    "particleColor": [
+      255,
+      150,
+      255,
+      255
+    ]
+  },
+	"fireSoundOne":"gigacannon_charge",
+	"fireSoundTwo":"gigacannon_fire",
+}

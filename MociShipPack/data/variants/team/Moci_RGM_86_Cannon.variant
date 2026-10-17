@@ -1,0 +1,50 @@
+{
+    "displayName": "Cannon",
+    "fluxCapacitors": 9,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_RGM_86",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "advancedoptics",
+        "armoredweapons",
+        "autorepair",
+        "fluxdistributor",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "insulatedengine",
+        "targetingunit",
+        "unstable_injector",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RGM_86_Cannon",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "RX_78_2_arm_left_gun_Sabre",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "heavyblaster",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RX_78_2_SHIELD_L_Base"},
+    ],
+}

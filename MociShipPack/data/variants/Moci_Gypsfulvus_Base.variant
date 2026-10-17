@@ -1,0 +1,45 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 14,
+    "fluxVents": 0,
+    "goalVariant": true,
+    "hullId": "Moci_Gypsfulvus",
+    "hullMods": [
+        "expanded_deck_crew",
+        "hardenedshieldemitter",
+        "recovery_shuttles",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Gypsfulvus_Base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "Moci_miniflak",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0004": "pilum",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003": "mininglaser",
+                "WS0002": "mininglaser",
+            }
+        },
+    ],
+    "wings": [
+        "Moci_Basilisk_wing",
+        "Moci_Basilisk_wing",
+    ],
+    "modules": [],
+}

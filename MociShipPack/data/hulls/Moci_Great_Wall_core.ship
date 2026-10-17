@@ -1,0 +1,33 @@
+{
+  "hullName": "Moci_Great_Wall_core",
+  "hullId": "Moci_Great_Wall_core",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/stations/Moci_Great_Wall.png",
+  "style": "LOW_TECH",
+  "height": 786,
+  "width": 552,
+  "center": [276, 375],
+  "collisionRadius": 265,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 650.5,
+  "viewOffset": 0,
+  "weaponSlots": [],
+  "engineSlots": [],
+  "builtInMods": [
+    "reduced_explosion",
+    "always_detaches",
+    "vastbulk"
+  ],
+  "bounds": [
+    -208, -22.5,
+    -175.5, -62,
+    -88.5, -106.5,
+    -17, -92,
+    44, -7.5,
+    44, 7.5,
+    -17, 92,
+    -88.5, 106.5,
+    -175.5, 62,
+    -208, 22.5
+  ]
+}

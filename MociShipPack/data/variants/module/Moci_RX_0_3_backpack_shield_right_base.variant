@@ -1,0 +1,14 @@
+{
+  "variantId": "Moci_RX_0_3_backpack_shield_right_base",
+  "hullId": "Moci_RX_0_3_backpack_shield_right",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

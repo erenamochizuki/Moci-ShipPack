@@ -1,0 +1,48 @@
+{
+  "hullName": "Moci_FA_78_3_body_armor",
+  "hullId": "Moci_FA_78_3_body_armor",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_FA_78_3/body/FA_78_3_bodymodule.png",
+  "style": "LOW_TECH",
+  "height": 36,
+  "width": 40,
+  "center": [
+    20,
+    22
+  ],
+  "collisionRadius": 21.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 21.5,
+  "viewOffset": 0,
+  "weaponSlots": [],
+  "engineSlots": [],
+  "builtInMods": [
+    "Moci_antibeamcoating_shield",
+    "Moci_module_collision_controller"
+  ],
+  "moduleAnchor": [
+    5,
+    0
+  ],
+  "bounds": [
+    -6.5,
+    9.5,
+    -1.5,
+    11.5,
+    6.5,
+    10.5,
+    13.5,
+    2.5,
+    13.5,
+    -2.5,
+    6.5,
+    -10.5,
+    -1.5,
+    -11.5,
+    -6.5,
+    -9.5
+  ]
+}

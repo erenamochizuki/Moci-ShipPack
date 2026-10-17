@@ -1,0 +1,281 @@
+{
+  "hullName": "Moci_Gespenst_fighter",
+  "hullId": "Moci_Gespenst_fighter",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_Gespenst/body/Moci_Gespenst_body.png",
+  "style": "MOCI_PT",
+  "height": 40,
+  "width": 46,
+  "center": [23, 20],
+  "collisionRadius": 55,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 55,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_antibeamcoating",
+    "Moci_MobileSuits",
+    "Moci_GNShield",
+    "no_weapon_flux"
+  ],
+  "builtInWeapons": {
+    "ARM_L": "Moci_Gespenst_arm_left_gun",
+    "ARM_L_SOURCE": "Moci_Gespenst_left_gun",
+    "ARM_R": "Moci_Gespenst_arm_right_gun",
+    "ARM_R_SOURCE": "Moci_Gespenst_right_gun",
+    "BODY": "Moci_Gespenst_body",
+    "HEAD": "Moci_Gespenst_head",
+    "LEGS": "Moci_Gespenst_legs",
+    "SHOULDERWEAPON_L": "Moci_Gespenst_shoulderweapon_left",
+    "SHOULDERWEAPON_R": "Moci_Gespenst_shoulderweapon_right",
+    "SHOULDER_L": "Moci_Gespenst_shoulder_left",
+    "SHOULDER_R": "Moci_Gespenst_shoulder_right",
+    "WING_L": "Moci_Gespenst_wing_left",
+    "WING_R": "Moci_Gespenst_wing_right"
+  },
+  "weaponSlots": [
+    {
+      "id": "LEGS",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 143,
+      "angle": 0,
+      "locations": [9.5, 0]
+    },
+    {
+      "id": "ARM_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-1, 17],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "ARM_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [-1, -17],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "SHOULDER_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, -17],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "SHOULDER_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, 17],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "WING_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, -17],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "WING_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, 17],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "HEAD",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 127,
+      "angle": 0,
+      "locations": [3, 0],
+      "renderOrderMod": 7
+    },
+    {
+      "id": "BODY",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, 0],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "ARM_L_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [-1, 17]
+    },
+    {
+      "id": "ARM_R_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [-1, -17]
+    },
+    {
+      "id": "SHOULDERWEAPON_R_SOURCE",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 50,
+      "angle": 0,
+      "locations": [1, -19]
+    },
+    {
+      "id": "SHOULDERWEAPON_L_SOURCE",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 50,
+      "angle": 0,
+      "locations": [1, 19]
+    },
+    {
+      "id": "HEAD_SOURCE",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "HIDDEN",
+      "arc": 20,
+      "angle": 0,
+      "locations": [20, 0]
+    },
+    {
+      "id": "SHOULDERWEAPON_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 50,
+      "angle": 0,
+      "locations": [1, -19],
+      "renderOrderMod": 6
+    },
+    {
+      "id": "SHOULDERWEAPON_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 50,
+      "angle": 0,
+      "locations": [1, 19],
+      "renderOrderMod": 6
+    },
+    {
+      "id": "BODY_BEAM",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 20,
+      "angle": 0,
+      "locations": [28.5, 0],
+      "renderOrderMod": -1
+    },
+    {
+      "id": "HAT",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [3, 1],
+      "renderOrderMod": 30
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 45,
+      "locations": [5.5, 9.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": -45,
+      "locations": [5.5, -9.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-10, 8],
+      "length": 8,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-10, -8],
+      "length": 8,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-12, 6],
+      "length": 8,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-12, -6],
+      "length": 8,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-12, 0],
+      "length": 8,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -14, 6.5,
+    -1.5, 22.5,
+    0.5, 22.5,
+    13, 1.5,
+    13, -1.5,
+    0.5, -22.5,
+    -1.5, -22.5,
+    -14, -6.5
+  ]
+}

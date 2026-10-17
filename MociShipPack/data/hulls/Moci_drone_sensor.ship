@@ -1,0 +1,102 @@
+{
+  "hullName": "Moci_Sensor Drone",
+  "hullId": "Moci_drone_sensor",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/drone_defense.png",
+  "style": "HIGH_TECH",
+  "height": 75,
+  "width": 34,
+  "center": [
+    17,
+    39
+  ],
+  "collisionRadius": 55,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 55,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS 001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 260,
+      "angle": 0,
+      "locations": [
+        9,
+        0
+      ]
+    },
+    {
+      "id": "WS 002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 260,
+      "angle": 180,
+      "locations": [
+        -12,
+        0
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -38,
+        9.5
+      ],
+      "length": 12.5,
+      "width": 6,
+      "angle": 180,
+      "contrailSize": 6,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -38,
+        -9.5
+      ],
+      "length": 12.5,
+      "width": 6,
+      "angle": -180,
+      "contrailSize": 6,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        35,
+        9.5
+      ],
+      "length": 12.5,
+      "width": 6,
+      "angle": 0,
+      "contrailSize": 6,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        35,
+        -9.5
+      ],
+      "length": 12.5,
+      "width": 6,
+      "angle": 0,
+      "contrailSize": 6,
+      "style": "MIDLINE"
+    }
+  ],
+  "bounds": [
+    33,
+    12,
+    33,
+    -12,
+    -37,
+    -12,
+    -37,
+    12
+  ]
+}

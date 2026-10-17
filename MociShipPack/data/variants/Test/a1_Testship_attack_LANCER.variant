@@ -1,0 +1,40 @@
+{
+    "displayName": "光矛测试",
+    "fluxCapacitors": 0,
+    "fluxVents": 45,
+    "goalVariant": false,
+    "hullId": "Moci_Testship_attack",
+    "hullMods": [
+        "advancedoptics",
+        "targetingunit",
+        "turretgyros",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "a1_Testship_attack_LANCER",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0008": "tachyonlance",
+                "WS0009": "tachyonlance",
+                "WS0006": "tachyonlance",
+                "WS0007": "tachyonlance",
+                "WS0004": "tachyonlance",
+                "WS0005": "tachyonlance",
+                "WS0014": "tachyonlance",
+                "WS0001": "tachyonlance",
+                "WS0013": "tachyonlance",
+                "WS0012": "tachyonlance",
+                "WS0003": "tachyonlance",
+                "WS0002": "tachyonlance",
+                "WS0011": "tachyonlance",
+                "WS0010": "tachyonlance",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

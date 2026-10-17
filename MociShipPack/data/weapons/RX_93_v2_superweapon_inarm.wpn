@@ -1,0 +1,58 @@
+{
+  "id": "RX_93_v2_superweapon_inarm",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "beamEffect": "data.scripts.weapons.Moci_BeamHardFlux",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/superweapon/RX_93_superweapon_inarm.png",
+  "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/superweapon/RX_93_superweapon_inarm_glow.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/superweapon/RX_93_superweapon_inarm.png",
+  "hardpointGlowSprite": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/superweapon/RX_93_superweapon_inarm_glow.png",
+  "glowColor": [
+    165,
+    100,
+    255,
+    235
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    151.5,
+    -27.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    228.5,
+    -27.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    85,
+    25,
+    215,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 25,
+  "textureType": ROUGH,
+  "textureScrollSpeed": 292,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ],
+  "fireSoundTwo": "tachyon_lance_fire"
+}

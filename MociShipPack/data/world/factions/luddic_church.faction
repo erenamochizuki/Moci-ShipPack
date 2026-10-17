@@ -1,0 +1,30 @@
+{
+    "hullFrequency":{
+        "hulls":{
+            "Moci_Gladiator_Base":10,
+            "Moci_Gospel_Base":10,
+            "Moci_Gospel_Elite":5,
+            "Moci_Thermalskeleton_Base":2,
+        },
+    },
+    "knownShips":{
+        "hulls":[
+            "Moci_Gladiator",
+            "Moci_Gospel",
+            "Moci_Thermalskeleton",
+       ],
+    },
+    "priorityShips":{
+        "tags":[],
+        "hulls":[
+        ],
+    },
+    "knownFighters":{
+        "fighters":[
+        ],
+    },
+    "knownWeapons":{
+        "weapons":[
+        ],
+    },
+},

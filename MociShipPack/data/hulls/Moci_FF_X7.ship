@@ -1,0 +1,118 @@
+{
+  "hullName": "Moci_FF_X7",
+  "hullId": "Moci_FF_X7",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Core_Fighter/Moci_FF_X7.png",
+  "style": "LOW_TECH",
+  "height": 49,
+  "width": 37,
+  "center": [
+    18.5,
+    22.75
+  ],
+  "collisionRadius": 31.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 31.5,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        4,
+        7.5
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        4,
+        -7.5
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -19,
+        9.25
+      ],
+      "length": 15,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 15,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -19,
+        -9.25
+      ],
+      "length": 15,
+      "width": 5,
+      "angle": -180,
+      "contrailSize": 15,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -19,
+        4.75
+      ],
+      "length": 15,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 15,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -19,
+        -4.75
+      ],
+      "length": 15,
+      "width": 5,
+      "angle": -180,
+      "contrailSize": 15,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -19,
+    -10.75,
+    -17,
+    -17.75,
+    -8.5,
+    -17.75,
+    2.5,
+    -11.75,
+    6.5,
+    -4.75,
+    25.5,
+    -2.25,
+    25.5,
+    2.25,
+    6.5,
+    4.75,
+    2.5,
+    11.75,
+    -8.5,
+    17.75,
+    -17,
+    17.75,
+    -19,
+    10.75
+  ]
+}

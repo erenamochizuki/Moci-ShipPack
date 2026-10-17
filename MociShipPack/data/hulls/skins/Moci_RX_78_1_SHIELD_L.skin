@@ -1,0 +1,18 @@
+{
+    "baseHullId":"Moci_RX_78_2_SHIELD_L",
+    "skinHullId":"Moci_RX_78_1_SHIELD_L",
+    "hullName":"专用盾牌(1号机)",
+    "incompatibleWithBaseHull":false, # for the autofit dialog
+    "descriptionId":"Moci_MS_06",
+    "descriptionPrefix":"RX-78-1，即是“RX-78系列”中的一号机，该机体机与RX-78-2高达二号机在机体数据、样式、性能上并无实质性的差别。",
+    "tags":["module_unselectable","no_autofit","restricted","no_dealer","no_sell"],
+    "tech":"地球联邦军-V作战计划",
+"spriteName":"graphics/ships/Mobile_Suit/Moci_RX_78_2/arms/RX_78_1_SHIELD_L.png",
+    "removeWeaponSlots":[],         # ids
+    "removeEngineSlots":[],         # indices, as engine slots have no id in the .ship file
+    "removeBuiltInMods":[],         # hullmod ids
+    "removeBuiltInWeapons":[],         # weapon slot ids
+    "builtInMods":[],
+    "builtInWeapons":{},
+     "weaponSlotChanges":{},  
+}

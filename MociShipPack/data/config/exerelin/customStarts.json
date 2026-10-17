@@ -1,0 +1,29 @@
+{
+	"config":{
+		"colors":{
+			"新人类":[150, 150, 255],
+		}
+	},
+
+	"starts":[
+		{
+			"id":"Moci_CustomStart",
+			"name":"新人类",
+			"difficulty":"NewType",
+			"desc":"你似乎做了一个梦，在梦里，没有MS，没有米诺夫斯基粒子，也没有联邦和吉翁，只有无边无垠的太空等你去探索。",
+			"className":"data.campaign.customstart.Moci_CustomStart",
+			"randomSector":-1,
+		},
+		#{
+		#	"id":"spacerStart",
+		#	"name":"老船长",
+		#	"difficulty":"非常困难",
+		#	"desc":"只有一架非战斗用的穿梭机, 且仅携带非常有限的资源, 以及需偿还一辈子的债务. 非常困难的开局, 献给那些 愿意挑战一切的玩家.",
+		#	"className":"exerelin.campaign.customstart.SpacerStart",
+		#	#"factionId":"player",	# for display purposes only, actual starting faction is set in script
+		#	#"requiredModId":"nexerelin",
+		#	#"randomSector":0,	# 0 = works in both; 1 = random only, -1 = non-random only 
+		#},
+		
+	],
+}

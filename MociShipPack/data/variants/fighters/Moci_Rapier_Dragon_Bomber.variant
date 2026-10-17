@@ -1,0 +1,23 @@
+{
+  "variantId": "Moci_Rapier_Dragon_Bomber",
+  "hullId": "Moci_Rapier",
+  "displayName": "<龙炎>轰炸机",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "Moci_minidragon",
+        "WS0002": "Moci_minidragon"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

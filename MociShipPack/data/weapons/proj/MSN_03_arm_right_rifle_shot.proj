@@ -1,0 +1,17 @@
+{
+	"id":"MSN_03_arm_right_rifle_shot",
+	"specClass":"projectile",
+	"spawnType":"BALLISTIC_AS_BEAM",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	
+	"hitGlowRadius":55,
+	"length":100.0,
+	"width":15.0,
+	"fadeTime":0.25,
+	"fringeColor":[0,220,50,255],
+	"coreColor":[255,255,255,200],
+	"textureType":"ROUGH",  # only needed for BEAM spawnType
+	"textureScrollSpeed":-256.0,
+	"pixelsPerTexel":1.0
+}

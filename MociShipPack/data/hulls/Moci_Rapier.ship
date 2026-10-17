@@ -1,0 +1,137 @@
+{
+  "hullName": "Moci_Rapier",
+  "hullId": "Moci_Rapier",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/wings/Moci_Rapier_bomber.png",
+  "style": "MIDLINE",
+  "height": 42,
+  "width": 75,
+  "center": [
+    37,
+    18
+  ],
+  "collisionRadius": 51.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 51.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "eccm"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 33,
+      "angle": 0,
+      "locations": [
+        2,
+        17
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 33,
+      "angle": 0,
+      "locations": [
+        2,
+        -17
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 33,
+      "angle": 0,
+      "locations": [
+        2,
+        27
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 33,
+      "angle": 0,
+      "locations": [
+        2,
+        -27
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -15,
+        7
+      ],
+      "length": 34,
+      "width": 18,
+      "angle": 180,
+      "contrailSize": 18,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -15,
+        -7
+      ],
+      "length": 34,
+      "width": 18,
+      "angle": -180,
+      "contrailSize": 18,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -14,
+        25.5
+      ],
+      "length": 28.5,
+      "width": 7,
+      "angle": 180,
+      "contrailSize": 7,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [
+        -14,
+        -25.5
+      ],
+      "length": 28.5,
+      "width": 7,
+      "angle": -180,
+      "contrailSize": 7,
+      "style": "MIDLINE"
+    }
+  ],
+  "bounds": [
+    -13,
+    25.5,
+    5,
+    36,
+    8,
+    8,
+    20,
+    4,
+    20,
+    -4,
+    8,
+    -8,
+    5,
+    -36,
+    -13,
+    -25.5
+  ]
+}

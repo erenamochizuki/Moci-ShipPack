@@ -1,0 +1,44 @@
+{
+    "displayName": "",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_RX_77_fighter",
+    "hullMods": [
+        "armoredweapons",
+        "auxiliarythrusters",
+        "insulatedengine",
+        "reinforcedhull",
+        "turretgyros",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RX_77_fighter",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDERWEAPON_R_SOURCE": "RX_77_shoulderweapon",
+                "SHOULDERWEAPON_L_SOURCE": "RX_77_shoulderweapon",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "RX_77_arm_right_rifle",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

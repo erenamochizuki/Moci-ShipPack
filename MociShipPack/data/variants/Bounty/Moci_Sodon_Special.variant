@@ -1,0 +1,71 @@
+{
+    "displayName": "Special",
+    "fluxCapacitors": 27,
+    "fluxVents": 30,
+    "goalVariant": false,
+    "hullId": "Moci_Sodon",
+    "hullMods": [
+        "autorepair",
+        "targetingunit",
+    ],
+    "permaMods": [
+        "advancedoptics",
+        "hardenedshieldemitter",
+        "magazines",
+    ],
+    "sMods": [
+        "advancedoptics",
+        "hardenedshieldemitter",
+        "magazines",
+    ],
+    "suppressedMods": [],
+    "variantId": "Moci_Sodon_Special",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "MAIN_L": "Moci_Sodon_maingun_L",
+                "MAIN_R": "Moci_Sodon_maingun_R",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0014": "phasecl",
+                "WS0013": "phasecl",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0011": "ionbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0008": "Moci_miniflak",
+                "WS0009": "Moci_miniflak",
+                "WS0006": "Moci_miniflak",
+                "WS0007": "Moci_miniflak",
+                "WS0004": "Moci_miniflak",
+                "WS0005": "Moci_miniflak",
+                "WS0001": "Moci_miniflak",
+                "WS0003": "Moci_miniflak",
+                "WS0012": "flak",
+                "WS0002": "Moci_miniflak",
+                "WS0010": "Moci_miniflak",
+            }
+        },
+    ],
+    "wings": [
+        "Moci_MS_06_fighter_wing",
+        "Moci_MS_06_fighter_wing",
+        "Moci_MS_06_fighter_wing",
+    ],
+    "modules": [],
+}

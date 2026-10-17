@@ -1,0 +1,26 @@
+{
+    "displayName": "Elite",
+    "fluxCapacitors": 0,
+    "fluxVents": 17,
+    "goalVariant": true,
+    "hullId": "Moci_NZ_333_MODULE_FRONT",
+    "hullMods": [
+        "advancedoptics",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_NZ_333_MODULE_FRONT_Elite",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001_SOURCE": "Moci_gugacannon",
+                "WS0002_SOURCE": "Moci_gugacannon",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

@@ -1,0 +1,57 @@
+{
+  "id": "Moci_AMS_119_shield_missile",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_AMS_119_shield_missile_shot",
+  "type": "MISSILE",
+  "size": "MEDIUM",
+  "displayArcRadius": 1000,
+  "turretSprite": "",
+  "hardpointSprite": "",
+  "turretOffsets": [
+    31,
+    4,
+    31,
+    0.5,
+    31,
+    -4
+  ],
+  "turretAngleOffsets": [
+    0,
+    1,
+    0
+  ],
+  "hardpointOffsets": [
+    50.5,
+    4,
+    50.5,
+    0.5,
+    50.5,
+    -4
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0,
+    0
+  ],
+	"renderHints":[RENDER_LOADED_MISSILES],
+  "barrelMode": "LINKED",
+  "animationType": "SMOKE",
+  "smokeSpec": {
+    "particleSizeMin": 10,
+    "particleSizeRange": 12,
+    "cloudParticleCount": 10,
+    "cloudDuration": 2.5,
+    "cloudRadius": 10,
+    "blowbackParticleCount": 8,
+    "blowbackDuration": 2,
+    "blowbackLength": 18,
+    "blowbackSpread": 10,
+    "particleColor": [
+      245,
+      65,
+      35,
+      120
+    ]
+  },
+  "fireSoundTwo": "reaper_fire"
+}

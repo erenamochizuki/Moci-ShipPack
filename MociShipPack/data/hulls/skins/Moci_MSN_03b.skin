@@ -1,0 +1,36 @@
+{
+	"baseHullId":"Moci_MSN_03",
+	"skinHullId":"Moci_MSN_03b",
+	"hullName":"乍得·多加(红色涂装)",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_MSN_03",
+	"descriptionPrefix":"该型号为Ace驾驶员进行了特殊改造，借此，该机体将发挥出不同以往的性能。",
+	"tags":["moci_ms", "no_dealer", " no_sell"],
+	"tech":"阿纳海姆电子(特装)",
+	"fleetPoints":25,
+	"ordnancePoints":100,
+	"baseValueMult":1.15,
+	"spriteName":"graphics/ships/Mobile_Suit/Moci_MSN_03/body/MSN_03b_body.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":["ARM_R_TYPE"], 		# weapon slot ids
+	"builtInMods":[
+    "Moci_CaptainMachine",
+],
+	"builtInWeapons":{
+    "ARM_L": "Moci_MSN_03b_arm_left",
+    "ARM_R": "Moci_MSN_03b_arm_right",
+    "ARM_R_SOURCE": "MSN_03_arm_right_rifle",
+    "BODY": "Moci_MSN_03b_body",
+    "HEAD": "Moci_MSN_03b_head",
+    "LEGS": "Moci_MSN_03b_legs",
+    "SHOULDER_L": "Moci_MSN_03b_shoulder_left",
+    "SHOULDER_R": "Moci_MSN_03b_shoulder_right"
+     },
+ 	"weaponSlotChanges":{
+		"ARM_R_SOURCE":{
+		  "type": "BUILT_IN",
+	   },
+	}
+}

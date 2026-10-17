@@ -1,0 +1,110 @@
+{
+  "hullName": "Moci_ASW_G_08S",
+  "hullId": "Moci_ASW_G_08S",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/Mobile_Suit/ASW_G_08S/body/ASW_G_08S.png",
+  "style": "MOCI_MS",
+  "height": 442,
+  "width": 260,
+  "center": [130, 221],
+  "collisionRadius": 165,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 165,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_MobilitySubsystemHullmod",
+    "Moci_antibeamcoating",
+    "Moci_MobileSuits",
+    "Moci_GNShield"
+  ],
+  "builtInWeapons": {
+    "ARM_L_SOURCE": "ASW_G_08S_arm_left_gun",
+    "ARM_R_SOURCE": "ASW_G_08S_arm_right_super",
+    "HEAD_SOURCE": "Moci_heavry_vulcan",
+    "WS0001": "ASW_G_08S_bit_launcher"
+  },
+  "weaponSlots": [
+    {
+      "id": "ARM_L_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 105,
+      "angle": 0,
+      "locations": [10, 42]
+    },
+    {
+      "id": "ARM_R_SOURCE",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 85,
+      "angle": 0,
+      "locations": [12, -42]
+    },
+    {
+      "id": "HEAD_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 70,
+      "angle": 0,
+      "locations": [34, 0]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-18, 0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-42, -14],
+      "length": 28,
+      "width": 9,
+      "angle": -176,
+      "contrailSize": 9,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-42, 14],
+      "length": 28,
+      "width": 9,
+      "angle": 176,
+      "contrailSize": 9,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-34, -38],
+      "length": 16,
+      "width": 5,
+      "angle": -150,
+      "contrailSize": 5,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-34, 38],
+      "length": 16,
+      "width": 5,
+      "angle": 150,
+      "contrailSize": 5,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -54, 30,
+    -18, 86,
+    18, 86,
+    60, 40,
+    74, 10,
+    74, -10,
+    60, -40,
+    18, -86,
+    -18, -86,
+    -54, -30
+  ]
+}

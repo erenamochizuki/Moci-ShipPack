@@ -1,0 +1,44 @@
+{
+	"id":"Moci_TDD_1_MISSILE_proj",
+	"specClass":"missile",
+	"missileType":"MISSILE_TWO_STAGE_SECOND_UNGUIDED",
+	"onHitEffect":"data.scripts.weapons.Moci_TorpedoOnHitEffect",
+	"sprite":"graphics/missiles/Moci_TDD_1_Missile.png",
+	"size":[12,57],	
+	"center":[6,28],
+	"collisionRadius":60,
+	"collisionClass":"MISSILE_NO_FF",
+	"explosionColor":[200,200,255,235], 
+	"explosionRadius":150,
+	"glowSprite":"graphics/missiles/Moci_TDD_1_Missile_glow.png",
+	"glowColor":[176,96,255,80],
+	"glowRadius":0,
+	"flameoutTime":1, # total time from flameout to full fadeout
+	"noEngineGlowTime":0.5, # time spent without the engine glow being rendered
+	"fadeTime":0.5, # fadeout duration	
+	"engineSpec":{"turnAcc":360,
+				  "turnRate":200,
+				  "acc":100,
+				  "dec":50},
+	"engineSlots":[{"id":"ES1",
+					"loc":[-20, 0],
+				    "style":"CUSTOM",
+					"styleSpec":{
+						"mode":"QUAD_STRIP", # PARTICLES or QUAD_STRIP, determines which params are used
+						"engineColor":[100,100,255,255],
+						"contrailDuration":1,
+						"contrailWidthMult":2,
+						"contrailWidthAddedFractionAtEnd":2,  # can be negative. makes trail spread out/narrow at the end
+						"contrailMinSeg":5, # min segment length, in pixels
+						"contrailMaxSpeedMult":.0f,
+						"contrailAngularVelocityMult":0.5f,
+						"contrailSpawnDistMult":0f, # how far away from engine it starts
+						"contrailColor":[75,75,75,150],
+						"type":"SMOKE" # GLOW or SMOKE; additive or regular blend mode
+					},
+				    "width":10.0,
+				    "length":70.0,
+				    "angle":180.0}]
+}
+
+			

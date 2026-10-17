@@ -1,0 +1,47 @@
+{
+  "id": "RX_78_2_head_vulcan",
+  "specClass": "projectile",
+  "projectileSpecId": "vulcan_shot",
+  "type": "BALLISTIC",
+  "size": "SMALL",
+  "displayArcRadius": 300,
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_RX_78_2/head/RX_78_2_head_vulcan.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_RX_78_2/head/RX_78_2_head_vulcan.png",
+  "turretOffsets": [
+    1,
+    -3.5,
+    1,
+    3.5
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    1.5,
+    -3.5,
+    1.5,
+    3.5
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+  "barrelMode": "LINKED",
+  "animationType": "MUZZLE_FLASH",
+  "muzzleFlashSpec": {
+    "length": 10,
+    "spread": 3,
+    "particleSizeMin": 1,
+    "particleSizeRange": 3,
+    "particleDuration": 0.15,
+    "particleCount": 7,
+    "particleColor": [
+      255,
+      240,
+      165,
+      200
+    ]
+  },
+  "fireSoundTwo": "vulcan_cannon_fire"
+}

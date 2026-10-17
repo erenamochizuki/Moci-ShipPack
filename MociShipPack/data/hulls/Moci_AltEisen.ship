@@ -1,0 +1,336 @@
+{
+  "hullName": "Moci_AltEisen",
+  "hullId": "Moci_AltEisen",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_AltEisen/body/AltEisen_body.png",
+  "style": "MOCI_PT",
+  "height": 60,
+  "width": 80,
+  "center": [
+    40,
+    30
+  ],
+  "collisionRadius": 80.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 80.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_MobilitySubsystemHullmod",
+    "Moci_antibeamcoating",
+    "Moci_MobileSuits",
+    "Moci_SuperAlloyArmor"
+  ],
+  "builtInWeapons": {
+    "ARM_L": "Moci_AltEisen_arm_left",
+    "ARM_R": "Moci_AltEisen_arm_right",
+    "ARM_R_SOURCE": "Moci_Weapon2",
+    "BODY": "Moci_AltEisen_body",
+    "HEAD": "Moci_AltEisen_head",
+    "HEAD_SOURCE": "Moci_Weapon1",
+    "LEGS": "Moci_AltEisen_legs",
+    "SHOULDER_L": "Moci_AltEisen_shoulder_left",
+    "SHOULDER_R": "Moci_AltEisen_shoulder_right",
+    "WING_B": "Moci_AltEisen_wing_back",
+    "WING_L": "Moci_AltEisen_wing_left",
+    "WING_R": "Moci_AltEisen_wing_right"
+  },
+  "weaponSlots": [
+    {
+      "id": "LEGS",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 143,
+      "angle": 0,
+      "locations": [
+        7.5,
+        0
+      ]
+    },
+    {
+      "id": "ARM_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        2,
+        19
+      ],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "ARM_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        0,
+        -27
+      ],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "SHOULDER_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -1,
+        -14
+      ],
+      "renderOrderMod": 2
+    },
+    {
+      "id": "SHOULDER_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -1,
+        14
+      ],
+      "renderOrderMod": 2
+    },
+    {
+      "id": "WING_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -1,
+        -14
+      ],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "WING_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -1,
+        14
+      ],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "TAIL",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -27.5,
+        0
+      ],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "WING_B",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -12,
+        0
+      ],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "HEAD",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 127,
+      "angle": 0,
+      "locations": [
+        10,
+        0
+      ],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "BODY",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        5,
+        0
+      ],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "ARM_L_SOURCE",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "HIDDEN",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        0,
+        28
+      ]
+    },
+    {
+      "id": "ARM_R_SOURCE",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 10,
+      "angle": 0,
+      "locations": [
+        0,
+        -27
+      ]
+    },
+    {
+      "id": "SHOULDER_R_SOURCE",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 20,
+      "angle": 0,
+      "locations": [
+        -1,
+        -14
+      ]
+    },
+    {
+      "id": "SHOULDER_L_SOURCE",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 20,
+      "angle": 0,
+      "locations": [
+        -1,
+        14
+      ]
+    },
+    {
+      "id": "HEAD_SOURCE",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 20,
+      "angle": 0,
+      "locations": [
+        10,
+        0
+      ]
+    },
+    {
+      "id": "ARM_R_MAIN",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        11,
+        -74.5
+      ]
+    },
+    {
+      "id": "ARM_L_MAIN",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        11,
+        74.5
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -11,
+        7.5
+      ],
+      "length": 8,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -11,
+        -7.5
+      ],
+      "length": 8,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -14,
+        7
+      ],
+      "length": 8,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -14,
+        -7
+      ],
+      "length": 8,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -16,
+    8,
+    -13.5,
+    10.5,
+    1.5,
+    22.5,
+    3.5,
+    22.5,
+    16.5,
+    2,
+    16.5,
+    -2,
+    3.5,
+    -22.5,
+    1.5,
+    -22.5,
+    -13.5,
+    -10.5,
+    -16,
+    -8
+  ]
+}

@@ -1,0 +1,35 @@
+{
+"displayName": "MS搭载",
+    "fluxCapacitors": 0,
+    "fluxVents": 41,
+    "goalVariant": false,
+    "hullId": "astral",
+    "hullMods": [
+        "expanded_deck_crew",
+        "hardenedshieldemitter",
+        "recovery_shuttles",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "astral_BoutnyA",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS 012": "Moci_viper_trace",
+                "WS 011": "Moci_viper_trace",
+            }
+        },
+    ],
+    "wings": [
+        "Moci_Gespenst_fighter_pl_wing",
+        "Moci_Gespenst_fighter_pl_wing",
+        "Moci_Gespenst_fighter_pl_wing",
+        "Moci_Gespenst_fighter_pl_wing",
+        "Moci_Gespenst_fighter_pl_wing",
+        "Moci_Gespenst_fighter_pl_wing",
+    ],
+    "modules": [],
+}

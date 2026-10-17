@@ -1,0 +1,67 @@
+{
+    "displayName": "Special",
+    "fluxCapacitors": 35,
+    "fluxVents": 35,
+    "goalVariant": false,
+    "hullId": "eagle_LG",
+    "hullMods": [
+        "advancedoptics",
+        "targetingunit",
+        "converted_hangar"
+    ],
+    "permaMods": [
+    "comp_storage",
+    "malfunctioning_comms",
+    "erratic_injector",
+],
+    "sMods": [
+    "fluxcoil",
+    "fluxdistributor",
+    "fluxbreakers"
+    ],
+    "variantId": "Moci_eagle_LG_Special",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 007": "phasebeam",
+                "WS 008": "phasebeam"
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS 001": "sabot",
+                "WS 002": "sabot"
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {"WS 013": "heavyneedler"}
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 005": "phasebeam",
+                "WS 006": "phasebeam",
+                "WS 009": "phasebeam"
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 003": "mininglaser",
+                "WS 004": "mininglaser",
+                "WS 010": "mininglaser",
+                "WS 011": "mininglaser",
+                "WS 012": "mininglaser"
+            }
+        }
+    ],
+    "wings": ["broadsword_wing"]
+}

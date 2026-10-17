@@ -1,0 +1,23 @@
+# 文本文件交给 Git 自动识别换行；二进制资源显式标注，避免 diff/合并损坏
+* text=auto
+
+*.jar binary
+*.class binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.psd binary
+*.bmp binary
+*.dds binary
+*.ogg binary
+*.wav binary
+*.mp3 binary
+*.ttf binary
+*.otf binary
+*.zip binary
+*.7z binary
+*.rar binary
+*.pdf binary
+*.docx binary

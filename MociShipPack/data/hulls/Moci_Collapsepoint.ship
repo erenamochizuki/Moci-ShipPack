@@ -1,0 +1,114 @@
+{
+  "hullName": "Moci_Collapsepoint",
+  "hullId": "Moci_Collapsepoint",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/wings/Moci_Collapsepoint.png",
+  "style": "HIGH_TECH",
+  "height": 44,
+  "width": 40,
+  "center": [
+    20,
+    22
+  ],
+  "collisionRadius": 29,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 29,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 65,
+      "angle": 0,
+      "locations": [
+        -1.5,
+        9
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 65,
+      "angle": 0,
+      "locations": [
+        -1.5,
+        -9
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 50,
+      "angle": 0,
+      "locations": [
+        1,
+        0
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -18.5,
+        6.5
+      ],
+      "length": 27.5,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 5,
+      "style": "OMEGA"
+    },
+    {
+      "location": [
+        -18.5,
+        -6.5
+      ],
+      "length": 27.5,
+      "width": 5,
+      "angle": -180,
+      "contrailSize": 5,
+      "style": "OMEGA"
+    },
+    {
+      "location": [
+        -16,
+        2.5
+      ],
+      "length": 27.5,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 5,
+      "style": "OMEGA"
+    },
+    {
+      "location": [
+        -16,
+        -2.5
+      ],
+      "length": 27.5,
+      "width": 5,
+      "angle": -180,
+      "contrailSize": 5,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -16,
+    -8,
+    4,
+    -8,
+    4,
+    8,
+    -16,
+    8
+  ]
+}

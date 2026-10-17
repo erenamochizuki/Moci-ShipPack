@@ -1,0 +1,46 @@
+{
+    "displayName": "ATX",
+    "fluxCapacitors": 10,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_ReinWeissRitter",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "armoredweapons",
+        "autorepair",
+        "eccm",
+        "hardenedshieldemitter",
+        "missleracks",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_ReinWeissRitter_ATX",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_MAIN": "Moci_ReinWeissRitter_arm_right_gun",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0001": "Moci_split_missile",
+                "WS0002": "Moci_split_missile",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "kineticblaster",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

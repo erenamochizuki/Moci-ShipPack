@@ -1,0 +1,48 @@
+{
+    "displayName": "Beam",
+    "fluxCapacitors": 8,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_MS_14",
+    "hullMods": [
+        "fluxbreakers",
+        "fluxcoil",
+        "hardenedshieldemitter",
+        "insulatedengine",
+        "missleracks",
+        "stabilizedshieldemitter",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_14_Beam",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "mjolnir",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "SHOULDERWEAPON_L_SOURCE": "annihilator",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_MS_14_SHIELD_L_Base"},
+        {"SHIELD_R": "Moci_MS_14_SHIELD_R_Base"},
+    ],
+}

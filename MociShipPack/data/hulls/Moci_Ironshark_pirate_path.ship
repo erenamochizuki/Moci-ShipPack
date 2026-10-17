@@ -1,0 +1,337 @@
+{
+  "hullName": "Moci_Ironshark_pirate_path",
+  "hullId": "Moci_Ironshark_pirate_path",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/module/Moci_Ironshark_pirate_path.png",
+  "style": "LOW_TECH",
+  "height": 172,
+  "width": 150,
+  "center": [
+    75,
+    77
+  ],
+  "collisionRadius": 103.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 103.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_moduelengine",
+    "reduced_explosion",
+    "always_detaches"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 120,
+      "angle": 0,
+      "locations": [
+        44,
+        0
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 140,
+      "angle": -45,
+      "locations": [
+        37,
+        -30
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 140,
+      "angle": 45,
+      "locations": [
+        37,
+        30
+      ]
+    },
+    {
+      "id": "WS0006",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 150,
+      "angle": -65,
+      "locations": [
+        10,
+        -45
+      ]
+    },
+    {
+      "id": "WS0005",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 150,
+      "angle": 65,
+      "locations": [
+        10,
+        45
+      ]
+    },
+    {
+      "id": "WS0008",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 170,
+      "angle": -125,
+      "locations": [
+        -18,
+        -51
+      ]
+    },
+    {
+      "id": "WS0007",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 170,
+      "angle": 125,
+      "locations": [
+        -18,
+        51
+      ]
+    },
+    {
+      "id": "WSS001",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        90,
+        0
+      ]
+    },
+    {
+      "id": "WSS003",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": -37.5,
+      "locations": [
+        59.5,
+        -28.5
+      ]
+    },
+    {
+      "id": "WSS002",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 37.5,
+      "locations": [
+        59.5,
+        28.5
+      ]
+    },
+    {
+      "id": "WSS005",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": -37.5,
+      "locations": [
+        46.5,
+        -44.5
+      ]
+    },
+    {
+      "id": "WSS004",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 37.5,
+      "locations": [
+        46.5,
+        44.5
+      ]
+    },
+    {
+      "id": "WSS007",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": -90,
+      "locations": [
+        9,
+        -61
+      ]
+    },
+    {
+      "id": "WSS006",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 90,
+      "locations": [
+        9,
+        61
+      ]
+    },
+    {
+      "id": "WSS009",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": -90,
+      "locations": [
+        -17,
+        -66.5
+      ]
+    },
+    {
+      "id": "WSS08",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 90,
+      "locations": [
+        -17,
+        66.5
+      ]
+    },
+    {
+      "id": "WSS011",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": -144.5,
+      "locations": [
+        -49.5,
+        -57.5
+      ]
+    },
+    {
+      "id": "WSS010",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 144.5,
+      "locations": [
+        -49.5,
+        57.5
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -74,
+        42
+      ],
+      "length": 47.5,
+      "width": 14,
+      "angle": 180,
+      "contrailSize": 14,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -74,
+        -42
+      ],
+      "length": 47.5,
+      "width": 14,
+      "angle": -180,
+      "contrailSize": 14,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    37,
+    24.5,
+    -8,
+    44.5,
+    -74.5,
+    38.5,
+    -63,
+    50.5,
+    -71.5,
+    59,
+    -55.5,
+    59,
+    -48,
+    66.5,
+    -33.5,
+    65.5,
+    -12.5,
+    71.5,
+    -1,
+    63.5,
+    15,
+    63.5,
+    39.5,
+    56,
+    69.5,
+    27,
+    57.5,
+    22.5,
+    63,
+    14,
+    86,
+    19.5,
+    88,
+    7.5,
+    88,
+    -7.5,
+    86,
+    -19.5,
+    63,
+    -14,
+    57.5,
+    -22.5,
+    69.5,
+    -27,
+    39.5,
+    -56,
+    15,
+    -63.5,
+    -1,
+    -63.5,
+    -12.5,
+    -71.5,
+    -33.5,
+    -65.5,
+    -48,
+    -66.5,
+    -55.5,
+    -59,
+    -71.5,
+    -59,
+    -63,
+    -50.5,
+    -74.5,
+    -38.5,
+    -8,
+    -44.5,
+    37,
+    -24.5
+  ]
+}

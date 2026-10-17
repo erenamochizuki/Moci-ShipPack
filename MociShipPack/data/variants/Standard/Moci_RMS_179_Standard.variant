@@ -1,0 +1,48 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 10,
+    "fluxVents": 6,
+    "goalVariant": false,
+    "hullId": "Moci_RMS_179",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "advancedoptics",
+        "auxiliarythrusters",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "insulatedengine",
+        "missleracks",
+        "unstable_injector",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RMS_179_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "RX_78_2_arm_left_gun_Sabre",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "vulcan",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "phasecl",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RX_78_2_SHIELD_L_Base"},
+    ],
+}

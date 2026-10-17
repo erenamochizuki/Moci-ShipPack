@@ -1,0 +1,22 @@
+{
+  "variantId": "Moci_MSN_02_LinerBit_Base",
+  "hullId": "Moci_MSN_02_LinerBit",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "NZ_333_linerbit_beam",
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

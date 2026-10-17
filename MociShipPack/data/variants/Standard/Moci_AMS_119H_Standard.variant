@@ -1,0 +1,55 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 10,
+    "fluxVents": 10,
+    "goalVariant": true,
+    "hullId": "Moci_AMS_119H",
+    "hullMods": [
+        "Moci_LandingSequence",
+        "autorepair",
+        "auxiliarythrusters",
+        "fluxbreakers",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_AMS_119H_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_AMS_119_arm_right_rifle",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "lightmg",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0002": "lightmg",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "sabotpod",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_AMS_119_SHIELD_L_Base"},
+        {"SHIELD_RS": "Moci_AMS_119_SHIELD_RS_Base"},
+    ],
+}

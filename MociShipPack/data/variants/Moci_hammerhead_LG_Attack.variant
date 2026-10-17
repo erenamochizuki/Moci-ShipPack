@@ -1,0 +1,46 @@
+{
+    "displayName": "Attack",
+    "fluxCapacitors": 20,
+    "fluxVents": 3,
+    "goalVariant": false,
+    "hullId": "hammerhead_LG",
+    "hullMods": [
+        "converted_hangar",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_hammerhead_LG_Attack",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 001": "Moci_gugacannon",
+                "WS 002": "Moci_gugacannon",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS 003": "gorgon",
+                "WS 004": "gorgon",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 005": "mininglaser",
+                "WS 006": "mininglaser",
+                "WS 007": "mininglaser",
+                "WS 008": "mininglaser",
+            }
+        },
+    ],
+    "wings": [
+        "sarissa_wing",
+    ],
+    "modules": [],
+}

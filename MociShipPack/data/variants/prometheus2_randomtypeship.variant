@@ -1,0 +1,58 @@
+{
+    "displayName": "Unusual",
+    "fluxCapacitors": 0,
+    "fluxVents": 28,
+    "goalVariant": false,
+    "hullId": "prometheus2",
+    "hullMods": [
+        "Moci_radical_modification",
+        "armoredweapons",
+        "autorepair",
+        "heavyarmor",
+        "reinforcedhull",
+        "shield_shunt",
+    ],
+    "permaMods": [
+      "Moci_pyrejudge_slot_randomizer",
+      "ill_advised",
+    ],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "prometheus2_randomtypeship",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 032": "hil",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 019": "hammerrack",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 004": "heavyneedler",
+                "WS 005": "heavyneedler",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 031": "devastator",
+            }
+        },
+    ],
+    "wings": [
+        "xyphos_wing",
+        "xyphos_wing",
+    ],
+    "modules": [],
+}

@@ -1,0 +1,33 @@
+id,variant,tags,tier,rarity,fleet pts,op cost,formation,range,attackRunRange,attackPositionOffset,num,role,role desc,refit,base value,,,,,,,,,,,,,number
+Moci_FireDragon_wing,Moci_FireDragon_Bomber,"bomber5, bomber, low, mid, hightech_bp, rare_bp, hist1t, merc",2,0.3,8,20,V,4000,1500,600,1,BOMBER,轰炸机,20,50000,,,,,,,,,,,,,10.001
+Moci_Basilisk_wing,Moci_Basilisk_Bomber,"bomber5, bomber, low, mid, hightech_bp, rare_bp, hist1t, merc",2,0.5,7,14,V,4000,1500,600,2,BOMBER,轰炸机,20,30000,,,,,,,,,,,,,10.002
+Moci_Rapier_dragon_wing,Moci_Rapier_Dragon_Bomber,"bomber5, bomber, interceptor, mid, rare_bp, hist1t, merc",3,0.5,10,36,V,3000,1500,550,1,BOMBER,轰炸机,30,80000,,,,,,,,,,,,,10.003
+Moci_Rapier_gorgon_wing,Moci_Rapier_Gorgon_Bomber,"bomber5, bomber, interceptor, mid, rare_bp, hist1t, merc",3,0.5,10,28,V,3000,1500,550,1,BOMBER,轰炸机,30,60000,,,,,,,,,,,,,10.004
+Moci_Rapier_gazer_wing,Moci_Rapier_Gazer_Bomber,"bomber5, bomber, interceptor, mid, rare_bp, hist1t, merc",3,0.5,10,26,V,3000,1500,550,1,BOMBER,轰炸机,30,50000,,,,,,,,,,,,,10.005
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Moci_Collapsepoint0_wing,Moci_Collapsepoint_base,"fighter5, fighter, high, rare_bp, rapid_reform, leader_no_swarm,  wingmen_no_swarm",3,0.5,8,17,CLAW,1500,300,500,2,FIGHTER,相位战斗机,14,80000,,,,,,,,,,,,,13.001
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Moci_illusion_bomber_wing,Moci_illusion_Bomber_base,"no_drop, no_sell, bomber, remnant,  rapid_reform, auto_fighter, leader_no_swarm,  wingmen_no_swarm, match_leader_facing, restricted",5,0,12,100,BOX,5000,1500,600,1,BOMBER,无人轰炸机,30,1000000,,,,,,,,,,,,,21.001
+Moci_lumaprism_fighter_wing,Moci_lumaprism_Fighter_base,"no_drop, no_sell, stay_in_front_of_ship, fighter, remnant,  rapid_reform, auto_fighter, leader_no_swarm,  wingmen_no_swarm, match_leader_facing, restricted",5,0,12,100,BOX,0,1500,400,1,SUPPORT,无人支援机,30,1000000,,,,,,,,,,,,,21.001
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Moci_MS_06_fighter_wing,Moci_MS_06_fighter_Bomber,"bomber5, bomber, low, rare_bp, leader_no_swarm,  wingmen_no_swarm, merc, moci_ms",3,0.25,6,15,CLAW,3000,1000,800,2,BOMBER,轰炸联队,25,30000,,,,,,,,,,,,,15.001
+Moci_MS_06_Axe_wing,Moci_MS_06_fighter_Fighter,"fighter5, fighter, low, leader_no_swarm,  wingmen_no_swarm, restricted, no_drop, no_sell, moci_ms",3,0.25,6,100,CLAW,3000,400,0,3,FIGHTER,突击联队,20,30000,,,,,,,,,,,,,15.001
+Moci_RGM_79_fighter_wing,Moci_RGM_79_fighter_Fighter,"fighter3, fighter, low, rare_bp, leader_no_swarm,  wingmen_no_swarm, merc, moci_ms",3,0.25,6,15,CLAW,3000,1000,500,2,FIGHTER,突击联队,20,30000,,,,,,,,,,,,,
+Moci_RX_75_fighter_wing,Moci_RX_75_fighter,"fighter3, fighter, low, rare_bp, leader_no_swarm,  wingmen_no_swarm, merc, moci_ms",3,0.25,6,15,CLAW,3000,1000,500,2,ASSAULT,炮击用试作型MS,20,30000,,,,,,,,,,,,,
+Moci_RX_77_fighter_wing,Moci_RX_77_fighter,"fighter3, fighter, low, rare_bp, leader_no_swarm,  wingmen_no_swarm, merc, moci_ms",3,0.25,6,15,CLAW,3000,1000,500,2,ASSAULT,炮击用试作型MS,20,30000,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Moci_Aestivalis_EX_wing,Moci_Aestivalis_EX,"interceptor3, interceptor, high, no_drop, no_sell, moci_ms",1,0.25,5,20,CLAW,2500,1000,500,1,INTERCEPTOR,截击机动兵器,30,30000,,,,,,,,,,,,,15.001
+Moci_Aestivalis_Super_wing,Moci_Aestivalis_Super,"support3, fighter, high, no_drop, no_sell, moci_ms",1,0.25,5,20,CLAW,0,1000,500,1,SUPPORT,支援机动兵器,30,30000,,,,,,,,,,,,,15.001
+Moci_Aestivalis_fighter_wing,Moci_Aestivalis_fighter,"interceptor3, interceptor, high, no_drop, no_sell, moci_ms",1,0.25,5,20,CLAW,2500,1000,500,1,INTERCEPTOR,通用机动兵器,30,30000,,,,,,,,,,,,,15.001
+Moci_Aestivalis_bit,Moci_Aestivalis_bit,"fighter3, fighter, no_drop, high, no_sell",2,0.5,8,17,V,1500,700,500,2,FIGHTER,浮游炮,6,80000,,,,,,,,,,,,,13.001
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Moci_Gespenst_fighter_wing,Moci_Gespenst_fighter_Fighter,"fighter5, fighter, rare_bp, rare_bp, hist1t, merc, moci_ms",3,0.25,6,28,CLAW,4000,1000,500,2,FIGHTER,突击联队,40,30000,,,,,,,,,,,,,15.001
+Moci_Gespenst_fighter_hg_wing,Moci_Gespenst_fighter_hg_Fighter,"interceptor5, interceptor, low, lowtech_bp, rare_bp, hist1t, merc, moci_ms",3,0.5,5,18,CLAW,4000,1000,500,2,INTERCEPTOR,截击联队,40,20000,,,,,,,,,,,,,15.002
+Moci_Gespenst_support_hg_wing,Moci_Gespenst_fighter_hg_Support,"stay_in_front_of_ship, support5, fighter, lowtech_bp, rare_bp, hist1t, merc, moci_ms",3,0.5,5,20,CLAW,0,1000,1000,2,SUPPORT,支援联队,40,20000,,,,,,,,,,,,,15.002
+Moci_Gespenst_fighter_tt_wing,Moci_Gespenst_fighter_tt_Fighter,"support3, fighter, high, hightech_bp, rare_bp, hist1t, merc, moci_ms",3,0.5,5,14,CLAW,0,1000,1000,2,SUPPORT,压制联队,40,20000,,,,,,,,,,,,,15.003
+Moci_Gespenst_fighter_pl_wing,Moci_Gespenst_fighter_pl_Bomber,"bomber5, bomber, mid, rare_bp, hist1t, merc, moci_ms",3,0.5,5,22,CLAW,4000,1000,500,2,BOMBER,轰炸联队,45,20000,,,,,,,,,,,,,15.004
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+#涡族战机,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+#海盗战机,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Moci_RP_Bit_01_wing,Moci_RP_Bit_01_Fighter,"interceptor, high, restricted, no_drop, no_sell",1,,2,100,CLAW,0,500,300,3,INTERCEPTOR,护航机,6,20000,,,,,,,,,,,,,

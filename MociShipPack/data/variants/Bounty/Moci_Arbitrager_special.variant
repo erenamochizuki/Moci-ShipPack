@@ -1,0 +1,52 @@
+{
+  "variantId": "Moci_Arbitrager_special",
+  "hullId": "Moci_Arbitrager",
+  "displayName": "Special",
+  "goalVariant": false,
+  "fluxCapacitors": 30,
+  "fluxVents": 30,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "expanded_deck_crew",
+    "reinforcedhull"
+  ],
+  "sMods": [
+    "expanded_deck_crew",
+    "reinforcedhull",
+    "armoredweapons",
+    "autorepair"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0005": "ionbeam"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0004": "hveldriver"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "mininglaser",
+        "WS0002": "mininglaser",
+        "WS0003": "mininglaser"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": [
+    "Moci_Collapsepoint0_wing",
+    "Moci_Collapsepoint0_wing",
+    "Moci_Collapsepoint0_wing",
+    "Moci_Collapsepoint0_wing"
+  ]
+}

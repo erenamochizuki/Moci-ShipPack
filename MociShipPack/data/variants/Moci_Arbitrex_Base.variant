@@ -1,0 +1,69 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 25,
+    "fluxVents": 50,
+    "goalVariant": true,
+    "hullId": "Moci_Arbitrex",
+    "hullMods": [
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Arbitrex_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003": "tachyonlance",
+                "WS0002": "tachyonlance",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0004": "pilum_large",
+                "WS0005": "pilum",
+                "WS0006": "pilum",
+                "WS0007": "pilum",
+                "WS0008": "pilum",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0014": "hveldriver",
+                "WS0009": "hveldriver",
+                "WS0010": "hveldriver",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "tachyonlance",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0011": "ionbeam",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0012": "lrpdlaser",
+                "WS0013": "lrpdlaser",
+                "WS0015": "lrpdlaser",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

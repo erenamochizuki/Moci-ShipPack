@@ -1,0 +1,87 @@
+{
+    "displayName": "Special",
+    "fluxCapacitors": 15,
+    "fluxVents": 30,
+    "goalVariant": false,
+    "hullId": "Moci_MSN_04_2",
+    "hullMods": [
+        "Moci_MSN_04_2_right_mode_axe",
+        "Moci_MSN_04_2_right_mode_warpbeam",
+        "safetyoverrides",
+    ],
+    "permaMods": [
+        "armoredweapons",
+        "autorepair",
+        "auxiliarythrusters",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "reinforcedhull",
+    ],
+    "sMods": [
+        "armoredweapons",
+        "autorepair",
+        "auxiliarythrusters",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "reinforcedhull",
+    ],
+    "suppressedMods": [],
+    "variantId": "Moci_MSN_04_2_Special",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "MSN_04_2_arm_right_Axe",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "MSN_04_2_arm_right_Sabre",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0005": "MSN_04_2_leg_left_Sabre",
+                "WS0004": "MSN_04_2_leg_right_Sabre",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "BODY_WEAPON": "MSN_04_2_body_beam_improved",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WING_R": "Moci_MSN_04_2_wing_right",
+                "WING_L": "Moci_MSN_04_2_wing_left",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0002": "lightdualmg",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "lightdualmg",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_MSN_04_2_shield_base"},
+    ],
+}

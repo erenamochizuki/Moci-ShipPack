@@ -1,0 +1,12 @@
+{
+  "displayName": "Base",
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "goalVariant": false,
+  "hullId": "Moci_NZ_666_wing_right_front",
+  "hullMods": [],
+  "variantId": "Moci_NZ_666_wing_right_front_base",
+  "weaponGroups": [],
+  "wings": [],
+  "modules": []
+}

@@ -1,0 +1,5 @@
+portrait,description
+# AI指挥官僚机头像列表,优先使用 remnant 常见头像
+graphics/portraits/portrait_ai1b.png,Remnant AI 1
+graphics/portraits/portrait_ai2b.png,Remnant AI 2
+graphics/portraits/portrait_ai3b.png,Remnant AI 3

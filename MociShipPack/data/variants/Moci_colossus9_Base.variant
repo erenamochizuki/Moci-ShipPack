@@ -1,0 +1,40 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 18,
+    "fluxVents": 5,
+    "goalVariant": true,
+    "hullId": "Moci_colossus9",
+    "hullMods": [
+        "auxiliarythrusters",
+        "expanded_deck_crew",
+        "hardenedshieldemitter",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_colossus9_Base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "dualflak",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 001": "lightmg",
+                "WS 002": "lightmg",
+                "WS 003": "lightmg",
+                "WS 004": "lightmg",
+            }
+        },
+    ],
+    "wings": [
+        "Moci_Gespenst_fighter_hg_wing",
+        "Moci_Gespenst_fighter_hg_wing",
+    ],
+    "modules": [],
+}

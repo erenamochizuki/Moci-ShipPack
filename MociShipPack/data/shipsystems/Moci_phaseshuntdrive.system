@@ -1,0 +1,23 @@
+{
+	"id":"Moci_phaseshuntdrive",
+	"type":"STAT_MOD",
+	"aiType":"CUSTOM",
+	"aiScript":"data.shipsystems.scripts.ai.Moci_PhaseShuntDriveAI",
+
+	"statsScript":"data.shipsystems.scripts.Moci_PhaseShuntDriveStats",
+
+	"jitterColor":[255,150,200,50],
+	"jitterCopies":5,
+	"jitterRange":10,
+	"jitterRangeRadiusFraction":0.05,
+
+	"fadeActivationSoundOnChargedown":false,
+
+	"useSound":"Moci_displacer_active2",
+
+    "aiHints":{
+        "activeSpeedIncrease":0,
+        "burstMovementPotential":0,
+        "averageSpeedIncrease":0,
+    }
+}

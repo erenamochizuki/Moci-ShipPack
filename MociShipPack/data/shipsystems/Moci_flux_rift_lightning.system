@@ -1,0 +1,16 @@
+{
+    "id":"Moci_flux_rift_lightning",
+    "type":"STAT_MOD",
+    "aiType":"CUSTOM",
+    "aiScript":"data.shipsystems.scripts.ai.Moci_FluxRiftLightningAI",
+
+    "statsScript":"data.shipsystems.scripts.Moci_FluxRiftLightningSystem",
+
+    "fadeActivationSoundOnChargedown":true,
+    "useSound":"system_quantumdisruptor",
+    "deactivateSound":"system_entropy_off",
+    "outOfUsesSound":"gun_out_of_ammo",
+
+    "aiHints":{
+    }
+}

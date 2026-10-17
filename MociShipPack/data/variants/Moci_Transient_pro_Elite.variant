@@ -1,0 +1,33 @@
+{
+  "variantId": "Moci_Transient_pro_Elite",
+  "hullId": "Moci_Transient_pro",
+  "displayName": "Elite",
+  "goalVariant": true,
+  "fluxCapacitors": 10,
+  "fluxVents": 10,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "phase_anchor"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "amsrm",
+        "WS0002": "amsrm",
+        "WS0003": "resonatormrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS 001": "tachyonlance"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

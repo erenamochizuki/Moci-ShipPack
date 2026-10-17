@@ -1,0 +1,14 @@
+{
+  "variantId": "Moci_AMX_004_wing_left_front_Base",
+  "hullId": "Moci_AMX_004_wing_left_front",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

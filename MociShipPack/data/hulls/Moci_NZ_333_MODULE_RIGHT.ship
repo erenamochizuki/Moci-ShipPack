@@ -1,0 +1,226 @@
+{
+  "hullName": "MOCI_NZ_333_MODULE_RIGHT",
+  "hullId": "Moci_NZ_333_MODULE_RIGHT",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_NZ_333/shoulders/NZ_333_shoulder_right.png",
+  "style": "LOW_TECH",
+  "height": 80,
+  "width": 274,
+  "center": [
+    122.5,
+    39
+  ],
+  "collisionRadius": 162.5,
+  "shieldCenter": [
+    -0.5,
+    -49
+  ],
+  "shieldRadius": 162.5,
+  "viewOffset": 0,
+  "moduleAnchor": [
+    -2,
+    5
+  ],
+  "builtInMods": [
+    "advancedcore",
+    "Moci_antibeamcoating",
+    "Moci_module_collision_controller",
+    "Moci_MobileArmour"
+  ],
+  "builtInWeapons": {
+    "DECO05": "Moci_NZ_333_shoulder_right",
+    "WS0001": "Moci_NZ_333_weapon_m",
+    "WS0002": "Moci_NZ_333_weapon_s",
+    "WS0003": "Moci_NZ_333_weapon_s",
+    "WS0004": "Moci_NZ_333_weapon_s",
+    "WS0005": "Moci_NZ_333_weapon_s"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001_SOURCE",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 60,
+      "angle": 0,
+      "locations": [
+        0,
+        -78.5
+      ],
+      "renderOrderMod": 16
+    },
+    {
+      "id": "WS0002_SOURCE",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": -45,
+      "locations": [
+        22.5,
+        -95
+      ]
+    },
+    {
+      "id": "WS0003_SOURCE",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": -140,
+      "locations": [
+        -25.5,
+        -84.5
+      ]
+    },
+    {
+      "id": "WS0004_SOURCE",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": 180,
+      "locations": [
+        -28,
+        -50
+      ]
+    },
+    {
+      "id": "WS0005_SOURCE",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": 0,
+      "locations": [
+        30,
+        -15.5
+      ]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 60,
+      "angle": 0,
+      "locations": [
+        0,
+        -78.5
+      ],
+      "renderOrderMod": 16
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": -45,
+      "locations": [
+        22.5,
+        -95
+      ]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": -140,
+      "locations": [
+        -25.5,
+        -84.5
+      ]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": 180,
+      "locations": [
+        -28,
+        -50
+      ]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": 0,
+      "locations": [
+        30,
+        -15.5
+      ]
+    },
+    {
+      "id": "DECO05",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        1,
+        -14.5
+      ],
+      "renderOrderMod": 15
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    -14.5,
+    -123,
+    -6.5,
+    -151,
+    6.5,
+    -151,
+    14.5,
+    -123,
+    14.5,
+    -109,
+    18.5,
+    -109,
+    25.5,
+    -104,
+    34.5,
+    -76,
+    34.5,
+    -46,
+    35.5,
+    -45,
+    35.5,
+    0,
+    29.5,
+    6,
+    12.5,
+    6,
+    11.5,
+    4,
+    -11,
+    4,
+    -12.5,
+    6,
+    -29.5,
+    6,
+    -35.5,
+    0,
+    -35.5,
+    -45,
+    -34.5,
+    -46,
+    -34.5,
+    -76,
+    -25.5,
+    -104,
+    -18.5,
+    -109,
+    -14.5,
+    -109
+  ]
+}

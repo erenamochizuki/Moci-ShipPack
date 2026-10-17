@@ -1,0 +1,22 @@
+{
+  "specClass": "beam",
+  "id": "Moci_NZ_666_arm_left",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "everyFrameEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide",
+  "turretSprite": "graphics/ships/Mobile_Suit/NZ_666/arms/NZ_666_arm_left.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/NZ_666/arms/NZ_666_arm_left.png",
+  "renderHints": [RENDER_BARREL_BELOW],
+  "turretOffsets": [42, 4],
+  "turretAngleOffsets": [0],
+  "hardpointOffsets": [58, 4],
+  "hardpointAngleOffsets": [0],
+  "fringeColor": [255, 255, 255, 0],
+  "coreColor": [255, 255, 255, 0],
+  "glowColor": [255, 255, 255, 0],
+  "width": 0,
+  "textureType": SMOOTH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [PROJECTILE_FF, PROJECTILE_NO_FF, PROJECTILE_FIGHTER, MISSILE_FF, MISSILE_NO_FF]
+}

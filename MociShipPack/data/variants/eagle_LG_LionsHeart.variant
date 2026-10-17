@@ -1,0 +1,61 @@
+{
+    "displayName": "LionsHeart",
+    "fluxCapacitors": 29,
+    "fluxVents": 4,
+    "goalVariant": false,
+    "hullId": "eagle_LG",
+    "hullMods": [
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "eagle_LG_LionsHeart",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 008": "Moci_gugacannon",
+                "WS 007": "Moci_gugacannon",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 001": "sabot",
+                "WS 002": "sabot",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 013": "heavyneedler",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 009": "Moci_gugacannon",
+                "WS 005": "Moci_gugacannon",
+                "WS 006": "Moci_gugacannon",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS 003": "mininglaser",
+                "WS 010": "mininglaser",
+                "WS 012": "mininglaser",
+                "WS 004": "mininglaser",
+                "WS 011": "mininglaser",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

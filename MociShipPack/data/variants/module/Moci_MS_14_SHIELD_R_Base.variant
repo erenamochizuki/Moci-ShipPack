@@ -1,0 +1,22 @@
+{
+  "variantId": "Moci_MS_14_SHIELD_R_Base",
+  "hullId": "Moci_MS_14_SHIELD_R",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "Moci_MS_14_arm_right_mg",
+            }
+        },
+    ],
+  "modules": [],
+  "wings": []
+}

@@ -1,0 +1,156 @@
+{
+  "hullName": "Moci_Ironshark_pirate",
+  "hullId": "Moci_Ironshark_pirate",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/module/Moci_Ironshark_pirate_main.png",
+  "style": "LOW_TECH",
+  "height": 172,
+  "width": 150,
+  "center": [
+    75,
+    54
+  ],
+  "collisionRadius": 82,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 82,
+  "viewOffset": 0,
+  "builtInMods": [
+    "rugged"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS 001",
+      "size": "LARGE",
+      "type": "STATION_MODULE",
+      "mount": "HARDPOINT",
+      "arc": 1,
+      "angle": 0,
+      "locations": [
+        24,
+        0
+      ]
+    },
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 150,
+      "angle": 0,
+      "locations": [
+        33,
+        0
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -47,
+        30
+      ],
+      "length": 61,
+      "width": 21,
+      "angle": 180,
+      "contrailSize": 21,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -47,
+        -30
+      ],
+      "length": 61,
+      "width": 21,
+      "angle": -180,
+      "contrailSize": 21,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -51,
+        17
+      ],
+      "length": 61,
+      "width": 21,
+      "angle": 180,
+      "contrailSize": 21,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -51,
+        -17
+      ],
+      "length": 61,
+      "width": 21,
+      "angle": -180,
+      "contrailSize": 21,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -48,
+        0
+      ],
+      "length": 85.5,
+      "width": 30,
+      "angle": 180,
+      "contrailSize": 30,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -49,
+    4.5,
+    -44,
+    6.5,
+    -47.5,
+    22,
+    -47.5,
+    34.5,
+    -10.5,
+    37.5,
+    -4.5,
+    33,
+    -1,
+    38,
+    9.5,
+    38,
+    14.5,
+    32,
+    21.5,
+    37.5,
+    39,
+    32.5,
+    56.5,
+    11.5,
+    56.5,
+    -11.5,
+    39,
+    -32.5,
+    21.5,
+    -37.5,
+    14.5,
+    -32,
+    9.5,
+    -38,
+    -1,
+    -38,
+    -4.5,
+    -33,
+    -10.5,
+    -37.5,
+    -47.5,
+    -34.5,
+    -47.5,
+    -22,
+    -44,
+    -6.5,
+    -49,
+    -4.5
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "variantId": "Moci_MSN_02_LinerBit_Arm_R_Base",
+  "hullId": "Moci_MSN_02_LinerBit_Arm_R",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "Moci_MSN_02_arm_bit_beam",
+        "WS0002": "Moci_MSN_02_arm_bit_beam",
+        "WS0003": "Moci_MSN_02_arm_bit_beam",
+        "WS0004": "Moci_MSN_02_arm_bit_beam"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

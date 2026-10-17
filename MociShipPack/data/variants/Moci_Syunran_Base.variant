@@ -1,0 +1,78 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 35,
+    "fluxVents": 50,
+    "goalVariant": true,
+    "hullId": "Moci_Syunran",
+    "hullMods": [
+        "armoredweapons",
+        "autorepair",
+        "fluxdistributor",
+        "heavyarmor",
+        "magazines",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Syunran_Base",
+    "weaponGroups": [
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "Moci_Syunran_maingun",
+                "WS0002": "Moci_Syunran_maingun",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WINGMAN_01": "Moci_Yamato_Zero_launcher_3",
+                "WINGMAN_02": "Moci_Yamato_Zero_launcher_4",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WAVEGUN": "Moci_Yamato_WaveMotionGun",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0012": "Moci_Syunran_maingun",
+                "WS0013": "Moci_Syunran_maingun",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "ALTERNATING",
+            "weapons": {
+                "WS0008_SOURCE": "Moci_gugacannon",
+                "WS0011_SOURCE": "Moci_gugacannon",
+                "WS0007_SOURCE": "Moci_gugacannon",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0009_SOURCE": "Moci_miniflak",
+                "WS0003_SOURCE": "Moci_miniflak",
+                "WS0004_SOURCE": "Moci_miniflak",
+                "WS0010_SOURCE": "Moci_miniflak",
+                "WS0005_SOURCE": "Moci_miniflak",
+                "WS0006_SOURCE": "Moci_miniflak",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"WINGWEAPON_01": "Moci_Cosmo_Zero_Base"},
+        {"WINGWEAPON_02": "Moci_Cosmo_Zero_Base"},
+    ],
+}

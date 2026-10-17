@@ -1,0 +1,34 @@
+{
+	"baseHullId":"Moci_MS_14",
+	"skinHullId":"Moci_MS_14_BTS",
+	"hullName":"勇士(黑色三连星)",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"Moci_MS_14",
+	"descriptionPrefix":"该型号为Ace驾驶员进行了特殊改造。借此，该机体将发挥出不同以往的性能。",
+	"tags":["moci_ms", "no_dealer", " no_sell"],
+	"tech":"吉翁尼克重工(特装)",
+	"fleetPoints":15,
+	"ordnancePoints":90,
+	"baseValueMult":1.55,
+	"systemId":"plasmajets",
+	"spriteName":"graphics/ships/Mobile_Suit/BTS/Moci_MS_06/body/MS_06_body.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":[
+    "Moci_CaptainMachine",
+    "Moci_BTS",
+],
+	"builtInWeapons":{
+    "ARM_L": "Moci_MS_14_BTS_arm_left",
+    "ARM_R": "Moci_MS_14_BTS_arm_right",
+    "BODY": "Moci_MS_06_BTS_body",
+    "HEAD": "Moci_MS_14_BTS_head",
+    "LEGS": "Moci_MS_06_BTS_legs",
+    "SHOULDER_L": "Moci_MS_14_BTS_shoulder_left",
+    "SHOULDER_R": "Moci_MS_14_BTS_shoulder_right"
+     },
+ 	"weaponSlotChanges":{
+	},  
+}

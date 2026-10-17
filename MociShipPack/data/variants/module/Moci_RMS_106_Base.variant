@@ -1,0 +1,14 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_RMS_106",
+    "hullMods": [],
+    "variantId": "Moci_RMS_106_Base",
+    "weaponGroups": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RMS_106_SHIELD_L_Base"},
+        {"SHIELD_RS": "Moci_RMS_106_SHIELD_RS_Base"}
+    ]
+}

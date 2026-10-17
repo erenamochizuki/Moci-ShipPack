@@ -1,0 +1,43 @@
+{
+  "id": "RX_78_2_arm_left_gun_bazooka",
+  "specClass": "projectile",
+  "projectileSpecId": "RX_78_2_bazooka_shot",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_RX_78_2/arms/RX_78_2_arm_left_bazooka.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_RX_78_2/arms/RX_78_2_arm_left_bazooka.png",
+  "turretOffsets": [
+    57,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    87,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "SMOKE",
+  "smokeSpec": {
+    "particleSizeMin": 5,
+    "particleSizeRange": 12,
+    "cloudParticleCount": 8,
+    "cloudDuration": 2.5,
+    "cloudRadius": 10,
+    "blowbackParticleCount": 4,
+    "blowbackDuration": 2,
+    "blowbackLength": 22,
+    "blowbackSpread": 15,
+    "particleColor": [
+      120,
+      120,
+      120,
+      100
+    ]
+  },
+  "fireSoundTwo": "hammer_fire"
+}

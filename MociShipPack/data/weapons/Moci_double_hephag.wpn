@@ -1,0 +1,64 @@
+{
+  "id": "Moci_double_hephag",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_hephag_shot",
+  "type": "BALLISTIC",
+  "size": "LARGE",
+  "turretSprite": "graphics/weapons/Moci_double_hephag_turret_base.png",
+  "turretGunSprite": "graphics/weapons/Moci_double_hephag_turret_recoli.png",
+  "hardpointSprite": "graphics/weapons/Moci_double_hephag_hardpoint_base.png",
+  "hardpointGunSprite": "graphics/weapons/Moci_double_hephag_hardpoint_recoli.png",
+  "visualRecoil": 12,
+  "renderHints": [
+    RENDER_BARREL_BELOW
+  ],
+  "turretOffsets": [
+    51,
+    -10,
+    51,
+    -3,
+    51,
+    3,
+    51,
+    10
+  ],
+  "turretAngleOffsets": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    43.5,
+    -10,
+    43.5,
+    -3,
+    43.5,
+    3,
+    43.5,
+    10
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "MUZZLE_FLASH",
+  "muzzleFlashSpec": {
+    "length": 54,
+    "spread": 20,
+    "particleSizeMin": 18,
+    "particleSizeRange": 24,
+    "particleDuration": 0.12,
+    "particleCount": 32,
+    "particleColor": [
+      255,
+      185,
+      115,
+      215
+    ]
+  },
+  "fireSoundTwo": "hephaestus_fire"
+}

@@ -1,0 +1,25 @@
+{
+  "variantId": "Moci_Rapier_Gorgon_Bomber",
+  "hullId": "Moci_Rapier",
+  "displayName": "<戈尔贡>轰炸机",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "Moci_gorgon_figher",
+        "WS0002": "Moci_gorgon_figher",
+        "WS0003": "Moci_gorgon_figher",
+        "WS0004": "Moci_gorgon_figher"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

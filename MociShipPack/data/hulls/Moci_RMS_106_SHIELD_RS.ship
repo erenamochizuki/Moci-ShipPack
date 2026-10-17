@@ -1,0 +1,35 @@
+{
+  "hullName": "Moci_RMS_106_SHIELD_RS",
+  "hullId": "Moci_RMS_106_SHIELD_RS",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RMS_106/shoulders/RMS_106_shoulder_right_shield.png",
+  "style": "MOCI_MS",
+  "height": 26,
+  "width": 26,
+  "center": [18, 15],
+  "collisionRadius": 13,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 13,
+  "viewOffset": 0,
+  "moduleAnchor": [
+    -2,
+    5
+  ],
+  "builtInMods": [
+    "Moci_module_collision_controller"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [],
+  "bounds": [
+    -8.5, -0.5,
+    -1.5, -7.5,
+    8.5, -7.5,
+    9.5, -6.5,
+    9.5, -4.5,
+    4.5, 0.5,
+    4.5, 6.5,
+    2.5, 8.5,
+    -7.5, 8.5,
+    -8.5, 7.5
+  ]
+}

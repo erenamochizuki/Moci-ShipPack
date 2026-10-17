@@ -1,0 +1,19 @@
+{
+    "displayName": "Custom",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "station_Belle",
+    "hullMods": [],
+    "quality": 0.0,
+    "variantId": "station_Belle_custom",
+    "weaponGroups": [],
+    "modules": [
+        {"WS 002": "module_Belle_attack_Base"},
+        {"WS 009": "module_Belle_attack_Base"},
+        {"WS 011": "module_Belle_attack_Base"},
+        {"WS 004": "module_Belle_attack_Base"},
+        {"WS 003": "module_Belle_armour_Base"},
+        {"WS 010": "module_Belle_shield_Base"}
+    ]
+}

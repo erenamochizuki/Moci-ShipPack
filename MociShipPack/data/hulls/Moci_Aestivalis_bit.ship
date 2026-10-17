@@ -1,0 +1,49 @@
+{
+  "hullName": "Moci_Aestivalis_bit",
+  "hullId": "Moci_Aestivalis_bit",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_Aestivalis/bit/Aestivalis_bit.png",
+  "style": "HIGH_TECH",
+  "height": 12,
+  "width": 12,
+  "center": [6, 6],
+  "collisionRadius": 9,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 9,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_GNShield",
+    "Moci_GravityReceiver",
+	"no_weapon_flux"
+  ],
+  "builtInWeapons": {
+    "WS0001": "railgun"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 30,
+      "angle": 0,
+      "locations": [4, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-3, -0],
+      "length": 15.5,
+      "width": 10,
+      "angle": -180,
+      "contrailSize": 10,
+      "style": "MIDLINE"
+    }
+  ],
+  "bounds": [
+    -3.5, 3,
+    3.5, 2.5,
+    3.5, -2.5,
+    -3.5, -3
+  ]
+}

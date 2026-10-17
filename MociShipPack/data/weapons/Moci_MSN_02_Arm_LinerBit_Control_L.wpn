@@ -1,0 +1,55 @@
+{
+  "id": "Moci_MSN_02_Arm_LinerBit_Control_L",
+  "specClass": "beam",
+  "type": "DECORATIVE",
+  "size": "LARGE",
+  "everyFrameEffect": "data.scripts.weapons.Moci_MSN02ArmBitControlEffect",
+  "collisionClass": "RAY_FIGHTER",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "",
+  "hardpointSprite": "",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "hitGlowRadius": 20,
+  "turretOffsets": [
+    -1.5,
+    32.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    8,
+    32.5
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    255,
+    0,
+    30,
+    0
+  ],
+  "coreColor": [
+    255,
+    10,
+    50,
+    0
+  ],
+  "width": 6,
+  "textureType": SMOOTH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ]
+}

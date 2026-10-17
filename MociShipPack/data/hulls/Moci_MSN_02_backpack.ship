@@ -1,0 +1,70 @@
+{
+  "hullName": "Moci_MSN_02_backpack",
+  "hullId": "Moci_MSN_02_backpack",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_MSN_02/backpack/MSN_02_backpack_ship.png",
+  "style": "LOW_TECH",
+  "height": 146,
+  "width": 136,
+  "center": [68, 73],
+  "collisionRadius": 84.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 84.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_MobileSuits",
+    "Moci_antibeamcoating_shield",
+    "Moci_module_collision_controller"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [
+    {
+      "location": [-21.5, 29],
+      "length": 38.5,
+      "width": 17,
+      "angle": 180,
+      "contrailSize": 17,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-21.5, -29],
+      "length": 38.5,
+      "width": 17,
+      "angle": -180,
+      "contrailSize": 17,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-24, -16.5],
+      "length": 30.5,
+      "width": 9,
+      "angle": -180,
+      "contrailSize": 9,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-24, 16.5],
+      "length": 30.5,
+      "width": 9,
+      "angle": 180,
+      "contrailSize": 9,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -61.5, -28.5,
+    -38.5, -62.5,
+    2.5, -58.5,
+    22.5, -36.5,
+    22.5, 36.5,
+    2.5, 58.5,
+    -38.5, 62.5,
+    -61.5, 28.5,
+    -60.5, 25.5,
+    -26.5, 13.5,
+    -48.5, 4.5,
+    -48.5, -4.5,
+    -26.5, -13.5,
+    -60.5, -25.5
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "hullName": "Moci_RGZ_91_SHIELD_L",
+  "hullId": "Moci_RGZ_91_SHIELD_L",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RGZ_91/arms/RGZ_91_SHIELD_L.png",
+  "style": "MOCI_MS",
+  "height": 42,
+  "width": 32,
+  "center": [30.5, 9.5],
+  "collisionRadius": 34,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 34,
+  "viewOffset": 0,
+  "moduleAnchor": [
+    -2,
+    10
+  ],
+  "builtInMods": [
+    "Moci_module_collision_controller",
+    "Moci_antibeamcoating_shield"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 53,
+      "locations": [15, 17.5]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    32, 5,
+    30, -0,
+    28, -0,
+    15, 10,
+    7, 12,
+    -8, 26,
+    -7, 30,
+    12, 25
+  ]
+}

@@ -1,0 +1,24 @@
+{
+    "hullFrequency":{
+        "hulls":{
+            "brawler_LG_LionsHeart":1,
+            "eagle_LG_LionsHeart":1,
+            "hammerhead_LG_LionsHeart":1,
+            "sunder_LG_LionsHeart":1,
+            "Moci_Praesidium_Base":1,
+            "Moci_Praesidium_Elite":0.5,
+            "Moci_Arbitrex_Base":0.5,
+        },
+    },
+    "knownShips":{
+        "hulls":[
+            "Moci_Praesidium",
+            "Moci_Arbitrex",
+        ],
+    },
+	"knownWeapons":{
+		"weapons":[
+			"Moci_gugacannon",
+		],
+	},
+},

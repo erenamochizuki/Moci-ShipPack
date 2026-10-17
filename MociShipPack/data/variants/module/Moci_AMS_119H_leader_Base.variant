@@ -1,0 +1,14 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_AMS_119H_leader",
+    "hullMods": [],
+    "variantId": "Moci_AMS_119H_leader_Base",
+    "weaponGroups": [],
+    "modules": [
+        {"SHIELD_L": "Moci_AMS_119_leader_SHIELD_L_Base"},
+        {"SHIELD_RS": "Moci_AMS_119_SHIELD_RS_Base"},
+    ],
+}

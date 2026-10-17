@@ -1,0 +1,64 @@
+{
+	"id":"Moci_dracohydra_warhead",
+	"specClass":"missile",	
+	#"missileType":"MISSILE",
+	#"missileType":"HEATSEEKER",
+	"missileType":"CIRCLE_TARGET",
+	"onFireEffect":"com.fs.starfarer.api.impl.combat.dem.DEMEffect",
+	"behaviorSpec":{"behavior":"CUSTOM",
+		"circleRadius":[0,90],
+		"angledApproachDist":[900,1200],
+		"minDelayBeforeTriggering":5,
+		"triggerAngle":[5,20], # fast-tracks the trigger delay if this much angle offset from facing of target
+		"triggerDistance":[250,900],
+		"preferredMinFireDistance":600,
+		"preferredMaxFireDistance":900,
+		"allowedDriftFraction":0.25,
+		"turnRateBoost":200,
+		"targetingTime":3,
+		"firingTime":1,
+		"targetingLaserId":"Moci_targetinglaser1",
+		"targetingLaserFireOffset":[8, 0, 8, 0],
+		"targetingLaserSweepAngles":[0, -7, 0, 7],
+		"payloadWeaponId":"Moci_dracohydra_payload",
+		"targetingLaserRange":900,
+		"targetingLaserArc":10,
+		#"randomStrafe":true,
+		#"bombPumped":true,
+		#"fadeOutEngineWhenFiring":false;
+		#"destroyMissleWhenDoneFiring":true,
+		"destroyedExplosionColor":[145,80,255,255],
+	},
+	"maxFlightTime":10,
+	"sprite":"graphics/missiles/Moci_dracohydra_mdem_warhead.png",
+	"size":[11,16],	
+	"center":[5.5,8],
+	"collisionRadius":8,
+	"collisionClass":"MISSILE_NO_FF",
+	"explosionColor":[145,80,255,255],  # purely visual, will get a white additively blended core on top of this color
+	"explosionRadius":100, # purely visual	
+	"engineSpec":{"turnAcc":600,
+				  "turnRate":240,
+				  "maxSpeed":240,
+				  "acc":400,
+				  "dec":400},
+	"engineSlots":[{"id":"ES1",
+					"loc":[-7, 0],
+				    "style":"CUSTOM",
+					"styleSpec":{
+						"mode":"QUAD_STRIP", # PARTICLES or QUAD_STRIP, determines which params are used
+						"engineColor":[200,175,255,255],
+						"contrailDuration":1,
+						"contrailWidthMult":1,
+						"contrailWidthAddedFractionAtEnd":2.5,  # can be negative. makes trail spread out/narrow at the end
+						"contrailMinSeg":5, # min segment length, in pixels
+						"contrailMaxSpeedMult":1f,
+						"contrailAngularVelocityMult":1f,
+						"contrailColor":[145,80,255,100],
+						"type":"SMOKE" # GLOW or SMOKE; additive or regular blend mode
+					},
+				    "width":4.0,
+				    "length":20.0,
+				    "angle":180.0},
+				    ]
+}

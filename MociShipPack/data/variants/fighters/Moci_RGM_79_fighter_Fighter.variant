@@ -1,0 +1,40 @@
+{
+    "displayName": "突击联队",
+    "fluxCapacitors": 6,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_RGM_79_fighter",
+    "hullMods": [
+        "auxiliarythrusters",
+        "hardenedshieldemitter",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RGM_79_fighter_Fighter",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "Moci_RGM_79_Sabre",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "Moci_RGM_79_arm_right_rifle",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "lightdualac",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [],
+}

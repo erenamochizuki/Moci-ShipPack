@@ -1,0 +1,38 @@
+{
+    "displayName": "GunnerM",
+    "fluxCapacitors": 0,
+    "fluxVents": 8,
+    "goalVariant": false,
+    "hullId": "Moci_MS_06",
+    "hullMods": [
+        "armoredweapons",
+        "fluxdistributor",
+        "heavyarmor",
+        "insulatedengine",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_MS_06_GunnerM",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "hephag",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "lightdualac",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_RS": "Moci_MS_06_SHIELD_RS_Base"},
+    ],
+}

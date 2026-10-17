@@ -1,0 +1,92 @@
+{
+  "hullName": "Moci_RX_93_v2_superweapon",
+  "hullId": "Moci_RX_93_v2_superweapon",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/superweapon/RX_93_superweapon.png",
+  "style": "HIGH_TECH",
+  "height": 172,
+  "width": 34,
+  "center": [
+    17,
+    86
+  ],
+  "collisionRadius": 94,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 94,
+  "viewOffset": 0,
+  "weaponSlots": [],
+  "engineSlots": [
+    {
+      "location": [
+        -84,
+        1.5
+      ],
+      "length": 24.5,
+      "width": 7,
+      "angle": 180,
+      "contrailSize": 7,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -75.5,
+        10.5
+      ],
+      "length": 24.5,
+      "width": 7,
+      "angle": 158,
+      "contrailSize": 7,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -75.5,
+        -13.5
+      ],
+      "length": 24.5,
+      "width": 7,
+      "angle": -141.5,
+      "contrailSize": 7,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -24.5,
+        15.5
+      ],
+      "length": 24.5,
+      "width": 7,
+      "angle": 135,
+      "contrailSize": 7,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [
+        -36.5,
+        -16.5
+      ],
+      "length": 24.5,
+      "width": 7,
+      "angle": -129.5,
+      "contrailSize": 7,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    80.5,
+    -8.5,
+    83.5,
+    7.5,
+    71.5,
+    10.5,
+    -71.5,
+    13.5,
+    -84.5,
+    2.5,
+    -72.5,
+    -15.5
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "Moci_ShroudedDragon_arm_right",
+  "specClass":"beam",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "everyFrameEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect",
+  "beamEffect":"data.scripts.weapons.Moci_ShroudedDragon_Maingun_Effect",
+  "turretSprite": "graphics/ships/VIII/ShroudedDragon/arms/Moci_ShroudedDragon_arm_right.png",
+  "turretGlowSprite": "graphics/ships/VIII/ShroudedDragon/arms/Moci_ShroudedDragon_arm_right_glow.png",
+  "hardpointSprite": "graphics/ships/VIII/ShroudedDragon/arms/Moci_ShroudedDragon_arm_right.png",
+  "hardpointGlowSprite": "graphics/ships/VIII/ShroudedDragon/arms/Moci_ShroudedDragon_arm_right_glow.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "turretOffsets": [
+    70.5,
+    -3.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    114.5,
+    -3.5
+  ],
+	"hardpointAngleOffsets":[0],
+	"fringeColor":[1,144,219,255],
+	"coreColor":[255,255,255,255],
+	"coreWidthMult":0.4,
+	"width":75.0,
+	"textureType":LASER,
+	"textureScrollSpeed":128.0,
+	"pixelsPerTexel":5.0,
+	"pierceSet":[PROJECTILE_FF,PROJECTILE_NO_FF,PROJECTILE_FIGHTER,MISSILE_FF,MISSILE_NO_FF],
+	#"fireSoundOne":"phase_beam_intro",
+	"fireSoundTwo":"riftcascade_loop",	
+}

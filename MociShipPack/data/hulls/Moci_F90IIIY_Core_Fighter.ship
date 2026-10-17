@@ -1,0 +1,95 @@
+{
+  "hullName": "Moci_F90IIIY_Core_Fighter",
+  "hullId": "Moci_F90IIIY_Core_Fighter",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Core_Fighter/Moci_F90IIIY_Core_Fighter.png",
+  "style": "LOW_TECH",
+  "height": 49,
+  "width": 33,
+  "center": [
+    16.5,
+    24.5
+  ],
+  "collisionRadius": 33,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 33,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 12,
+      "angle": 0,
+      "locations": [
+        0.5,
+        4.25
+      ]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 12,
+      "angle": 0,
+      "locations": [
+        0.5,
+        -4.25
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [
+        -21.75,
+        7
+      ],
+      "length": 7.75,
+      "width": 6.5,
+      "angle": 180,
+      "contrailSize": 6.5,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -21.75,
+        -7
+      ],
+      "length": 7.75,
+      "width": 6.5,
+      "angle": -180,
+      "contrailSize": 6.5,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [
+        -23.25,
+        0
+      ],
+      "length": 16,
+      "width": 10.5,
+      "angle": 180,
+      "contrailSize": 10.5,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -24.25,
+    -12.75,
+    -15.25,
+    -15.75,
+    23.75,
+    -1.25,
+    23.75,
+    1.25,
+    -15.25,
+    15.75,
+    -24.25,
+    12.75
+  ]
+}

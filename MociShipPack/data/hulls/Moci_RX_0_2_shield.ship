@@ -1,0 +1,42 @@
+{
+  "hullName": "Moci_RX_0_2_shield",
+  "hullId": "Moci_RX_0_2_shield",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RX_0/arms/RX_0_2_arm_left_shield_00.png",
+  "style": "MOCI_MS",
+  "height": 388,
+  "width": 78,
+  "center": [
+    39,
+    194
+  ],
+  "collisionRadius": 77.5,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 78,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_antibeamcoating_shield",
+    "Moci_module_collision_controller"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [],
+  "bounds": [
+    67.5,
+    20.5,
+    68.5,
+    10.5,
+    6.5,
+    1.5,
+    -43.5,
+    12.5,
+    -40.5,
+    20.5,
+    -36.5,
+    23.5,
+    6.5,
+    28.5
+  ]
+}

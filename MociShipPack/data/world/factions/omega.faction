@@ -1,0 +1,16 @@
+{
+    "hullFrequency":{
+        "hulls":{
+		"Moci_chaos_theory_Special":10,
+        },
+    },
+    "knownShips":{
+        "hulls":[
+            "Moci_chaos_theory",	
+        ],
+    },
+	"knownFighters":{
+		"fighters":[
+		],
+	},
+},

@@ -1,0 +1,213 @@
+{
+	    "MOCI_LION_TECH":{ # 引擎风格 ID，必改
+	    "engineColor":[100,165,255,255], # 引擎火焰颜色
+		"contrailParticleSizeMult":4, # 引擎航迹大小倍率
+		"contrailParticleDuration":1.5, # 引擎航迹持续时间
+		"contrailParticleFinalSizeMult":2.5, # 引擎航迹随延长而缩放倍率
+		"contrailMaxSpeedMult":0.5f, # 引擎航迹飘出速率
+		"contrailAngularVelocityMult":0.2f, # 引擎航迹角速度飘出速率
+		"contrailColor":[100,165,255,25], # 引擎航迹颜色
+		"contrailCampaignColor":[100,165,255,75], # 引擎航迹在大地图的颜色
+		"type":"GLOW", # 引擎航迹的类型，可以是 GLOW 或 SMOKE，前者类似淡光，后者类似烟雾
+		},
+	    "MOCI_ATX_TECH":{ # 引擎风格 ID，必改
+	    "engineColor":[100,165,255,255], # 引擎火焰颜色
+		"contrailParticleSizeMult":4, # 引擎航迹大小倍率
+		"contrailParticleDuration":1.0, # 引擎航迹持续时间
+		"contrailParticleFinalSizeMult":1.5, # 引擎航迹随延长而缩放倍率
+		"contrailMaxSpeedMult":0.5f, # 引擎航迹飘出速率
+		"contrailAngularVelocityMult":0.2f, # 引擎航迹角速度飘出速率
+		"contrailColor":[100,165,255,25], # 引擎航迹颜色
+		"contrailCampaignColor":[100,165,255,75], # 引擎航迹在大地图的颜色
+		"type":"GLOW", # 引擎航迹的类型，可以是 GLOW 或 SMOKE，前者类似淡光，后者类似烟雾
+		
+		"glowSprite":"graphics/fx/MBSlowSprite.png",
+		"glowOutline":"graphics/fx/MBSglowOutline.png",
+		"omegaMode":false,
+		"glowSizeMult":1,
+		"glowAlternateColor":[45, 150, 255,195],
+		},
+	"MOCI_XENO":{
+		"mode":"QUAD_STRIP", # PARTICLES or QUAD_STRIP, determines which params are used
+		"contrailDuration":1,
+		"contrailWidthMult":1,
+		"contrailWidthAddedFractionAtEnd":1f,  # can be negative. makes trail spread out/narrow at the end
+		"contrailMinSeg":5, # min segment length, in pixels
+		"contrailMaxSpeedMult":1f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[185,207,255,75],
+		"type":"GLOW", # GLOW or SMOKE; additive or regular blend mode
+						
+		"glowSprite":"graphics/fx/engineglow32b.png",
+		"glowOutline":"graphics/fx/engineflame32b.png",
+		"omegaMode":true,
+		"glowSizeMult":0.8,
+		"glowAlternateColor":[120,207,255,255],
+		"engineColor":[255,200,255,255],
+	},	
+	    "MOCI_GN_TECH":{ # 引擎风格 ID，必改
+	    "engineColor":[40,255,120,255], # 引擎火焰颜色
+		"contrailParticleSizeMult":4, # 引擎航迹大小倍率
+		"contrailParticleDuration":1.0, # 引擎航迹持续时间
+		"contrailParticleFinalSizeMult":1.5, # 引擎航迹随延长而缩放倍率
+		"contrailMaxSpeedMult":0.5f, # 引擎航迹飘出速率
+		"contrailAngularVelocityMult":0.2f, # 引擎航迹角速度飘出速率
+		"contrailColor":[40,155,120,50], # 引擎航迹颜色
+		"contrailCampaignColor":[40,155,120,75], # 引擎航迹在大地图的颜色
+		"type":"GLOW", # 引擎航迹的类型，可以是 GLOW 或 SMOKE，前者类似淡光，后者类似烟雾
+		
+		"glowSprite":"graphics/fx/MBSlowSprite.png",
+		"glowOutline":"graphics/fx/MBSglowOutline.png",
+		"omegaMode":false,
+		"glowSizeMult":1,
+		"glowAlternateColor":[45, 175, 100,195],
+		},
+	    "MOCI_HSI_LOW":{ # 引擎风格 ID，必改
+		#"mode":"QUAD_STRIP", # PARTICLES or QUAD_STRIP, determines which params are used
+		"contrailColor":[100,165,255,0],
+		"type":"GLOW", # GLOW or SMOKE; additive or regular blend mode
+		"contrailParticleSizeMult":3,
+		"contrailParticleDuration":1,
+		"contrailParticleFinalSizeMult":2f,
+		"contrailMaxSpeedMult":2f,
+		"contrailAngularVelocityMult":0.5f,
+		"glowSprite":"graphics/fx/Moci_HSI_TechParticleGlow.png",
+		"glowOutline":"graphics/fx/Moci_HSI_TechParticleFlame.png",
+		"omegaMode":true,
+		"glowSizeMult":0.5f,
+		"glowAlternateColor":[50,50,255,50],
+		"engineColor":[100,165,255,255],
+		"contrailCampaignColor":[100,165,255,75],
+		},
+	    "MOCI_MS":{
+		"mode":"QUAD_STRIP", # 欧米伽型
+		"contrailDuration":2,
+		"contrailWidthMult":2,
+		"contrailParticleFinalSizeMult":1.5, # 引擎航迹随延长而缩放倍率
+		"contrailWidthAddedFractionAtEnd":-1f,  # 光带尾部的宽度，0 为默认，小于 0 为末端窄，大于 0 为末端宽
+		"contrailMinSeg":2, # 光带每一小节的渲染长度，不建议改动，对于 QUAD_STRIP 来说该项必须存在
+		"contrailMaxSpeedMult":0.5f, # 引擎航迹飘出速率
+		"contrailAngularVelocityMult":0.2f, # 引擎航迹角速度飘出速率
+		"contrailColor":[100,165,255,75], # 引擎航迹颜色
+		"type":"GLOW", # GLOW or SMOKE; additive or regular blend mode
+		
+		"glowSprite":"graphics/fx/MBSlowSprite.png",
+		"glowOutline":"graphics/fx/MBSglowOutline.png",
+		"omegaMode":true,
+		"glowSizeMult":1,
+		"glowAlternateColor":[45, 150, 255,195],
+	    "engineColor":[100,165,255,255], # 引擎火焰颜色
+		},
+        "Moci_Omega_type1":{
+		"mode":"QUAD_STRIP", # 欧米伽型
+		"contrailDuration":3,
+		"contrailWidthMult":1,
+		"contrailWidthAddedFractionAtEnd":-1f,  # 光带尾部的宽度，0 为默认，小于 0 为末端窄，大于 0 为末端宽
+		"contrailMinSeg":5, # 光带每一小节的渲染长度，不建议改动，对于 QUAD_STRIP 来说该项必须存在
+		"contrailMaxSpeedMult":1f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[249, 164, 140,255],
+		"type":"GLOW", # GLOW or SMOKE; additive or regular blend mode
+						
+		"glowSprite":"graphics/fx/engineglow32b.png",
+		"glowOutline":"graphics/fx/engineflame32b.png",
+		"omegaMode":true,
+		"glowSizeMult":1,
+		"glowAlternateColor":[249, 164, 140,255],
+		"engineColor":[254, 154, 121,255],
+			},
+        "Moci_Omega_type2":{
+		"mode":"QUAD_STRIP", # 欧米伽型
+		"contrailDuration":3,
+		"contrailWidthMult":1,
+		"contrailWidthAddedFractionAtEnd":-1f,  # 光带尾部的宽度，0 为默认，小于 0 为末端窄，大于 0 为末端宽
+		"contrailMinSeg":5, # 光带每一小节的渲染长度，不建议改动，对于 QUAD_STRIP 来说该项必须存在
+		"contrailMaxSpeedMult":1f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[127, 150, 207,255],
+		"type":"GLOW", # GLOW or SMOKE; additive or regular blend mode
+						
+		"glowSprite":"graphics/fx/engineglow32b.png",
+		"glowOutline":"graphics/fx/engineflame32b.png",
+		"omegaMode":true,
+		"glowSizeMult":1,
+		"glowAlternateColor":[127, 150, 207,255],
+		"engineColor":[239, 244, 255,255],
+			},
+	"Moci_RX_93_Bit_1":{
+		"mode":"QUAD_STRIP",
+		"contrailDuration":1.5,
+		"contrailWidthMult":1,
+		"contrailWidthAddedFractionAtEnd":-1f,
+		"contrailMinSeg":5,
+		"contrailMaxSpeedMult":1f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[50,50,255,125],
+		"type":"GLOW",
+						
+		"glowSprite":"graphics/fx/engineglow32b.png",
+		"glowOutline":"graphics/fx/engineflame32b.png",
+		"omegaMode":true,
+		"glowSizeMult":1,
+		"glowAlternateColor":[50,50,255,255],
+		"engineColor":[100,100,255,255],
+			},
+	    "Moci_RX_93_Bit_2":{
+		"engineColor":[100,100,255,255],
+		"contrailParticleSizeMult":0,
+		"contrailParticleDuration":0,
+		"contrailParticleFinalSizeMult":0,
+		"contrailMaxSpeedMult":0f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[50,50,255,0],
+		"contrailCampaignColor":[50,50,255,0],
+		"type":"GLOW",
+		
+		"glowSprite":"graphics/fx/MBSlowSprite.png",
+		"glowOutline":"graphics/fx/MBSglowOutline.png",
+		"omegaMode":false,
+		"glowSizeMult":1,
+		"glowAlternateColor":[100, 100, 255,195],
+		},
+	"Moci_RX_93v2_Bit_1":{
+		"mode":"QUAD_STRIP",
+		"contrailDuration":1.5,
+		"contrailWidthMult":1,
+		"contrailWidthAddedFractionAtEnd":-1f,
+		"contrailMinSeg":5,
+		"contrailMaxSpeedMult":1f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[50,50,255,125],
+		"type":"GLOW",
+						
+		"glowSprite":"graphics/fx/engineglow32b.png",
+		"glowOutline":"graphics/fx/engineflame32b.png",
+		"omegaMode":true,
+		"glowSizeMult":1,
+		"glowAlternateColor":[50,50,255,255],
+		"engineColor":[150,50,255,255],
+			},
+	    "Moci_RX_93v2_Bit_2":{
+		"engineColor":[150,50,255,255],
+		"contrailParticleSizeMult":0,
+		"contrailParticleDuration":0,
+		"contrailParticleFinalSizeMult":0,
+		"contrailMaxSpeedMult":0f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[50,50,255,0],
+		"contrailCampaignColor":[50,50,255,0],
+		"type":"GLOW",
+		
+		"glowSprite":"graphics/fx/MBSlowSprite.png",
+		"glowOutline":"graphics/fx/MBSglowOutline.png",
+		"omegaMode":false,
+		"glowSizeMult":1,
+		"glowAlternateColor":[100, 100, 255,195],
+		},
+}
+		
+		
+		
+		
+		
+		

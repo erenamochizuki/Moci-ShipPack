@@ -1,0 +1,54 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 30,
+    "fluxVents": 6,
+    "goalVariant": true,
+    "hullId": "Moci_Renhai",
+    "hullMods": [
+        "auxiliarythrusters",
+        "converted_hangar",
+        "fluxcoil",
+        "fluxdistributor",
+        "frontemitter",
+        "hardenedshieldemitter",
+        "missleracks",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_Renhai_Base",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0003": "Moci_Renhai_Beam",
+            }
+        },
+        {
+            "autofire": false,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0008": "harpoon",
+                "WS0009": "harpoon",
+                "WS0006": "harpoon",
+                "WS0007": "harpoon",
+                "WS0004": "harpoon",
+                "WS0005": "harpoon",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "WS0001": "gravitonbeam",
+                "WS0002": "ionbeam",
+            }
+        },
+    ],
+    "wings": [
+        "wasp_wing",
+        "wasp_wing",
+    ],
+    "modules": [],
+}

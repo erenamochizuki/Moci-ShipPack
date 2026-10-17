@@ -1,0 +1,14 @@
+{
+  "variantId": "Moci_Great_Wall_right_sub_module_base",
+  "hullId": "Moci_Great_Wall_right_sub_module",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

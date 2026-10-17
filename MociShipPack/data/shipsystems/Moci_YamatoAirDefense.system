@@ -1,0 +1,18 @@
+{
+	"id":"Moci_YamatoAirDefense",
+	"type":"WEAPON",
+	"aiType":"CANISTER_FLAK",
+
+    #"type":"ENGINE_MOD",
+    #"aiType":"MANEUVERING_JETS",
+	#"statsScript":"data.shipsystems.scripts.Moci_YamatoAirDefense",
+	
+	"weaponDataId":"flak",
+	"outOfUsesSound":"gun_out_of_ammo",
+
+	#"fadeActivationSoundOnChargedown":false,
+	#"outOfUsesSound":"gun_out_of_ammo",
+	
+	#"aiHints":{
+	#}
+}

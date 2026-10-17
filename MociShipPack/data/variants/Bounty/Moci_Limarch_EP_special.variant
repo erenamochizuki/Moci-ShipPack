@@ -1,0 +1,57 @@
+{
+  "variantId": "Moci_Limarch_EP_special",
+  "hullId": "Moci_Limarch_EP",
+  "displayName": "Special",
+  "goalVariant": FALSE,
+  "fluxCapacitors": 50,
+  "fluxVents": 50,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "Moci_tpc_mode_cannon",
+    "ballistic_rangefinder",
+    "hardenedshieldemitter",
+    "heavyarmor",
+    "reinforcedhull",
+    "targetingunit"
+  ],
+  "sMods": [
+    "fluxcoil",
+    "fluxdistributor",
+    "magazines",
+    "armoredweapons",
+    "autorepair"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "lightneedler",
+        "WS0002": "lightneedler",
+        "WS0003": "lightneedler",
+        "WS0004": "lightneedler",
+        "WS0005": "lightneedler",
+        "WS0006": "lightneedler",
+        "WS0007": "flak",
+        "WS0008": "flak",
+        "WS0009": "flak",
+        "WS0010": "flak",
+        "WS0011": "typhoon",
+        "WS0012": "typhoon",
+        "WS0013": "devastator",
+        "WS0014": "devastator",
+        "WS0015": "devastator",
+        "WS0016": "devastator",
+        "WS0017": "typhoon",
+        "WS0018": "tpc",
+        "WS0019": "tpc",
+        "WS0020": "tpc",
+        "WS0021": "tpc",
+        "WS0022": "tpc"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

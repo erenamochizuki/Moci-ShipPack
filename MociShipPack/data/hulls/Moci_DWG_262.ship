@@ -1,0 +1,67 @@
+{
+  "hullName": "Moci_DWG_262",
+  "hullId": "Moci_DWG_262",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/wings/Moci_DWG_262.png",
+  "style": "LOW_TECH",
+  "height": 49,
+  "width": 30,
+  "center": [15, 24.5],
+  "collisionRadius": 29,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 29,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_ZeroWeaponEffect",
+    "Moci_HiddenMissile",
+    "Moci_WingmanAIManager"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 7,
+      "angle": 0,
+      "locations": [2.5, 7]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 7,
+      "angle": -0,
+      "locations": [2.5, -7]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-10.5, 7.5],
+      "length": 13,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 5,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-10.5, -7.5],
+      "length": 13,
+      "width": 5,
+      "angle": -180,
+      "contrailSize": 5,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -24, 5,
+    -14, 12.5,
+    -6.5, 12.5,
+    23, 0.5,
+    23, -0.5,
+    -6.5, -12.5,
+    -14, -12.5,
+    -24, -5
+  ]
+}

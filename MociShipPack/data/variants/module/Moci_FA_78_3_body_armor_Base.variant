@@ -1,0 +1,14 @@
+{
+  "variantId": "Moci_FA_78_3_body_armor_Base",
+  "hullId": "Moci_FA_78_3_body_armor",
+  "displayName": "Base",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

@@ -1,0 +1,5 @@
+name,id,tags,tech/manufacturer,rarity,base price,stack size,cargo space,baseRaidDanger,icon,sound id,sound id drop,plugin,plugin params,desc,order
+出售凭证,moci_sell_item,moci_sell_item,,,0,1,0,,,ui_chip_pickup,ui_ship_bp_drop,data.scripts.campaign.impl.items.MociSellShipBlueprintItemPlugin,,待定描述文本。,300
+,,,,,,,,,,,,,,,
+失活的漩涡核心,Moci_vortexcore_Inactivation,codex_unlockable,涡族,,20000,10,1,,graphics/icons/cargo/Moci_vortexcore_Inactivation.png,ui_cargo_special_industrial_pickup,ui_cargo_special_industrial_drop,com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin,,一种从涡族舰船上打捞到的核心，尽管其核心已失活，但是如果放到金属上，依旧会自发地开始增殖。,400
+波动引擎,Moci_wave_motion_engine,codex_unlockable,地球舰队-天枢,,20000000,1,1,,graphics/icons/cargo/Moci_wave_motion_engine.png,ui_cargo_special_industrial_pickup,ui_cargo_special_industrial_drop,com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin,,一种由伊斯坎达尔人发明的无限能量装置，被认为能够利用高维能量进行跨星系宇宙航行。尽管对于英仙座而言，星际旅行早已有了更轻松便捷的方式，但其依然可以用来启动一种独特的武器。,500

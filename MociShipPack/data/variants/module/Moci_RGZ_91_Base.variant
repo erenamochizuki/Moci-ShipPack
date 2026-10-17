@@ -1,0 +1,13 @@
+{
+    "displayName": "Base",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": false,
+    "hullId": "Moci_RGZ_91",
+    "hullMods": [],
+    "variantId": "Moci_RGZ_91_Base",
+    "weaponGroups": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RGZ_91_SHIELD_L_Base"},
+    ],
+}

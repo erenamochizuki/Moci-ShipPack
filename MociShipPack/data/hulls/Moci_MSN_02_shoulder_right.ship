@@ -1,0 +1,77 @@
+{
+  "hullName": "Moci_MSN_02_shoulder_right",
+  "hullId": "Moci_MSN_02_shoulder_right",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_MSN_02/shoulders/MSN_02_shoulder_right_ship.png",
+  "style": "LOW_TECH",
+  "height": 46,
+  "width": 80,
+  "center": [40, 23],
+  "collisionRadius": 45,
+  "shieldCenter": [
+    0,
+    0
+  ],
+  "shieldRadius": 45,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_antibeamcoating_shield",
+    "Moci_module_collision_controller"
+  ],
+  "builtInWeapons": {
+    "WS0001": "Moci_MSN_02_shoulder_right",
+    "WS0002": "Moci_MSN_02_armbit_shoulder_right"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        0,
+        0
+      ],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [
+        1,
+        2
+      ]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    17.5,
+    -26.5,
+    19.5,
+    -1,
+    9.5,
+    10.5,
+    -12.5,
+    9.5,
+    -19.5,
+    1.5,
+    -17.5,
+    -15.5,
+    -13.5,
+    -24.5,
+    -9.5,
+    -31.5,
+    -4.5,
+    -35.5,
+    0.5,
+    -36.5,
+    8.5,
+    -36.5
+  ]
+}

@@ -1,0 +1,54 @@
+{
+    "displayName": "Standard",
+    "fluxCapacitors": 9,
+    "fluxVents": 10,
+    "goalVariant": false,
+    "hullId": "Moci_RX_78_3",
+    "hullMods": [
+        "Moci_RX_78_2_WeaponSwap_left_bazooka",
+        "Moci_RX_78_2_WeaponSwap_right_rifle",
+        "armoredweapons",
+        "autorepair",
+        "stabilizedshieldemitter",
+        "insulatedengine",
+        "auxiliarythrusters",
+        "fluxcoil",
+        "hardened_subsystems",
+        "hardenedshieldemitter",
+        "heavyarmor",
+        "magazines",
+        "reinforcedhull",
+        "targetingunit",
+    ],
+    "permaMods": [],
+    "sMods": [],
+    "suppressedMods": [],
+    "variantId": "Moci_RX_78_3_Standard",
+    "weaponGroups": [
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_L_SOURCE": "RX_78_2_arm_left_gun_bazooka",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "ARM_R_SOURCE": "RX_78_2_arm_right_gun_rifle",
+            }
+        },
+        {
+            "autofire": true,
+            "mode": "LINKED",
+            "weapons": {
+                "HEAD_SOURCE": "RX_78_2_head_vulcan",
+            }
+        },
+    ],
+    "wings": [],
+    "modules": [
+        {"SHIELD_L": "Moci_RX_78_3_SHIELD_L_Base"},
+    ],
+}

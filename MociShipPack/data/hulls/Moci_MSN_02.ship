@@ -1,0 +1,430 @@
+{
+  "hullName": "Moci_MSN_02",
+  "hullId": "Moci_MSN_02",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_MSN_02/body/MSN_02_body.png",
+  "style": "MOCI_MS",
+  "height": 116,
+  "width": 168,
+  "center": [84, 58],
+  "collisionRadius": 201.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 201.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_MobileSuits",
+    "Moci_antibeamcoating",
+    "Moci_PsycommuSystem",
+    "Moci_GNShield"
+  ],
+  "builtInWeapons": {
+    "ARMBIT_L": "Moci_MSN_02_Arm_LinerBit_Control_L",
+    "ARMBIT_R": "Moci_MSN_02_Arm_LinerBit_Control_R",
+    "ARM_L": "Moci_MSN_02_arm_left",
+    "ARM_L_TYPE": "Moci_MSN_02_WEAPON_L_TYPE",
+    "ARM_R": "Moci_MSN_02_arm_right",
+    "ARM_R_TYPE": "Moci_MSN_02_WEAPON_R_TYPE",
+    "BACKPACK": "Moci_MSN_02_backpack",
+    "BACKPACK_L": "Moci_MSN_02_LinerBit_Control_L",
+    "BACKPACK_R": "Moci_MSN_02_LinerBit_Control_R",
+    "BACKPACK_WPL_COVER": "Moci_MSN_02_linerbit_cover",
+    "BACKPACK_WPR_COVER": "Moci_MSN_02_linerbit_cover",
+    "BODY": "Moci_MSN_02_body",
+    "HEAD": "Moci_MSN_02_head",
+    "HEAD_LIGHT": "Moci_MSN_02_head_light",
+    "HEAD_UPPER": "Moci_MSN_02_head_upper",
+    "LEGS": "Moci_MSN_02_legs",
+    "SHOULDER_L": "Moci_MSN_02_shoulder_left",
+    "SHOULDER_R": "Moci_MSN_02_shoulder_right"
+  },
+  "weaponSlots": [
+    {
+      "id": "LEGS",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 143,
+      "angle": 0,
+      "locations": [-7, 0]
+    },
+    {
+      "id": "ARM_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [10, 22],
+      "renderOrderMod": 2
+    },
+    {
+      "id": "ARM_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [10, -22],
+      "renderOrderMod": 2
+    },
+    {
+      "id": "SHOULDER_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-2, -36],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "SHOULDER_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-2, 36],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "WING_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-19, -25],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "WING_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-19, 25],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "HEAD",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 127,
+      "angle": 0,
+      "locations": [1, 0],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "BODY",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, 0],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "ARM_L_SOURCE",
+      "size": "LARGE",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [10, 22]
+    },
+    {
+      "id": "ARM_R_SOURCE",
+      "size": "LARGE",
+      "type": "HYBRID",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [10, -22]
+    },
+    {
+      "id": "HEAD_SOURCE",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "HIDDEN",
+      "arc": 20,
+      "angle": 0,
+      "locations": [16.5, 0]
+    },
+    {
+      "id": "BACKPACK",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-38, 0],
+      "renderOrderMod": 6
+    },
+    {
+      "id": "HEAD_LIGHT",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [1, 0],
+      "renderOrderMod": 7
+    },
+    {
+      "id": "SHOULDERWEAPON_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-2.5, 92]
+    },
+    {
+      "id": "SHOULDERWEAPON_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-2.5, -92]
+    },
+    {
+      "id": "ARMBIT_SHOULDER_L",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [29.5, 82]
+    },
+    {
+      "id": "ARMBIT_SHOULDER_R",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [29.5, -82]
+    },
+    {
+      "id": "ARM_R_TYPE",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [10, -22],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "ARM_L_TYPE",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [10, 22],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "BACKPACK_ARMOR",
+      "size": "MEDIUM",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-38, 0]
+    },
+    {
+      "id": "BODY_ARMOR",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-1.5, 0]
+    },
+    {
+      "id": "HEAD_UPPER",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 127,
+      "angle": 0,
+      "locations": [1, 0],
+      "renderOrderMod": 6
+    },
+    {
+      "id": "ARMBIT_SHOULDER_MODULE_L",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [-2, 36]
+    },
+    {
+      "id": "ARMBIT_SHOULDER_MODULE_R",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [-2, -36]
+    },
+    {
+      "id": "HAT",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-1, 0.5],
+      "renderOrderMod": 30
+    },
+    {
+      "id": "BACKPACK_R",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-40, -32]
+    },
+    {
+      "id": "BACKPACK_L",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-40, 32]
+    },
+    {
+      "id": "BACKPACK_WPR",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-40, -32]
+    },
+    {
+      "id": "BACKPACK_WPL",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-40, 32]
+    },
+    {
+      "id": "BACKPACK_WPR_COVER",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-40, -32],
+      "renderOrderMod": 8
+    },
+    {
+      "id": "BACKPACK_WPL_COVER",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-40, 32],
+      "renderOrderMod": 8
+    },
+    {
+      "id": "ARMBIT_R",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [15, -61.5],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "ARMBIT_L",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [15, 61.5],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "ARMBIT_WPR",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [15, -61.5]
+    },
+    {
+      "id": "ARMBIT_WPL",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": 0,
+      "locations": [15, 61.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-10.5, 10],
+      "length": 11.5,
+      "width": 6,
+      "angle": -180,
+      "contrailSize": 6,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-10.5, -10],
+      "length": 11.5,
+      "width": 6,
+      "angle": 180,
+      "contrailSize": 6,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-10.5, -10.5],
+      "length": 7.06,
+      "width": 2.92,
+      "angle": -166,
+      "contrailSize": 2.92,
+      "style": "LOW_TECH"
+    },
+    {
+      "location": [-10.5, 10.5],
+      "length": 7.06,
+      "width": 2.92,
+      "angle": 166,
+      "contrailSize": 2.92,
+      "style": "LOW_TECH"
+    }
+  ],
+  "bounds": [
+    -5.5, 23.5,
+    1.5, 23.5,
+    22.5, 8.5,
+    22.5, -8.5,
+    1.5, -23.5,
+    -5.5, -23.5,
+    -16.5, -17.5,
+    -21.5, -11.5,
+    -21.5, 11.5,
+    -16.5, 17.5
+  ]
+}

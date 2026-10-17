@@ -1,0 +1,25 @@
+{
+  "variantId": "Moci_Rapier_Gazer_Bomber",
+  "hullId": "Moci_Rapier",
+  "displayName": "<眼魔>轰炸机",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "Moci_gazer_fighter",
+        "WS0002": "Moci_gazer_fighter",
+        "WS0003": "Moci_gazer_fighter",
+        "WS0004": "Moci_gazer_fighter"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

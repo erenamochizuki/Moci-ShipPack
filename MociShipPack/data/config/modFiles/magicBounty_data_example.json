@@ -1,0 +1,221 @@
+{
+    "bountyID":{
+    
+        "required_mods_id": ["modA", "modB"], # 默认：无。列出该悬赏任务所需的模组
+        #TRIGGERS（全部可选）
+
+        "trigger_market_id": ["market_name"], # 默认：无。可指定市场名称。若因Nexerelin随机模式导致其他条件定义的位置不存在，可回退到其他偏好设置。此条件优先级最高，任务将始终显示在此市场，即使其他条件不满足。
+        "trigger_marketFaction_any": ["faction"], # 默认：无。满足其他条件时，属于这些派系的市场将显示悬赏。
+        "trigger_marketFaction_alliedWith": true, # 默认：false。若为true，则与上述派系中任意一个关系至少为“友好”的派系所属市场将显示悬赏（需满足其他条件）。
+        "trigger_marketFaction_none": ["other_faction"], # 默认：无。无论其他条件如何，属于这些派系的市场永远不会显示悬赏。
+        "trigger_marketFaction_enemyWith": false, # 默认：false。若为true，则与上述派系中所有派系关系为“敌对”的派系所属市场将显示悬赏。注意：当与多个被排除派系同时使用时需谨慎。
+        "trigger_market_minSize": 3, # 默认：0。市场的最小规模。
+        "trigger_player_minLevel": 15, # 默认：0。玩家的最低等级。
+        "trigger_min_fleet_size": 25, # 默认：0。基于舰队点数（非部署点数）计算的最低玩家舰队实力（包含军官和玩家等级的乘数）。可用于防止玩家通过仓库存取舰船来缩小悬赏舰队规模的漏洞。
+        "trigger_min_days_elapsed": 360, # 默认：0。必须经过的最小天数。
+        "trigger_weight_mult": 0.25, # 默认：-1。当多个悬赏任务竞争有限的公告板位置时，简单频率乘数。权重相加后随机选择一个，权重越高概率越大。默认悬赏memKeys说明：
+		"trigger_memKeys_all": { # 默认：无。仅当所有列出的memKeys存在且为指定布尔值时，任务才会显示。
+		    # $job_memKey_succeeded 若任务成功完成则设为true
+            # $job_memKey_failed 若任务要求击毁旗舰但玩家回收了它则设为true
+            # $job_memKey_expired 若任务超时、无玩家参与结束或被永久取消则设为true
+            # $job_memKey 当任务被接受时设为false，完成后无论结果如何均设为true
+            "$triggerKey":true,
+        },
+        "trigger_memKeys_any": { # 默认：无。若任意列出的memKeys存在且为指定布尔值，任务将显示。
+            "$triggerKey":true,
+        },
+        "trigger_playerRelationship_atLeast": { # 默认：无。此任务要求玩家与指定派系的关系至少达到设定值或更高。
+            "factionLikedId":0.25,
+        },
+        "trigger_playerRelationship_atMost": { # 默认：无。此任务要求玩家与指定派系的关系至多为设定值或更低。
+            "factionDislikedId":-0.5,
+        },
+
+        #悬赏任务描述
+
+        "job_name": "job name", # 默认："未命名任务"。在任务列表中显示的任务名称。
+        "job_description": "Long form description of the job", # 默认：空白。选择任务后显示的详细描述。
+                                                               # \n 表示换行，例如 "第一行。\n第二行。"
+															   # \" 添加引号。
+                                                               # == 高亮文本，例如 "普通文本 ==高亮部分== 普通文本。"
+                                                               # ^ 将文本变量的后续首字母大写，例如 "^$heIsSheIsTheyAre 变得愤怒。"
+                                                               # %% 允许使用%，否则会被视为转义字符。
+                                                               # $sonDaughterChild 基于悬赏指挥官性别。
+                                                               # $fatherMotherParent
+                                                               # $manWomanPerson
+                                                               # $heSheThey
+                                                               # $himHerThem
+                                                               # $hisHerTheir
+                                                               # $heIsSheIsTheyAre
+                                                               # $himselfHerselfThemselves
+                                                               # $system 悬赏舰队所在的星系。
+                                                               # $location 悬赏舰队附近的星体。
+                                                               # $shipName 悬赏旗舰名称。
+                                                               # $targetFaction 悬赏舰队的派系名称（带冠词）。
+                                                               # $givingFaction 发布悬赏的派系名称（带冠词）。
+                                                               # $rewardFaction 提供悬赏奖励的派系名称（通常与givingFaction相同）。
+                                                               # $reward 奖励的信用点数。
+                                                               # $name 悬赏指挥官全名。
+                                                               # $firstName 悬赏指挥官的名字。
+                                                               # $lastName 悬赏指挥官的姓氏。
+                                                               # $constellation 悬赏舰队所在的星座。
+                                                               # $shipFleet 根据目标是单舰还是舰队决定显示文本。
+        "job_comm_reply": "Reply of the enemy to your hail", # 默认：无。玩家与悬赏舰队通讯时显示的文本。
+                                                             # 若设为空字符串，则显示“对方$shipOrFleet未回应你的呼叫。”
+                                                             # 若未设置，默认使用舰队所属派系的常规通讯回复。
+        "job_intel_success": "Short text displayed in the intel", # 默认：不显示。任务成功完成后在情报中显示的简短总结。
+        "job_intel_failure": "Short text displayed in the intel", # 默认：不显示。因回收旗舰导致任务失败后在情报中显示的简短总结。
+        "job_intel_expired": "Short text displayed in the intel", # 默认：不显示。任务超时后在情报中显示的简短总结。
+        "job_forFaction": "faction_offering_the_job", # 默认：无派系。注意：除非设置“job_reputation_reward”为0，成功完成任务将使关系提升5点。
+        "job_deadline": 360, # 默认：无限制。完成任务的天数限制。
+        "job_credit_reward": 9000, # 默认：无信用奖励。成功完成时奖励的信用点数。
+        "job_reward_scaling": 1.0, # 默认：无缩放/加成。基于舰队点数的额外奖励，计算公式为：设定值 ×（悬赏舰队FP超过基础FP的部分）。
+        "job_reputation_reward":5, # 默认：5点声望。成功时与发布悬赏派系的声望提升值。设为0可禁用，不缩放。
+        "job_item_reward": { # 默认：无物品奖励。列出将添加到战后战利品中的特殊物品。第一项为物品ID，第二项为数量。
+            # 语法与控制台命令相同，可添加蓝图。["fighter_bp", "industry_bp", "modspec", "ship_bp", "weapon_bp"]
+            "item_A":1,
+            "ship_bp shipId": 1
+        },
+        "job_type":"assassination", # 默认：assassination。
+                # assassination: 仅需瘫痪旗舰，可回收。
+                # destruction: 需彻底摧毁旗舰且不可回收。
+                # obliteration: 需完全摧毁或瘫痪敌方舰队，可回收。
+                # neutralisation: 需摧毁或瘫痪敌方舰队的2/3，可回收。
+        "job_show_type": true, # 默认：true。若选择不显示默认任务类型，需在描述中明确任务目标。
+        "job_show_captain": false, # 默认：true。是否在任务板上显示悬赏舰队指挥官。若为false，则显示发布派系的旗帜。
+        "job_show_fleet": "preset", # 默认："vanilla"。
+                # 任务板上显示舰队的详细程度。
+				# none: 不显示
+                # text: “情报评估指出目标舰队可能包含超过%s艘舰船。”
+                # flagship: 仅显示旗舰图像
+                # flagshipText: 显示旗舰图像及其他舰船数量的文本
+                # preset: 仅显示旗舰和预设舰队图像
+                # presetText: 显示旗舰、预设舰队图像及舰船数量文本
+                # vanilla: 显示旗舰及舰队中最大的9艘舰船，外加舰船数量文本
+                # all: 显示舰队中所有舰船图像
+        "job_show_distance": "vague", # 默认："vanillaDistance"。
+                # 任务板上显示目标距离的精确程度。
+                # none: 不显示距离
+                # vague: “目标位于核心世界附近的某个区域。”
+                # distance: “距离当前位置约%s光年。”
+                # system: “目标位于<system>星系。”
+				# vanilla: “目标位于Nebulon星座的一个黄色主恒星星系中的巨行星附近。”并在酒吧对话中显示星图
+                # vanillaDistance: “目标位于Nebulon星座的一个黄色主恒星星系中的巨行星附近，距离当前位置约%s光年。”并在酒吧对话中显示星图
+				# exact: “目标位于Y星系的X附近。”并在酒吧对话中显示星图
+		"job_show_arrow": false, # 默认：false。是否在情报地图上显示从起点指向目标的箭头。仅在合理情况下启用以符合原版设计。
+        "job_difficultyDescription": "auto",  # 默认：自动显示难度描述。"none": 不显示，"auto": 任务板自动描述危险程度，其他文本：直接显示该文本。
+        "job_pick_option": "Accept the job", # 默认："接受任务"。选择后接受任务的选项文本。
+        "job_pick_script": "data.script.FancyScriptThatDoStuff", # 默认：无脚本。接受任务后触发，可用于执行后续脚本（例如生成竞争悬赏猎人）。
+        "job_memKey":"$jobMemKey",	# 默认："$bountyId"，memKeys始终以"$"开头。指定的memKey将在任务被接受时设为false，完成后设为true。
+        "job_conclusion_script":"data.script.FancyScriptThatDoStuff", # 默认：无脚本。可用于根据任务结果（通过memKeys判断）提供额外奖励或后果。
+
+        #目标现有舰队
+
+		"existing_target_memkey":"$memKey",
+
+        #目标指挥官（可选）
+
+        "target_importantPersonId": "your_important_person_id_optional", # 默认：无。用于悬赏指挥官的重要人物ID。若设置，将覆盖其他指挥官设置。
+        "target_first_name":"Firstname", # 默认：根据派系随机选择。
+        "target_last_name":"Lastname", # 默认：根据派系随机选择。
+        "target_portrait":"portraitId", # 默认：根据派系随机选择。settings.json/graphics/characters中的精灵ID或完整文件路径。
+        "target_gender":"ANY", # 默认：ANY。[ANY, UNDEFINED, MALE, FEMALE] ANY会随机选择男性或女性以避免文本和肖像冲突。
+        "target_rank": "Captain", # 默认："citizen"。来自campaign.ids.Ranks的军衔。
+        "target_post": "Fleet Commander", # 默认："spacer"。来自campaign.ids.Ranks的职位（Ranks类的后半部分）。
+        "target_personality": "aggressive", # 默认：随机选择。来自campaign.ids.Personalities的性格（"timid", "cautious", "steady", "aggressive", "reckless"）。
+        "target_aiCoreId": null, # 默认：null（非AI）。悬赏指挥官的AI核心ID，核心会作为战利品掉落。可选：[ null, "gamma_core", "beta_core", "alpha_core" ]
+        "target_level": 1, # 默认：0。悬赏指挥官的等级。
+        "target_elite_skills":2, # 默认：原版设置（通常为2）。覆盖普通精英技能数量，设为0则不使用精英技能。
+        "target_skill_preference": "ANY", # 默认："ANY"。
+		    # 技能偏好选项详见OfficerManagerEvent.SkillPickPreference，例如：
+		    # YES_ENERGY_YES_BALLISTIC_YES_MISSILE_YES_DEFENSE（允许能量、实弹、导弹、防御技能）
+		    # NO_ENERGY_NO_BALLISTIC_NO_MISSILE_NO_DEFENSE（禁止所有技能）
+        "target_skills": { # 默认：空。覆盖所有随机技能，等级1为普通技能，等级2为精英技能。
+            "skillnameA":1,
+            "skillnameB":2,
+            "skillnameC":1,
+        },
+
+
+        #目标舰队
+
+        "fleet_name":"Fleet Name", # 默认：无名称。
+        "fleet_faction": "ML_bounty", # 必填。派系ID，来自Factions类或自定义派系ID。
+        # MagicLib包含一个强制对所有人中立（玩家除外）的实用悬赏派系，ID为"ML_bounty"。
+        "fleet_flagship_variant":"buffalo2_FS", # 必填。旗舰使用的变体ID。可以是变体列表以随机选择：[variant1,variant2,variant3]
+        # 若变体文件依赖第三方模组的舰船或武器，可将其放置在[data\config\modFiles\magicBounty_variants\shipVariantId.variant]以避免模组缺失时崩溃。悬赏需正确配置模组依赖。
+        "fleet_flagship_name":"Flagship", # 默认：随机生成。
+        "fleet_flagship_alwaysRecoverable": true, # 默认：false。旗舰是否始终可回收。设为true时，若任务不允许回收，玩家仍会失败。
+        "fleet_flagship_autofit": false, # 默认：false。旗舰是否自动装配。设为false时，旗舰不会从质量覆盖中获得D插或S插。
+		"fleet_preset_ships": { # 默认：无预设。与旗舰一同生成的预设舰队。键为变体ID，值为数量。
+            "ship_variant1":1,
+            "ship_variant2":3,
+        },
+        "fleet_preset_autofit": true, # 默认：false。预设舰船是否自动装配。设为false时，预设舰船不会从质量覆盖中获得D插或S插。
+        "fleet_scaling_multiplier": 1, # 默认：无缩放。动态增援以匹配玩家舰队部署点数，设为0则忽略。
+        "fleet_min_FP": 100, # 默认：无最小值。舰队最小总规模，设为-1则忽略。
+        "fleet_composition_faction": "pirates", # 默认：悬赏舰队派系。用于额外舰船与舰队派系不匹配时（例如海盗舰队中的Hegemony逃兵）。调整最小FP和玩家适配时必需。
+        "fleet_composition_quality": 1, # 默认：1，设为2则无D插。
+        "fleet_transponder": false, # 默认：true。是否开启应答器。
+		"fleet_no_retreat": false, # 默认：false。舰队是否无法撤退。
+        "fleet_behavior": "PASSIVE", # 默认："GUARDED"。舰队在战略地图上的行为模式。可选：["PASSIVE", "GUARDED", "AGGRESSIVE", "ROAMING"]。
+        "fleet_musicSetId": "music_combat", # 默认：无自定义音乐。战斗时使用的音乐集ID。需在模组的`sounds.json`中添加，参考原版`sounds.json`中的"music_combat"示例。
+
+        #位置
+
+        "location_entitiesID": [  # 默认：无预设。悬赏舰队生成的预设位置（SectorEntityTokens），若预设不存在（如Nexerelin随机模式），则回退到其他设置。
+            "location1",
+            "location2",
+        ],
+        "location_marketFactions": [  # 默认：无指定派系。舰队生成的派系市场。设置此参数将覆盖其他条件（location_id除外）。
+            "faction"
+        ],
+        "location_distance": "CLOSE", # 默认：无偏好。舰队生成位置距星域中心的距离。可选："CORE", "CLOSE", "FAR"，留空则忽略。
+        "location_themes": [ # 默认：无偏好。舰队生成星系的合法主题。若同时存在于黑名单，则允许生成。
+            "theme_core_unpopulated",
+            "theme_core_populated",
+            "theme_core",
+            "theme_interesting",
+            "theme_interesting_minor",
+            "theme_ruins",
+            "theme_ruins_main",
+            "theme_ruins_secondary",
+            "theme_derelict",
+            "theme_derelict_mothership",
+            "theme_derelict_cryosleeper",
+            "theme_derelict_survey_ship",
+            "theme_derelict_probes",
+            "theme_unsafe",
+            "theme_remnant",
+            "theme_remnant_main",
+            "theme_remnant_secondary",
+            "theme_remnant_no_fleets",
+            "theme_remnant_destroyed",
+            "theme_remnant_suppressed",
+            "theme_remnant_resurgent",
+            "procgen_no_theme", # 普通悬赏应添加此属性
+            "procgen_no_theme_pulsar_blackhole", # 或此属性
+        ],
+        "location_themes_blacklist": [ # 默认：仅[theme_hidden]。禁止生成的主题。若同时存在于location_themes，则允许生成。
+            "theme_already_occupied", # 排除包含“敌对”主题的星系（如Remnant、Plague-Bearer、OCI、Blade-Breaker等模组添加的主题）
+            "theme_already_colonized", # 排除有活跃市场的星系（Nexerelin下海盗悬赏需设置此项）
+			"theme_hidden", # 被特定剧情星系使用
+			"no_pulsar_blackhole",
+        ],
+        "location_entities": [ # 默认：PLANET + JUMP_POINT + STABLE_LOCATION。舰队可能生成的星体类型。
+            "gate",
+            "station",
+            "wreck",
+            "debris",
+            "stable_location",
+            "comm_relay",
+            "nav_buoy",
+            "sensor_array",
+            "gas_giant",
+            "planet",
+            "jump_point",
+        ],
+        "location_prioritizeUnexplored": true, # 默认：false。优先选择玩家未探索的星系，但不覆盖距离要求。
+        "location_defaultToAnyEntity": true, # 默认：false。若在符合主题和距离的星系中未找到合适星体，则随机选择一个星体。否则忽略距离要求。
+    },
+}

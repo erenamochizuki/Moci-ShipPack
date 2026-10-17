@@ -1,0 +1,41 @@
+{
+  "hullName": "Moci_RGM_79SP_SHIELD_L",
+  "hullId": "Moci_RGM_79SP_SHIELD_L",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Mobile_Suit/Moci_RGM_79/arms/RGM_79SP_SHIELD_L.png",
+  "style": "MOCI_MS",
+  "height": 51,
+  "width": 25,
+  "center": [12.5, 25.5],
+  "collisionRadius": 30.5,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 30.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "Moci_module_collision_controller",
+    "Moci_antibeamcoating_shield"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 53,
+      "locations": [18, 13.5]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    41, 7.5,
+    37, 0.5,
+    2, 4.5,
+    -22, 13.5,
+    -21, 17.5,
+    -16, 22.5,
+    -4, 22.5,
+    18, 16.5,
+    34, 11.5
+  ]
+}

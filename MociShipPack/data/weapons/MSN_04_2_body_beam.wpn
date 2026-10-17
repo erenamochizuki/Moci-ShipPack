@@ -1,0 +1,87 @@
+{
+  "id": "MSN_04_2_body_beam",
+  "specClass": "projectile",
+  "projectileSpecId": "MSN_04_2_body_beam_shot",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "everyFrameEffect": "data.scripts.weapons.Moci_GuidingWeapon",
+  "turretSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/body/MSN_04_2_body_beam.png",
+  "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/body/MSN_04_2_body_beam_glow.png",
+  "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/body/MSN_04_2_body_beam.png",
+  "hardpointGlowSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/body/MSN_04_2_body_beam_glow.png",
+  "glowColor": [
+    196,
+    255,
+    70,
+    255
+  ],
+  "turretOffsets": [
+    4,
+    0,
+    4,
+    0,
+    4,
+    -0,
+    4,
+    0,
+    4,
+    -0,
+    4,
+    -0,
+    4,
+    0,
+    4,
+    -0,
+    4,
+    0
+  ],
+  "turretAngleOffsets": [
+    0,
+    -10,
+    10,
+    -20,
+    20,
+    30,
+    -30,
+    40,
+    -40
+  ],
+  "hardpointOffsets": [
+    9.5,
+    0,
+    9,
+    -1,
+    9,
+    1,
+    8,
+    -2,
+    8,
+    2
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    -10,
+    10,
+    -20,
+    20
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 20,
+    "spread": 15,
+    "particleSizeMin": 15,
+    "particleSizeRange": 15,
+    "particleDuration": 0.15,
+    "particleCount": 20,
+    "particleColor": [
+      196,
+      255,
+      70,
+      125
+    ]
+  },
+	"fireSoundOne":"Moci_bodybeam_charge",
+	"fireSoundTwo":"Moci_bodybeam_fire",
+}
