@@ -13,6 +13,7 @@ import com.fs.starfarer.api.combat.CollisionGridAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipAPI.HullSize;
 import com.fs.starfarer.api.combat.ShipEngineControllerAPI;
+import com.fs.starfarer.api.combat.ShipSystemAPI;
 import com.fs.starfarer.api.combat.ShipwideAIFlags;
 import com.fs.starfarer.api.combat.ShipwideAIFlags.AIFlags;
 import com.fs.starfarer.api.combat.WeaponAPI;
@@ -33,8 +34,12 @@ import java.util.Locale;
 public class Moci_MobilitySubsystem extends MagicSubsystem {
     private static final String TEXT_ID = "Moci_MobilitySubsystem";
     private static final boolean USE_TACTICAL_AI = true;
-    private static final float AI_DECISION_INTERVAL = 0.2f;
+    private static final float AI_DECISION_MIN_INTERVAL = 0.15f;
+    private static final float AI_DECISION_INTERVAL_STEP = 0.01f;
+    private static final int AI_DECISION_INTERVAL_STEPS = 16;
     private static final float WEAPON_RANGE_REFRESH_INTERVAL = 1f;
+    private static final float TRAVEL_MIN_DISTANCE = 2000f;
+    private static final float TRAVEL_THREAT_RANGE = 2000f;
     private static final float PARTICLE_INTERVAL = 1f / 30f;
     private static final int MAX_PARTICLE_BATCHES_PER_FRAME = 3;
 
@@ -101,7 +106,8 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
     // ========== 内部状态 ==========
     private final String effectId = "moci_mobility_subsystem";
     private float particleElapsed = 0f;
-    private float aiDecisionElapsed = ThreadLocalRandom.current().nextFloat() * AI_DECISION_INTERVAL;
+    private float aiDecisionInterval = nextAiDecisionInterval();
+    private float aiDecisionElapsed = ThreadLocalRandom.current().nextFloat() * aiDecisionInterval;
     private float weaponRangeElapsed = WEAPON_RANGE_REFRESH_INTERVAL;
     private float cachedWeaponRange = 300f;
     private boolean effectsApplied = false;
@@ -335,11 +341,18 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
         if (!USE_TACTICAL_AI) {
             return shouldActivateLegacyAI();
         }
-        if (aiDecisionElapsed < AI_DECISION_INTERVAL) {
+        if (aiDecisionElapsed < aiDecisionInterval) {
             return false;
         }
+        boolean shouldActivate = shouldActivateTacticalAI();
         aiDecisionElapsed = 0f;
-        return shouldActivateTacticalAI();
+        aiDecisionInterval = nextAiDecisionInterval();
+        return shouldActivate;
+    }
+
+    private static float nextAiDecisionInterval() {
+        return AI_DECISION_MIN_INTERVAL
+                + ThreadLocalRandom.current().nextInt(AI_DECISION_INTERVAL_STEPS) * AI_DECISION_INTERVAL_STEP;
     }
 
     private boolean shouldActivateLegacyAI() {
@@ -387,11 +400,26 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
         float shipRadius = ship.getCollisionRadius();
         float shipX = ship.getLocation().x;
         float shipY = ship.getLocation().y;
+        ShipwideAIFlags flags = ship.getAIFlags();
+        boolean backingOff = flags != null && (flags.hasFlag(AIFlags.BACK_OFF)
+                || flags.hasFlag(AIFlags.BACKING_OFF) || flags.hasFlag(AIFlags.RUN_QUICKLY));
+        float fluxLevel = ship.getFluxLevel();
+        boolean travelCandidate = !backingOff && fluxLevel <= 0.5f
+                && shouldBoostForTravel(engines, flags, movementX, movementY, movementSquared);
+        boolean travelSafe = travelCandidate;
+        float travelThreatRange = TRAVEL_THREAT_RANGE;
+        if (travelCandidate) {
+            float horizon = getInDuration() + getActiveDuration() + getOutDuration();
+            float boostTravel = maxSpeedBonus * horizon;
+            Vector2f velocity = ship.getVelocity();
+            travelThreatRange += boostTravel + (Math.abs(velocity.x) + Math.abs(velocity.y)) * horizon;
+        }
         ShipAPI nearestThreat = null;
         float nearestDistanceSquared = Float.MAX_VALUE;
         int nearbyThreats = 0;
         CollisionGridAPI grid = combat.getShipGrid();
-        float queryDiameter = (aiFleeDistance + shipRadius) * 2f;
+        float scanRange = travelCandidate ? Math.max(aiFleeDistance, travelThreatRange) : aiFleeDistance;
+        float queryDiameter = (scanRange + shipRadius) * 2f;
         Iterator<?> candidates = grid != null
                 ? grid.getCheckIterator(ship.getLocation(), queryDiameter, queryDiameter)
                 : combat.getShips().iterator();
@@ -401,12 +429,21 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
                 continue;
             }
             ShipAPI other = (ShipAPI) candidate;
-            if (!isValidEnemy(other, combat) || other.isFighter()) {
+            if (!isValidEnemy(other, combat)) {
                 continue;
             }
             float offsetX = other.getLocation().x - shipX;
             float offsetY = other.getLocation().y - shipY;
             float distanceSquared = offsetX * offsetX + offsetY * offsetY;
+            if (travelSafe) {
+                float safeRange = travelThreatRange + shipRadius + other.getCollisionRadius();
+                if (distanceSquared < safeRange * safeRange) {
+                    travelSafe = false;
+                }
+            }
+            if (other.isFighter()) {
+                continue;
+            }
             float threatRange = aiFleeDistance + shipRadius + other.getCollisionRadius();
             if (distanceSquared >= threatRange * threatRange) {
                 continue;
@@ -417,11 +454,7 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
                 nearestThreat = other;
             }
         }
-        ShipwideAIFlags flags = ship.getAIFlags();
-        boolean backingOff = flags != null && (flags.hasFlag(AIFlags.BACK_OFF)
-                || flags.hasFlag(AIFlags.BACKING_OFF) || flags.hasFlag(AIFlags.RUN_QUICKLY));
         float hullLevel = ship.getHullLevel();
-        float fluxLevel = ship.getFluxLevel();
         if (nearestThreat != null) {
             float offsetX = nearestThreat.getLocation().x - shipX;
             float offsetY = nearestThreat.getLocation().y - shipY;
@@ -437,6 +470,9 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
                     && movementDot * movementDot > 0.1225f * movementSquared * nearestDistanceSquared) {
                 return true;
             }
+        }
+        if (travelSafe) {
+            return true;
         }
         ShipAPI target = ship.getShipTarget();
         if (backingOff || hullLevel < aiFleeHullThreshold || fluxLevel > 0.8f
@@ -473,6 +509,49 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
             }
         }
         return true;
+    }
+
+    private boolean shouldBoostForTravel(ShipEngineControllerAPI engines, ShipwideAIFlags flags,
+                                        float movementX, float movementY, float movementSquared) {
+        if (!usesChargesOnActivate() || flags == null || !engines.isAccelerating()
+                || engines.isTurningLeft() || engines.isTurningRight()) {
+            return false;
+        }
+        int chargeCapacity = calcMaxCharges();
+        if (chargeCapacity <= 0 || getCharges() < chargeCapacity) {
+            return false;
+        }
+        ShipSystemAPI travelDrive = ship.getTravelDrive();
+        if (travelDrive != null && travelDrive.isOn()) {
+            return false;
+        }
+        Object destination = flags.getCustom(AIFlags.MOVEMENT_DEST);
+        if (!(destination instanceof Vector2f)) {
+            return false;
+        }
+        Vector2f destinationLocation = (Vector2f) destination;
+        float offsetX = destinationLocation.x - ship.getLocation().x;
+        float offsetY = destinationLocation.y - ship.getLocation().y;
+        float distanceSquared = offsetX * offsetX + offsetY * offsetY;
+        float movementDot = movementX * offsetX + movementY * offsetY;
+        float minimumDistance = TRAVEL_MIN_DISTANCE + ship.getCollisionRadius();
+        if (!Float.isFinite(distanceSquared) || distanceSquared <= minimumDistance * minimumDistance
+                || movementDot <= 0f || movementDot * movementDot < 0.81f * movementSquared * distanceSquared) {
+            return false;
+        }
+        Vector2f velocity = ship.getVelocity();
+        float velocityDot = velocity.x * offsetX + velocity.y * offsetY;
+        float speedSquared = velocity.x * velocity.x + velocity.y * velocity.y;
+        if (velocityDot < 0f || velocityDot * velocityDot < 0.81f * speedSquared * distanceSquared) {
+            return false;
+        }
+        float horizon = getInDuration() + getActiveDuration() + getOutDuration();
+        float boostTravel = maxSpeedBonus * horizon;
+        float safeDistance = minimumDistance + boostTravel;
+        float predictedX = offsetX - velocity.x * horizon;
+        float predictedY = offsetY - velocity.y * horizon;
+        return predictedX * offsetX + predictedY * offsetY > 0f
+                && predictedX * predictedX + predictedY * predictedY > safeDistance * safeDistance;
     }
 
     private boolean isValidEnemy(ShipAPI other, CombatEngineAPI combat) {
@@ -534,7 +613,7 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
         if (isPaused)
             return;
 
-        aiDecisionElapsed = Math.min(AI_DECISION_INTERVAL, aiDecisionElapsed + amount);
+        aiDecisionElapsed = Math.min(aiDecisionInterval, aiDecisionElapsed + amount);
         weaponRangeElapsed = Math.min(WEAPON_RANGE_REFRESH_INTERVAL, weaponRangeElapsed + amount);
         if (!ship.isAlive() || ship.isHulk() || isBlockedDuringRepair()) {
             forceStop();
