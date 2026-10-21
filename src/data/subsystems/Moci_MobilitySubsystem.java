@@ -1,15 +1,21 @@
 package data.subsystems;
 
 import java.awt.Color;
+import java.util.Iterator;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.lwjgl.util.vector.Vector2f;
 import org.magiclib.subsystems.MagicSubsystem;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.CombatEngineAPI;
+import com.fs.starfarer.api.combat.CollisionGridAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipAPI.HullSize;
-import com.fs.starfarer.api.combat.ViewportAPI;
-import com.fs.starfarer.api.util.IntervalUtil;
+import com.fs.starfarer.api.combat.ShipEngineControllerAPI;
+import com.fs.starfarer.api.combat.ShipwideAIFlags;
+import com.fs.starfarer.api.combat.ShipwideAIFlags.AIFlags;
+import com.fs.starfarer.api.combat.WeaponAPI;
 import data.hullmods.Moci_MobileSuitRepairTracker;
 import data.scripts.util.Moci_TextLoader;
 
@@ -26,6 +32,11 @@ import java.util.Locale;
  */
 public class Moci_MobilitySubsystem extends MagicSubsystem {
     private static final String TEXT_ID = "Moci_MobilitySubsystem";
+    private static final boolean USE_TACTICAL_AI = true;
+    private static final float AI_DECISION_INTERVAL = 0.2f;
+    private static final float WEAPON_RANGE_REFRESH_INTERVAL = 1f;
+    private static final float PARTICLE_INTERVAL = 1f / 30f;
+    private static final int MAX_PARTICLE_BATCHES_PER_FRAME = 3;
 
     // ========== 不同船体尺寸的基础数值配置 ==========
     private static final float FRIGATE_SPEED_BONUS = 450f;
@@ -52,9 +63,7 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
     private float maxSpeedBonus = 450f; // 最大速度提升（绝对值）
     private float maxAccelerationBonus = 1000f; // 最大加速度提升（绝对值）
     private float maxDecelerationBonus = 1000f; // 最大减速度提升（绝对值）
-    private float maxTurnBonus = 0f; // 最大转向提升（百分比，暂不使用）
-
-    private boolean useInstantStopBurstMode = true; //false: 原版模式 true: 瞬停爆发模式，启动瞬间清零速度向量，并将加速度/减速度翻倍
+    private float maxTurnBonus = 0f;
 
     // ========== 充能系统参数 ==========
     private int maxCharges = 4; // 最大充能数
@@ -71,7 +80,7 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
     private float activationFluxPercent = 0f; // 激活时百分比幅能消耗
     private boolean isHardFlux = false; // 是否为硬通量
 
-    // ========== 目标系统参数（未使用） ==========
+    // ========== 目标系统参数 ==========
     private boolean requiresTarget = false; // 是否需要目标
     private boolean targetOnlyEnemies = true; // 是否只能选择敌方目标
     private float range = -1f; // 射程（-1表示无限制）
@@ -80,7 +89,7 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
     private boolean canUseWhileOverloaded = false; // 过载时是否可用
     private boolean canUseWhileVenting = false; // 散热时是否可用
     private boolean usesChargesOnActivate = true; // 激活时是否消耗充能
-    private float systemStatsEffectMult = 1f; // 系统技能效果倍数
+    private float systemStatsEffectMult = 1f;
 
     // ========== AI行为参数 ==========
     private float aiChaseMinDistance = 300f; // AI追击模式最小距离
@@ -90,8 +99,14 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
     private float aiFleeDistance = 1000f; // AI逃跑模式触发距离
 
     // ========== 内部状态 ==========
-    private String effectId = "moci_mobility_subsystem";
-    private IntervalUtil glowInterval = new IntervalUtil(0.1f, 0.1f);
+    private final String effectId = "moci_mobility_subsystem";
+    private float particleElapsed = 0f;
+    private float aiDecisionElapsed = ThreadLocalRandom.current().nextFloat() * AI_DECISION_INTERVAL;
+    private float weaponRangeElapsed = WEAPON_RANGE_REFRESH_INTERVAL;
+    private float cachedWeaponRange = 300f;
+    private boolean effectsApplied = false;
+    private float cachedStateDuration = -1f;
+    private float cachedStateReciprocal = 0f;
 
     public Moci_MobilitySubsystem(ShipAPI ship) {
         super(ship);
@@ -293,7 +308,7 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
 
     @Override
     public float getSystemStatsEffectMult() {
-        return systemStatsEffectMult; // 系统技能效果倍数
+        return systemStatsEffectMult;
     }
 
     @Override
@@ -304,7 +319,8 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
         }
 
         // 检查是否过载或散热中
-        if (ship.getFluxTracker().isOverloaded() || ship.getFluxTracker().isVenting()) {
+        if ((!canUseWhileOverloaded() && ship.getFluxTracker().isOverloaded())
+                || (!canUseWhileVenting() && ship.getFluxTracker().isVenting())) {
             return false;
         }
 
@@ -313,44 +329,188 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
 
     @Override
     public boolean shouldActivateAI(float amount) {
-        // AI激活逻辑
-        if (!canActivate()) {
+        if (!canActivate() || !canActivateInternal()) {
             return false;
         }
+        if (!USE_TACTICAL_AI) {
+            return shouldActivateLegacyAI();
+        }
+        if (aiDecisionElapsed < AI_DECISION_INTERVAL) {
+            return false;
+        }
+        aiDecisionElapsed = 0f;
+        return shouldActivateTacticalAI();
+    }
 
-        // 优先检查：如果舰船正在撤退，无条件激活机动系统
+    private boolean shouldActivateLegacyAI() {
         if (ship.isRetreating()) {
             return true;
         }
-
-        // 当AI需要快速机动时激活（比如追击或逃跑）
         ShipAPI target = ship.getShipTarget();
-        if (target != null) {
-            float distance = Vector2f.sub(target.getLocation(), ship.getLocation(), null).length();
+        if (target == null) {
+            return false;
+        }
+        float offsetX = target.getLocation().x - ship.getLocation().x;
+        float offsetY = target.getLocation().y - ship.getLocation().y;
+        float distanceSquared = offsetX * offsetX + offsetY * offsetY;
+        float speedThreshold = ship.getMaxSpeed() * aiChaseSpeedThreshold;
+        if (distanceSquared > aiChaseMinDistance * aiChaseMinDistance
+                && distanceSquared < aiChaseMaxDistance * aiChaseMaxDistance
+                && ship.getVelocity().lengthSquared() > speedThreshold * speedThreshold) {
+            return true;
+        }
+        return ship.getHullLevel() < aiFleeHullThreshold && distanceSquared < aiFleeDistance * aiFleeDistance;
+    }
 
-            // 如果目标距离适中且AI想要接近，激活机动系统
-            if (distance > aiChaseMinDistance && distance < aiChaseMaxDistance) {
-                // 检查舰船是否在加速（表示想要接近）
-                Vector2f velocity = ship.getVelocity();
-                if (velocity.length() > ship.getMaxSpeed() * aiChaseSpeedThreshold) {
-                    return true;
-                }
+    private boolean shouldActivateTacticalAI() {
+        CombatEngineAPI combat = Global.getCombatEngine();
+        ShipEngineControllerAPI engines = ship.getEngineController();
+        if (combat == null || engines == null || engines.isDisabled() || engines.isFlamedOut()
+                || engines.isDecelerating()) {
+            return false;
+        }
+        float forward = (engines.isAccelerating() ? 1f : 0f) - (engines.isAcceleratingBackwards() ? 1f : 0f);
+        float sideways = (engines.isStrafingLeft() ? 1f : 0f) - (engines.isStrafingRight() ? 1f : 0f);
+        float movementSquared = forward * forward + sideways * sideways;
+        if (movementSquared == 0f) {
+            return false;
+        }
+        if (ship.isRetreating()) {
+            return true;
+        }
+        float facing = (float) Math.toRadians(ship.getFacing());
+        float facingCos = (float) Math.cos(facing);
+        float facingSin = (float) Math.sin(facing);
+        float movementX = facingCos * forward - facingSin * sideways;
+        float movementY = facingSin * forward + facingCos * sideways;
+        float preferredRange = getPreferredWeaponRange();
+        float shipRadius = ship.getCollisionRadius();
+        float shipX = ship.getLocation().x;
+        float shipY = ship.getLocation().y;
+        ShipAPI nearestThreat = null;
+        float nearestDistanceSquared = Float.MAX_VALUE;
+        int nearbyThreats = 0;
+        CollisionGridAPI grid = combat.getShipGrid();
+        float queryDiameter = (aiFleeDistance + shipRadius) * 2f;
+        Iterator<?> candidates = grid != null
+                ? grid.getCheckIterator(ship.getLocation(), queryDiameter, queryDiameter)
+                : combat.getShips().iterator();
+        while (candidates.hasNext()) {
+            Object candidate = candidates.next();
+            if (!(candidate instanceof ShipAPI)) {
+                continue;
             }
-
-            // 如果血量较低且有敌人接近，激活机动系统逃跑
-            if (ship.getHullLevel() < aiFleeHullThreshold && distance < aiFleeDistance) {
+            ShipAPI other = (ShipAPI) candidate;
+            if (!isValidEnemy(other, combat) || other.isFighter()) {
+                continue;
+            }
+            float offsetX = other.getLocation().x - shipX;
+            float offsetY = other.getLocation().y - shipY;
+            float distanceSquared = offsetX * offsetX + offsetY * offsetY;
+            float threatRange = aiFleeDistance + shipRadius + other.getCollisionRadius();
+            if (distanceSquared >= threatRange * threatRange) {
+                continue;
+            }
+            nearbyThreats++;
+            if (distanceSquared < nearestDistanceSquared) {
+                nearestDistanceSquared = distanceSquared;
+                nearestThreat = other;
+            }
+        }
+        ShipwideAIFlags flags = ship.getAIFlags();
+        boolean backingOff = flags != null && (flags.hasFlag(AIFlags.BACK_OFF)
+                || flags.hasFlag(AIFlags.BACKING_OFF) || flags.hasFlag(AIFlags.RUN_QUICKLY));
+        float hullLevel = ship.getHullLevel();
+        float fluxLevel = ship.getFluxLevel();
+        if (nearestThreat != null) {
+            float offsetX = nearestThreat.getLocation().x - shipX;
+            float offsetY = nearestThreat.getLocation().y - shipY;
+            float movementDot = movementX * offsetX + movementY * offsetY;
+            float relativeX = ship.getVelocity().x - nearestThreat.getVelocity().x;
+            float relativeY = ship.getVelocity().y - nearestThreat.getVelocity().y;
+            float closeRange = preferredRange * 0.7f + shipRadius + nearestThreat.getCollisionRadius();
+            boolean tooClose = nearestDistanceSquared < closeRange * closeRange
+                    && relativeX * offsetX + relativeY * offsetY > 0f;
+            boolean underPressure = hullLevel < aiFleeHullThreshold || fluxLevel > 0.8f
+                    || nearbyThreats >= 3 || backingOff;
+            if ((underPressure || tooClose) && movementDot < 0f
+                    && movementDot * movementDot > 0.1225f * movementSquared * nearestDistanceSquared) {
                 return true;
             }
         }
+        ShipAPI target = ship.getShipTarget();
+        if (backingOff || hullLevel < aiFleeHullThreshold || fluxLevel > 0.8f
+                || !isValidEnemy(target, combat) || target.isFighter()) {
+            return false;
+        }
+        float offsetX = target.getLocation().x - shipX;
+        float offsetY = target.getLocation().y - shipY;
+        float distanceSquared = offsetX * offsetX + offsetY * offsetY;
+        float movementDot = movementX * offsetX + movementY * offsetY;
+        if (distanceSquared <= aiChaseMinDistance * aiChaseMinDistance
+                || distanceSquared >= aiChaseMaxDistance * aiChaseMaxDistance || movementDot <= 0f
+                || movementDot * movementDot < 0.4225f * movementSquared * distanceSquared) {
+            return false;
+        }
+        float boostTravel = maxSpeedBonus * (getActiveDuration() + getInDuration() * 0.5f);
+        float preferredDistance = preferredRange + shipRadius + target.getCollisionRadius();
+        float safeDistance = preferredDistance + Math.max(100f, boostTravel * 0.65f);
+        if (distanceSquared <= safeDistance * safeDistance) {
+            return false;
+        }
+        float horizon = getInDuration() + getActiveDuration();
+        float predictedX = offsetX - (ship.getVelocity().x - target.getVelocity().x) * horizon;
+        float predictedY = offsetY - (ship.getVelocity().y - target.getVelocity().y) * horizon;
+        if (predictedX * offsetX + predictedY * offsetY <= 0f
+                || predictedX * predictedX + predictedY * predictedY <= safeDistance * safeDistance) {
+            return false;
+        }
+        if (usesChargesOnActivate() && getCharges() <= 1) {
+            float reserveDistance = preferredDistance + Math.max(400f, boostTravel);
+            if (nearbyThreats > 1 || fluxLevel > 0.5f || hullLevel < 0.6f
+                    || distanceSquared < reserveDistance * reserveDistance) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-        return false;
+    private boolean isValidEnemy(ShipAPI other, CombatEngineAPI combat) {
+        int owner = ship.getOwner();
+        return other != null && other != ship && other.isAlive() && !other.isHulk()
+                && owner >= 0 && owner <= 1 && other.getOwner() == 1 - owner && combat.isEntityInPlay(other);
+    }
+
+    private float getPreferredWeaponRange() {
+        if (weaponRangeElapsed < WEAPON_RANGE_REFRESH_INTERVAL) {
+            return cachedWeaponRange;
+        }
+        weaponRangeElapsed = 0f;
+        float weightedRange = 0f;
+        float totalWeight = 0f;
+        float missileRange = 0f;
+        for (WeaponAPI weapon : ship.getAllWeapons()) {
+            if (weapon.isDecorative() || weapon.isDisabled() || weapon.hasAIHint(WeaponAPI.AIHints.PD_ONLY)
+                    || (weapon.usesAmmo() && weapon.getAmmo() <= 0) || weapon.getRange() <= 0f) {
+                continue;
+            }
+            if (weapon.getType() == WeaponAPI.WeaponType.MISSILE) {
+                missileRange = Math.max(missileRange, weapon.getRange());
+            } else if (weapon.getType() == WeaponAPI.WeaponType.BALLISTIC
+                    || weapon.getType() == WeaponAPI.WeaponType.ENERGY) {
+                float weight = Math.max(1f, weapon.getDerivedStats().getSustainedDps());
+                weightedRange += weapon.getRange() * weight;
+                totalWeight += weight;
+            }
+        }
+        float weaponRange = totalWeight > 0f ? weightedRange / totalWeight : missileRange;
+        cachedWeaponRange = Math.max(aiChaseMinDistance, weaponRange * 0.9f);
+        return cachedWeaponRange;
     }
 
     @Override
     public void onActivate() {
-        if (useInstantStopBurstMode) {
-            resetShipVelocity();
-        }
+        particleElapsed = 0f;
 
         // 播放激活音效
         Global.getSoundPlayer().playSound("system_maneuvering_jets", 1f, 1f,
@@ -361,13 +521,12 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
     public void onFinished() {
         // 系统结束时移除效果
         removeAllEffects();
-
+        particleElapsed = 0f;
     }
 
     @Override
     public void onShipDeath() {
-        // 舰船死亡时清理效果
-        removeAllEffects();
+        forceStop();
     }
 
     @Override
@@ -375,158 +534,114 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
         if (isPaused)
             return;
 
-        if (isBlockedDuringRepair()) {
-            forceStopForRepair();
+        aiDecisionElapsed = Math.min(AI_DECISION_INTERVAL, aiDecisionElapsed + amount);
+        weaponRangeElapsed = Math.min(WEAPON_RANGE_REFRESH_INTERVAL, weaponRangeElapsed + amount);
+        if (!ship.isAlive() || ship.isHulk() || isBlockedDuringRepair()) {
+            forceStop();
             return;
         }
 
         // 动态应用效果，基于effectLevel
-        applyDynamicEffects();
-        updateVisualEffects(amount);
+        float effectLevel = getEffectLevel();
+        applyDynamicEffects(effectLevel);
+        updateVisualEffects(amount, effectLevel);
 
         // 应用引擎光效
-        applyEngineGlowEffects();
+        applyEngineGlowEffects(effectLevel);
     }
 
     /**
      * 动态应用机动性增强效果
      * 基于effectLevel实现平滑的效果变化
      */
-    private void applyDynamicEffects() {
-        float effectLevel = getEffectLevel(); // 0.0 到 1.0
-
-        if (effectLevel > 0f) {
-            float mobilityBonusMultiplier = useInstantStopBurstMode ? 2f : 1f;
-
-            // 计算当前效果强度
-            float currentAccelBonus = maxAccelerationBonus * mobilityBonusMultiplier * effectLevel;
-            float currentDecelBonus = maxDecelerationBonus * mobilityBonusMultiplier * effectLevel;
-
-            // 在OUT状态时，移除最大速度限制让舰船能够减速
-            if (state == State.OUT) {
-                // 关键：在OUT状态时移除速度加成，让舰船减速回正常速度
-                ship.getMutableStats().getMaxSpeed().unmodify(effectId);
-            } else {
-                // 在IN和ACTIVE状态时，应用速度加成
-                float currentSpeedBonus = maxSpeedBonus * effectLevel;
-                ship.getMutableStats().getMaxSpeed().modifyFlat(effectId, currentSpeedBonus);
-            }
-
-            // 加速度和减速度在所有状态下都应用，确保平滑过渡
-            ship.getMutableStats().getAcceleration().modifyFlat(effectId, currentAccelBonus);
-            ship.getMutableStats().getDeceleration().modifyFlat(effectId, currentDecelBonus);
-
-            // 转向效果
-            if (maxTurnBonus > 0f) {
-                float currentTurnBonus = maxTurnBonus * effectLevel;
-                ship.getMutableStats().getTurnAcceleration().modifyPercent(effectId, currentTurnBonus);
-                ship.getMutableStats().getMaxTurnRate().modifyPercent(effectId, currentTurnBonus);
-            }
-
-        } else {
-            // 效果级别为0时，移除所有效果
+    private void applyDynamicEffects(float effectLevel) {
+        if (effectLevel <= 0f) {
             removeAllEffects();
+            return;
+        }
+        effectsApplied = true;
+        if (state == State.OUT) {
+            stats.getMaxSpeed().unmodify(effectId);
+        } else {
+            stats.getMaxSpeed().modifyFlat(effectId, getCurrentSpeedBonus(effectLevel));
+        }
+        stats.getAcceleration().modifyFlat(effectId, getCurrentAccelerationBonus(effectLevel));
+        stats.getDeceleration().modifyFlat(effectId, maxDecelerationBonus * effectLevel);
+        if (maxTurnBonus > 0f) {
+            float currentTurnBonus = maxTurnBonus * effectLevel;
+            stats.getTurnAcceleration().modifyPercent(effectId, currentTurnBonus);
+            stats.getMaxTurnRate().modifyPercent(effectId, currentTurnBonus);
+        } else {
+            stats.getTurnAcceleration().unmodify(effectId);
+            stats.getMaxTurnRate().unmodify(effectId);
         }
     }
 
-    /**
-     * 瞬停爆发模式：启动时将舰船当前平移速度清零，方便观察爆发式机动效果。
-     */
-    private void resetShipVelocity() {
-        ship.getVelocity().set(0f, 0f);
+    private float getCurrentSpeedBonus(float effectLevel) {
+        return state == State.OUT ? 0f : maxSpeedBonus * effectLevel;
     }
 
-    /**
-     * 应用引擎光效
-     * 基于effectLevel动态调整引擎光晕效果
-     */
-    private void applyEngineGlowEffects() {
-        float effectLevel = getEffectLevel();
+    private float getCurrentAccelerationBonus(float effectLevel) {
+        return maxAccelerationBonus * effectLevel;
+    }
 
-        if (effectLevel > 0f) {
-            // 计算引擎光效强度
-            float ENGINE_GLOW_LENGTH_MULT = 1f + 2f * effectLevel; // 1.0 到 3.0
-            float ENGINE_GLOW_WIDTH_MULT = 1f + 1f * effectLevel; // 1.0 到 2.0
-            float ENGINE_GLOW_GLOW_MULT = 1f + 2f * effectLevel; // 1.0 到 3.0
-
-            // 正确的引擎光效设置方法 - 每帧调用
-            ship.getEngineController().extendFlame(
-                    this,
-                    ENGINE_GLOW_LENGTH_MULT,
-                    ENGINE_GLOW_WIDTH_MULT,
-                    ENGINE_GLOW_GLOW_MULT);
+    private void applyEngineGlowEffects(float effectLevel) {
+        if (effectLevel > 0f && ship.getEngineController() != null) {
+            ship.getEngineController().extendFlame(this, 1f + 2f * effectLevel, 1f + effectLevel, 1f + 2f * effectLevel);
         }
-        // 注意：当effectLevel为0时，不调用extendFlame，引擎光效会自动恢复正常
     }
 
-    /**
-     * 移除所有机动性增强效果
-     */
     private void removeAllEffects() {
-        // 移除机动性效果
-        ship.getMutableStats().getMaxSpeed().unmodify(effectId);
-        ship.getMutableStats().getAcceleration().unmodify(effectId);
-        ship.getMutableStats().getDeceleration().unmodify(effectId);
-        ship.getMutableStats().getTurnAcceleration().unmodify(effectId);
-        ship.getMutableStats().getMaxTurnRate().unmodify(effectId);
-
-        // 引擎光效会在不调用extendFlame时自动恢复正常
-        // 无需手动清理
+        if (!effectsApplied) {
+            return;
+        }
+        stats.getMaxSpeed().unmodify(effectId);
+        stats.getAcceleration().unmodify(effectId);
+        stats.getDeceleration().unmodify(effectId);
+        stats.getTurnAcceleration().unmodify(effectId);
+        stats.getMaxTurnRate().unmodify(effectId);
+        effectsApplied = false;
     }
 
     private boolean isBlockedDuringRepair() {
         return Moci_MobileSuitRepairTracker.isShipRepairing(ship);
     }
 
-    private void forceStopForRepair() {
+    private void forceStop() {
         removeAllEffects();
+        particleElapsed = 0f;
+        activeElapsed = false;
         if (state != State.READY) {
             setState(State.READY);
         }
     }
 
-    /**
-     * 更新视觉效果
-     */
-    private void updateVisualEffects(float amount) {
-        glowInterval.advance(amount);
-        // 预留用于未来的视觉效果扩展
+    private void updateVisualEffects(float amount, float effectLevel) {
+        if (effectLevel <= 0f || Global.getCombatEngine() == null) {
+            particleElapsed = 0f;
+            return;
+        }
+        particleElapsed = Math.min(particleElapsed + amount, PARTICLE_INTERVAL * MAX_PARTICLE_BATCHES_PER_FRAME);
+        while (particleElapsed + 0.000001f >= PARTICLE_INTERVAL) {
+            particleElapsed = Math.max(0f, particleElapsed - PARTICLE_INTERVAL);
+            spawnEngineParticles(effectLevel);
+        }
     }
 
-    @Override
-    public void renderWorld(ViewportAPI viewport) {
-        if (isBlockedDuringRepair())
+    private void spawnEngineParticles(float effectLevel) {
+        ShipEngineControllerAPI engines = ship.getEngineController();
+        if (engines == null || engines.isDisabled() || engines.isFlamedOut()) {
             return;
-
-        if (!isOn())
-            return;
-
-        float effectLevel = getEffectLevel();
-        if (effectLevel <= 0f)
-            return;
-
-        // 为每个引擎生成尾迹粒子
-        if (ship.getEngineController() != null && ship.getEngineController().getShipEngines() != null) {
-            for (Object engineObj : ship.getEngineController().getShipEngines()) {
-                if (engineObj instanceof com.fs.starfarer.api.combat.ShipEngineControllerAPI.ShipEngineAPI) {
-                    com.fs.starfarer.api.combat.ShipEngineControllerAPI.ShipEngineAPI engine = 
-                        (com.fs.starfarer.api.combat.ShipEngineControllerAPI.ShipEngineAPI) engineObj;
-                    
-                    // 只为激活的引擎生成粒子
-                    if (engine.isActive() && engine.getEngineSlot() != null) {
-                        Vector2f engineLoc = engine.getLocation();
-                        float angle = engine.getEngineSlot().getAngle() + ship.getFacing();
-                        float length = engine.getEngineSlot().getLength() * 2f * effectLevel;
-                        float width = engine.getEngineSlot().getWidth();
-                        
-                        spawnTrailParticles(engineLoc, angle, length, width, effectLevel, engine);
-                    }
-                }
+        }
+        for (ShipEngineControllerAPI.ShipEngineAPI engine : engines.getShipEngines()) {
+            if (engine.isActive() && !engine.isDisabled() && engine.getEngineSlot() != null) {
+                float angle = engine.getEngineSlot().getAngle() + ship.getFacing();
+                float length = engine.getEngineSlot().getLength() * 2f * effectLevel;
+                spawnTrailParticles(engine.getLocation(), angle, length, engine.getEngineSlot().getWidth(),
+                        effectLevel, engine);
             }
         }
     }
-    // 粒子效果基础参数（可调整）
-    private static final float PARTICLE_SPAWN_CHANCE = 0.5f;  // 粒子生成概率（0-1）
     private static final float PARTICLE_VEL_MIN = 0.25f;  // 粒子速度最小倍数
     private static final float PARTICLE_VEL_MAX = 0.5f;  // 粒子速度最大倍数
     private static final float PARTICLE_CONE_ANGLE = 30f;  // 粒子扩散角度
@@ -537,83 +652,30 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
     private static final float PARTICLE_SIZE_MIN_FALLBACK = 1f;  // 粒子最小尺寸保底值
     private static final float PARTICLE_SPEED_MIN_FALLBACK = 200f;  // 粒子最小速度保底值
 
-    /**
-     * 生成引擎喷射粒子特效（根据引擎尺寸动态调整）
-     * 
-     * @param engineLoc 引擎位置
-     * @param angle 引擎角度（世界坐标系，指向引擎喷口方向）
-     * @param length 引擎长度
-     * @param width 引擎宽度
-     * @param effectLevel 效果级别（0.0-1.0）
-     * @param engine 引擎对象（用于获取颜色）
-     */
-    private void spawnTrailParticles(Vector2f engineLoc, float angle, float length, float width, float effectLevel, 
-                                     com.fs.starfarer.api.combat.ShipEngineControllerAPI.ShipEngineAPI engine) {
-        try {
-            // 根据概率生成粒子
-            if (Math.random() > PARTICLE_SPAWN_CHANCE) return;
-            
-            // 获取引擎颜色
-            Color engineColor = engine.getEngineColor();
-            if (engineColor == null) {
-                engineColor = new Color(0, 150, 255);
-            }
-            
-            // 创建粒子颜色（使用引擎颜色，透明度基于effectLevel）
-            Color particleColor = new Color(
-                engineColor.getRed() / 255f,
-                engineColor.getGreen() / 255f,
-                engineColor.getBlue() / 255f,
-                1f * effectLevel
-            );
-            
-            // 计算粒子扩散角度范围
-            float halfConeAngle = PARTICLE_CONE_ANGLE / 2f;
-            
-            // 生成随机角度（在引擎喷射方向的锥形范围内）
-            // 然后在这个反方向上加上随机扩散角度
-            float randomOffset = (float) (Math.random() * PARTICLE_CONE_ANGLE - halfConeAngle);
-            float particleAngle = angle + randomOffset;
-            
-            // 根据引擎长度计算粒子速度：length * 50 + 100，但不小于200
-            float baseSpeed = Math.max(length * 50f + 100f, PARTICLE_SPEED_MIN_FALLBACK);
-            float vel = (float) (Math.random() * (PARTICLE_VEL_MAX - PARTICLE_VEL_MIN) + PARTICLE_VEL_MIN) * baseSpeed;
-            
-            // 计算粒子速度向量
-            Vector2f particleVel = new Vector2f(
-                (float) Math.cos(Math.toRadians(particleAngle)) * vel,
-                (float) Math.sin(Math.toRadians(particleAngle)) * vel
-            );
-            
-            // 计算粒子起始位置（引擎位置稍微向后偏移）
-            Vector2f particleLoc = new Vector2f(engineLoc);
-            Vector2f offset = new Vector2f(
-                (float) Math.cos(Math.toRadians(angle + 180f)),
-                (float) Math.sin(Math.toRadians(angle + 180f))
-            );
-            Vector2f.add(particleLoc, offset, particleLoc);
-            
-            // 根据引擎宽度计算粒子尺寸：width * 0.5，但不小于1
-            float particleSizeMin = Math.max(width * 0.5f, PARTICLE_SIZE_MIN_FALLBACK);
-            float particleSizeMax = particleSizeMin * 3f;  // 最大尺寸是最小尺寸的3倍
-            float particleSize = (float) (Math.random() * (particleSizeMax - particleSizeMin) + particleSizeMin);
-            
-            // 随机持续时间
-            float duration = (float) (Math.random() * (PARTICLE_DURATION_MAX - PARTICLE_DURATION_MIN) + PARTICLE_DURATION_MIN);
-            
-            // 生成粒子（使用addHitParticle获得更好的视觉效果）
-            Global.getCombatEngine().addHitParticle(
-                particleLoc,
-                particleVel,
-                particleSize,
-                1f * effectLevel,
-                duration,
-                particleColor
-            );
-
-        } catch (Exception e) {
-            // 静默处理粒子生成错误
+    private void spawnTrailParticles(Vector2f engineLoc, float angle, float length, float width, float effectLevel,
+                                     ShipEngineControllerAPI.ShipEngineAPI engine) {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        Color engineColor = engine.getEngineColor();
+        if (engineColor == null) {
+            engineColor = Color.CYAN;
         }
+        Color particleColor = new Color(engineColor.getRed() * (1f / 255f),
+                engineColor.getGreen() * (1f / 255f), engineColor.getBlue() * (1f / 255f), effectLevel);
+        float randomOffset = random.nextFloat() * PARTICLE_CONE_ANGLE - PARTICLE_CONE_ANGLE * 0.5f;
+        float particleAngle = (float) Math.toRadians(angle + randomOffset);
+        float baseSpeed = Math.max(length * 50f + 100f, PARTICLE_SPEED_MIN_FALLBACK);
+        float velocity = (random.nextFloat() * (PARTICLE_VEL_MAX - PARTICLE_VEL_MIN) + PARTICLE_VEL_MIN)
+                * baseSpeed;
+        Vector2f particleVelocity = new Vector2f((float) Math.cos(particleAngle) * velocity,
+                (float) Math.sin(particleAngle) * velocity);
+        float engineAngle = (float) Math.toRadians(angle);
+        Vector2f particleLocation = new Vector2f(engineLoc.x - (float) Math.cos(engineAngle),
+                engineLoc.y - (float) Math.sin(engineAngle));
+        float minSize = Math.max(width * 0.5f, PARTICLE_SIZE_MIN_FALLBACK);
+        float particleSize = minSize * (1f + random.nextFloat() * 2f);
+        float duration = PARTICLE_DURATION_MIN + random.nextFloat() * (PARTICLE_DURATION_MAX - PARTICLE_DURATION_MIN);
+        Global.getCombatEngine().addHitParticle(particleLocation, particleVelocity, particleSize, effectLevel,
+                duration, particleColor);
     }
 
     @Override
@@ -648,8 +710,8 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
     public String getExtraInfoText() {
         if (isOn()) {
             float effectLevel = getEffectLevel();
-            int currentSpeed = (int) (maxSpeedBonus * effectLevel);
-            int currentAccel = (int) (maxAccelerationBonus * (useInstantStopBurstMode ? 2f : 1f) * effectLevel);
+            int currentSpeed = (int) getCurrentSpeedBonus(effectLevel);
+            int currentAccel = (int) getCurrentAccelerationBonus(effectLevel);
             return String.format(Locale.ROOT, text("extra.active", "Speed +%s Mobility +%s"), currentSpeed, currentAccel);
         }
         return null;
@@ -685,57 +747,113 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
         return 0f; // 就绪时空条
     }
 
+    @Override
+    public float getStateCompleteRatio() {
+        if (stateInterval == null) {
+            return 0f;
+        }
+        float duration = stateInterval.getIntervalDuration();
+        if (duration <= 0f) {
+            return 1f;
+        }
+        if (duration != cachedStateDuration) {
+            cachedStateDuration = duration;
+            cachedStateReciprocal = 1f / duration;
+        }
+        return Math.max(0f, Math.min(1f, stateInterval.getElapsed() * cachedStateReciprocal));
+    }
+
     // ========== 参数设置方法（供船插使用） ==========
 
     // 效果参数
     public void setMaxSpeedBonus(float maxSpeedBonus) {
+        requireNonNegative(maxSpeedBonus, "maxSpeedBonus");
         this.maxSpeedBonus = maxSpeedBonus;
     }
 
     public void setMaxAccelerationBonus(float maxAccelerationBonus) {
+        requireNonNegative(maxAccelerationBonus, "maxAccelerationBonus");
         this.maxAccelerationBonus = maxAccelerationBonus;
     }
 
     public void setMaxDecelerationBonus(float maxDecelerationBonus) {
+        requireNonNegative(maxDecelerationBonus, "maxDecelerationBonus");
         this.maxDecelerationBonus = maxDecelerationBonus;
     }
 
     public void setMaxTurnBonus(float maxTurnBonus) {
+        requireNonNegative(maxTurnBonus, "maxTurnBonus");
         this.maxTurnBonus = maxTurnBonus;
     }
 
     // 充能系统参数
     public void setMaxCharges(int maxCharges) {
+        if (maxCharges < 1) {
+            throw new IllegalArgumentException("maxCharges must be positive");
+        }
         this.maxCharges = maxCharges;
+        if (inited) {
+            charges = Math.min(charges, calcMaxCharges());
+        }
     }
 
     public void setChargeRegenTime(float chargeRegenTime) {
-        this.chargeRegenTime = chargeRegenTime;
+        setChargeGenerationDuration(chargeRegenTime, true);
     }
 
     // 时间参数
     public void setInDuration(float inDuration) {
+        setInDuration(inDuration, true);
+    }
+
+    @Override
+    public void setInDuration(float inDuration, boolean preserve) {
+        requireNonNegative(inDuration, "inDuration");
         this.inDuration = inDuration;
+        if (inited) {
+            super.setInDuration(inDuration, preserve);
+        }
     }
 
     public void setActiveDuration(float activeDuration) {
+        setActiveDuration(activeDuration, true);
+    }
+
+    @Override
+    public void setActiveDuration(float activeDuration, boolean preserve) {
+        requireNonNegative(activeDuration, "activeDuration");
         this.activeDuration = activeDuration;
+        if (inited) {
+            super.setActiveDuration(activeDuration, preserve);
+        }
     }
 
     public void setOutDuration(float outDuration) {
+        setOutDuration(outDuration, true);
+    }
+
+    @Override
+    public void setOutDuration(float outDuration, boolean preserve) {
+        requireNonNegative(outDuration, "outDuration");
         this.outDuration = outDuration;
+        if (inited) {
+            super.setOutDuration(outDuration, preserve);
+        }
     }
 
     // 幅能消耗参数
     public void setFluxPerSecond(float fluxPerSecond) {
+        requireNonNegative(fluxPerSecond, "fluxPerSecond");
         this.fluxPerSecond = fluxPerSecond;
     }
 
     public void setActivationFluxFlat(float activationFluxFlat) {
+        requireNonNegative(activationFluxFlat, "activationFluxFlat");
         this.activationFluxFlat = activationFluxFlat;
     }
 
     public void setActivationFluxPercent(float activationFluxPercent) {
+        requireRatio(activationFluxPercent, "activationFluxPercent");
         this.activationFluxPercent = activationFluxPercent;
     }
 
@@ -753,6 +871,9 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
     }
 
     public void setRange(float range) {
+        if (!Float.isFinite(range) || (range < 0f && range != -1f)) {
+            throw new IllegalArgumentException("range must be -1 or non-negative");
+        }
         this.range = range;
     }
 
@@ -770,11 +891,44 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
     }
 
     public void setSystemStatsEffectMult(float systemStatsEffectMult) {
+        requireNonNegative(systemStatsEffectMult, "systemStatsEffectMult");
         this.systemStatsEffectMult = systemStatsEffectMult;
     }
 
-    public void setUseInstantStopBurstMode(boolean useInstantStopBurstMode) {
-        this.useInstantStopBurstMode = useInstantStopBurstMode;
+    @Override
+    public void setChargeGenerationDuration(float duration, boolean preserve) {
+        requirePositive(duration, "chargeRegenTime");
+        chargeRegenTime = duration;
+        if (inited) {
+            super.setChargeGenerationDuration(duration, preserve);
+        }
+    }
+
+    @Override
+    public void setCharges(int charges) {
+        if (charges < 0 || charges > calcMaxCharges()) {
+            throw new IllegalArgumentException("charges must be between zero and the effective maximum");
+        }
+        super.setCharges(charges);
+    }
+
+    private static void requireNonNegative(float value, String name) {
+        if (!Float.isFinite(value) || value < 0f) {
+            throw new IllegalArgumentException(name + " must be finite and non-negative");
+        }
+    }
+
+    private static void requirePositive(float value, String name) {
+        if (!Float.isFinite(value) || value <= 0f) {
+            throw new IllegalArgumentException(name + " must be finite and positive");
+        }
+    }
+
+    private static void requireRatio(float value, String name) {
+        requireNonNegative(value, name);
+        if (value > 1f) {
+            throw new IllegalArgumentException(name + " must not exceed one");
+        }
     }
 
     // ========== 参数获取方法 ==========
@@ -859,29 +1013,37 @@ public class Moci_MobilitySubsystem extends MagicSubsystem {
         return systemStatsEffectMult;
     }
 
-    public boolean isUseInstantStopBurstMode() {
-        return useInstantStopBurstMode;
-    }
-
     // ========== AI行为参数设置方法 ==========
 
     public void setAiChaseMinDistance(float aiChaseMinDistance) {
+        requireNonNegative(aiChaseMinDistance, "aiChaseMinDistance");
+        if (aiChaseMinDistance >= aiChaseMaxDistance) {
+            throw new IllegalArgumentException("aiChaseMinDistance must be below aiChaseMaxDistance");
+        }
         this.aiChaseMinDistance = aiChaseMinDistance;
+        weaponRangeElapsed = WEAPON_RANGE_REFRESH_INTERVAL;
     }
 
     public void setAiChaseMaxDistance(float aiChaseMaxDistance) {
+        requirePositive(aiChaseMaxDistance, "aiChaseMaxDistance");
+        if (aiChaseMaxDistance <= aiChaseMinDistance) {
+            throw new IllegalArgumentException("aiChaseMaxDistance must exceed aiChaseMinDistance");
+        }
         this.aiChaseMaxDistance = aiChaseMaxDistance;
     }
 
     public void setAiChaseSpeedThreshold(float aiChaseSpeedThreshold) {
+        requireRatio(aiChaseSpeedThreshold, "aiChaseSpeedThreshold");
         this.aiChaseSpeedThreshold = aiChaseSpeedThreshold;
     }
 
     public void setAiFleeHullThreshold(float aiFleeHullThreshold) {
+        requireRatio(aiFleeHullThreshold, "aiFleeHullThreshold");
         this.aiFleeHullThreshold = aiFleeHullThreshold;
     }
 
     public void setAiFleeDistance(float aiFleeDistance) {
+        requireNonNegative(aiFleeDistance, "aiFleeDistance");
         this.aiFleeDistance = aiFleeDistance;
     }
 
