@@ -4,6 +4,7 @@ import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.PluginPick;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CampaignEventListener;
 import com.fs.starfarer.api.campaign.CampaignPlugin;
 import com.fs.starfarer.api.campaign.CampaignPlugin.PickPriority;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
@@ -491,12 +492,20 @@ public class Moci_bounty_plugin extends BaseModPlugin {
     private void registerCombatLootListener() {
         removeListenersOfClass(Moci_CombatLootListener.class, "Moci战斗掉落");
 
+        // CampaignEventListener 与 ListenerManager 使用不同的集合。
+        // 同时清理旧存档中的持久监听器，再注册不写入存档的新实例。
+        for (CampaignEventListener listener : new ArrayList<>(Global.getSector().getAllListeners())) {
+            if (listener instanceof Moci_CombatLootListener) {
+                Global.getSector().removeListener(listener);
+            }
+        }
+
         if (!ENABLE_COMBAT_LOOT_DROPS) {
             log.info("Moci战斗掉落监听器未注册：功能开关已关闭");
             return;
         }
 
-        Global.getSector().addListener(new Moci_CombatLootListener());
+        Global.getSector().addTransientListener(new Moci_CombatLootListener());
         log.info("Moci战斗掉落监听器已注册");
     }
 

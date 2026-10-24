@@ -10,8 +10,10 @@ import com.fs.starfarer.api.util.Misc;
 import org.magiclib.util.MagicRender;
 import org.magiclib.plugins.MagicTrailPlugin;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
 import java.awt.Color;
@@ -20,16 +22,15 @@ import org.lazywizard.lazylib.MathUtils;
 public class Moci_Axe_BeamEffect implements BeamEffectPlugin {
 
     private WeaponAPI weapon; // 武器实例
-    private List<CombatEntityAPI> targets = new ArrayList<CombatEntityAPI>(); // 目标列表
-
     // 伤害累积跟踪系统（斧子特殊版本 - 支持两次挥砍）
-    private java.util.Map<CombatEntityAPI, Float> firstSwingDamageDealt = new java.util.HashMap<>(); // 第一次挥砍已造成的伤害
-    private java.util.Map<CombatEntityAPI, Float> secondSwingDamageDealt = new java.util.HashMap<>(); // 第二次挥砍已造成的伤害
-    private java.util.Map<CombatEntityAPI, Float> lastBurstStartTime = new java.util.HashMap<>(); // 上次攻击周期开始时间
-    private float currentBurstStartTime = 0f; // 当前攻击周期开始时间
-    
+    private final Map<CombatEntityAPI, Float> firstSwingDamageDealt = new HashMap<>();
+    private final Map<CombatEntityAPI, Float> secondSwingDamageDealt = new HashMap<>();
+    private boolean burstActive = false;
+
     // 音效触发跟踪
-    private java.util.Map<CombatEntityAPI, Float> soundPlayedThisBurst = new java.util.HashMap<>(); // 记录本次攻击周期是否已播放音效
+    private final Set<CombatEntityAPI> soundPlayedThisBurst = new HashSet<>();
+    private final Moci_MeleeHitEffects hitEffects = new Moci_MeleeHitEffects();
+    private final Moci_MeleeAttackPhases attackPhases = new Moci_MeleeAttackPhases();
 
     // 特效间隔控制
     private IntervalUtil effectInterval = new IntervalUtil(0.15f, 0.15f); // 特效最短间隔
@@ -41,27 +42,22 @@ public class Moci_Axe_BeamEffect implements BeamEffectPlugin {
     private SpriteAPI bladeEdgeTrailSprite; // 刀锋片状拖尾专用贴图
 
     // 动画相关变量
-    private float swingLevel = 0f; // 武器摆动级别
     private boolean swinging = false; // 武器是否正在摆动
     private boolean cooldown = false; // 武器是否处于冷却状态
     // 移除不必要的动画间隔计时器，直接使用amount计算时间
 
     // 新增斧子特有的变量
-    private float axePhase = 0f; // 斧子动画阶段：0为准备，1为第一次劈砍，2为第二次劈砍
     private boolean firstSwingDone = false; // 第一次劈砍是否完成
     private boolean secondSwingDone = false; // 第二次劈砍是否完成
     private float swingTimer = 0f; // 控制劈砍的计时器
-
-    // 动态左右手判断变量（借鉴base版本的逻辑）
-    private boolean isLeftArm = false; // 当前是否是左手武器
-    private boolean hasDeterminedArm = false; // 是否已经确定过左右手
+    private float animationSwingProgress;
 
     // 斧子动画配置参数
     // 移除固定的挥砍时间，改为动态获取
     // private final float FIRST_SWING_DURATION = 0.4f; // 第一次劈砍持续时间
     // private final float SECOND_SWING_DURATION = 0.4f; // 第二次劈砍持续时间
-    private final float PHASE_TRANSITION_PAUSE = 0.2f; // 两次劈砍之间的短暂停顿（保持不变）
-    
+    private final float PHASE_TRANSITION_PAUSE = 0.2f; // 两刀之间固定停顿0.2秒，挥空也发生；不是命中触发的“卡肉”。
+
     // 刀锋片状拖尾参数
     private static final boolean ENABLE_BLADE_EDGE_TRAIL = false; // 是否启用刀锋片状拖尾
     private static final float BLADE_EDGE_START_SPEED = 20f; // 拖尾片段初始移动速度
@@ -85,9 +81,7 @@ public class Moci_Axe_BeamEffect implements BeamEffectPlugin {
     private static final Color DEFAULT_EFFECT_COLOR = new Color(236, 131, 75, 255); // glowColor 缺失时的保底色
 
     public void advance(float amount, CombatEngineAPI engine, BeamAPI beam) {
-        if (engine.isPaused())
-            return;
-
+        if (engine.isPaused()) return;
         weapon = beam.getWeapon();
 
         if (!trailInitialized) {
@@ -95,68 +89,48 @@ public class Moci_Axe_BeamEffect implements BeamEffectPlugin {
             bladeEdgeTrailSprite = Global.getSettings().getSprite("fx", "Moci_blade_base_trail");
             trailInitialized = true;
         }
+        beam.getDamage().setDamage(0f);
 
-        beam.getDamage().setDamage(0); // 重置光束的伤害
+        // 每次充能只初始化一次；归位结束或第一刀结束时都不能再清账。
+        boolean charged = weapon.getChargeLevel() > 0f;
+        if (charged && !burstActive) beginBurst();
+        burstActive = charged;
 
-        CombatEntityAPI target = beam.getDamageTarget(); // 获取光束的伤害目标
-
-        // 检测新的攻击周期开始
-        if (weapon.getChargeLevel() > 0 && weapon.isFiring()) {
-            if (currentBurstStartTime == 0f) {
-                // 新攻击周期开始，重置伤害跟踪和音效跟踪
-                currentBurstStartTime = engine.getTotalElapsedTime(false);
-                cleanupOldDamageRecords(engine.getTotalElapsedTime(false));
-            }
+        int attackPhase;
+        int nextRayPhase;
+        float collisionProgress;
+        if (weapon.getSlot().getId().endsWith("_L_SOURCE")
+                || weapon.getSlot().getId().endsWith("_R_SOURCE")) {
+            float swingAmount = hitEffects.advanceSlowdown(amount, engine, weapon, beam, charged && weapon.isFiring()
+                    && attackPhases.getCollisionPhase() != 0 && beam.getBrightness() >= 0.7f);
+            int animationPhase = handleWeaponAnimation(amount, swingAmount);
+            if (!charged) attackPhases.reset();
+            attackPhase = attackPhases.advance(animationPhase, animationSwingProgress);
+            collisionProgress = attackPhases.getLastCollisionProgress();
+            nextRayPhase = attackPhases.getRayPhase();
         } else {
-            // 攻击结束，重置计时器
-            currentBurstStartTime = 0f;
+            attackPhase = charged ? 1 : 0;
+            nextRayPhase = attackPhase;
+            collisionProgress = charged ? 1f : 0f;
         }
+        // EveryFrame插件先于Beam回调执行，因此发布即将生成的光线阶段；
+        // 当前舰船命中则仍属于旧光线，不能直接使用刚推进的动画阶段。
+        Moci_BladeEffectPlugin.setAttackPhase(beam, nextRayPhase);
+        if (!weapon.isFiring() || beam.getBrightness() < 0.7f) attackPhase = 0;
 
-        // 如果目标不在目标列表中，则添加到目标列表
-        if (!targets.contains(target)) {
-            targets.add(target);
-        }
-
-        // 如果武器正在开火且光束亮度大于等于0.7
-        if (beam.getBrightness() >= 0.7f && target != null) {
-            // 计算当前距离
-            float currentRange = Vector2f.sub(beam.getTo(), beam.getFrom(), new Vector2f()).length();
-
-            // 判断当前是第一次挥砍还是第二次挥砍
-            boolean isFirstSwing = !firstSwingDone; // 第一次挥砍未完成
-            boolean isSecondSwing = firstSwingDone && !secondSwingDone; // 第一次完成但第二次未完成
-
-            float damageToApply = 0f;
-
-            if (isFirstSwing) {
-                // 第一次挥砍：使用优化的累积伤害系统
-                damageToApply = calculateOptimalAxeDamage(engine, target, currentRange, true);
-            } else if (isSecondSwing) {
-                // 第二次挥砍：使用优化的累积伤害系统，但考虑第一次挥砍的影响
-                damageToApply = calculateOptimalAxeDamage(engine, target, currentRange, false);
-            }
-
-            if (damageToApply > 0) {
-                engine.applyDamage(target, beam.getTo(), damageToApply, weapon.getDamageType(), damageToApply, false,
-                        false, weapon.getShip());
-
-                // 记录已造成的伤害
-                if (isFirstSwing) {
-                    recordAxeDamageDealt(target, damageToApply, true, engine.getTotalElapsedTime(false));
-                } else if (isSecondSwing) {
-                    recordAxeDamageDealt(target, damageToApply, false, engine.getTotalElapsedTime(false));
-                }
+        CombatEntityAPI target = beam.getDamageTarget();
+        if (attackPhase != 0 && target != null) {
+            float currentRange = Misc.getDistance(beam.getFrom(), beam.getTo());
+            boolean isFirstSwing = attackPhase == 1;
+            float damageToApply = calculateOptimalAxeDamage(target, currentRange, isFirstSwing);
+            if (damageToApply > 0f) {
+                recordAxeDamageDealt(target, damageToApply, isFirstSwing);
+                Moci_MeleeDamage.applyDamage(engine, beam, target, beam.getTo(), damageToApply, damageToApply);
             }
         }
 
-        // 处理武器动画
-        if (weapon.getSlot().getId().endsWith("_L_SOURCE") || weapon.getSlot().getId().endsWith("_R_SOURCE")) {
-            handleWeaponAnimation(amount); // 调用动画处理方法
-        }
-
-        // 更新特效间隔计时器
+        hitEffects.advance(amount, engine, beam, attackPhase != 0, collisionProgress);
         effectInterval.advance(amount);
-
         if (weapon.isFiring()) {
             trailInterval.advance(amount);
             if (trailInterval.intervalElapsed() && beam.getBrightness() == 1f) {
@@ -164,211 +138,110 @@ public class Moci_Axe_BeamEffect implements BeamEffectPlugin {
             }
         }
 
-        // 如果目标是 CombatEntityAPI 且光束亮度大于0.9
-        if (target instanceof CombatEntityAPI && beam.getBrightness() > .9f) {
-            // 检查是否可以生成特效（间隔时间已过）
-            if (effectInterval.intervalElapsed()) {
-                Vector2f point = beam.getTo(); // 获取光束的终点
-
-                Vector2f dir = Vector2f.sub(beam.getTo(), beam.getFrom(), new Vector2f()); // 计算光束方向
-                if (dir.lengthSquared() > 0)
-                    dir.normalise(); // 归一化方向向量
-                dir.scale(50f); // 缩放方向向量
-                point = Vector2f.sub(beam.getTo(), dir, new Vector2f()); // 计算新的点
-
-                // 如果点在屏幕范围内
-                if (MagicRender.screenCheck(0.2f, point)) {
-                    // 如果武器正在开火且充能大于0且小于等于1
-                    if ((weapon.getChargeLevel() > 0f && weapon.getChargeLevel() < 1f
-                            || weapon.getChargeLevel() == 1f)) {
-
-                        // 计算从碰撞点到目标中心的角度（使波形垂直于舰船）
-                        float waveAngle = 0f;
-                        if (target != null) {
-                            waveAngle = org.lazywizard.lazylib.VectorUtils.getAngle(beam.getTo(), target.getLocation());
-                        }
-                        
-                        /* 
-                        // 波形特效颜色
-                        Color waveColor = new Color(255, 211, 146, 155);
-
-                        SpriteAPI waveSprite = Global.getSettings().getSprite("fx", "Moci_bullet_aura"); // 获取波形精灵
-                        if (waveSprite != null) {
-                            // 渲染波形效果
-                            MagicRender.battlespace(
-                                    waveSprite,
-                                    beam.getTo(),
-                                    new Vector2f(),
-                                    new Vector2f(128f, 4f), // 初始大小（像素）
-                                    new Vector2f(512f, 16f), // 最终大小（像素）
-                                    waveAngle, // 使用计算的角度，垂直于舰船
-                                    15f,
-                                    waveColor,
-                                    true,
-                                    0f,
-                                    0f,
-                                    0.5f);
-                        }
-                        */
-
-                        // 在同一位置添加撞击粒子特效，颜色与波形一致
-                        Vector2f hitPoint = beam.getTo();
-                        Vector2f vel = new Vector2f();
-                        Color effectColor = DEFAULT_EFFECT_COLOR;
-
-                        // 主撞击粒子效果
-                        for (int i = 0; i < 6; i++) {
-                            vel.set(0, 0);
-                            MathUtils.getRandomPointInCone(vel, 100, waveAngle - 30, waveAngle + 30);
-                            Vector2f.add(vel, weapon.getShip().getVelocity(), vel);
-
-                            engine.addHitParticle(
-                                    hitPoint,
-                                    vel,
-                                    5,
-                                    1,
-                                    MathUtils.getRandomNumberInRange(0.3f, 6f),
-                                    effectColor // 使用武器 glowColor，避免透明 beam 导致特效颜色丢失
-                            );
-                        }
-
-                        // 播放斩切声音 - 每个目标每次攻击周期只播放一次
-                        if (shouldPlaySound(target, engine.getTotalElapsedTime(false))) {
-                            Global.getSoundPlayer().playSound("Moci_BeamSabre_Hit", 1.0f, 0.5f, point, new Vector2f());
-                            recordSoundPlayed(target, engine.getTotalElapsedTime(false));
-                        }
-                    }
-                }
-            }
+        // 命中声音保留原来的最短间隔，每个目标每轮只播放一次。
+        if (attackPhase != 0 && target != null && beam.getBrightness() > 0.9f
+                && effectInterval.intervalElapsed() && MagicRender.screenCheck(0.2f, beam.getTo())
+                && soundPlayedThisBurst.add(target)) {
+            Global.getSoundPlayer().playSound("Moci_BeamSabre_Hit", 1f, 0.5f, beam.getTo(), new Vector2f());
         }
     }
 
-    private void handleWeaponAnimation(float amount) {
-        float global = weapon.getShip().getFacing(); // 舰船朝向
-        float currentAngle = weapon.getCurrAngle();
+    private void beginBurst() {
+        attackPhases.reset();
+        hitEffects.resetSlowdown();
+        firstSwingDamageDealt.clear();
+        secondSwingDamageDealt.clear();
+        soundPlayedThisBurst.clear();
+        swinging = false;
+        cooldown = false;
+        firstSwingDone = false;
+        secondSwingDone = false;
+        swingTimer = 0f;
+    }
 
-        // 动态判断左右手（借鉴base版本的逻辑）
-        // 只在武器开始充能且未确定左右手时判断
-        if (weapon.getChargeLevel() > 0f && !hasDeterminedArm) {
-            // 计算当前角度相对于舰船朝向的偏移
-            float angleOffset = currentAngle - global;
-            // 规范化角度到[-180,180]范围
-            while (angleOffset > 180)
-                angleOffset -= 360;
-            while (angleOffset < -180)
-                angleOffset += 360;
+    /**
+     * 返回本帧新武器角度的挥砍阶段；由attackPhases对齐到引擎实际光线。
+     * 结束一刀的最后角度仍属于这一刀，避免被提前记到下一阶段。
+     */
+    private int handleWeaponAnimation(float amount, float swingAmount) {
+        animationSwingProgress = 0f;
+        float shipFacing = weapon.getShip().getFacing();
+        float leftmostAngle = shipFacing - weapon.getArc() * 0.5f;
+        float rightmostAngle = shipFacing + weapon.getArc() * 0.5f;
 
-            // 根据角度偏移判断是左手还是右手
-            this.isLeftArm = angleOffset < 0;
-            hasDeterminedArm = true;
-        }
-
-        // 如果武器停止充能，重置左右手判断
         if (weapon.getChargeLevel() <= 0f) {
-            hasDeterminedArm = false;
-        }
-
-        float arc = weapon.getArc();
-        float baseAngle = global; // 基础角度就是舰船朝向
-        float leftmostAngle, rightmostAngle; // 最左和最右的角度
-
-        // 计算最左和最右的角度边界
-        leftmostAngle = global - arc * 0.5f;
-        rightmostAngle = global + arc * 0.5f;
-
-        // 武器充能状态判断
-        if (weapon.getChargeLevel() > 0f) {
-            // 如果武器刚刚开始充能，重置所有状态
-            if (!swinging && !cooldown) {
-                // 检查当前角度与起始角度的距离
-                float currentRotation = MathUtils.getShortestRotation(leftmostAngle, currentAngle);
-
-                // 如果当前角度与起始角度差距较大，先平滑移动到起始位置
-                if (Math.abs(currentRotation) > 5f) {
-                    // 平滑移动到起始角度
-                    float newRotation = lerp(currentRotation, 0f, 0.15f);
-                    weapon.setCurrAngle(leftmostAngle + newRotation);
-                    return; // 等待下一帧继续移动
-                }
-
-                // 角度足够接近起始位置时，开始动画
-                swinging = true;
-                cooldown = false;
-                axePhase = 0f;
-                firstSwingDone = false;
-                secondSwingDone = false;
-                swingTimer = 0f;
-                // 清空之前的伤害记录，开始新的攻击
-                firstSwingDamageDealt.clear();
-                secondSwingDamageDealt.clear();
-                // 确保武器角度精确设置到最左侧
-                weapon.setCurrAngle(leftmostAngle);
-            }
-
-            // 动画控制
-            if (swinging) {
-                swingTimer += amount;
-
-                // 第一阶段：从左向右劈砍
-                if (!firstSwingDone) {
-                    float invSwingDuration = 1.0f / getSwingDuration(); // 预计算倒数
-                    float progress = Math.min(swingTimer * invSwingDuration, 1.0f); // 使用动态时间
-                    // 使用加速曲线 - 逐渐加速到最快，然后缓慢减速
-                    float easedProgress = smoothStep(0f, 1f, progress);
-
-                    // 计算当前角度 - 从最左侧向最右侧移动
-                    float newAngle = leftmostAngle + easedProgress * (rightmostAngle - leftmostAngle);
-                    weapon.setCurrAngle(newAngle);
-
-                    // 检查是否完成第一次劈砍
-                    if (progress >= 1.0f) {
-                        firstSwingDone = true;
-                        swingTimer = 0f; // 重置计时器为第二阶段
-                    }
-                }
-                // 两次劈砍之间的过渡暂停
-                else if (firstSwingDone && !secondSwingDone && swingTimer < PHASE_TRANSITION_PAUSE) {
-                    // 保持在最右侧
-                    weapon.setCurrAngle(rightmostAngle);
-                }
-                // 第二阶段：从右向左劈砍
-                else if (firstSwingDone && !secondSwingDone) {
-                    float invSwingDuration2 = 1.0f / getSwingDuration(); // 预计算倒数
-                    float progress = Math.min((swingTimer - PHASE_TRANSITION_PAUSE) * invSwingDuration2, 1.0f); // 使用动态时间
-                    if (progress >= 0) { // 确保已经过了暂停期
-                        // 使用加速曲线
-                        float easedProgress = smoothStep(0f, 1f, progress);
-
-                        // 计算当前角度 - 从最右侧向最左侧移动
-                        float newAngle2 = rightmostAngle - easedProgress * (rightmostAngle - leftmostAngle);
-                        weapon.setCurrAngle(newAngle2);
-
-                        // 检查是否完成第二次劈砍
-                        if (progress >= 1.0f) {
-                            secondSwingDone = true;
-                            swingTimer = 0f;
-                            cooldown = true;
-                            swinging = false;
-                        }
-                    }
-                }
-            }
-        } else {
-            // 如果武器不在充能状态，逐渐恢复到空闲角度 (基础角度)
-            float currentRotation = MathUtils.getShortestRotation(baseAngle, weapon.getCurrAngle());
-            float newRotation = currentRotation * 0.9f; // 平滑恢复
-            weapon.setCurrAngle(baseAngle + newRotation);
-
-            // 重置状态
+            float rotation = MathUtils.getShortestRotation(shipFacing, weapon.getCurrAngle());
+            weapon.setCurrAngle(shipFacing + rotation * 0.9f);
             swinging = false;
             cooldown = false;
             firstSwingDone = false;
             secondSwingDone = false;
             swingTimer = 0f;
-            // 当武器完全停止时也清空伤害记录
-            firstSwingDamageDealt.clear();
-            secondSwingDamageDealt.clear();
+            return 0;
         }
+        if (cooldown) {
+            animationSwingProgress = 1f;
+            Moci_Axe_AnimationController.updateExtension(weapon, 5, 1f);
+            return 0;
+        }
+
+        if (!swinging) {
+            boolean retracted = Moci_Axe_AnimationController.retractBeforeSwing(weapon, amount);
+            float rotation = MathUtils.getShortestRotation(leftmostAngle, weapon.getCurrAngle());
+            if (Math.abs(rotation) > 5f) {
+                weapon.setCurrAngle(leftmostAngle + rotation * (float) Math.pow(0.85f, amount * 60f));
+                return 0;
+            }
+            weapon.setCurrAngle(leftmostAngle);
+            if (!retracted) return 0; // 左侧收回完成后才开始第一刀，避免贴图瞬间跳回。
+            swinging = true;
+            // 归位帧始终不计伤，命中阶段随后与实际光线一起推进。
+            return 0;
+        }
+
+        // 两刀挥砍与伸出共用减速时间；中间0.2秒停顿/收回仍按真实时间走。
+        if (!firstSwingDone) {
+            swingTimer += Math.max(0f, swingAmount);
+        } else {
+            float pauseAmount = Math.min(Math.max(0f, amount), Math.max(0f, PHASE_TRANSITION_PAUSE - swingTimer));
+            float ratio = amount > 0f ? swingAmount / amount : 1f;
+            swingTimer += pauseAmount + Math.max(0f, amount - pauseAmount) * ratio;
+        }
+        float duration = getSwingDuration();
+        if (!firstSwingDone) {
+            float progress = Math.min(swingTimer / duration, 1f);
+            animationSwingProgress = smoothStep(0f, 1f, progress);
+            Moci_Axe_AnimationController.updateExtension(weapon, 2, animationSwingProgress);
+            weapon.setCurrAngle(leftmostAngle + animationSwingProgress
+                    * (rightmostAngle - leftmostAngle));
+            if (progress >= 1f) {
+                firstSwingDone = true;
+                swingTimer -= duration; // 保留跨帧余量，停顿长度不随帧率漂移。
+            }
+            return 1;
+        }
+
+        if (swingTimer <= PHASE_TRANSITION_PAUSE) {
+            // 第一刀末端完全伸出，利用原有0.2秒停顿收回；不额外增加整轮攻击时间。
+            float retract = 1f - smoothStep(0f, 1f, swingTimer / PHASE_TRANSITION_PAUSE);
+            Moci_Axe_AnimationController.updateExtension(weapon, 3, retract);
+            weapon.setCurrAngle(rightmostAngle);
+            return 0;
+        }
+        if (!secondSwingDone) {
+            float progress = Math.min((swingTimer - PHASE_TRANSITION_PAUSE) / duration, 1f);
+            animationSwingProgress = smoothStep(0f, 1f, progress);
+            Moci_Axe_AnimationController.updateExtension(weapon, 4, animationSwingProgress);
+            weapon.setCurrAngle(rightmostAngle - animationSwingProgress
+                    * (rightmostAngle - leftmostAngle));
+            if (progress >= 1f) {
+                secondSwingDone = true;
+                cooldown = true;
+                swinging = false;
+            }
+            return 2;
+        }
+        return 0;
     }
 
     // 平滑过渡函数，使运动显得更自然
@@ -379,11 +252,6 @@ public class Moci_Axe_BeamEffect implements BeamEffectPlugin {
         return x * x * (3 - 2 * x);
     }
 
-    // 线性插值函数
-    private float lerp(float a, float b, float t) {
-        return a + (b - a) * t;
-    }
-
     /**
      * 获取武器的充能时间，用于同步挥砍动画
      */
@@ -392,7 +260,7 @@ public class Moci_Axe_BeamEffect implements BeamEffectPlugin {
             // 对于光束武器，使用getBeamChargeupTime()方法
             if (weapon.getSpec() instanceof BeamWeaponSpecAPI) {
                 float chargeTime = ((BeamWeaponSpecAPI) weapon.getSpec()).getBeamChargeupTime();
-                return chargeTime;
+                return chargeTime > 0f ? chargeTime : 0.4f;
             }
         }
         return 0.4f; // 备用默认值
@@ -402,139 +270,29 @@ public class Moci_Axe_BeamEffect implements BeamEffectPlugin {
      * 斧子专用的优化伤害计算系统
      * 支持两次挥砍的累积伤害逻辑
      */
-    private float calculateOptimalAxeDamage(CombatEngineAPI engine, CombatEntityAPI target, float distance,
-            boolean isFirstSwing) {
-        if (weapon == null || weapon.getShip() == null)
-            return 0f;
-
-        float currentTime = engine.getTotalElapsedTime(false);
-
-        // 检查是否为新的攻击周期
-        Float lastBurstTime = lastBurstStartTime.get(target);
-        boolean isNewBurst = lastBurstTime == null
-                || Math.abs(currentTime - currentBurstStartTime) < Math.abs(currentTime - lastBurstTime);
-
-        if (isNewBurst) {
-            // 新攻击周期，重置该目标的伤害记录
-            firstSwingDamageDealt.put(target, 0f);
-            secondSwingDamageDealt.put(target, 0f);
-            lastBurstStartTime.put(target, currentBurstStartTime);
-        }
-
-        // 计算基础满伤害（无衰减）
-        float baseDamage = weapon.getDamage().getDamage();
-        float burstDuration = weapon.getSpec().getBurstDuration();
-        float ballisticMult = weapon.getShip().getMutableStats().getBallisticWeaponDamageMult().computeMultMod() +
-                weapon.getShip().getMutableStats().getBallisticWeaponDamageMult().getPercentMod() * 0.01f;
-        float energyMult = weapon.getShip().getMutableStats().getEnergyWeaponDamageMult().computeMultMod() +
-                weapon.getShip().getMutableStats().getBeamWeaponDamageMult().getPercentMod() * 0.01f;
-
-        float fullDamage = Math.max(baseDamage, baseDamage * burstDuration * ballisticMult * energyMult);
-
-        // 根据舰船的幅能伤害加成调整伤害
-        float mag = weapon.getShip().getFluxBasedEnergyWeaponDamageMultiplier() - 1f;
-        if (mag > 0)
-            fullDamage = fullDamage * (1 + mag);
-
-        // 计算当前距离的最大允许伤害（应用距离衰减）
-        float baseRange = weapon.getSpec().getMaxRange();
-        float distanceMultiplier = Moci_BladeEffectPlugin.calculateDistanceDamageMultiplier(distance, baseRange);
-        float maxDamageAtCurrentDistance = fullDamage * distanceMultiplier;
-
-        // 获取已造成的伤害
-        Float firstSwingDealtFloat = firstSwingDamageDealt.get(target);
-        Float secondSwingDealtFloat = secondSwingDamageDealt.get(target);
-        float firstSwingDealt = (firstSwingDealtFloat != null) ? firstSwingDealtFloat : 0f;
-        float secondSwingDealt = (secondSwingDealtFloat != null) ? secondSwingDealtFloat : 0f;
-
-        float damageToApply = 0f;
+    private float calculateOptimalAxeDamage(CombatEntityAPI target, float distance, boolean isFirstSwing) {
+        if (weapon == null || weapon.getShip() == null) return 0f;
+        float fullDamage = Moci_MeleeDamage.calculateFullDamage(weapon);
+        float distanceMultiplier = Moci_BladeEffectPlugin.calculateDistanceDamageMultiplier(
+                distance, weapon.getSpec().getMaxRange());
+        Float firstRecord = firstSwingDamageDealt.get(target);
+        float firstDealt = firstRecord == null ? 0f : firstRecord;
 
         if (isFirstSwing) {
-            // 第一次挥砍：计算应该造成的伤害
-            damageToApply = Math.max(0f, maxDamageAtCurrentDistance - firstSwingDealt);
-
-            // 确保第一次挥砍总伤害不超过满伤害
-            if (firstSwingDealt + damageToApply > fullDamage) {
-                damageToApply = Math.max(0f, fullDamage - firstSwingDealt);
-            }
-        } else {
-            // 第二次挥砍：考虑第一次挥砍的影响
-            float totalDealt = firstSwingDealt + secondSwingDealt;
-
-            // 如果目标在第一次挥砍中被击中过，第二次挥砍伤害减半
-            float secondSwingMaxDamage = maxDamageAtCurrentDistance;
-            if (firstSwingDealt > 0) {
-                secondSwingMaxDamage *= 0.5f; // 减半伤害
-            }
-
-            damageToApply = Math.max(0f, secondSwingMaxDamage - secondSwingDealt);
-
-            // 确保总伤害不超过满伤害
-            if (totalDealt + damageToApply > fullDamage) {
-                damageToApply = Math.max(0f, fullDamage - totalDealt);
-            }
+            return Math.max(0f, fullDamage * distanceMultiplier - firstDealt);
         }
 
-        return damageToApply;
+        // 第二刀独立记账：第一刀打中过则半伤，否则全伤；两刀最多合计1.5份满伤。
+        Float secondRecord = secondSwingDamageDealt.get(target);
+        float secondDealt = secondRecord == null ? 0f : secondRecord;
+        float secondLimit = fullDamage * distanceMultiplier * (firstDealt > 0f ? 0.5f : 1f);
+        return Math.max(0f, secondLimit - secondDealt);
     }
 
-    /**
-     * 记录斧子的伤害
-     */
-    private void recordAxeDamageDealt(CombatEntityAPI target, float damage, boolean isFirstSwing, float currentTime) {
-        if (isFirstSwing) {
-            Float currentDamageFloat = firstSwingDamageDealt.get(target);
-            float currentDamage = (currentDamageFloat != null) ? currentDamageFloat : 0f;
-            firstSwingDamageDealt.put(target, currentDamage + damage);
-        } else {
-            Float currentDamageFloat = secondSwingDamageDealt.get(target);
-            float currentDamage = (currentDamageFloat != null) ? currentDamageFloat : 0f;
-            secondSwingDamageDealt.put(target, currentDamage + damage);
-        }
-        lastBurstStartTime.put(target, currentBurstStartTime);
-    }
-
-    /**
-     * 清理过期的伤害记录
-     */
-    private void cleanupOldDamageRecords(float currentTime) {
-        // 清理超过3秒的旧记录，避免内存泄漏
-        float cleanupThreshold = 3.0f;
-
-        java.util.Iterator<java.util.Map.Entry<CombatEntityAPI, Float>> iter = lastBurstStartTime.entrySet().iterator();
-        while (iter.hasNext()) {
-            java.util.Map.Entry<CombatEntityAPI, Float> entry = iter.next();
-            if (currentTime - entry.getValue() > cleanupThreshold) {
-                iter.remove();
-                firstSwingDamageDealt.remove(entry.getKey());
-                secondSwingDamageDealt.remove(entry.getKey());
-                soundPlayedThisBurst.remove(entry.getKey());
-            }
-        }
-    }
-    
-    /**
-     * 检查是否应该播放音效
-     */
-    private boolean shouldPlaySound(CombatEntityAPI target, float currentTime) {
-        Float lastSoundTime = soundPlayedThisBurst.get(target);
-        if (lastSoundTime == null) {
-            return true; // 从未播放过
-        }
-        
-        // 检查是否为新的攻击周期
-        Float lastBurstTime = lastBurstStartTime.get(target);
-        boolean isNewBurst = lastBurstTime == null
-                || Math.abs(currentTime - currentBurstStartTime) < Math.abs(currentTime - lastBurstTime);
-        
-        return isNewBurst; // 新攻击周期才播放
-    }
-    
-    /**
-     * 记录音效已播放
-     */
-    private void recordSoundPlayed(CombatEntityAPI target, float currentTime) {
-        soundPlayedThisBurst.put(target, currentTime);
+    private void recordAxeDamageDealt(CombatEntityAPI target, float damage, boolean isFirstSwing) {
+        Map<CombatEntityAPI, Float> records = isFirstSwing ? firstSwingDamageDealt : secondSwingDamageDealt;
+        Float previous = records.get(target);
+        records.put(target, (previous == null ? 0f : previous) + damage);
     }
 
     /**

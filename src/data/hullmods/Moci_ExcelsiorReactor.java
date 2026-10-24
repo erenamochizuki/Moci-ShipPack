@@ -331,7 +331,7 @@ public class Moci_ExcelsiorReactor extends BaseHullMod {
             float amount = 1f;
             Color color = GLOW_COLOR_6000;
             if (param instanceof BeamAPI) {
-                amount = damage.getDpsDuration();
+                amount = damage.isDps() ? damage.getDpsDuration() : 1f;
                 beamDamage = Math.min(5000f * amount, damage.computeDamageDealt(amount));
                 empDamage = Math.min(5000f * amount, damage.computeFluxDealt(amount));
                 color = ((BeamAPI) param).getFringeColor();

@@ -153,7 +153,7 @@ public class Moci_RepairBayScript implements AdvanceableListener {
             this.bay = bay;
         }
 
-        /** Actual servicing; reservations and launch clearance are checked by isAvailableFor. */
+        /** 仅表示正在实际整备；预约占用和起飞等待由 isAvailableFor 一并检查。 */
         public boolean isOccupied() {
             return isOccupied;
         }
@@ -162,7 +162,7 @@ public class Moci_RepairBayScript implements AdvanceableListener {
             return repairSequence;
         }
 
-        /** Queries never acquire a berth. A claimant can reuse its own approach reservation. */
+        /** 查询不会占用泊位；预约者可以继续使用自己在接近阶段取得的预约。 */
         public boolean isAvailableFor(ShipAPI claimant) {
             return isRegistered() && isOperationalEntity(bay.getShip()) && !isOccupied && takeOff == null
                     && (reservationOwner == null || reservationOwner == claimant);
@@ -191,7 +191,7 @@ public class Moci_RepairBayScript implements AdvanceableListener {
             return true;
         }
 
-        /** Only the owner may release the berth, including cancellation during repair or launch. */
+        /** 只有预约者可以释放泊位，整备或起飞途中取消也遵循此规则。 */
         public void releaseReservation(ShipAPI claimant) {
             if (claimant == null || reservationOwner != claimant) {
                 return;
@@ -264,7 +264,7 @@ public class Moci_RepairBayScript implements AdvanceableListener {
             return true;
         }
 
-        /** Releases repair protection through the same session used by the approach AI. */
+        /** 通过接近阶段使用的同一个整备会话，统一解除整备保护。 */
         public void forceFinishRepair() {
             if (!isOccupied || rs == null) {
                 return;
@@ -280,7 +280,7 @@ public class Moci_RepairBayScript implements AdvanceableListener {
             rs = null;
             repairParts.clear();
             takeOff = launching;
-            // Keep the berth reserved until the launch observer or session cancellation releases it.
+            // 保留泊位预约，直到起飞观察器完成收尾或整备会话中止时再释放。
             session.beginLaunch(restoreConfig);
             if (!launching.hasListenerOfClass(Moci_AnimationLaunch.class)) {
                 launching.addListener(new Moci_AnimationLaunch(launching));
@@ -313,7 +313,7 @@ public class Moci_RepairBayScript implements AdvanceableListener {
                 return;
             }
             if (takeOff != null) {
-                return; // The ship's launch observer owns completion even if the carrier is removed.
+                return; // 即使母舰已被移除，也由起飞机体上的观察器负责完成收尾。
             }
             if (!isOccupied) {
                 reservationElapsed += Math.max(0f, amount);
@@ -328,7 +328,7 @@ public class Moci_RepairBayScript implements AdvanceableListener {
                 session.advance();
             }
             if (!isOccupied || rs == null) {
-                return; // Manual takeover or another cancellation may have released this berth.
+                return; // 玩家接管或其他中止流程可能已释放该泊位。
             }
             repairSequence.advance(amount);
             for (RepairSnapshot part : repairParts) {
@@ -368,7 +368,7 @@ public class Moci_RepairBayScript implements AdvanceableListener {
             }
         }
 
-        /** Kept for callers that explicitly request armor repair on the current serviced craft. */
+        /** 保留此入口，供外部明确要求修复当前整备机体的装甲时调用。 */
         public void repairArmor() {
             if (rs != null) {
                 for (ShipAPI part : getRepairableParts(rs)) {
@@ -420,7 +420,9 @@ public class Moci_RepairBayScript implements AdvanceableListener {
         }
         parts.add(ship);
         for (ShipAPI module : ship.getChildModulesCopy()) {
-            if (module != null && module.isStationModule() && module.getParentStation() == ship) {
+            // 原生脱离流程会清空停靠槽位，但可能仍保留原来的父舰引用。
+            if (module != null && module.isStationModule() && module.getStationSlot() != null
+                    && module.getParentStation() == ship) {
                 collectRepairableParts(module, parts, seen);
             }
         }
@@ -433,7 +435,7 @@ public class Moci_RepairBayScript implements AdvanceableListener {
             if (current == root) {
                 return true;
             }
-            if (!current.isStationModule()) {
+            if (!current.isStationModule() || current.getStationSlot() == null) {
                 return false;
             }
             current = current.getParentStation();
@@ -551,13 +553,13 @@ public class Moci_RepairBayScript implements AdvanceableListener {
                 status.cancelReservation(true);
             }
             ship.removeListener(this);
-            return; // Never clear another script's registration.
+            return; // 不清除其他脚本实例的登记。
         }
         for (Moci_RepairBay bay : repairBays) {
             repairBaysStatus.get(bay).advance(amount);
         }
         if (!isOperationalEntity(ship)) {
-            // Launch completion lives on each launched craft, independent of this carrier listener.
+            // 起飞收尾由各机体自身的观察器负责，不依赖母舰上的此监听器。
             ship.removeListener(this);
             if (getInstance(ship) == this) {
                 ship.removeCustomData("Moci_RepairBayScript");
@@ -709,7 +711,7 @@ public class Moci_RepairBayScript implements AdvanceableListener {
                 ship.removeListener(this);
                 return;
             }
-            // Native state advances off-screen too; combinedAlphaMult is render-dependent.
+            // 原生状态在屏幕外也会推进；combinedAlphaMult 依赖渲染，不能作为完成依据。
             boolean finished = elapsed >= 1f && !ship.isLanding() && !ship.isLiftingOff()
                     && !ship.hasListenerOfClass(Moci_AnimationLaunch.class);
             if (finished || elapsed >= LAUNCH_ANIM_OBSERVER_TIMEOUT) {

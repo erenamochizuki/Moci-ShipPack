@@ -211,11 +211,12 @@
     "music":{
         "theme":"Nergalbgm",
         "market_neutral":"Nergalbgm",
-        "market_hostile":"Nergalbgm",
+        "market_hostile":"Nergal_combat",
         "market_friendly":"Nergalbgm",
         "encounter_neutral":"Nergalbgm",
-        "encounter_hostile":"Nergalbgm",
+        "encounter_hostile":"Nergal_combat",
         "encounter_friendly":"Nergalbgm",
+        "music_combat_set":"Nergal_combat",
     },
 
   "portraits": {

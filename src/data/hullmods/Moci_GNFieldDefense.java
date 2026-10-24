@@ -53,13 +53,8 @@ public class Moci_GNFieldDefense extends BaseHullMod {
         if (!Global.getCombatEngine().getCustomData().containsKey(RENDER_KEY)) {
             Moci_GNShieldRendering_Shader renderer = Moci_GNShieldRendering_Shader.getInstance();
 
-            // 输出渲染器状态信息
-            if (renderer.isShaderInitialized()) {
-                Global.getLogger(this.getClass()).info("GN Field Defense using high-performance shader renderer");
-            } else {
-                Global.getLogger(this.getClass())
-                        .warn("GN Field Defense shader failed, falling back to fixed pipeline");
-            }
+            // Shared renderer allocates shaders later, inside its render callback.
+
         }
 
         // 注册UI渲染器（只需注册一次）

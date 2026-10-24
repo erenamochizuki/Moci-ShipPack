@@ -3,7 +3,6 @@ package data.scripts.weapons;
 import java.awt.Color;
 
 import org.lwjgl.util.vector.Vector2f;
-import org.magiclib.util.MagicAnim;
 import org.magiclib.util.MagicRender;
 
 import com.fs.starfarer.api.Global;
@@ -14,30 +13,17 @@ import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
 /**
- * 斧头武器动画控制器 - 备份版本
+ * 斧头武器动画控制器：跟随实际挥砍进度伸缩普通贴图与发光层
  * 扩展基础效果，添加Y轴伸出/收回动画
  * 基于Moci_System1Effect.java实现可靠的残影效果
  */
 public class Moci_Axe_AnimationController extends Moci_BladeEffectPlugin {
-    // 动画控制变量
-    private float extendLeftLevel = 0f;  // 左侧伸出程度
-    private float extendRightLevel = 0f; // 右侧伸出程度
-    private boolean extendingLeft = false;  // 是否正在左侧伸出
-    private boolean extendingRight = false; // 是否正在右侧伸出
-    private float originalExtendPos = 0f; // 武器的原始位置
-    
-    // 阶段控制
-    private int axeSwingPhase = 0; // 0: 空闲, 1: 左伸, 2: 左->右劈砍, 3: 右伸, 4: 右->左劈砍
-    private float phaseTimer = 0f; // 阶段计时器
-    
-    // 配置参数
-    private final float EXTEND_SPEED = 5.0f;    // 伸出速度乘数，越大越快
-    private final float RETRACT_SPEED = 3.0f;   // 收回速度乘数，越大越快
-    private final float MAX_EXTEND = 10.0f;      // 最大伸出距离（像素）
-    // 注意：斧头动画控制器使用固定时间参数，因为它是EveryFrameWeaponEffectPlugin
-    // 而不是BeamEffectPlugin，无法像光束武器那样获取chargeup时间
-    private final float PHASE_DURATION = 0.4f;  // 每个阶段持续时间（秒）
-    private final float TRANSITION_PAUSE = 0.2f; // 阶段间短暂停顿（秒）
+    // 伸缩与 BeamEffect 的真实挥砍共用进度，不再使用独立的0.4秒阶段计时。
+    public static final float MAX_EXTEND = 20f; // 收回位置到完全伸出位置的总行程，往返各10战场单位。
+    private final java.util.Map<SpriteAPI, Float> originalCenters = new java.util.IdentityHashMap<>();
+    private float extension; // 0=完全收回（原始中心），1=完全伸出（中心Y减10）。
+    private int axeSwingPhase; // 0=空闲，1=左侧收回，2=正挥伸出，3=右侧收回，4=回挥伸出，5=结束保持。
+    private static final float IDLE_RETRACT_TIME = 0.2f; // 一轮结束后的收回时间，秒。
 
     // 残影效果参数（基于Moci_System1Effect.java的成功实现）
     private final float AFTERIMAGE_INTERVAL = 0.06f; // 残影间隔
@@ -51,12 +37,16 @@ public class Moci_Axe_AnimationController extends Moci_BladeEffectPlugin {
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
         // 首先调用父类方法处理基础功能
         super.advance(amount, engine, weapon);
-        
+
         if (engine == null || engine.isPaused()) return;
 
         // 处理武器伸缩动画
-        handleAxeExtendAnimation(amount, weapon);
-        
+        if (weapon.getChargeLevel() <= 0f) {
+            extension = Math.max(0f, extension - Math.max(0f, amount) / IDLE_RETRACT_TIME);
+            axeSwingPhase = 0;
+            applyExtension(weapon);
+        }
+
         // 添加武器残像效果（基于Moci_System1Effect.java的成功实现）
         handleWeaponAfterimage(amount, weapon);
     }
@@ -65,28 +55,28 @@ public class Moci_Axe_AnimationController extends Moci_BladeEffectPlugin {
      * 处理武器残像效果
      * 完全基于Moci_System1Effect.java中的成功实现
      */
-    private void handleWeaponAfterimage(float amount, WeaponAPI weapon) {
+    protected void handleWeaponAfterimage(float amount, WeaponAPI weapon) {
         ShipAPI ship = weapon.getShip();
-        
+
         // 在武器攻击时生成残像效果
         if (weapon.isFiring() && weapon.getChargeLevel() > 0f && !ship.getFluxTracker().isOverloaded()) {
             afterimageAccumulator += amount;
-            
+
             if (afterimageAccumulator >= AFTERIMAGE_INTERVAL) {
                 createWeaponAfterimage(weapon);
                 afterimageAccumulator = 0f;
             }
         }
     }
-    
+
     /**
      * 创建武器残影
      */
     private void createWeaponAfterimage(WeaponAPI weapon) {
         if (weapon.getSprite() == null) return;
-        
+
         ShipAPI ship = weapon.getShip();
-        
+
         // 获取舰船偏移量
         SpriteAPI shipSprite = ship.getSpriteAPI();
         float offsetX = shipSprite.getWidth()/2 - shipSprite.getCenterX();
@@ -97,7 +87,7 @@ public class Moci_Axe_AnimationController extends Moci_BladeEffectPlugin {
                 (float)Math.sin(Math.toRadians(ship.getFacing()-90f))*offsetY;
         float trueOffsetY = (float)Math.sin(Math.toRadians(ship.getFacing()-90f))*offsetX +
                 (float)Math.cos(Math.toRadians(ship.getFacing()-90f))*offsetY;
-        
+
         // 检查武器是否被设置为完全透明
         boolean isHidden = false;
         if (weapon.getSprite() != null && weapon.getSprite().getColor().getAlpha() == 0) {
@@ -147,8 +137,8 @@ public class Moci_Axe_AnimationController extends Moci_BladeEffectPlugin {
                     // 在劈砍阶段增强残像效果
                     alphaMultiplier = 1.3f;
                 }
-                
-                Color axeAfterimageColor = new Color(255, 150, 50, 
+
+                Color axeAfterimageColor = new Color(255, 150, 50,
                     (int)(AFTERIMAGE_ALPHA_START * 255 * alphaMultiplier));
 
                 // 创建残影
@@ -179,142 +169,41 @@ public class Moci_Axe_AnimationController extends Moci_BladeEffectPlugin {
     }
 
     /**
-     * 处理斧头伸缩动画
+     * 由战斧 BeamEffect 在更新角度时调用：左侧收回→正挥伸出→右侧收回→回挥伸出。
+     * progress 与角度使用相同的 smoothStep 进度，避免出现刀已挥完而伸缩还没开始。
      */
-    private void handleAxeExtendAnimation(float amount, WeaponAPI weapon) {
-        // 存储原始位置（仅在首次运行时）
-        if (originalExtendPos == 0f && weapon.getSprite() != null) {
-            originalExtendPos = weapon.getSprite().getCenterY();
-        }
-        
-        // 更新计时器和阶段
-        if (weapon.getChargeLevel() > 0f) {
-            // 前两个阶段: 左侧伸出并从左向右劈砍
-            if (axeSwingPhase <= 2) {
-                // 第一阶段: 左侧伸出
-                if (axeSwingPhase == 0) {
-                    axeSwingPhase = 1;
-                    extendingLeft = true;
-                    extendLeftLevel = 0f;
-                }
-                
-                // 处理左侧伸出动画
-                if (extendingLeft) {
-                    extendLeftLevel += amount * EXTEND_SPEED;
-                    if (extendLeftLevel >= 1f) {
-                        extendLeftLevel = 1f;
-                        // 开始从左向右劈砍，同时收回左侧伸出
-                        axeSwingPhase = 2;
-                        phaseTimer = 0f;
-                    }
-                }
-                
-                // 从左向右劈砍时逐渐收回左侧伸出
-                if (axeSwingPhase == 2) {
-                    phaseTimer += amount;
-                    float progress = Math.min(phaseTimer / PHASE_DURATION, 1.0f);
-                    // 使用ease-in曲线：由慢到快，增强力量感
-                    float easedProgress = applyEaseIn(progress);
-                    // 收回速度与挥砍进度同步
-                    extendLeftLevel = Math.max(0f, 1f - easedProgress);
-                    
-                    // 第一次劈砍结束后，准备开始第二次
-                    if (progress >= 1.0f && !extendingRight) {
-                        phaseTimer = 0f;
-                        axeSwingPhase = 3;
-                        extendingRight = true;
-                        extendRightLevel = 0f;
-                    }
-                }
-            }
-            // 后两个阶段: 右侧伸出并从右向左劈砍
-            else if (axeSwingPhase >= 3) {
-                // 第三阶段: 右侧伸出
-                if (axeSwingPhase == 3) {
-                    extendRightLevel += amount * EXTEND_SPEED;
-                    if (extendRightLevel >= 1f) {
-                        extendRightLevel = 1f;
-                        // 开始从右向左劈砍，同时收回右侧伸出
-                        axeSwingPhase = 4;
-                        phaseTimer = 0f;
-                    }
-                }
-                
-                // 从右向左劈砍时逐渐收回右侧伸出
-                if (axeSwingPhase == 4) {
-                    phaseTimer += amount;
-                    float progress = Math.min(phaseTimer / PHASE_DURATION, 1.0f);
-                    // 使用ease-in曲线：由慢到快，增强力量感
-                    float easedProgress = applyEaseIn(progress);
-                    // 收回速度与挥砍进度同步
-                    extendRightLevel = Math.max(0f, 1f - easedProgress);
-                    
-                    // 全部动画结束后重置
-                    if (progress >= 1.0f) {
-                        phaseTimer = 0f;
-                        axeSwingPhase = 0;
-                        extendingLeft = false;
-                        extendingRight = false;
-                    }
-                }
-            }
-            
-            // 应用伸出效果 - 左侧伸出和右侧伸出使用不同方向
-            // 使用ease-out曲线让伸出动作更有冲击感（快速启动，慢慢停止）
-            float leftExtendAmount = applyEaseOut(extendLeftLevel) * MAX_EXTEND;
-            float rightExtendAmount = applyEaseOut(extendRightLevel) * MAX_EXTEND;
-            
-            // 基于当前阶段决定是左伸还是右伸
-            if (axeSwingPhase <= 2) {
-                // 左侧伸出（向前）
-                weapon.getSprite().setCenterY(originalExtendPos - leftExtendAmount);
-            } else {
-                // 右侧伸出（向前）
-                weapon.getSprite().setCenterY(originalExtendPos - rightExtendAmount);
-            }
-        } 
-        // 武器不在充能状态时
-        else {
-            // 平滑恢复到原始位置
-            float currentPos = weapon.getSprite().getCenterY();
-            if (Math.abs(currentPos - originalExtendPos) > 0.1f) {
-                float newPos = originalExtendPos * 0.1f + currentPos * 0.9f;
-                weapon.getSprite().setCenterY(newPos);
-            } else {
-                weapon.getSprite().setCenterY(originalExtendPos);
-            }
-            
-            // 重置所有状态
-            axeSwingPhase = 0;
-            phaseTimer = 0f;
-            extendingLeft = false;
-            extendingRight = false;
-            extendLeftLevel = 0f;
-            extendRightLevel = 0f;
+    public static void updateExtension(WeaponAPI weapon, int phase, float progress) {
+        if (weapon.getEffectPlugin() instanceof Moci_Axe_AnimationController) {
+            Moci_Axe_AnimationController effect = (Moci_Axe_AnimationController) weapon.getEffectPlugin();
+            effect.axeSwingPhase = phase;
+            effect.extension = Math.max(0f, Math.min(1f, progress));
+            effect.applyExtension(weapon);
         }
     }
-    
-    /**
-     * Ease-in缓动函数：由慢到快
-     * 使用正弦函数实现平滑加速效果
-     * @param t 进度值 (0.0 到 1.0)
-     * @return 缓动后的值 (0.0 到 1.0)
-     */
-    private float applyEaseIn(float t) {
-        // 使用 1 - cos(t * π/2) 实现由慢到快的加速
-        // 这会产生一个平滑的加速曲线
-        return 1f - (float)Math.cos(t * Math.PI * 0.5);
+
+    /** 左侧蓄势时平滑收回；已经收回则立即就绪，不额外等待固定时间。 */
+    public static boolean retractBeforeSwing(WeaponAPI weapon, float amount) {
+        if (!(weapon.getEffectPlugin() instanceof Moci_Axe_AnimationController)) return true;
+        Moci_Axe_AnimationController effect = (Moci_Axe_AnimationController) weapon.getEffectPlugin();
+        updateExtension(weapon, 1, effect.extension - Math.max(0f, amount) / IDLE_RETRACT_TIME);
+        return effect.extension <= 0f;
     }
-    
-    /**
-     * Ease-out缓动函数：由快到慢
-     * 使用正弦函数实现平滑减速效果
-     * @param t 进度值 (0.0 到 1.0)
-     * @return 缓动后的值 (0.0 到 1.0)
-     */
-    private float applyEaseOut(float t) {
-        // 使用 sin(t * π/2) 实现由快到慢的减速
-        // 这会产生一个平滑的减速曲线
-        return (float)Math.sin(t * Math.PI * 0.5);
+
+    private void applyExtension(WeaponAPI weapon) {
+        // 普通本体、发光层、独立炮管和底层都要移动；只有发光贴图的武器也能看到伸缩。
+        applySpriteExtension(weapon.getSprite());
+        applySpriteExtension(weapon.getGlowSpriteAPI());
+        applySpriteExtension(weapon.getBarrelSpriteAPI());
+        applySpriteExtension(weapon.getUnderSpriteAPI());
     }
-} 
+
+    private void applySpriteExtension(SpriteAPI sprite) {
+        if (sprite == null) return;
+        Float original = originalCenters.get(sprite);
+        if (original == null) {
+            original = sprite.getCenterY();
+            originalCenters.put(sprite, original);
+        }
+        sprite.setCenterY(original - extension * MAX_EXTEND);
+    }
+}

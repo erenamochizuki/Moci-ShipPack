@@ -17,6 +17,9 @@
         "Nergalbgm":[
             {"file":"Nergalbgm.ogg","source":"sounds/moci/music","volume":0.35,"randomStart":false}
         ],
+        "Nergal_combat":[
+            {"file":"Nergal_combat.ogg","source":"sounds/moci/music","volume":0.35,"randomStart":false}
+        ],
 		
  },
 	

@@ -77,6 +77,14 @@ public class Moci_GNFieldDefense_Script implements DamageTakenModifier, Advancea
     public Moci_GNFieldDefense_Script(ShipAPI ship) {
         this.ship = ship;
         init(ship);
+        final Moci_GNFieldDefense_Script self=this;
+        if(org.moci.filmshield.api.FilmShield.visual(ship)==null)
+            org.moci.filmshield.api.FilmShield.registerVisual(ship,new org.moci.filmshield.api.ShieldVisual() {
+                public boolean isActive() { return self.getShip().isAlive() && !self.getShield().isShieldBroken()
+                    && (self.getShip().getShield()==null || self.getShip().getShield().isOn()); }
+                public java.util.List<? extends org.moci.filmshield.api.ShieldHit> getHits() { return self.getHitDatas(); }
+                public boolean shouldRender(ShipAPI s,int fighters) { return data.scripts.Moci_FilmShieldIntegration.shouldRender(s,fighters); }
+            });
     }
 
     private TimeoutTracker<BeamAPI> effected = new TimeoutTracker<BeamAPI>();
@@ -383,7 +391,8 @@ public class Moci_GNFieldDefense_Script implements DamageTakenModifier, Advancea
 
     private float computeDamageToShield(DamageAPI damage, ShipAPI source, boolean isBeam) {
         float base = damage.getDamage();
-        if (isBeam) {
+        // Source identity does not imply a DPS payload (melee uses a real beam).
+        if (damage.isDps()) {
             if (damage.getDamage() > 0) {
                 base = damage.getDpsDuration() * damage.getDamage();
             }
@@ -1222,7 +1231,7 @@ public class Moci_GNFieldDefense_Script implements DamageTakenModifier, Advancea
     /**
      * 击中数据
      */
-    public static class Moci_GNShieldHitData {
+    public static class Moci_GNShieldHitData implements org.moci.filmshield.api.ShieldHit {
         private Vector2f rel;
         private float time;
         private final float size;

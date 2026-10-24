@@ -116,7 +116,7 @@ public class Moci_LandingSequence extends BaseHullMod {
         CombatEngineAPI engine = Global.getCombatEngine();
         if (engine == null || ship == null || engine.isPaused()) return;
 
-        // The session survives AI replacement, including the player disabling autopilot.
+        // AI 被替换后会话仍然保留，玩家关闭自动驾驶时也能继续清理整备状态。
         Moci_RefitSession session = Moci_RefitSession.get(ship);
         if (session != null) session.advance();
         if (!ship.isAlive() || !engine.isEntityInPlay(ship)) return;
@@ -171,7 +171,7 @@ public class Moci_LandingSequence extends BaseHullMod {
         clearReturnToCarrierModule(ship);
     }
 
-    /** Returns the player-facing reason that this ship cannot start a new refit. */
+    /** 返回展示给玩家的原因，说明该舰船为什么无法开始新一轮整备。 */
     public static String getRefitBlockedReason(ShipAPI ship) {
         switch (Moci_RefitPolicy.getBlockReason(ship)) {
             case DEPLOYMENT_CR_TOO_LOW:
@@ -356,7 +356,7 @@ public class Moci_LandingSequence extends BaseHullMod {
         Object nextObj = ship.getCustomData().get(REFIT_SEARCH_NEXT_TIME_KEY);
         float nextTime = nextObj instanceof Float ? (Float) nextObj : -1f;
 
-        // A failed search is cached too; missing capacity must not trigger a scan every frame.
+        // 搜索失败也要缓存，避免没有空闲整备位时每帧重复扫描。
         if (nextTime < 0f || now >= nextTime) {
             cached = searchForLand(ship);
             logWingmanSearchChanged(ship);
@@ -378,16 +378,8 @@ public class Moci_LandingSequence extends BaseHullMod {
     public static boolean areAllAmmoWeaponsEmpty(ShipAPI ship) {
         int ammoWeaponCount = 0;
 
-        for (WeaponAPI weapon : ship.getAllWeapons()) {
-            if (!isAmmoWeaponRelevantForRefit(weapon)) continue;
-            ammoWeaponCount++;
-            if (weapon.getAmmo() > 0) {
-                return false;
-            }
-        }
-
-        for (ShipAPI module : ship.getChildModulesCopy()) {
-            for (WeaponAPI weapon : module.getAllWeapons()) {
+        for (ShipAPI part : Moci_RepairBayScript.getRepairableParts(ship)) {
+            for (WeaponAPI weapon : part.getAllWeapons()) {
                 if (!isAmmoWeaponRelevantForRefit(weapon)) continue;
                 ammoWeaponCount++;
                 if (weapon.getAmmo() > 0) {
@@ -950,23 +942,15 @@ public class Moci_LandingSequence extends BaseHullMod {
         
         // 弹药检查：只关注最大尺寸的“会参与弹药整备触发”的有限弹药武器（主武器）
         String largestWeaponSize = null;   // 最大武器尺寸
+        // 与实际整备共用部件集合，排除已毁/脱离模块，并包含仍挂接的嵌套模块。
+        List<ShipAPI> repairableParts = Moci_RepairBayScript.getRepairableParts(ship);
         
         // 首先确定舰船上“最大尺寸的相关有限弹药武器”。
         // 不能把无限弹药武器混进来，否则会出现：
         // - 更大尺寸的能量武器存在
         // - 真正需要补给的最大尺寸有限弹药武器反而被跳过
-        for(WeaponAPI weapon : ship.getAllWeapons()) {
-            if(!isAmmoWeaponRelevantForRefit(weapon)) continue;
-            
-            String weaponSize = weapon.getSize().name();
-            if (largestWeaponSize == null || isLargerWeaponSize(weaponSize, largestWeaponSize)) {
-                largestWeaponSize = weaponSize;
-            }
-        }
-        
-        // 检查子模块武器的最大尺寸
-        for(ShipAPI module : ship.getChildModulesCopy()) {
-            for(WeaponAPI weapon : module.getAllWeapons()) {
+        for (ShipAPI part : repairableParts) {
+            for (WeaponAPI weapon : part.getAllWeapons()) {
                 if(!isAmmoWeaponRelevantForRefit(weapon)) continue;
                 
                 String weaponSize = weapon.getSize().name();
@@ -995,33 +979,9 @@ public class Moci_LandingSequence extends BaseHullMod {
         int mainWeaponEmpty = 0;           // 弹药为0的主武器数量
         int emptyNonMainWeaponCount = 0;   // 弹药为0的非主武器数量
         
-        // 检查主舰体武器
-        for(WeaponAPI weapon : ship.getAllWeapons()){
-            if(!isAmmoWeaponRelevantForRefit(weapon)) continue;
-
-            if (weapon.getSize().name().equals(largestWeaponSize)) {
-                // 这是主武器
-                mainWeaponCount++;
-
-                // 检查弹药比例
-                float ammoRatio = (float)weapon.getAmmo() / (float)weapon.getMaxAmmo();
-                if (ammoRatio <= 0.25f) {
-                    mainWeaponLowAmmo++;
-                }
-                if (weapon.getAmmo() == 0) {
-                    mainWeaponEmpty++;
-                }
-            } else {
-                // 这是非主武器（小武器），只统计弹药为0的
-                if (weapon.getAmmo() == 0) {
-                    emptyNonMainWeaponCount++;
-                }
-            }
-        }
-        
-        // 检查子模块武器
-        for(ShipAPI module : ship.getChildModulesCopy()){
-            for(WeaponAPI weapon : module.getAllWeapons()){
+        // 统计同一有效部件集合中的主武器和非主武器。
+        for (ShipAPI part : repairableParts) {
+            for (WeaponAPI weapon : part.getAllWeapons()) {
                 if(!isAmmoWeaponRelevantForRefit(weapon)) continue;
 
                 if (weapon.getSize().name().equals(largestWeaponSize)) {
@@ -1054,9 +1014,8 @@ public class Moci_LandingSequence extends BaseHullMod {
 
         if (needsAmmoRefill) {
             List<String> triggerWeapons = new ArrayList<String>();
-            collectAmmoTriggerWeapons(triggerWeapons, ship, largestWeaponSize);
-            for (ShipAPI module : ship.getChildModulesCopy()) {
-                collectAmmoTriggerWeapons(triggerWeapons, module, largestWeaponSize);
+            for (ShipAPI part : repairableParts) {
+                collectAmmoTriggerWeapons(triggerWeapons, part, largestWeaponSize);
             }
 
             // 存储弹药为0的非主武器数量，用于距离计算

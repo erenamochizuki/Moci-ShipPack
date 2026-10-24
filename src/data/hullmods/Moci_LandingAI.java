@@ -14,11 +14,12 @@ import com.fs.starfarer.api.util.Misc;
 
 import data.scripts.ships.ai.Moci_MechTurretAI;
 
-/** Navigates one reserved berth. The refit session owns cleanup; the bay owns launch. */
+/** 导航至已预约的泊位；整备会话负责清理状态，整备湾负责安排起飞。 */
 public class Moci_LandingAI implements ShipAIPlugin {
     private static final boolean ENABLE_DEBUG_LOGS = false;
     private static final String ACTIVE_REFIT_REASON_KEY = "Moci_ActiveRefitReason";
     private static final float LANDING_TRIGGER_DISTANCE = 200f;
+    // 接近与降落导航的总时限；动画启动和整备移交的宽限在 Moci_RefitSession 中单独调整。
     private static final float LANDING_TIMEOUT = 50f;
 
     public enum STATE { MOVING, LANDING, FINISHED_LANDING }
@@ -39,7 +40,7 @@ public class Moci_LandingAI implements ShipAIPlugin {
     private Vector2f targetVelocity = new Vector2f();
     private float approachFactor;
 
-    /** No active flags, locks or tracker changes are made when this operation fails. */
+    /** 启动失败时，不设置活动标记、控制锁，也不修改整备跟踪状态。 */
     public static boolean startLanding(ShipAPI ship, Moci_RepairBayScript.Moci_RepairBay bay) {
         if (ship == null || ship.getShipAI() == null || !Moci_RefitPolicy.canStartRefit(ship)) return false;
         Moci_LandingAI ai = new Moci_LandingAI(ship, ship.getAIFlags(), ship.getShipAI().getConfig(), bay);
@@ -72,7 +73,7 @@ public class Moci_LandingAI implements ShipAIPlugin {
         Moci_MechTurretAI.releaseTurretTarget(ship);
         session = Moci_RefitSession.getOrCreate(ship);
         session.beginApproach(bay, this);
-        // Compatibility for an AI that advances this controller as its own navigation module.
+        // 兼容其他 AI 将本控制器作为内部导航模块调用的情况。
         if (!shouldResetAI) session.bindInstalledAI();
         ship.setCustomData(ACTIVE_REFIT_REASON_KEY, Moci_LandingSequence.getRefitTriggerDetail(ship));
     }
@@ -121,7 +122,7 @@ public class Moci_LandingAI implements ShipAIPlugin {
                 advanceLanding(target, distance, amount);
                 break;
             case FINISHED_LANDING:
-                if (!status.startRepair(ship)) {
+                if (!session.isLandingAnimationComplete() || !status.startRepair(ship)) {
                     abort();
                     return;
                 }
@@ -155,7 +156,7 @@ public class Moci_LandingAI implements ShipAIPlugin {
         ship.setFacing(ship.getFacing() + angleDiff * facingBlend);
         if (landingTriggered) {
             session.lockLandingControls();
-            if (ship.isFinishedLanding()) {
+            if (session.isLandingAnimationComplete()) {
                 Moci_RepairBayScript.markLandingAnimationFinished(ship, "native_finished_landing_flag");
                 state = STATE.FINISHED_LANDING;
             }
@@ -163,7 +164,7 @@ public class Moci_LandingAI implements ShipAIPlugin {
         if (ship.isLanding() && distance > 5f && distance <= 50f) {
             float radius = Math.max(1f, bay.getShip().getCollisionRadius());
             float factor = 2f - Math.min(1f, distance / radius);
-            // Preserve the original 60 Hz feel while remaining stable at lower frame rates.
+            // 保持原先每秒 60 帧时的运动效果，并让较低帧率下的插值仍然稳定。
             float positionBlend = 1f - (float) Math.pow(1f - factor * 0.05f, Math.max(0f, amount) * 60f);
             float velocityBlend = 1f - (float) Math.pow(Math.max(0f, 1f - factor * 0.5f), Math.max(0f, amount) * 60f);
             Vector2f location = ship.getLocation();
@@ -273,7 +274,7 @@ public class Moci_LandingAI implements ShipAIPlugin {
     @Override public ShipAIConfig getConfig() { return config; }
     @Override public void forceCircumstanceEvaluation() { }
     @Override public void cancelCurrentManeuver() { }
-    // This navigation AI never fires. Launch fire delay belongs to the restored combat AI.
+    // 本导航 AI 不负责开火；起飞后的禁火延迟由恢复后的战斗 AI 执行。
     @Override public void setDoNotFireDelay(float amount) { }
 
     public static String getRememberedRefitReason(ShipAPI ship) {

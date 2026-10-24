@@ -16,6 +16,7 @@
 
 # ---- 本体：中文发布包（MociShipPack）----
 !/MociShipPack/
+# Moci的贴膜盾前置/ 是独立 Git 仓库，由顶层 /* 忽略，不作为本体子模块。
 # 构建产物不跟踪：MociShipPack.jar 由 mvn package + 手动拷贝生成
 /MociShipPack/jars/
 

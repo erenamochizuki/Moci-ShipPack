@@ -19,7 +19,6 @@ import com.fs.starfarer.api.combat.CombatEntityAPI;
 import com.fs.starfarer.api.combat.DamageAPI;
 import com.fs.starfarer.api.combat.DamageType;
 import com.fs.starfarer.api.combat.DamagingProjectileAPI;
-import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAIConfig;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -237,6 +236,10 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 			return;
 		}
 
+		// 对战机/导弹的增伤属于进攻属性，不能在承伤监听器中修改被击中的机体。
+		stats.getDamageToFighters().modifyMult(id, ANTI_MISSILE_FIGHTER_DAMAGE_MULT);
+		stats.getDamageToMissiles().modifyMult(id, ANTI_MISSILE_FIGHTER_DAMAGE_MULT);
+
 		stats.getEngineHealthBonus().modifyPercent(id, HEALTH_BONUS);
 
 		stats.getSensorProfile().modifyMult(id, PROFILE_MULT);
@@ -378,10 +381,6 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 		// 从母舰侧同步一次模块碰撞，避免模块同步器先于本体碰撞更新执行时留下 1 帧的 SHIP 窗口。
 		synchronizeModuleCollision(ship);
 		
-		// 更新起飞系统的计时器（联动功能）
-		// 处理碰撞恢复和槽位释放
-		updateLaunchTimer(ship, amount);
-
 		// 同步武器贴图与装甲损伤
 		ship.syncWeaponDecalsWithArmorDamage();
 
@@ -390,9 +389,9 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 
 		// 检查是否处于零幅能加速状态且没有安装安全协议
 		if (ship.getFluxTracker().isEngineBoostActive() && !ship.getVariant().hasHullMod("safetyoverrides")) {
-			// 应用双倍航速加成
+			// 编队可将护卫舰临时标为 FIGHTER；加成始终按原始舰体尺寸计算。
 			ship.getMutableStats().getMaxSpeed().modifyFlat("Moci_MobileSuitsIDcard",
-					(Float) SPEED_BONUSES.get(ship.getHullSize()));
+					SPEED_BONUSES.getOrDefault(getOriginalHullSize(ship.getMutableStats()), 0f));
 		} else {
 			// 移除航速加成
 			ship.getMutableStats().getMaxSpeed().unmodify("Moci_MobileSuitsIDcard");
@@ -577,28 +576,7 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 		@Override
 		public String modifyDamageTaken(Object param, CombatEntityAPI target, DamageAPI damage, Vector2f point,
 				boolean shieldHit) {
-			// 处理对导弹的增伤效果
-			if (target instanceof MissileAPI) {
-				// 对导弹造成50%额外伤害
-				damage.getModifier().modifyMult(this.getClass().getName() + "_anti_missile",
-						ANTI_MISSILE_FIGHTER_DAMAGE_MULT);
-				return Moci_TextLoader.getText("Moci_MobileSuitsIDcard", "combat.anti_missile_damage");
-			}
-
-			// 处理对战机的增伤效果
-			if (target instanceof ShipAPI) {
-				ShipAPI targetShip = (ShipAPI) target;
-
-				// 检查是否是战机类型
-				if (targetShip.isFighter()) {
-					// 对战机造成50%额外伤害
-					damage.getModifier().modifyMult(this.getClass().getName() + "_anti_fighter",
-							ANTI_MISSILE_FIGHTER_DAMAGE_MULT);
-					return Moci_TextLoader.getText("Moci_MobileSuitsIDcard", "combat.anti_fighter_damage");
-				}
-			}
-
-			// 如果目标不是舰船，直接返回（导弹增伤已在上面处理）
+			// 此监听器只处理机体承受的伤害；攻击增伤由舰船属性统一提供。
 			if (!(target instanceof ShipAPI)) {
 				return null;
 			}
@@ -932,61 +910,4 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 		}
 	}
 
-	/**
-	 * 更新起飞系统的计时器（联动功能）
-	 * 由 Moci_MSLaunchTravelDrive 起飞系统使用
-	 * 2秒后同时处理：1. 移除碰撞修改器  2. 释放航母槽位
-	 * 
-	 * @param ship 舰船实例
-	 * @param amount 时间增量
-	 */
-	private void updateLaunchTimer(ShipAPI ship, float amount) {
-		Object timerObj = ship.getCustomData().get(data.shipsystems.scripts.Moci_MSLaunchTravelDrive.LAUNCH_TIMER_KEY);
-		if (timerObj instanceof Float) {
-			float timer = (Float) timerObj;
-			
-			if (timer > 0f) {
-				timer -= amount;
-				
-				if (timer <= 0f) {
-					// 时间到了，执行两个操作：
-					
-					// 1. 移除碰撞修改器，恢复默认碰撞状态
-					collisionManager.removeCollisionModifier(ship, "moci_mslaunch_fighter_collision");
-					
-					// 2. 释放航母槽位
-					Object carrierIdObj = ship.getCustomData().get("moci_launch_carrier_id");
-					Object slotIdObj = ship.getCustomData().get("moci_launch_slot_id");
-					
-					// carrier.getId() 返回 String 类型
-					if (carrierIdObj instanceof String && slotIdObj instanceof String) {
-						String carrierId = (String) carrierIdObj;
-						String slotId = (String) slotIdObj;
-						
-						// 释放具体槽位标记
-						Global.getCombatEngine().getCustomData().remove("moci_launchSlots" + carrierId + "_" + slotId);
-						
-						// 减少总槽位计数
-						Object takenSlotsObj = Global.getCombatEngine().getCustomData().get("moci_launchSlots" + carrierId);
-						if (takenSlotsObj instanceof Integer) {
-							int takenSlots = (Integer) takenSlotsObj;
-							if (takenSlots > 0) {
-								Global.getCombatEngine().getCustomData().put("moci_launchSlots" + carrierId, takenSlots - 1);
-							}
-						}
-						
-						// 清除舰船上的槽位信息
-						ship.removeCustomData("moci_launch_carrier_id");
-						ship.removeCustomData("moci_launch_slot_id");
-					}
-					
-					// 清除计时器
-					ship.removeCustomData(data.shipsystems.scripts.Moci_MSLaunchTravelDrive.LAUNCH_TIMER_KEY);
-				} else {
-					// 更新计时器
-					ship.setCustomData(data.shipsystems.scripts.Moci_MSLaunchTravelDrive.LAUNCH_TIMER_KEY, timer);
-				}
-			}
-		}
-	}
 }

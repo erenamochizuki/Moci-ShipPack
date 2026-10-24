@@ -20,7 +20,9 @@ import com.fs.starfarer.api.plugins.ShipSystemStatsScript;
 import com.fs.starfarer.api.util.Misc;
 
 import data.hullmods.Moci_LandingSequence;
-import data.scripts.Moci_CollisionStateManager;
+import data.scripts.Moci_LaunchLifecycle;
+import data.scripts.Moci_LaunchLifecycle.Reservation;
+import data.scripts.util.Moci_TravelDriveControl;
 
 /**
  * Moci模组 - 母舰起飞旅行驱动系统
@@ -44,18 +46,12 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
     private static final boolean ENABLE_DEBUG_LOGS = false;
     private static final String LOG_PREFIX = "[MOCI_LAUNCH] ";
 
-    // 是否已经执行过一次起飞流程
-    private boolean runOnce = false;
+    // 巡航驱动脚本与即时起飞时创建的临时脚本共用船上的完成标记。
+    private static final String LAUNCHED_KEY = "moci_mslaunch_completed";
 
     // 载机航母引用
     private ShipAPI carrier;
 
-    // 碰撞状态管理器修改器ID
-    private static final String COLLISION_MODIFIER_ID = "moci_mslaunch_fighter_collision";
-    
-    // 碰撞状态优先级
-    private static final int COLLISION_PRIORITY = 150;
-    
     // 起飞计时器存储键（存储在舰船的customData中）
     // 用于碰撞管理和槽位释放，2秒后两者都会被处理
     public static final String LAUNCH_TIMER_KEY = "moci_mslaunch_timer";
@@ -80,136 +76,32 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
      * @param effectLevel 效果强度等级 (0.0-1.0)
      */
     public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
-        // 如果游戏暂停，直接返回
-        if (Global.getCombatEngine().isPaused())
-            return;
-
-        // 获取当前舰船实体
+        if (Global.getCombatEngine() == null || Global.getCombatEngine().isPaused()
+                || !(stats.getEntity() instanceof ShipAPI)) return;
         ShipAPI ship = (ShipAPI) stats.getEntity();
-
-        // 判断是否为标准部署状态（玩家方：朝向90度，敌方：朝向270度）
-        boolean standardDeploy = ship.getFacing() == 90f;
-
-        // 如果已经执行过起飞且舰船不在撤退状态，则停用旅行驱动
-        if (runOnce && !ship.isRetreating() && !ship.isDirectRetreat()) {
-            ship.getTravelDrive().deactivate();
+        boolean launched = Boolean.TRUE.equals(ship.getCustomData().get(LAUNCHED_KEY));
+        boolean retreating = ship.isRetreating() || ship.isDirectRetreat();
+        if (launched && !retreating) {
+            Moci_TravelDriveControl.stopTravelDrive(ship);
             unapply(stats, id);
             return;
         }
-
-        // 敌方舰船的标准部署朝向为270度
-        if (ship.getOwner() == 1)
-            standardDeploy = ship.getFacing() == 270f;
-
-        // 检查是否已经完成过载机部署
-        boolean alreadyDone = Global.getCombatEngine().getCustomData()
-                .get("moci_carrierDeployDone_" + ship.getId()) instanceof Boolean;
-
-        // 如果没有找到载机或舰船正在撤退或不在标准部署状态或已经完成部署
-        if (getRandomCarrier(ship, true) == null || ship.isRetreating() || !standardDeploy || alreadyDone) {
-
-            // 系统关闭状态：恢复正常速度
-            if (state == ShipSystemStatsScript.State.OUT) {
-                stats.getMaxSpeed().unmodify(id); // 在系统关闭时将舰船速度恢复到正常水平
-            } else {
-                // 系统激活状态：大幅提升速度和加速度
-                stats.getMaxSpeed().modifyFlat(id, 600f * effectLevel);
-                stats.getAcceleration().modifyFlat(id, 600f * effectLevel);
-            }
-
-            // 标记该舰船已完成载机部署流程
-            Global.getCombatEngine().getCustomData().put("moci_carrierDeployDone_" + ship.getId(), true);
+        boolean standardDeploy = ship.getFacing() == (ship.getOwner() == 1 ? 270f : 90f);
+        boolean alreadyDone = Boolean.TRUE.equals(Global.getCombatEngine().getCustomData()
+                .get("moci_carrierDeployDone_" + ship.getId()));
+        if (!retreating && standardDeploy && !alreadyDone && !ship.isLanding()
+                && beginLaunchSequence(ship)) {
+            unapply(stats, id);
+            return;
         }
-
-        // 检测到载机且满足起飞条件
-        else {
-            // 如果舰船未在降落且未执行过起飞流程
-            if (!ship.isLanding() && !runOnce) {
-
-                // 获取一个可用的载机
-                carrier = getRandomCarrier(ship, false);
-                Vector2f takeOffLoc = null;
-                WeaponSlotAPI usedSlot = null;
-
-                LaunchSlotResult slotResult = null;
-                WeaponSlotAPI memorySlot = getMemoryWeaponSlot(ship, carrier);
-
-                if (memorySlot != null) {
-                    slotResult = claimLaunchSlot(ship, carrier, memorySlot);
-                }
-
-                if (slotResult == null) {
-                    // 遍历载机的所有武器槽位，寻找起飞湾
-                    for (WeaponSlotAPI wep : carrier.getHullSpec().getAllWeaponSlotsCopy()) {
-                        slotResult = claimLaunchSlot(ship, carrier, wep);
-                        if (slotResult != null) {
-                            break;
-                        }
-                    }
-                }
-
-                if (slotResult != null) {
-                    takeOffLoc = slotResult.location;
-                    usedSlot = slotResult.slot;
-                }
-
-                // 如果没有找到合适的起飞湾，使用载机中心位置
-                if (takeOffLoc == null) {
-                    if (carrier.getLocation() != null) {
-                        takeOffLoc = new Vector2f(carrier.getLocation()); // 防御性拷贝
-                    } else {
-                        Global.getLogger(this.getClass()).error("载机位置为null: " + carrier.getHullSpec().getHullId());
-                        return; // 无法继续执行
-                    }
-                }
-
-                // 智能调整起飞位置，避免卡在航母内部（可通过开关控制）
-                if (ENABLE_SAFE_LAUNCH_POSITION) {
-                    takeOffLoc = calculateSafeLaunchPosition(ship, carrier, takeOffLoc);
-                }
-
-                rememberLaunchPoint(ship, carrier, usedSlot, takeOffLoc);
-                logLaunchEvent(ship, "起飞点确定。carrier=" + carrier.getName()
-                        + ", slot=" + (usedSlot != null ? usedSlot.getId() : "fallback_center")
-                        + ", location=" + takeOffLoc);
-
-                // 设置起飞相关属性
-                ship.setLaunchingShip(carrier); // 设置载机
-                setShipLocation(ship, takeOffLoc); // 设置舰船位置到起飞点
-                ship.setAnimatedLaunch(); // 启用起飞
-                
-                // 处理模块船的隐藏（不使用起飞动画，避免干扰）
-                if (ship.getChildModulesCopy() != null && !ship.getChildModulesCopy().isEmpty()) {
-                    for (ShipAPI module : ship.getChildModulesCopy()) {
-                        // module.setLaunchingShip(carrier);
-                        // module.setAnimatedLaunch();
-                        
-                        // 如果模块有Moci_module_collision_controller船插，触发隐藏效果
-                        if (module.getVariant().hasHullMod("Moci_module_collision_controller")) {
-                            data.hullmods.Moci_ModuleCollisionSync.startModuleHiding(module);
-                        }
-                    }
-                }
-
-                // 播放起飞音效
-                Global.getSoundPlayer().playSound("fighter_takeoff", 1f, 1f, ship.getLocation(), new Vector2f());
-
-                // 给舰船施加一个随机的前进力，模拟起飞推力
-                CombatUtils.applyForce(ship, ship.getFacing(), (float) Math.random() * carrier.getMaxSpeed() * 0.50f);
-
-                // 设置战机碰撞状态，防止与航母碰撞
-                applyFighterCollision(ship);
-                
-                // 启动起飞计时器（用于碰撞恢复和槽位释放）
-                ship.setCustomData(LAUNCH_TIMER_KEY, LAUNCH_DURATION);
-
-                // 起飞完成后立刻复位旅行驱动，避免它继续阻断玩家战术系统输入
-                resetTravelDriveAfterLaunch(ship, stats, id);
-
-                // 标记已执行过起飞流程
-                runOnce = true;
-            }
+        // 无法从母舰部署，或舰船确实正在撤退时，使用正常的巡航推进效果。
+        if (state == ShipSystemStatsScript.State.OUT) {
+            stats.getMaxSpeed().unmodify(id);
+        } else {
+            stats.getMaxSpeed().modifyFlat(id, 600f * effectLevel);
+            stats.getAcceleration().modifyFlat(id, 600f * effectLevel);
         }
+        Global.getCombatEngine().getCustomData().put("moci_carrierDeployDone_" + ship.getId(), true);
     }
 
     /**
@@ -371,16 +263,13 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
      * 获取附近可用的载机
      * 
      * @param ship    当前舰船
-     * @param initial 是否为初始检测（true：仅检测是否存在，false：实际分配槽位）
      * @return 可用的载机，如果没有则返回null
      */
-    private ShipAPI getRandomCarrier(ShipAPI ship, boolean initial) {
-        ShipAPI rememberedCarrier = findRememberedCarrier(ship, initial);
+    private ShipAPI getRandomCarrier(ShipAPI ship) {
+        ShipAPI rememberedCarrier = findRememberedCarrier(ship);
         if (rememberedCarrier != null) {
             return rememberedCarrier;
         }
-
-        ShipAPI potCarrier = null;
 
         // 在20000单位范围内搜索所有舰船
         for (ShipAPI candidateCarrier : CombatUtils.getShipsWithinRange(ship.getLocation(), 20000.0F)) {
@@ -391,9 +280,6 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
             if (Global.getCombatEngine().getCustomData()
                     .get("moci_launchSlots" + candidateCarrier.getId()) instanceof Integer) {
                 takenSlots = (int) Global.getCombatEngine().getCustomData().get("moci_launchSlots" + candidateCarrier.getId());
-            } else {
-                // 如果没有记录，初始化为0
-                Global.getCombatEngine().getCustomData().put("moci_launchSlots" + candidateCarrier.getId(), takenSlots);
             }
 
             // ===== 根据舰船舰级进行载机匹配 =====
@@ -460,20 +346,13 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
                     !candidateCarrier.getLaunchBaysCopy().isEmpty();
 
             if (hasValidCarrierCapacity) {
-                potCarrier = candidateCarrier;
-
-                // 如果不是初始检测，增加槽位计数并返回
-                if (!initial) {
-                    Global.getCombatEngine().getCustomData().put("moci_launchSlots" + potCarrier.getId(),
-                            takenSlots + 1);
-                    return potCarrier;
-                }
+                return candidateCarrier;
             }
         }
-        return potCarrier;
+        return null;
     }
 
-    private ShipAPI findRememberedCarrier(ShipAPI ship, boolean initial) {
+    private ShipAPI findRememberedCarrier(ShipAPI ship) {
         String rememberedCarrierId = Moci_LandingSequence.getRememberedLandingCarrierId(ship);
         if (rememberedCarrierId == null) {
             return null;
@@ -530,9 +409,6 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
                 return null;
             }
 
-            if (!initial) {
-                Global.getCombatEngine().getCustomData().put("moci_launchSlots" + candidateCarrier.getId(), takenSlots + 1);
-            }
             return candidateCarrier;
         }
 
@@ -558,16 +434,14 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
         return null;
     }
 
-    private LaunchSlotResult claimLaunchSlot(ShipAPI ship, ShipAPI carrier, WeaponSlotAPI slot) {
+    private LaunchSlotResult claimLaunchSlot(ShipAPI ship, ShipAPI carrier, WeaponSlotAPI slot, Reservation reservation) {
         if (ship == null || carrier == null || slot == null) {
             return null;
         }
         if (slot.getWeaponType() != WeaponType.LAUNCH_BAY) {
             return null;
         }
-        if (Global.getCombatEngine().getCustomData().get("moci_launchSlots" + carrier.getId() + "_" + slot.getId()) != null) {
-            return null;
-        }
+        if (!reservation.claimSlot(slot.getId())) return null;
 
         if (Global.getCombatEngine().getPlayerShip() == ship) {
             Global.getSoundPlayer().playSound("ui_noise_static",
@@ -582,9 +456,6 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
             location = new Vector2f(location);
         }
 
-        Global.getCombatEngine().getCustomData().put("moci_launchSlots" + carrier.getId() + "_" + slot.getId(), "-");
-        ship.setCustomData("moci_launch_carrier_id", carrier.getId());
-        ship.setCustomData("moci_launch_slot_id", slot.getId());
         return new LaunchSlotResult(slot, location);
     }
 
@@ -605,102 +476,69 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
     }
 
     public static boolean launchImmediately(ShipAPI ship) {
-        if (ship == null || Global.getCombatEngine() == null) {
-            return false;
-        }
-
-        Moci_MSLaunchTravelDrive launcher = new Moci_MSLaunchTravelDrive();
-        boolean launched = launcher.beginLaunchSequence(ship);
-        if (launched) {
-            Global.getCombatEngine().getCustomData().put("moci_carrierDeployDone_" + ship.getId(), true);
-            ship.setCustomData("Moci_ImmediateLaunchUsed", true);
-            resetTravelDriveAfterLaunch(ship, null, null);
-        } else {
-            ship.setCustomData("Moci_ImmediateLaunchUsed", false);
-        }
+        if (ship == null || Global.getCombatEngine() == null) return false;
+        if (Moci_LaunchLifecycle.isLaunching(ship)) return true;
+        boolean launched = new Moci_MSLaunchTravelDrive().beginLaunchSequence(ship);
+        ship.setCustomData("Moci_ImmediateLaunchUsed", launched);
         return launched;
     }
 
     private boolean beginLaunchSequence(ShipAPI ship) {
-        carrier = getRandomCarrier(ship, false);
-        if (carrier == null) {
-            return false;
-        }
-
-        Vector2f takeOffLoc = null;
-        WeaponSlotAPI usedSlot = null;
-
-        LaunchSlotResult slotResult = null;
-        WeaponSlotAPI memorySlot = getMemoryWeaponSlot(ship, carrier);
-
-        if (memorySlot != null) {
-            slotResult = claimLaunchSlot(ship, carrier, memorySlot);
-        }
-
-        if (slotResult == null) {
-            for (WeaponSlotAPI wep : carrier.getHullSpec().getAllWeaponSlotsCopy()) {
-                slotResult = claimLaunchSlot(ship, carrier, wep);
-                if (slotResult != null) {
-                    break;
+        carrier = getRandomCarrier(ship);
+        if (carrier == null) return false;
+        Reservation reservation = Moci_LaunchLifecycle.reserve(ship, carrier);
+        if (reservation == null) return false;
+        boolean completed = false;
+        try {
+            Vector2f takeOffLoc = null;
+            WeaponSlotAPI usedSlot = null;
+            LaunchSlotResult slotResult = null;
+            WeaponSlotAPI memorySlot = getMemoryWeaponSlot(ship, carrier);
+            if (memorySlot != null) {
+                slotResult = claimLaunchSlot(ship, carrier, memorySlot, reservation);
+            }
+            if (slotResult == null) {
+                for (WeaponSlotAPI wep : carrier.getHullSpec().getAllWeaponSlotsCopy()) {
+                    slotResult = claimLaunchSlot(ship, carrier, wep, reservation);
+                    if (slotResult != null) break;
                 }
             }
-        }
-
-        if (slotResult != null) {
-            takeOffLoc = slotResult.location;
-            usedSlot = slotResult.slot;
-        }
-
-        if (takeOffLoc == null) {
-            if (carrier.getLocation() != null) {
+            if (slotResult != null) {
+                takeOffLoc = slotResult.location;
+                usedSlot = slotResult.slot;
+            }
+            if (takeOffLoc == null) {
+                if (carrier.getLocation() == null) return false;
                 takeOffLoc = new Vector2f(carrier.getLocation());
-            } else {
-                return false;
             }
-        }
-
-        if (ENABLE_SAFE_LAUNCH_POSITION) {
-            takeOffLoc = calculateSafeLaunchPosition(ship, carrier, takeOffLoc);
-        }
-
-        rememberLaunchPoint(ship, carrier, usedSlot, takeOffLoc);
-        logLaunchEvent(ship, "手动触发起飞。carrier=" + carrier.getName()
-                + ", slot=" + (usedSlot != null ? usedSlot.getId() : "fallback_center")
-                + ", location=" + takeOffLoc);
-
-        ship.setLaunchingShip(carrier);
-        setShipLocation(ship, takeOffLoc);
-        ship.setAnimatedLaunch();
-
-        if (ship.getChildModulesCopy() != null && !ship.getChildModulesCopy().isEmpty()) {
-            for (ShipAPI module : ship.getChildModulesCopy()) {
-                if (module != null && module.getVariant().hasHullMod("Moci_module_collision_controller")) {
-                    data.hullmods.Moci_ModuleCollisionSync.startModuleHiding(module);
+            if (ENABLE_SAFE_LAUNCH_POSITION) {
+                takeOffLoc = calculateSafeLaunchPosition(ship, carrier, takeOffLoc);
+            }
+            rememberLaunchPoint(ship, carrier, usedSlot, takeOffLoc);
+            logLaunchEvent(ship, "起飞点确定。carrier=" + carrier.getName()
+                    + ", slot=" + (usedSlot != null ? usedSlot.getId() : "fallback_center")
+                    + ", location=" + takeOffLoc);
+            ship.setLaunchingShip(carrier);
+            setShipLocation(ship, takeOffLoc);
+            ship.setAnimatedLaunch();
+            if (ship.getChildModulesCopy() != null) {
+                for (ShipAPI module : ship.getChildModulesCopy()) {
+                    if (module != null && module.getVariant() != null
+                            && module.getVariant().hasHullMod("Moci_module_collision_controller")) {
+                        data.hullmods.Moci_ModuleCollisionSync.startModuleHiding(module);
+                    }
                 }
             }
-        }
-
-        Global.getSoundPlayer().playSound("fighter_takeoff", 1f, 1f, ship.getLocation(), new Vector2f());
-        CombatUtils.applyForce(ship, ship.getFacing(), (float) Math.random() * carrier.getMaxSpeed() * 0.50f);
-        applyFighterCollision(ship);
-        ship.setCustomData(LAUNCH_TIMER_KEY, LAUNCH_DURATION);
-        resetTravelDriveAfterLaunch(ship, null, null);
-        runOnce = true;
-        return true;
-    }
-
-    private static void resetTravelDriveAfterLaunch(ShipAPI ship, MutableShipStatsAPI stats, String id) {
-        if (stats != null && id != null) {
-            stats.getMaxSpeed().unmodify(id);
-            stats.getMaxTurnRate().unmodify(id);
-            stats.getTurnAcceleration().unmodify(id);
-            stats.getAcceleration().unmodify(id);
-            stats.getDeceleration().unmodify(id);
-        }
-
-        if (ship != null && ship.getTravelDrive() != null) {
-            ship.getTravelDrive().deactivate();
-            ship.getTravelDrive().setCooldown(10f);
+            Global.getSoundPlayer().playSound("fighter_takeoff", 1f, 1f, ship.getLocation(), new Vector2f());
+            CombatUtils.applyForce(ship, ship.getFacing(), (float) Math.random() * carrier.getMaxSpeed() * 0.50f);
+            reservation.start();
+            Moci_TravelDriveControl.stopTravelDrive(ship);
+            ship.setCustomData(LAUNCHED_KEY, true);
+            Global.getCombatEngine().getCustomData().put("moci_carrierDeployDone_" + ship.getId(), true);
+            completed = true;
+            return true;
+        } finally {
+            if (!completed) reservation.release();
         }
     }
 
@@ -724,26 +562,4 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
         }
     }
 
-    /**
-     * 应用战机碰撞状态
-     * 在起飞时调用，防止与航母碰撞
-     * 
-     * @param ship 目标舰船
-     */
-    private void applyFighterCollision(ShipAPI ship) {
-        if (ship == null) return;
-        
-        var collisionManager = Moci_CollisionStateManager.getInstance();
-        
-        // 确保默认碰撞状态已初始化（必须在任何修改之前）
-        collisionManager.initializeDefaultCollision(ship);
-        
-        // 使用碰撞管理器设置战机碰撞状态
-        collisionManager.setCollisionModifier(
-            ship, 
-            COLLISION_MODIFIER_ID, 
-            COLLISION_PRIORITY, 
-            CollisionClass.FIGHTER
-        );
-    }
 }

@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
 import com.fs.starfarer.api.campaign.BattleAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.FleetEncounterContextPlugin;
 import com.fs.starfarer.api.campaign.SpecialItemData;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec.DropData;
@@ -30,6 +32,10 @@ public class Moci_CombatLootListener extends BaseCampaignEventListener {
     private static final String MOURNSCALE = "Moci_Mournscale";
     private static final String DRACARYX = "Moci_Dracaryx";
 
+    // 只保存不足一个涡珠的进度，跨势力、战斗和存读档累积，不预发物品。
+    private static final String VORTTEAR_PROGRESS = "$Moci_CombatLootVorttearProgress";
+    private transient CargoAPI lastProcessedLoot;
+
     // 失活的漩涡核心是 special item，对 loot 使用 addItems(SPECIAL, SpecialItemData, amount)。
     private static final String VORTEX_CORE = "Moci_vortexcore_Inactivation";
 
@@ -38,7 +44,7 @@ public class Moci_CombatLootListener extends BaseCampaignEventListener {
     private static final String PEARL_MID = "Moci_pearl2";
     private static final String PEARL_HIGH = "Moci_pearl3";
 
-    // 涡族舰队按舰队规模分档：小于 12 走低级组，12-24 走中级组，24 以上走高级组。
+    // 涡族按实际损失的舰体规模分档：小于 12 走低级组，12 至不足 24 走中级组，24 以上走高级组。
     private static final float LOW_DROP_GROUP = 12f;
     private static final float MID_DROP_GROUP = 24f;
 
@@ -75,20 +81,35 @@ public class Moci_CombatLootListener extends BaseCampaignEventListener {
         if (playerContrib <= 0f) {
             return;
         }
+        // 同一份战利品重复通知时，不重复奖励或推进累计进度。
+        if (lastProcessedLoot == loot) {
+            return;
+        }
+        lastProcessedLoot = loot;
 
         BattleAPI battle = plugin.getBattle();
         boolean vortexCoreDroppedThisEncounter = false;
-        // 使用战斗开始时的非玩家侧 snapshot，包含被战斗消灭后已经从实体现状中消失的舰队。
+        // 侧列表只保存舰队引用；战损必须另从舰船快照中读取。
         for (CampaignFleetAPI loser : battle.getNonPlayerSideSnapshot()) {
             if (loser == null) {
                 continue;
             }
 
-            // 用打捞种子派生随机数，保证同一场战斗的掉落结果稳定，不随 UI 刷新反复变化。
-            Random random = Misc.getRandom(Misc.getSalvageSeed(loser), 4117);
+            List<FleetMemberAPI> lost = Misc.getSnapshotMembersLost(loser);
+            float defeatedFP = getDefeatedFleetPoints(lost);
+            if (defeatedFP <= 0f) {
+                continue;
+            }
+            // 仍可复现同一场战损的结果，但同一舰队分多次交战不会反复使用同一随机序列。
+            long seed = Misc.getSalvageSeed(loser);
+            for (FleetMemberAPI member : lost) {
+                seed = 31L * seed + member.getId().hashCode();
+            }
+            Random random = Misc.getRandom(seed, 4117);
             if (loser.getMemoryWithoutUpdate().getBoolean(Moci_GachaMobManager.MemKey)) {
                 boolean droppedCore = addVortexFleetDrops(
-                        loser,
+                        lost,
+                        defeatedFP,
                         loot,
                         random,
                         playerContrib,
@@ -96,7 +117,7 @@ public class Moci_CombatLootListener extends BaseCampaignEventListener {
                 );
                 vortexCoreDroppedThisEncounter = vortexCoreDroppedThisEncounter || droppedCore;
             } else {
-                addVanillaFactionDrops(loser, loot, random, playerContrib);
+                addVanillaFactionDrops(loser, defeatedFP, loot, random, playerContrib);
             }
         }
     }
@@ -107,9 +128,9 @@ public class Moci_CombatLootListener extends BaseCampaignEventListener {
         return winner != null && battle != null && battle.onPlayerSide(winner);
     }
 
-    private boolean addVortexFleetDrops(CampaignFleetAPI fleet, CargoAPI loot, Random random, float playerContrib,
+    private boolean addVortexFleetDrops(List<FleetMemberAPI> lost, float defeatedFP, CargoAPI loot, Random random, float playerContrib,
             boolean canDropVortexCore) {
-        float fleetSize = getFleetSize(fleet);
+        float fleetSize = getFleetSize(lost);
         List<DropData> dropRandom = new ArrayList<DropData>();
 
         // 涡族舰队继续沿用原有的 Moci_pearl1/2/3 掉落组，只是改为战后即时生成，而不是预先挂在舰队上。
@@ -117,28 +138,32 @@ public class Moci_CombatLootListener extends BaseCampaignEventListener {
         DropData pearls = new DropData();
         if (fleetSize < LOW_DROP_GROUP) {
             pearls.group = PEARL_LOW;
-            pearls.chances = Math.max(1, (int) fleetSize * 15);
+            pearls.chances = (int) fleetSize * 15;
         } else if (fleetSize < MID_DROP_GROUP) {
             pearls.group = PEARL_MID;
-            pearls.chances = Math.max(1, (int) fleetSize * 8);
+            pearls.chances = (int) fleetSize * 8;
         } else {
             pearls.group = PEARL_HIGH;
-            pearls.chances = Math.max(1, (int) fleetSize * 4);
+            pearls.chances = (int) fleetSize * 4;
         }
+        // 对抽取次数作随机取整，低贡献不会被强制保底为一次。
+        pearls.chances = rollAmount(random, pearls.chances * playerContrib);
         dropRandom.add(pearls);
 
-        CargoAPI extra = SalvageEntity.generateSalvage(random, 1f, 1f, 1f, 1f, null, dropRandom);
-        loot.addAll(extra);
+        if (pearls.chances > 0) {
+            CargoAPI extra = SalvageEntity.generateSalvage(random, 1f, 1f, 1f, 1f, null, dropRandom);
+            loot.addAll(extra);
+        }
 
         // 漩涡核心实际概率 = 0.25% * 强度缩放 * 玩家贡献度。
         // 同一场遭遇最多只会加入 1 个核心；多支涡族舰队参战时，前面已经成功掉核心后，后续舰队不再 roll。
-        // 强度缩放 = clamp(0.4 + fleetPoints / 240, 0.4, 2.5)。
+        // 强度缩放 = clamp(0.4 + defeatedFP / 240, 0.4, 2.5)。
         // 例子：
         // - 60 FP 舰队：scale = 0.65，单挑概率约 0.1625%。
         // - 120 FP 舰队：scale = 0.90，单挑概率约 0.225%。
         // - 240 FP 舰队：scale = 1.40，单挑概率约 0.35%。
         // - 480 FP 舰队：scale = 2.40，单挑概率约 0.60%。
-        float strengthScale = clamp(0.4f + fleet.getFleetPoints() / 240f, 0.4f, 2.5f);
+        float strengthScale = clamp(0.4f + defeatedFP / 240f, 0.4f, 2.5f);
         if (canDropVortexCore && random.nextFloat() < VORTEX_CORE_BASE_CHANCE * strengthScale * playerContrib) {
             loot.addItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(VORTEX_CORE, null), 1);
             return true;
@@ -146,63 +171,91 @@ public class Moci_CombatLootListener extends BaseCampaignEventListener {
         return false;
     }
 
-    private void addVanillaFactionDrops(CampaignFleetAPI fleet, CargoAPI loot, Random random, float playerContrib) {
+    private void addVanillaFactionDrops(CampaignFleetAPI fleet, float defeatedFP, CargoAPI loot, Random random, float playerContrib) {
         // 只有 getDropProfile() 中列出的势力会掉珠子，其它势力完全不参与。
         DropProfile profile = getDropProfile(fleet.getFaction().getId());
         if (profile == null) {
             return;
         }
 
-        // 原版势力珠子的实际概率 = 势力基础概率 * 舰队强度缩放 * 玩家贡献度。
-        // 强度缩放 = clamp(0.5 + fleetPoints / 200, 0.5, 2)。
-        // 约 100 FP 的舰队 scale=1；约 300 FP 以上封顶 scale=2。
-        float scale = clamp(0.5f + fleet.getFleetPoints() / 200f, 0.5f, 2f) * playerContrib;
-        rollCommodity(loot, random, VORTTEAR, profile.vorttearChance * scale);
-        rollCommodity(loot, random, MOURNSCALE, profile.mournscaleChance * scale);
-        rollCommodity(loot, random, DRACARYX, profile.dracaryxChance * scale);
+        // 每击毁 100 FP 按下方产出结算；无最低规模保底，也不按敌方幸存规模发奖。
+        float scale = defeatedFP / 100f * playerContrib;
+        addVorttearProgress(loot, profile.vorttearAmount * scale);
+        addRolledCommodity(loot, random, MOURNSCALE, profile.mournscaleAmount * scale);
+        addRolledCommodity(loot, random, DRACARYX, profile.dracaryxAmount * scale);
     }
 
     private DropProfile getDropProfile(String factionId) {
-        // 下方基础概率是“约 100 FP、玩家单独/满贡献击败一支舰队”时的概率。
-        // 小舰队会被压低到最低 50%，大舰队最高翻倍。
+        // 每击毁 100 FP、满贡献时的产出。20 涡珠 / 5 涡鳞珠 / 1 涡龙珠可抽一次。
+        // 涡珠稳定累计；中高级珠子保留随机惊喜。海盗约 10 场、左径约 8 场攒够 20 涡珠。
         if (Factions.PIRATES.equals(factionId)) {
-            // 海盗：涡珠 2%，涡鳞珠 0.25%，不掉涡龙珠。
-            return new DropProfile(0.020f, 0.0025f, 0f);
+            return new DropProfile(2f, 0.10f, 0f);
         }
         if (Factions.LUDDIC_PATH.equals(factionId)) {
-            // 卢德左径：涡珠 2.5%，涡鳞珠 0.35%，不掉涡龙珠。
-            return new DropProfile(0.025f, 0.0035f, 0f);
+            return new DropProfile(2.5f, 0.12f, 0f);
         }
         if (Factions.REMNANTS.equals(factionId)) {
-            // 余晖：涡珠 1.5%，涡鳞珠 0.75%，涡龙珠 0.10%。
-            return new DropProfile(0.015f, 0.0075f, 0.0010f);
+            return new DropProfile(1.5f, 0.25f, 0.025f);
         }
         if (Factions.DERELICT.equals(factionId)) {
-            // 遗弃舰队：涡珠 1%，涡鳞珠 0.30%，涡龙珠 0.05%。
-            return new DropProfile(0.010f, 0.0030f, 0.0005f);
+            return new DropProfile(1f, 0.15f, 0.01f);
         }
-        if (Factions.HEGEMONY.equals(factionId)) {
-            // 霸主：涡珠 0.5%，涡鳞珠 0.10%，不掉涡龙珠。
-            return new DropProfile(0.005f, 0.0010f, 0f);
+        if (Factions.HEGEMONY.equals(factionId)
+                || Factions.PERSEAN.equals(factionId)
+                || Factions.INDEPENDENT.equals(factionId)) {
+            return new DropProfile(0.75f, 0.05f, 0f);
+        }
+        if (Factions.TRITACHYON.equals(factionId)) {
+            // 与霸主相同的基础产出，另有每 100 FP、满贡献 1% 的涡龙珠掉落。
+            return new DropProfile(0.75f, 0.05f, 0.01f);
         }
         return null;
     }
 
-    private void rollCommodity(CargoAPI loot, Random random, String commodityId, float chance) {
-        if (chance <= 0f) {
-            return;
+    private void addVorttearProgress(CargoAPI loot, float amount) {
+        MemoryAPI memory = Global.getSector().getMemoryWithoutUpdate();
+        Object saved = memory.get(VORTTEAR_PROGRESS);
+        double progress = saved instanceof Number ? ((Number) saved).doubleValue() : 0d;
+        if (!Double.isFinite(progress) || progress < 0d) {
+            progress = 0d;
         }
-        if (random.nextFloat() < Math.min(chance, 1f)) {
-            loot.addCommodity(commodityId, 1);
+        progress += amount;
+        int whole = (int) Math.floor(progress + 0.000001d);
+        memory.set(VORTTEAR_PROGRESS, Math.max(0d, progress - whole));
+        if (whole > 0) {
+            loot.addCommodity(VORTTEAR, whole);
         }
     }
 
-    private float getFleetSize(CampaignFleetAPI fleet) {
-        // 这里使用 hull size 转换出的规模值，而不是 FP。
-        // 它只用于决定涡族珠子掉落组的档位和抽取次数，保持和旧逻辑接近。
+    private void addRolledCommodity(CargoAPI loot, Random random, String commodityId, float amount) {
+        int whole = rollAmount(random, amount);
+        if (whole > 0) {
+            loot.addCommodity(commodityId, whole);
+        }
+    }
+
+    private int rollAmount(Random random, float amount) {
+        int whole = (int) amount;
+        float fraction = amount - whole;
+        return whole + (fraction > 0f && random.nextFloat() < fraction ? 1 : 0);
+    }
+
+    private float getDefeatedFleetPoints(List<FleetMemberAPI> lost) {
+        float points = 0f;
+        for (FleetMemberAPI member : lost) {
+            if (!member.isFighterWing()) {
+                points += member.getFleetPointCost();
+            }
+        }
+        return points;
+    }
+
+    private float getFleetSize(List<FleetMemberAPI> lost) {
         float fleetSize = 0f;
-        for (FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
-            fleetSize += Misc.getSizeNum(member.getHullSpec().getHullSize());
+        for (FleetMemberAPI member : lost) {
+            if (!member.isFighterWing()) {
+                fleetSize += Misc.getSizeNum(member.getHullSpec().getHullSize());
+            }
         }
         return Math.max(1f, fleetSize);
     }
@@ -233,16 +286,14 @@ public class Moci_CombatLootListener extends BaseCampaignEventListener {
     }
 
     private static class DropProfile {
-        // 每个势力的三种珠子基础概率。
-        // 这些值会在 addVanillaFactionDrops() 中乘以舰队强度缩放和玩家贡献度。
-        private final float vorttearChance;
-        private final float mournscaleChance;
-        private final float dracaryxChance;
+        private final float vorttearAmount;
+        private final float mournscaleAmount;
+        private final float dracaryxAmount;
 
-        private DropProfile(float vorttearChance, float mournscaleChance, float dracaryxChance) {
-            this.vorttearChance = vorttearChance;
-            this.mournscaleChance = mournscaleChance;
-            this.dracaryxChance = dracaryxChance;
+        private DropProfile(float vorttearAmount, float mournscaleAmount, float dracaryxAmount) {
+            this.vorttearAmount = vorttearAmount;
+            this.mournscaleAmount = mournscaleAmount;
+            this.dracaryxAmount = dracaryxAmount;
         }
     }
 }

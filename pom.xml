@@ -260,5 +260,9 @@
     
     <build>
         <sourceDirectory>${project.basedir}/src</sourceDirectory>
+        <plugins>
+            <plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.5.0</version><executions><execution><id>filmshield-api</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals><configuration><sources><source>${project.basedir}/Moci的贴膜盾前置/src</source></sources></configuration></execution></executions></plugin>
+            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-jar-plugin</artifactId><version>3.3.0</version><configuration><excludes><exclude>org/moci/filmshield/**</exclude></excludes></configuration></plugin>
+        </plugins>
     </build>
 </project>

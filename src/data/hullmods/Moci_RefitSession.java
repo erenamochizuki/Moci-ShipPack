@@ -14,13 +14,27 @@ import com.fs.starfarer.combat.entities.Ship.ShipAIWrapper;
 
 import data.scripts.Moci_CollisionStateManager;
 import data.scripts.util.Moci_AIRestoreUtil;
+import data.scripts.util.Moci_TravelDriveControl;
 
-/** Owns a refit operation independently of the AI currently installed on the ship. */
+/** 独立管理一次整备流程，不依赖舰船当前安装的 AI 持续运行。 */
 public final class Moci_RefitSession {
     public static final String DATA_KEY = "Moci_RefitSession";
+    public static final String LANDING_ABORT_REASON_KEY = "Moci_LandingAbortReason";
     private static final String LANDING_COLLISION_ID = "Moci_LandingAI";
     private static final String REPAIR_COLLISION_ID = "Moci_RefitSession";
     private static final float LAUNCH_FIRE_DELAY = 1.5f;
+    // 降落检测按全局战斗模拟时间（秒）计时，受全局时间倍率影响，暂停不计时。
+    // 同一帧多次检查不会重复累计时间；此处不按现实时间或单船时间倍率计时。
+    // 启动宽限：从调用 beginLandingAnimation() 起，允许原生降落状态延迟出现的时间。
+    // 原生实现通常立即置为降落状态；这里留 2 秒兼容余量。需要调整启动宽限时修改此值。
+    private static final float LANDING_START_GRACE_SECONDS = 2f;
+    // 整备移交宽限：从首次检测到动画完成起，等待降落 AI 调用 startRepair() 的最长时间。
+    // 正常流程也可能跨两次 AI 更新；留 2 秒容纳较慢的调度，避免 0.5 秒过早中止。
+    // 需要调整移交宽限时修改此值；该值不控制整备耗时，也不延长下方的动画总超时。
+    private static final float LANDING_HANDOFF_GRACE_SECONDS = 2f;
+    // 动画总超时：从触发原生动画起，等待动画完成的最长时间，与上述两个宽限分别判定。
+    // 正常时间倍率下原生动画约 3 秒；这里给 6 秒。此处使用全局时间，单船时间减速需另行适配。
+    private static final float LANDING_ANIMATION_TIMEOUT_SECONDS = 6f;
 
     private enum Stage { APPROACHING, REPAIRING, LAUNCHING, CLOSED }
 
@@ -37,6 +51,9 @@ public final class Moci_RefitSession {
     private boolean controlsChanged;
     private boolean visualStateChanged;
     private boolean landingAnimationStarted;
+    private boolean landingAnimationObserved;
+    private float landingAnimationStartedAt;
+    private float landingAnimationFinishedAt = -1f;
 
     private Moci_RefitSession(ShipAPI ship) {
         this.ship = ship;
@@ -80,7 +97,7 @@ public final class Moci_RefitSession {
         ship.setCustomData("Moci_LandingAIActive", true);
     }
 
-    /** ShipAPI may wrap custom AIs; retain the actual installed wrapper identity. */
+    /** ShipAPI 可能包装自定义 AI，因此保存实际安装的包装对象，用于判断 AI 是否被替换。 */
     void bindInstalledAI() {
         installedAI = ship.getShipAI();
     }
@@ -89,7 +106,7 @@ public final class Moci_RefitSession {
         return originalConfig;
     }
 
-    /** Invoked by the hullmod even after the navigation AI was removed/replaced. */
+    /** 即使导航 AI 已被移除或替换，船体改造仍会调用此方法推进并清理整备流程。 */
     public void advance() {
         if (!isActive()) return;
         if (!ship.isAlive() || ship.isHulk()
@@ -99,11 +116,16 @@ public final class Moci_RefitSession {
         }
         if (stage == Stage.LAUNCHING) return;
         if (installedAI != null && ship.getShipAI() != installedAI) {
-            // Preserve manual control and replacement AIs supplied by another feature.
+            // 保留玩家手动控制，或其他功能替换的新 AI，不用旧 AI 覆盖它们。
+            if (landingAnimationStarted) {
+                ship.setCustomData(LANDING_ABORT_REASON_KEY,
+                        ship.getShipAI() == null ? "manual_control_takeover" : "landing_ai_replaced");
+            }
             abort(false);
             return;
         }
         if (installedAI == null && controller != null && ship.getShipAI() == null) {
+            if (landingAnimationStarted) ship.setCustomData(LANDING_ABORT_REASON_KEY, "manual_control_takeover");
             abort(false);
             return;
         }
@@ -112,8 +134,8 @@ public final class Moci_RefitSession {
                 && (Global.getCombatEngine() == null || Global.getCombatEngine().isEntityInPlay(bay.getShip()));
         Moci_RepairBayScript.Moci_RepairBayStatus status = getBayStatus();
         if (status == null || status != reservedBayStatus) {
-            // The old listener can still exist after its custom-data registration is removed.
-            // Release the originally reserved status, never a replacement script's berth.
+            // 自定义数据中的登记被删除后，旧监听器仍可能继续存在。
+            // 只释放最初预约的泊位，避免误释放替换脚本管理的泊位。
             abort(true);
         } else if (!carrierValid) {
             if (stage == Stage.REPAIRING) {
@@ -123,6 +145,49 @@ public final class Moci_RefitSession {
                 abort(true);
             }
         }
+        if (isActive()) advanceLandingAnimation();
+    }
+
+    /** 导航 AI 停止更新时，船体改造仍会推进此检测，避免舰船永久卡在降落状态。 */
+    private void advanceLandingAnimation() {
+        if (stage != Stage.APPROACHING || !landingAnimationStarted) return;
+        float elapsed = Math.max(0f, combatTime() - landingAnimationStartedAt);
+        if (ship.isLanding()) {
+            landingAnimationObserved = true;
+            if (ship.isFinishedLanding()) {
+                if (landingAnimationFinishedAt < 0f) {
+                    landingAnimationFinishedAt = combatTime();
+                } else if (combatTime() - landingAnimationFinishedAt >= LANDING_HANDOFF_GRACE_SECONDS) {
+                    // AI 虽仍安装但已停止推进时，也要释放动画结束后仍未进入整备的舰船。
+                    abortLandingAnimation("native_landing_handoff_timeout");
+                }
+                return;
+            }
+        } else if (landingAnimationObserved || elapsed >= LANDING_START_GRACE_SECONDS) {
+            // 曾经进入降落状态后又消失，视为中途被打断，直接中止；启动宽限只用于从未进入的情况。
+            abortLandingAnimation(landingAnimationObserved
+                    ? "native_landing_interrupted" : "native_landing_not_started");
+            return;
+        }
+        if (elapsed >= LANDING_ANIMATION_TIMEOUT_SECONDS) {
+            abortLandingAnimation("native_landing_timeout");
+        }
+    }
+
+    private void abortLandingAnimation(String reason) {
+        // 清理后保留本次中断原因，等下一次开始降落动画时再清除。
+        ship.setCustomData(LANDING_ABORT_REASON_KEY, reason);
+        abort(true);
+    }
+
+    private float combatTime() {
+        return Global.getCombatEngine() != null
+                ? Global.getCombatEngine().getTotalElapsedTime(false) : 0f;
+    }
+
+    boolean isLandingAnimationComplete() {
+        return stage == Stage.APPROACHING && landingAnimationStarted
+                && ship.isLanding() && ship.isFinishedLanding();
     }
 
     void maintainApproachCollision() {
@@ -135,8 +200,11 @@ public final class Moci_RefitSession {
     void beginLandingAnimation() {
         if (!isActive() || landingAnimationStarted || bay == null) return;
         landingAnimationStarted = true;
+        landingAnimationStartedAt = combatTime();
+        ship.removeCustomData(LANDING_ABORT_REASON_KEY);
         visualStateChanged = true;
         ship.beginLandingAnimation(bay.getShip());
+        landingAnimationObserved = ship.isLanding();
         Moci_RepairBayScript.markLandingAnimationStarted(ship, bay, true);
         for (SavedState saved : savedModules) {
             ShipAPI module = saved.ship;
@@ -183,7 +251,7 @@ public final class Moci_RefitSession {
         }
     }
 
-    /** Starts one launch; the repair bay's observer calls finishLaunch after animation completion. */
+    /** 开始一次起飞；动画结束后，由整备湾的起飞观察器调用 finishLaunch 完成收尾。 */
     public void beginLaunch(ShipAIConfig fallbackConfig) {
         if (!isActive() || stage == Stage.LAUNCHING) return;
         stage = Stage.LAUNCHING;
@@ -203,7 +271,7 @@ public final class Moci_RefitSession {
             if (Moci_RepairBayScript.isAttachedLivingPart(ship, saved.ship)) saved.ship.setAnimatedLaunch();
         }
         Global.getSoundPlayer().playSound("fighter_takeoff", 1f, 1f, ship.getLocation(), new Vector2f());
-        // A manually removed/replaced AI is never overwritten while releasing the berth.
+        // 释放泊位时，不覆盖已被玩家移除或被其他功能替换的 AI。
         if (ship.getShipAI() != null && (installedAI == null || ship.getShipAI() == installedAI)) {
             restoreAI(fallbackConfig);
         }
@@ -273,7 +341,7 @@ public final class Moci_RefitSession {
             if (!manager.hasActiveModifier(saved.ship)) saved.ship.setCollisionClass(saved.collision);
         }
         restoreVisualState();
-        ship.turnOffTravelDrive();
+        Moci_TravelDriveControl.stopTravelDrive(ship);
     }
 
     private void restoreVisualState() {
