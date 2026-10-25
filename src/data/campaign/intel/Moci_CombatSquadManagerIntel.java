@@ -35,6 +35,8 @@ import data.hullmods.Moci_ShipboardAIAuxEffectRegistry;
 import data.hullmods.Moci_ShipboardAIConfigLoader;
 import data.hullmods.Moci_ShipboardAIManager;
 import data.hullmods.Moci_ShipboardAITextRegistry;
+import data.campaign.fighter.Moci_FighterLoadoutService;
+import data.campaign.fighter.ui.Moci_AirSquadronDialog;
 
 /**
  * CombatSquad机师编队管理界面
@@ -2131,8 +2133,81 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         Color bg = fc.getDarkUIColor();
         Color bright = fc.getBrightUIColor();
         TooltipMakerAPI btnHolder1 = generateTabButton(panel, csText("tab_fleet", "编队列表"), BUTTON_FLEET, base, bg, bright, null);
-        TooltipMakerAPI btnHolder2 = generateTabButton(panel, csText("tab_help", "使用说明"), Tab.HELP, base, bg, bright, btnHolder1);
+        TooltipMakerAPI btnHolder2 = generateTabButton(panel, "航空中队管理", Tab.AIR_SQUADRON, base, bg, bright, btnHolder1);
+        generateTabButton(panel, csText("tab_help", "使用说明"), Tab.HELP, base, bg, bright, btnHolder2);
         return btnHolder1;
+    }
+
+    private void createAirSquadronView(CustomPanelAPI panel, TooltipMakerAPI info, float width) {
+        info.addPara("选择母舰，逐机库管理航空中队的武器装配。安装“航空中队管理”船插的母舰会出现在这里。", 10f);
+        boolean available = Moci_FighterLoadoutService.isAvailable();
+        if (!available) {
+            info.addPara(Moci_FighterLoadoutService.getUnavailableReason(),
+                    Misc.getNegativeHighlightColor(), 8f);
+        }
+        List<FleetMemberAPI> carriers = new ArrayList<>();
+        CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
+        if (fleet != null) {
+            for (FleetMemberAPI ship : fleet.getFleetData().getMembersListCopy()) {
+                if (ship.getVariant() != null
+                        && ship.getVariant().hasHullMod(Moci_FighterLoadoutService.HULLMOD_ID)
+                        && ship.getStats().getNumFighterBays().getModifiedValue() >= 1f) carriers.add(ship);
+            }
+        }
+        if (carriers.isEmpty()) {
+            info.addPara("当前没有安装航空中队管理船插的母舰。该船插无需军官，零 OP，有机库即可安装。", 12f, Misc.getGrayColor());
+            return;
+        }
+        float rowHeight = 116f;
+        float imageSize = 80f;
+        float buttonWidth = Math.min(120f, Math.max(80f, width * 0.16f));
+        float textX = imageSize * 2f + 24f;
+        float textWidth = Math.max(100f, width - textX - buttonWidth - 28f);
+        float buttonX = width - buttonWidth - 12f;
+        CustomPanelAPI rows = panel.createCustomPanel(width - 8f, rowHeight * carriers.size(), null);
+        float y = 4f;
+        for (FleetMemberAPI ship : carriers) {
+            List<Object> action = new ArrayList<>();
+            action.add("open_air_squadron");
+            action.add(ship.getId());
+            TooltipMakerAPI shipClick = rows.createUIElement(imageSize, imageSize, false);
+            shipClick.addAreaCheckbox("", action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(),
+                    Misc.getBrightPlayerColor(), imageSize, imageSize, 0f).setEnabled(available);
+            rows.addUIElement(shipClick).inTL(4f, y);
+            rows.addUIElement(createFleetMemberImageForPanel(rows, ship, imageSize, imageSize)).inTL(4f, y);
+
+            PersonAPI captain = ship.getCaptain();
+            PersonAPI portrait = captain != null ? captain : Global.getSector().getPlayerPerson();
+            if (portrait != null) rows.addUIElement(createPersonImageForPanel(rows, portrait, imageSize, imageSize))
+                    .inTL(imageSize + 12f, y);
+            String captainName = captain != null && !captain.isDefault() ? captain.getNameString() : "未分配军官";
+            TooltipMakerAPI details = rows.createUIElement(textWidth, rowHeight - 8f, true);
+            details.addPara(ship.getShipName(), Misc.getHighlightColor(), 0f);
+            details.addPara(ship.getHullSpec().getHullNameWithDashClass(), Misc.getGrayColor(), 3f);
+            details.addPara("舰长：" + captainName, Misc.getTextColor(), 3f);
+            int installed = 0, editable = 0, modified = 0;
+            StringBuilder summary = new StringBuilder();
+            if (available) {
+                for (Moci_FighterLoadoutService.BayEntry bay : Moci_FighterLoadoutService.collectBays(ship)) {
+                    if (bay.wingId() == null || bay.wingId().isEmpty()) continue;
+                    installed++;
+                    if (bay.eligible() && !bay.builtIn()) editable++;
+                    if (Moci_FighterLoadoutService.isCustomWingId(bay.wingId())) modified++;
+                    if (summary.length() > 0) summary.append(" / ");
+                    summary.append(bay.wing() != null ? bay.wing().getWingName() : bay.wingId());
+                }
+                details.addPara("联队 " + installed + " · 可装配 " + editable + " · 已改装 " + modified, 4f);
+                details.addPara(summary.length() > 0 ? summary.toString() : "尚未安装联队", Misc.getGrayColor(), 3f);
+            } else {
+                details.addPara("装配服务暂不可用，舰船及库存保持原状。", 4f, Misc.getGrayColor());
+            }
+            rows.addUIElement(details).inTL(textX, y);
+            TooltipMakerAPI button = rows.createUIElement(buttonWidth, 28f, false);
+            button.addButton("管理中队", action, buttonWidth, 28f, 0f).setEnabled(available);
+            rows.addUIElement(button).inTL(buttonX, y + 26f);
+            y += rowHeight;
+        }
+        info.addCustom(rows, 12f);
     }
 
     @Override
@@ -2158,6 +2233,9 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 switch (currentTab) {
                     case FLEET:
                         createFleetView(panel, info, width);
+                        break;
+                    case AIR_SQUADRON:
+                        createAirSquadronView(panel, info, width);
                         break;
                     case SQUAD:
                         createSelectedShipSquadView(panel, info, width, opad, h);
@@ -2205,6 +2283,8 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             selectingPortraitIdx = null;
             selectingSkillIdx = null;
             selectingCommanderId = null;
+            selectingShipIdx = null;
+            selectingShipCommanderId = null;
             selectedSquadShipId = null;
             selectedAiMemberId = null;
             ui.updateUIForItem(this);
@@ -2235,6 +2315,20 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             List<?> params = (List<?>) buttonId;
             if (!params.isEmpty() && params.get(0) instanceof String) {
                 String action = (String) params.get(0);
+                if ("open_air_squadron".equals(action) && params.size() >= 2 && params.get(1) instanceof String) {
+                    String memberId = (String) params.get(1);
+                    FleetMemberAPI carrier = Moci_FighterLoadoutService.findMember(memberId);
+                    if (carrier != null && carrier.getVariant() != null
+                            && carrier.getVariant().hasHullMod(Moci_FighterLoadoutService.HULLMOD_ID)
+                            && carrier.getStats().getNumFighterBays().getModifiedValue() >= 1f) {
+                        Moci_AirSquadronDialog.open(ui, this, memberId);
+                    } else {
+                        Global.getSector().getCampaignUI().addMessage("母舰已不在舰队中，或已卸下航空中队管理船插。",
+                                Misc.getNegativeHighlightColor());
+                        ui.updateUIForItem(this);
+                    }
+                    return;
+                }
                 if ("open_squad".equals(action) && params.size() >= 2 && params.get(1) instanceof String) {
                     selectedSquadShipId = (String) params.get(1);
                     FleetMemberAPI ship = findFleetMemberById(selectedSquadShipId);
@@ -2641,7 +2735,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
      * 标签页枚举
      */
     public static enum Tab {
-        FLEET, SQUAD, AI_DETAIL, HELP
+        FLEET, SQUAD, AI_DETAIL, AIR_SQUADRON, HELP
     }
 
     /**

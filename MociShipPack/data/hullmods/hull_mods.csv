@@ -235,3 +235,7 @@ I立场,Moci_IField,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_IField,阻止来自�
 ,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,
+航空中队管理,Moci_air_squadron_manager,,,MOCI武库,no_build_in,战机,,TRUE,,,0,0,0,0,data.hullmods.Moci_AirSquadronManager,允许在情报界面的航空中队管理中逐机库调整适用联队的武器装配。无需军官；自动化或无人舰船无法安装；卸下后于退出改装及市场界面时安全恢复原型并返还额外武器。,在情报界面按母舰管理航空中队装配。,,graphics/hullmods/Moci_fighter_expand.png
+强化护盾,moci_tactical_hardened_shield,0,,,moci_tactical,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalHardenedShieldEmitter,降低 %s 护盾所受伤害，并降低护盾被 EMP 电弧击穿的概率。,降低护盾所受伤害。,,graphics/hullmods/hardened_shields.png
+弹匣扩容,moci_tactical_expanded_magazines,0,,,moci_tactical,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalExpandedMagazines,提高实弹武器和能量武器 %s 的备弹量。,提高实弹/能量武器的备弹量。,提高 %s 的实弹和能量武器备弹回复速率。,graphics/hullmods/expanded_magazines2.png
+导弹挂架,moci_tactical_expanded_missile_racks,0,,,moci_tactical,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalExpandedMissileRacks,提高导弹武器 %s 备弹量。,提高导弹武器的备弹量。,降低导弹武器 %s 的射速。,graphics/hullmods/expanded_missile_racks.png

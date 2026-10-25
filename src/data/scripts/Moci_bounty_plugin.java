@@ -33,6 +33,8 @@ import data.scripts.weapons.ai.Moci_Weapon2AI;
 import data.campaign.intel.Moci_CombatSquadManagerIntel;
 import data.campaign.intel.Moci_ShipboardAIManagerIntel;
 import data.campaign.MociRecoverableShipCampaignPlugin;
+import data.campaign.Moci_AirSquadronCoordinator;
+import data.campaign.fighter.Moci_FighterLoadoutService;
 import org.apache.log4j.Logger;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
@@ -271,6 +273,8 @@ public class Moci_bounty_plugin extends BaseModPlugin {
                     
     @Override
     public void onApplicationLoad() throws Exception {
+        // Dynamic fighter specs must exist before the game starts deserializing saved variants.
+        Moci_FighterLoadoutService.initializeApplication();
         initShaderLib();
         Moci_MechTurretAI.loadSettings();
 
@@ -321,6 +325,8 @@ public class Moci_bounty_plugin extends BaseModPlugin {
 
     @Override
     public void onGameLoad(boolean newGame) {
+        Moci_FighterLoadoutService.registerAllFromStore();
+        Moci_AirSquadronCoordinator.register();
         // 初始化Tulip殖民地（支持中途加入mod）
         Moci_TulipColonyManager.initializeTulipColony();
         // 尼尔加星系仅在缺失时创建，已存在时保留当前归属及市场状态。
