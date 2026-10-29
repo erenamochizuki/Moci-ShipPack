@@ -24,7 +24,9 @@ public final class UnicornMagnumPulseEffect implements EveryFrameWeaponEffectPlu
         UnicornMagnumModes.beforeWeapon(weapon);
         if(!Float.isFinite(amount)||amount<0)throw new IllegalArgumentException("Invalid Magnum visual step");
         flashAge+=amount;
-        if(!installed){this.engine=engine;engine.addLayeredRenderingPlugin(new Visuals());OwnBattleResources.register(engine,this);installed=true;}
+        // 无引擎外资源：close() 只有 closed=true；Masks 里的 SpriteAPI 来自 Global.getSettings().getSprite()
+        // 的缓存，不持有 GL 句柄；渲染插件由 Visuals.isExpired() 判 closed / 船亡 / 引擎换人。
+        if(!installed){this.engine=engine;engine.addLayeredRenderingPlugin(new Visuals());installed=true;}
     }
     @Override public void advanceAfter(float amount,CombatEngineAPI engine,WeaponAPI weapon){if(!closed&&engine!=null&&!engine.isPaused())UnicornMagnumModes.afterWeapon(weapon);}
     static void nativeShot(WeaponAPI weapon){

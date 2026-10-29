@@ -11,8 +11,14 @@ public final class BeamRifleChargeEffect implements EveryFrameWeaponEffectPlugin
     private WeaponAPI bound;private CombatEngineAPI engine;private boolean rendered,closed;private float visualTime;
     private Map<String,Object> opticalFacts;private NativeRifleEmp nativeEmp;
     private final String damageId="xi.arsenal.rifle.charge."+UUID.randomUUID();private DamageAPI previous;
-    @Override public void init(WeaponAPI weapon){if(bound!=null&&bound!=weapon)throw new IllegalStateException("Charge rifle callback shared between weapons");if(!BeamRifleModes.isCharge(weapon))throw new IllegalArgumentException("Owned charge rifle required");bound=weapon;weapon.ensureClonedSpec();for(var offsets:List.of(weapon.getSpec().getTurretFireOffsets(),weapon.getSpec().getHardpointFireOffsets(),weapon.getSpec().getHiddenFireOffsets()))for(int i=0;i<offsets.size();i++)offsets.set(i,new Vector2f(offsets.get(i)));weapon.setForceNoFireOneFrame(true);}
-    @Override public void advance(float amount,CombatEngineAPI engine,WeaponAPI weapon){if(bound==null)init(weapon);if(closed||engine==null||engine.isPaused())return;this.engine=engine;visualTime+=Math.max(0,amount);BeamRifleModes.beforeWeapon(weapon);if(!rendered){engine.addLayeredRenderingPlugin(new Visual());OwnBattleResources.register(engine,this);rendered=true;}}
+    /** 所有权契约：只有本地驾驶机体的蓄力枪需要预先禁火、等玩家输入驱动原生首亮；
+     *  AI 载机的原生开火指令不归 xi 语义接管（否则会永久哑火）。 */
+    @Override public void init(WeaponAPI weapon){if(bound!=null&&bound!=weapon)throw new IllegalStateException("Charge rifle callback shared between weapons");if(!BeamRifleModes.isCharge(weapon))throw new IllegalArgumentException("Owned charge rifle required");bound=weapon;weapon.ensureClonedSpec();for(var offsets:List.of(weapon.getSpec().getTurretFireOffsets(),weapon.getSpec().getHardpointFireOffsets(),weapon.getSpec().getHiddenFireOffsets()))for(int i=0;i<offsets.size();i++)offsets.set(i,new Vector2f(offsets.get(i)));if(BeamRifleModes.controlOwned(weapon.getShip()))weapon.setForceNoFireOneFrame(true);}
+    @Override public void advance(float amount,CombatEngineAPI engine,WeaponAPI weapon){if(bound==null)init(weapon);if(closed||engine==null||engine.isPaused())return;this.engine=engine;visualTime+=Math.max(0,amount);
+        // 所有权契约：AI 载机不建控制器也不装光学层，原生蓄力/首亮完全交给引擎。
+        if(!BeamRifleModes.controlOwned(weapon.getShip(),engine))return;
+        BeamRifleModes.beforeWeapon(weapon);
+        if(!rendered){engine.addLayeredRenderingPlugin(new Visual());rendered=true;}}
     @Override public void advanceAfter(float amount,CombatEngineAPI engine,WeaponAPI weapon){if(!closed&&!engine.isPaused()){
         BeamRifleModes.afterWeapon(weapon);BeamRifleModes own=BeamRifleModes.instance(weapon.getShip());
         if(own!=null){if(nativeEmp==null)nativeEmp=new NativeRifleEmp();nativeEmp.advance(amount,engine,own.source(),weapon,own.status());}

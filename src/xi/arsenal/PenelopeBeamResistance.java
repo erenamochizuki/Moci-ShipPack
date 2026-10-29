@@ -41,7 +41,8 @@ public final class PenelopeBeamResistance implements DamageTakenModifier {
             return;
         }
         DamageRouter router = new DamageRouter(engine);
-        OwnBattleResources.register(engine, router);
+        // 无引擎外资源：DamageRouter.close() 只是从引擎 listenerManager 摘除自己并清 customData，
+        // engine 销毁即随之消失；它由 ensureGlobalRouter 的引擎级唯一键自管，无需中央注册表。
         engine.getCustomData().put(ROUTER_KEY, router);
         engine.getListenerManager().addListener(router);
     }

@@ -61,7 +61,9 @@ public final class OwnNewtypeController implements AutoCloseable, data.scripts.c
         Object existing = engine.getCustomData().get(INSTANCE_KEY);
         if (existing != null && existing != this) { duplicate = true; return; }
         engine.getCustomData().put(INSTANCE_KEY, this);
-        OwnBattleResources.register(engine, this);
+        engine.getCustomData().put(INSTANCE_KEY, this);
+        // 无引擎外资源：close() 只撤销 timeMult 修饰、清 INSTANCE_KEY 并在总线上注销，
+        // 全部是引擎内状态；结束链路由本类 advance() 的 combat-over 守卫 + Moci_CombatBus.closeAll() 覆盖。
         data.scripts.combat.Moci_CombatBus.register(this);
         publish();
     }

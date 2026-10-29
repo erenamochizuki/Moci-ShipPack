@@ -71,7 +71,9 @@ public final class PsychoArmamentVisuals implements AutoCloseable, data.scripts.
             for(String name:List.of("projectileObservations","beamObservations","muzzleFlares","impactFlares","renderedSegments","renderedFlares","ionParticles"))row.put(name,0L);
             counters.put(family,row);}
         try{
-            OwnBattleResources.register(engine,this);
+            // 无引擎外资源：textures 只是 Global.getSettings().getSprite() 的缓存引用，
+            // PsychoOpticalTextures.close() 仅置 null；damageListener 与渲染插件都在引擎内，
+            // 收尾链路由本类 advance() 的 combat-over 守卫 + Moci_CombatBus.closeAll() 覆盖。
             textures=Objects.requireNonNull(textureFactory.get(),"Optical texture preparation returned null");
             damageListener=this::settledHit;
             engine.getListenerManager().addListener(damageListener);

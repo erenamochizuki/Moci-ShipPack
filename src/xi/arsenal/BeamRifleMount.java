@@ -31,7 +31,8 @@ public class BeamRifleMount implements EveryFrameWeaponEffectPluginWithAdvanceAf
         detach(weapon.getSpec().getTurretFireOffsets());
         detach(weapon.getSpec().getHardpointFireOffsets());
         detach(weapon.getSpec().getHiddenFireOffsets());
-        synchronize();
+        // 所有权契约：只有本地驾驶机体才把可见枪口写进原生 fireOffsets；AI 载机保留原生弹道起点。
+        if (BeamRifleModes.controlOwned(weapon.getShip())) synchronize(); else syncVisual();
     }
 
     @Override public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
@@ -40,16 +41,22 @@ public class BeamRifleMount implements EveryFrameWeaponEffectPluginWithAdvanceAf
         this.engine = engine;
         if (!rendererInstalled) { engine.addLayeredRenderingPlugin(new AttachedVisuals()); rendererInstalled = true; }
         if (engine.isPaused() || amount <= 0f) return;
+        flashAge = Math.min(FLASH_SECONDS, flashAge + amount); // 枪口闪光衰减：AI 的原生开火同样会点亮枪口。
+        // 所有权契约：只有本地驾驶机体（或显式远程接管者）才吃 xi 步枪语义。
+        // AI 载机在这里早退：不建 host、不接管禁火/姿态、不写 fireOffsets ——
+        // 否则一个只会否决的控制器会把 AI 的光束步枪永久按在哑火状态（P1）。枪口动画保留。
+        if (!BeamRifleModes.controlOwned(weapon.getShip(), engine)) { syncVisual(); return; }
         // 步枪模式的所有者由这把武器自己创建；必须在 beforeWeapon 之前，否则首帧会被强制禁火。
         BeamRifleHost.ensure(weapon.getShip());
         BeamRifleModes.beforeWeapon(weapon);
         FullSalvoPose.beforeWeaponUpdate(weapon);
-        flashAge = Math.min(FLASH_SECONDS, flashAge + amount);
         synchronize(); // Before the native trigger: the projectile is born at the visible pre-shot aperture.
     }
 
     @Override public void advanceAfter(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
         if (engine.isPaused()) return;
+        // 所有权契约：非本机载机不做 pose/fireOffset 同步，弹道起点交还原生 spec；枪口动画照旧。
+        if (!BeamRifleModes.controlOwned(weapon.getShip(), engine)) { syncVisual(); return; }
         synchronize(); // Native cooldown and aiming have now advanced; match the displayed recoil pose.
         FullSalvoPose.applyWeaponPose(weapon);
         RifleFiringPose.apply(weapon);
@@ -58,6 +65,16 @@ public class BeamRifleMount implements EveryFrameWeaponEffectPluginWithAdvanceAf
     }
 
     private void synchronize() {
+        SpriteAPI barrel = syncVisual();
+        Vector2f local = localMuzzle(bound, barrel);
+        setOffsets(bound.getSpec().getTurretFireOffsets(), local);
+        setOffsets(bound.getSpec().getHardpointFireOffsets(), local);
+        setOffsets(bound.getSpec().getHiddenFireOffsets(), local);
+    }
+
+    /** 只摆可见炮管的位置（原生后坐 + 姿态位移），绝不写 fireOffsets。
+     *  AI 载机只走这一步：枪口动画照旧，弹道起点交还原生 spec。 */
+    private SpriteAPI syncVisual() {
         SpriteAPI barrel = visibleGunSprite(bound);
         // SUSPEND_RECOIL only stops the native renderer overwriting this centre.
         // Keep the original Moci noHide SOURCE cooldown recoil; both writers use
@@ -70,10 +87,7 @@ public class BeamRifleMount implements EveryFrameWeaponEffectPluginWithAdvanceAf
         float forward = shift.x * (float)Math.cos(angle) + shift.y * (float)Math.sin(angle);
         float left = -shift.x * (float)Math.sin(angle) + shift.y * (float)Math.cos(angle);
         barrel.setCenter(originalCenterX + left, originalCenterY + MOCI_SOURCE_RECOIL * recoil - forward);
-        Vector2f local = localMuzzle(bound, barrel);
-        setOffsets(bound.getSpec().getTurretFireOffsets(), local);
-        setOffsets(bound.getSpec().getHardpointFireOffsets(), local);
-        setOffsets(bound.getSpec().getHiddenFireOffsets(), local);
+        return barrel;
     }
 
     /**

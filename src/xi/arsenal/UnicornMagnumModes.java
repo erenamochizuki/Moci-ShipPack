@@ -96,7 +96,12 @@ public final class UnicornMagnumModes implements AutoCloseable {
     private Request no(String why){reason=why;publish();return new Request(false,why);}
     private void cancel(String why){if(phase==Phase.HOLDING||phase==Phase.RELEASING||phase==Phase.FIRING){cancellations++;if(!beamConfirmed)ammo.cancelReservation();if(beamConfirmed){cooldown=Math.max(cooldown,COOLDOWN);phase=Phase.COOLDOWN;}else phase=Phase.IDLE;reason=why;}fireDown=false;heldLocal=0;releaseWait=0;}
     /** Native callbacks call only this guard/pose seam;no clocks,group edits or original callback replay. */
-    public static void beforeWeapon(WeaponAPI weapon){UnicornMagnumModes own=instance(weapon.getShip());if(own==null){weapon.setForceNoFireOneFrame(true);return;}own.guardCalls++;own.align();own.guard(weapon);}
+    // 控制器缺失时不再无条件禁火：magnum 脉冲炮在 Moci_RX_0_*/Moci_RX_93 系列的 ARM_R_SOURCE
+    // （mount TURRET、type BUILT_IN、非隐藏）上，是 AI 能原生开火的真实武器（projectileSpecId
+    // Moci_fw_unicorn_magnum_pulse_shot），无条件禁火 = 永久哑火（P1 缺陷类别）；
+    // 只有 HIDDEN 槽的 charge 光束（UNICORN_MAGNUM_CHARGE）属于控制器独占，继续禁火无害。
+    // 判据见 XiWeaponControlOwnership。
+    public static void beforeWeapon(WeaponAPI weapon){UnicornMagnumModes own=instance(weapon.getShip());if(own==null){XiWeaponControlOwnership.settleWithoutController(weapon);return;}own.guardCalls++;own.align();own.guard(weapon);}
     private void guard(WeaponAPI weapon){
         if(weapon==pulse){if(mode!=Mode.PULSE||phase==Phase.HOLDING||phase==Phase.RELEASING||phase==Phase.FIRING||cooldown>0)weapon.setForceNoFireOneFrame(true);return;}
         if(weapon!=beam)return;
@@ -111,7 +116,10 @@ public final class UnicornMagnumModes implements AutoCloseable {
     private void confirmNativeLight(){if(phase!=Phase.RELEASING||dark(beam))return;
         if(!ammo.reservationPending())throw new IllegalStateException("Unpaid Magnum beam cannot confirm native light");
         ammo.confirmBeam();beamConfirmed=true;phase=Phase.FIRING;beamShots++;shotSequence++;lastShot=shot("CHARGE",preparedDuration,damageScale);reason="原生照射已确认，费用已提交";publish();}
-    public static void nativePulseShot(WeaponAPI weapon){UnicornMagnumModes own=instance(weapon.getShip());if(own==null||weapon!=own.pulse)throw new IllegalStateException("Unowned native Magnum pulse callback");own.ammo.observe();own.pulseShots++;own.shotSequence++;own.lastShot=own.shot("PULSE",0,1);own.publish();}
+    // 控制器缺失时原生脉冲仍会真实开火（放行由 XiWeaponControlOwnership 决定），因此这里不再抛异常：
+    // 无 owner 只是「无人记账」，不构成失败；弹仓/计数属于控制器职责，缺控制器时自然无人承担。
+    // 武器身份错位（回调被别的武器触发）仍然硬失败，那是真错误。
+    public static void nativePulseShot(WeaponAPI weapon){UnicornMagnumModes own=instance(weapon.getShip());if(own==null)return;if(weapon!=own.pulse)throw new IllegalStateException("Magnum pulse callback fired by a non-owned weapon");own.ammo.observe();own.pulseShots++;own.shotSequence++;own.lastShot=own.shot("PULSE",0,1);own.publish();}
     private Map<String,Object> shot(String kind,float duration,float scale){return Map.of("sequence",shotSequence,"kind",kind,"heldLocal",heldLocal,"preparedDuration",duration,"damageScale",scale,"sharedAmmo",ammo.reserve(),"beamCostRule","explicit-source-magazine-not-continuous-native-auto");}
     public static float heldRatio(WeaponAPI weapon){UnicornMagnumModes own=instance(weapon.getShip());return own!=null&&own.phase==Phase.HOLDING?Math.min(1,own.heldLocal/MAX_HOLD):0;}
     public static float firingScale(WeaponAPI weapon){UnicornMagnumModes own=instance(weapon.getShip());return own==null?1:own.damageScale;}

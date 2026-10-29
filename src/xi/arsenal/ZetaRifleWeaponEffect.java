@@ -23,7 +23,8 @@ public final class ZetaRifleWeaponEffect implements EveryFrameWeaponEffectPlugin
         if(sniper&&source==null){String sourceSlot=ZetaRifleMount.isWr(weapon)?ZetaRifleModes.WR_SOURCE_SLOT:ZetaRifleModes.SOURCE_SLOT;source=ZetaRifleMount.slot(weapon.getShip(),sourceSlot);if(source==null)throw new IllegalStateException("Zeta deployed native rifle SOURCE missing");}
         ZetaEnhancement.ensure(engine);
         ZetaRifleModes.beforeWeapon(weapon);
-        if(!rendererInstalled&&sniper&&ZetaRifleModes.SNIPER_SLOT.equals(weapon.getSlot().getId())){engine.addLayeredRenderingPlugin(new Visual());OwnBattleResources.register(engine,this);rendererInstalled=true;}
+        // 无引擎外资源：close() 只有 closed=true 并从舰船移除 OPTICS_KEY；渲染插件由 Visual.isExpired() 收尾。
+        if(!rendererInstalled&&sniper&&ZetaRifleModes.SNIPER_SLOT.equals(weapon.getSlot().getId())){engine.addLayeredRenderingPlugin(new Visual());rendererInstalled=true;}
     }
     @Override public void advanceAfter(float amount,CombatEngineAPI engine,WeaponAPI weapon){if(closed||engine==null||engine.isPaused())return;ZetaRifleModes.afterWeapon(weapon);}
     /** Idempotent end-of-bone pass. Never advances another callback or changes group membership. */

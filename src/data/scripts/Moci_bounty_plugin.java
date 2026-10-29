@@ -86,7 +86,35 @@ public class Moci_bounty_plugin extends BaseModPlugin {
     // 舰载AI系统
     private Moci_ShipboardAIBattleListener shipboardAIBattleListener;
     // 并入的 xi/arsenal 内容（PsychoMissile 制导、船体系统与内容映射）
-    private final xi.arsenal.PsychoModPlugin psychoframeContent = new xi.arsenal.PsychoModPlugin();
+    //
+    // 接缝约束（重要）：xi/arsenal 是独立特性包，它与本体的唯一合法连接方式是「本类单向调用 + 全量兜底」。
+    // 因此这里**不允许**在字段初始化时就 new —— 那等于把 xi 侧的类初始化时机提前到 ModPlugin 实例创建时刻，
+    // 一旦 xi 侧因为游戏版本升级、混淆内部类改名、缺前置等原因抛 NoClassDefFoundError，
+    // 整个 Moci_bounty_plugin 会构造失败，开局就整包瘫痪，且报错点离真正原因极远。
+    // 改为惰性创建：首次真正需要时才加载，失败即永久降级（不再重试，避免逐帧刷异常栈）。
+    private static final String XI_SEAM_TAG = "[MOCI-SEAM] ";
+    private volatile xi.arsenal.PsychoModPlugin psychoframeContent;
+    private volatile boolean psychoframeUnavailable;
+
+    /**
+     * 取 xi/arsenal 内容包实例；不可用时返回 null，调用方必须做空判。
+     *
+     * <p>只在这里创建，保证「加载 xi 侧类」这件事发生在受控位置、且只有一次失败机会。</p>
+     */
+    private xi.arsenal.PsychoModPlugin psychoframeContent() {
+        xi.arsenal.PsychoModPlugin local = psychoframeContent;
+        if (local != null || psychoframeUnavailable) {
+            return local;
+        }
+        try {
+            local = new xi.arsenal.PsychoModPlugin();
+            psychoframeContent = local;
+        } catch (RuntimeException | LinkageError failure) {
+            psychoframeUnavailable = true;
+            log.warn(XI_SEAM_TAG + "xi/arsenal 内容包不可用，已按「缺失」处理；本体其余功能不受影响。", failure);
+        }
+        return local;
+    }
 
     // 白骑士尾部纹理路径
     private static final String TAIL_S_SPRITE_PATH = "graphics/ships/Mobile_Suit/Moci_ReinWeissRitter/tail/ReinWeissRitter_tail_s.png";
@@ -275,9 +303,16 @@ public class Moci_bounty_plugin extends BaseModPlugin {
 
     @Override
     public PluginPick<MissileAIPlugin> pickMissileAI(MissileAPI missile, ShipAPI launchingShip) {
+        // PROJECTILE_ID 是编译期常量（static final String 字面量），比对本身不会加载 xi 类；
+        // 真正可能失败的是下面的构造（xi 侧可能引用混淆内部类）。这里兜住，失败就让导弹走原生 AI。
         if (missile != null && xi.arsenal.PsychoMissileAI.PROJECTILE_ID.equals(missile.getProjectileSpecId())) {
-            return new PluginPick<MissileAIPlugin>(
-                    new xi.arsenal.PsychoMissileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
+            try {
+                return new PluginPick<MissileAIPlugin>(
+                        new xi.arsenal.PsychoMissileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
+            } catch (RuntimeException | LinkageError failure) {
+                log.warn(XI_SEAM_TAG + "PsychoMissileAI 构造失败，该导弹回退原生 AI："
+                        + missile.getProjectileSpecId(), failure);
+            }
         }
         return super.pickMissileAI(missile, launchingShip);
     }
@@ -319,8 +354,16 @@ public class Moci_bounty_plugin extends BaseModPlugin {
         Global.getSettings().loadTexture(Black_Sarena_TAIL_MID_SPRITE_PATH);
         Global.getSettings().loadTexture(Black_Sarena_TAIL_END_SPRITE_PATH);
 
-        // 并入的 xi/arsenal 内容初始化（船体系统与内容映射表）
-        psychoframeContent.onApplicationLoad();
+        // 并入的 xi/arsenal 内容初始化（船体系统与内容映射表）。
+        // 接缝兜底：xi 侧初始化失败只降级它自己，不许把本体拖下水（onApplicationLoad 抛异常会让整包加载失败）。
+        xi.arsenal.PsychoModPlugin psychoframe = psychoframeContent();
+        if (psychoframe != null) {
+            try {
+                psychoframe.onApplicationLoad();
+            } catch (RuntimeException | LinkageError failure) {
+                log.warn(XI_SEAM_TAG + "xi/arsenal onApplicationLoad 失败，已跳过其内容注册。", failure);
+            }
+        }
     }
 
     /**

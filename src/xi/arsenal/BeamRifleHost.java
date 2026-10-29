@@ -31,6 +31,8 @@ public final class BeamRifleHost implements Moci_CombatSink {
 
     /**
      * 幂等创建：装配不满足（缺蓄力步枪）时返回 null 并记标记，避免每帧重复抛异常。
+     * 所有权契约：只有本地驾驶机体（或显式远程接管者）才装配 xi 步枪控制器；
+     * AI 载机在这里返回 null，保留原生武器语义（不建 host、不注册 sink、不接管禁火/姿态）。
      */
     public static BeamRifleHost ensure(ShipAPI ship) {
         if (Global.getCurrentState() != com.fs.starfarer.api.GameState.COMBAT) return null;
@@ -40,12 +42,17 @@ public final class BeamRifleHost implements Moci_CombatSink {
         Object existing = ship.getCustomData().get(KEY);
         if (existing instanceof BeamRifleHost host) return host.closed ? null : host;
         if (Boolean.TRUE.equals(ship.getCustomData().get(UNAVAILABLE))) return null;
+        // P1 修复点：控制权判据必须在 supports 之前——AI 载机不得进入 xi 步枪状态机。
+        if (!BeamRifleModes.controlOwned(ship, engine)) return null;
         if (!BeamRifleModes.supports(ship)) return null;
         BeamRifleHost created = new BeamRifleHost(ship, engine);
         try {
             created.modes = new BeamRifleModes(ship);
         } catch (RuntimeException | LinkageError failure) {
             ship.getCustomData().put(UNAVAILABLE, Boolean.TRUE);
+            if (BeamRifleModes.TRACE_OWNERSHIP)
+                Global.getLogger(BeamRifleHost.class).warn("[MOCI-RIFLE] host install failed for "
+                        + ship.getName() + " (" + ship.getHullSpec().getHullId() + "): " + failure, failure);
             return null;
         }
         ship.getCustomData().put(KEY, created);
@@ -58,6 +65,12 @@ public final class BeamRifleHost implements Moci_CombatSink {
         if (closed || modes == null) return;
         if (Global.getCombatEngine() != engine || !ship.isAlive() || ship.isHulk()
                 || !engine.isEntityInPlay(ship) || engine.isCombatOver()) {
+            close();
+            return;
+        }
+        // 所有权契约：本机不再驾驶这艘船时立刻卸载。否则残留控制器会继续每帧 toggleOff
+        // 蓄力组、并否决它的原生开火 —— 换乘后的旧舰与 AI 载机必须走原生语义。
+        if (!BeamRifleModes.controlOwned(ship, engine)) {
             close();
             return;
         }

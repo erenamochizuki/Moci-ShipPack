@@ -40,7 +40,10 @@ public final class UnicornNtdInterference implements AutoCloseable {
     public UnicornNtdInterference(CombatEngineAPI engine){
         this.engine=Objects.requireNonNull(engine);
         if(engine.getCustomData().containsKey(KEY+".owner"))throw new IllegalStateException("NTD interference already has an owner");
-        engine.getCustomData().put(KEY+".owner",this);engine.getCustomData().put(KEY,facts);OwnBattleResources.register(engine,this);publish();
+        engine.getCustomData().put(KEY+".owner",this);engine.getCustomData().put(KEY,facts);
+        // 无引擎外资源：close() 只把导弹的转向速率/转向加速度修饰还原并清 customData marker，
+        // 没有句柄；收尾由持有者 UnicornNtdEnhancement.close() 负责。
+        publish();
     }
     /** Actual NTD activation is owned/read by the caller; this class never starts or advances a subsystem. */
     public void advance(Collection<? extends ShipAPI> activeUnicornShips,float dt){

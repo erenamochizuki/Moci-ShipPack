@@ -145,8 +145,12 @@ public final class ZetaDefensiveMechanisms implements AutoCloseable,DamageTakenM
         ShipAPI parent=root.getParentStation();if(parent==root)break;root=parent;
     }return null;}
     /** Invoked by this NEW launcher's one native every-frame callback; never advances this owner. */
+    // 控制器缺失时走统一判据：Moci_fw_zeta_shield_counter 的两门槽（ZETA_SHIELD_COUNTER_A/B）在
+    // hulls/Moci_MSZ_006_SHIELD_L.ship 里都是 mount HIDDEN，AI 无法原生开火，唯一开火路径就是本类
+    // 在 reportDamageApplied 之后用 setForceFireOneFrame 触发，所以判据结论仍是「保留禁火」。
+    // 判据见 XiWeaponControlOwnership。
     public static void guardCounterWeapon(WeaponAPI weapon){ZetaDefensiveMechanisms own=ownerFor(weapon==null?null:weapon.getShip());
-        if(own==null){if(weapon!=null)weapon.setForceNoFireOneFrame(true);return;}own.checkThread();
+        if(own==null){XiWeaponControlOwnership.settleWithoutController(weapon);return;}own.checkThread();
         if(!own.launchers.contains(weapon)||!own.counterPending.contains(weapon)||!own.enemy(own.counterTarget)||own.engine.isPaused()||weapon.isDisabled()||weapon.isForceDisabled()){
             weapon.setForceNoFireOneFrame(true);return;
         }

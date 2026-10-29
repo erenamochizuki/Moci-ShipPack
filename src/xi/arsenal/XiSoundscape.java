@@ -84,7 +84,9 @@ public final class XiSoundscape implements AutoCloseable, data.scripts.combat.Mo
         Object owner = engine.getCustomData().get(OWNER_KEY);
         if (owner != null && owner != this) return; // Duplicate registration must not layer the same cockpit audio.
         engine.getCustomData().put(OWNER_KEY, this);
-        OwnBattleResources.register(engine, this);
+        // 引擎外资源只有本类自持的两路音频：near 是固定 sound id 的 UI loop，incoming 是一个
+        // 自持的 SoundAPI 句柄（IncomingChannel.handle）。拥有者就是本对象，由 close() 释放；
+        // 不再登记进任何中央注册表，也不再依赖战斗插件在结束时顺手关。
         enabled = true;
         facts.put("enabled", true); facts.put("closed", false);
         facts.put("schema", 5);
@@ -102,7 +104,13 @@ public final class XiSoundscape implements AutoCloseable, data.scripts.combat.Mo
         facts.put("channels", Map.of("enemyNear", near.facts, "incoming", incoming.facts));
         engine.getCustomData().put(KEY, facts);
         publish(false);
-        data.scripts.combat.Moci_CombatBus.register(this);
+        // 总线登记是唯一可能失败的外部步骤：失败即整体回滚（含已建立的音频通道），
+        // 不把半初始化的对象留在引擎 customData 里。
+        try { data.scripts.combat.Moci_CombatBus.register(this); }
+        catch (RuntimeException | LinkageError failure) {
+            try { close(); } catch (RuntimeException | LinkageError cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
+        }
     }
 
     @Override public void processInput(float amount, List<InputEventAPI> events) {
@@ -110,7 +118,11 @@ public final class XiSoundscape implements AutoCloseable, data.scripts.combat.Mo
     }
 
     @Override public void advance(float amount, List<InputEventAPI> events) {
-        if (!enabled || closed || engine == null) return;
+        if (closed) return;
+        // 引擎消失/切场守卫：即使 isCombatOver() 这一帧没轮到，句柄也必须在第一次发现引擎换了时释放，
+        // 保证不把 UI loop 音量或 SoundAPI 句柄带进下一场战斗。
+        if (engine != null && Global.getCombatEngine() != engine) { close(); return; }
+        if (!enabled || engine == null) return;
         frames++;
         if (engine.isCombatOver()) { combatEnded = true; close(); return; }
         if (engine.isPaused()) {
@@ -320,19 +332,34 @@ public final class XiSoundscape implements AutoCloseable, data.scripts.combat.Mo
         facts.put("incomingGeometry",currentHull==null?"inactive":currentHull.segments.length==0?"native-collision-radius-fallback":"copied-native-original-polygon");
     }
 
-    /** Owner-thread battle teardown. Only this pack's handles/voices are released. */
+    /**
+     * Owner-thread battle teardown. Only this pack's handles/voices are released.
+     * 幂等：closed 先置位，重复调用（advance 守卫 / Moci_CombatBus.closeAll() / start 回滚）直接短路。
+     * 每一步独立兜底（RuntimeException | LinkageError），任一步失败都不阻断后续释放，
+     * 确保 near 的 UI loop 音量、incoming 的 SoundAPI 句柄、OWNER_KEY 与总线登记没有一处被留在外面。
+     */
     @Override public void close() {
         if (closed) return;
         closed = true;
         boolean owns = engine != null && engine.getCustomData().get(OWNER_KEY) == this;
         if (owns) {
-            near.stopOwned(); incoming.stopOwned();
-            LocalCockpitAudio.clear(engine);
-            engine.getCustomData().remove(OWNER_KEY);
+            releaseQuietly(near::stopOwned, "near UI loop");
+            releaseQuietly(incoming::stopOwned, "incoming SoundAPI handle");
+            releaseQuietly(() -> LocalCockpitAudio.clear(engine), "local cockpit binding");
+            releaseQuietly(() -> engine.getCustomData().remove(OWNER_KEY), "owner key");
         }
         enabled = false; attacks.clear(); clearContacts(); boundPlayer = null;
         if (owns) { publish(false); facts.put("closed", true); facts.put("enabled", false); }
-        data.scripts.combat.Moci_CombatBus.unregister(this);
+        releaseQuietly(() -> data.scripts.combat.Moci_CombatBus.unregister(this), "combat bus registration");
+    }
+
+    /** 单个释放步骤的兜底：只记一次 warn，绝不把异常抛回引擎或战斗插件。 */
+    private static void releaseQuietly(Runnable step, String what) {
+        try {
+            step.run();
+        } catch (RuntimeException | LinkageError failure) {
+            Global.getLogger(XiSoundscape.class).warn("Xi cockpit audio release step failed: " + what, failure);
+        }
     }
 
     /**
@@ -350,11 +377,11 @@ public final class XiSoundscape implements AutoCloseable, data.scripts.combat.Mo
                 stopHandle();SoundPlayerAPI player=Global.getSoundPlayer();
                 if(player==null)unavailable++;
                 else try{handle=player.playUISound(INCOMING_SOUND,1f,maximum);calls++;if(handle==null)unavailable++;nextCycle=now+Math.round(INCOMING_PERIOD_SECONDS*1_000_000_000d);}
-                catch(RuntimeException error){recordFailure(error);}
+                catch(RuntimeException | LinkageError error){recordFailure(error);}
             }}publish();
         }
-        void stopHandle(){if(handle==null)return;SoundAPI owned=handle;handle=null;try{owned.stop();stops++;}catch(RuntimeException error){recordFailure(error);}nextCycle=0;}
-        void recordFailure(RuntimeException error){failed=true;failures++;String detail=error.toString();facts.put("lastError",detail.length()>512?detail.substring(0,512):detail);Global.getLogger(XiSoundscape.class).warn("Owned incoming cockpit warning failed",error);}
+        void stopHandle(){if(handle==null)return;SoundAPI owned=handle;handle=null;try{owned.stop();stops++;}catch(RuntimeException | LinkageError error){recordFailure(error);}nextCycle=0;}
+        void recordFailure(Throwable error){failed=true;failures++;String detail=error.toString();facts.put("lastError",detail.length()>512?detail.substring(0,512):detail);Global.getLogger(XiSoundscape.class).warn("Owned incoming cockpit warning failed",error);}
         void resetForListenerChange(){stopOwned();}
         void stopOwned(){if(requested)releases++;requested=false;stopHandle();publish();}
         void publish(){facts.put("predicate",requested);facts.put("volume",requested&&!failed?maximum:0f);facts.put("activations",activations);facts.put("releases",releases);facts.put("playUISoundCalls",calls);facts.put("playLoopCalls",0L);facts.put("stopCalls",stops);facts.put("failures",failures);facts.put("soundPlayerUnavailableFrames",unavailable);facts.put("ownedHandleActive",handle!=null);}
@@ -389,7 +416,7 @@ public final class XiSoundscape implements AutoCloseable, data.scripts.combat.Mo
                     // count creates another voice; distance/camera listener positions do not apply.
                     soundPlayer.playUILoop(sound, 1f, level * maximum);
                     calls++;
-                } catch (RuntimeException error) {
+                } catch (RuntimeException | LinkageError error) {
                     failed = true; failures++;
                     String detail = error.toString();
                     facts.put("lastError", detail.length() > 512 ? detail.substring(0, 512) : detail);
@@ -415,7 +442,7 @@ public final class XiSoundscape implements AutoCloseable, data.scripts.combat.Mo
                 try {
                     // Zero only this pack's fixed UI voice, never all UI sounds or global volume.
                     soundPlayer.playUILoop(sound, 1f, 0f); calls++;
-                } catch (RuntimeException error) {
+                } catch (RuntimeException | LinkageError error) {
                     failed = true; failures++;
                     String detail = error.toString();
                     facts.put("lastError", detail.length() > 512 ? detail.substring(0, 512) : detail);

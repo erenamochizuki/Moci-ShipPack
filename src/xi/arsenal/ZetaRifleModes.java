@@ -168,7 +168,12 @@ public final class ZetaRifleModes implements AutoCloseable {
     private void align(){boolean upperBody=form==Form.MS&&ZetaTetherPose.blocksGuard(ship);if(form==Form.MS&&rapidShot&&combo==null&&!upperBody)msBeam.setCurrAngle(msBurst.getCurrAngle());if(form==Form.MS&&(combo!=null||upperBody||mode==Mode.SNIPER)){msBurst.setCurrAngle(combo!=null?combo.rig.gunAimAngle(msBeam.getCurrAngle()):upperBody?ZetaTetherPose.rightAimAngle(ship):pose.aim(msBeam.getCurrAngle()));if(combo!=null||upperBody)msBeam.setCurrAngle(msBurst.getCurrAngle());}if(form==Form.WR){wrBurst.setCurrAngle(ship.getFacing());wrBeam.setCurrAngle(ship.getFacing());}
         ZetaRifleWeaponEffect.reconcile(msBurst);ZetaRifleWeaponEffect.reconcile(wrBurst);
         ZetaRifleMount.synchronize(msBeam,msBurst);ZetaRifleMount.synchronize(wrBeam,wrBurst);}
-    public static void beforeWeapon(WeaponAPI weapon){ZetaRifleModes own=instance(weapon.getShip());if(own==null){weapon.setForceNoFireOneFrame(true);return;}own.guardCalls++;own.updateForm(false);own.align();own.prime();if(weapon==own.shotBeam&&(own.phase==Phase.RELEASING||own.phase==Phase.FIRING)&&own.form==own.shotForm&&!weapon.isForceNoFireOneFrame()&&own.blocked().isEmpty())weapon.setForceFireOneFrame(true);}
+    // 控制器缺失时的裁决：Moci_MSZ_006 的 ARM_R_SOURCE（TURRET、arc 95、BUILT_IN、非隐藏）挂着
+    // Moci_fw_zeta_rifle_burst（projectileSpecId Moci_fw_zeta_rifle_burst_shot，真实伤害），AI 可原生开火，
+    // 无条件禁火 = 永久哑火（P1 缺陷类别）；而 sniper 光束（ZETA_RIFLE_SNIPER / WR_RIFLE_SNIPER）与
+    // WR 形态的 burst（WR_MAINGUN）全在 HIDDEN 槽，AI 无法原生开火、只能由控制器触发，继续禁火无害。
+    // 判据见 XiWeaponControlOwnership。
+    public static void beforeWeapon(WeaponAPI weapon){ZetaRifleModes own=instance(weapon.getShip());if(own==null){XiWeaponControlOwnership.settleWithoutController(weapon);return;}own.guardCalls++;own.updateForm(false);own.align();own.prime();if(weapon==own.shotBeam&&(own.phase==Phase.RELEASING||own.phase==Phase.FIRING)&&own.form==own.shotForm&&!weapon.isForceNoFireOneFrame()&&own.blocked().isEmpty())weapon.setForceFireOneFrame(true);}
     public static void afterWeapon(WeaponAPI weapon){ZetaRifleModes own=instance(weapon.getShip());if(own!=null){own.align();own.confirm();}}
     public static boolean cycleActive(WeaponAPI weapon){boolean charging=weapon.isFiring()&&weapon.getChargeLevel()>.0001f;return weapon.isBeam()?charging||!dark(weapon):weapon.isInBurst()||charging;}
     private static boolean dark(WeaponAPI weapon){return weapon.getBeams().stream().noneMatch(b->b.getBrightness()>.0001f);}

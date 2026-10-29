@@ -43,7 +43,9 @@ public final class AdaptiveShieldVisualLayer implements AutoCloseable {
                 nativeEngine.getRenderer().recompile(nativeShip);
             });
             engine.getCustomData().put(OWNER,visual);engine.getCustomData().put(KEY,Collections.unmodifiableMap(visual.facts));
-            try{OwnBattleResources.register(engine,visual);}catch(RuntimeException failure){engine.getCustomData().remove(OWNER);engine.getCustomData().remove(KEY);throw failure;}
+            // 无引擎外资源：close() 只把 SHIELD_L 的 layer 还原并 recompile 渲染缓存（全部是引擎内对象），
+            // engine 销毁即随之消失；注册到中央表只是让插件在战斗结束时多 close 一次，不产生任何实际释放。
+            // 唯一登记处就是引擎自己的 customData（OWNER/KEY），由 releaseParent 与引擎生命周期闭环。
         }else if(existing instanceof AdaptiveShieldVisualLayer found)visual=found;
         else throw new IllegalStateException("Another owner occupies the adaptive shield layer registry");
         visual.apply(parent,shield);

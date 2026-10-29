@@ -22,7 +22,9 @@ public final class UnicornMagnumChargeEffect extends Moci_Magnum_EveryFrame impl
         UnicornMagnumModes.beforeWeapon(weapon);synchronizeMuzzle();
         super.advance(amount,engine,weapon); // exactly one native original visual advance
         visualClock+=amount;
-        if(!installed){this.engine=engine;engine.addLayeredRenderingPlugin(new HoldVisual());OwnBattleResources.register(engine,this);installed=true;}
+        // 无引擎外资源：close() 只有 closed=true，没有任何句柄需要释放；
+        // 渲染插件的生命周期由 HoldVisual.isExpired() 判定（closed / 船亡 / 引擎换人）。
+        if(!installed){this.engine=engine;engine.addLayeredRenderingPlugin(new HoldVisual());installed=true;}
     }
     @Override public void advanceAfter(float amount,CombatEngineAPI engine,WeaponAPI weapon){
         if(closed||engine==null||engine.isPaused())return;UnicornMagnumModes.afterWeapon(weapon);synchronizeMuzzle();weapon.updateBeamFromPoints();

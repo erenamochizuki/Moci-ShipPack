@@ -77,7 +77,10 @@ public final class ZetaEnhancement implements AutoCloseable, data.scripts.combat
     }
     void start(CombatEngineAPI engine){
         this.engine=Objects.requireNonNull(engine);if(engine.getCustomData().containsKey(KEY+".owner")){duplicate=true;return;}
-        engine.getCustomData().put(KEY+".owner",this);engine.getCustomData().put(KEY,Collections.unmodifiableMap(facts));jam=new ZetaBiosensorJam(engine);OwnBattleResources.register(engine,this);publish();
+        engine.getCustomData().put(KEY+".owner",this);engine.getCustomData().put(KEY,Collections.unmodifiableMap(facts));jam=new ZetaBiosensorJam(engine);
+        // 无引擎外资源：close() 只逐个 Actor.close() + jam.close() 并清 customData，全部是引擎内 listener/plugin；
+        // 结束链路由本类 advance() 的 combat-over 守卫 + Moci_CombatBus.closeAll() 覆盖。
+        publish();
         data.scripts.combat.Moci_CombatBus.register(this);
     }
     public static ZetaEnhancement instance(CombatEngineAPI engine){Object found=engine==null?null:engine.getCustomData().get(KEY+".owner");return found instanceof ZetaEnhancement own&&!own.closed?own:null;}

@@ -67,7 +67,8 @@ public final class UnicornNtdEnhancement implements AutoCloseable, data.scripts.
         weaponBindings = new MociWeaponTargetBindings(engine);
         psychoframe = new PsychoframeEnhancement(engine);
         ventingMissileRepulsion = new VentingMissileRepulsion(engine);
-        OwnBattleResources.register(engine, this);
+        // 无引擎外资源：close() 只逐个 close 上列子系统（全是引擎内 listener/plugin 封装）并注销总线，
+        // 结束链路由本类 advance() 的 combat-over 守卫 + Moci_CombatBus.closeAll() 覆盖。
         facts.put("schema", 1); facts.put("closed", false);
         facts.put("scope", "Moci RX-0-1/2/3 complete primary hulls with their real installed shared NTD subsystem");
         facts.put("supportedMainHulls",UnicornNtdStats.HULL_IDS.stream().sorted().toList());

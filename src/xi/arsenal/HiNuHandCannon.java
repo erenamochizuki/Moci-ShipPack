@@ -263,7 +263,11 @@ public final class HiNuHandCannon implements AutoCloseable {
     private static void setOffsets(List<Vector2f> offsets,float x,float y){if(offsets!=null)for(Vector2f p:offsets)p.set(x,y);}
     private static void detachOffsets(List<Vector2f> offsets){if(offsets!=null)for(int i=0;i<offsets.size();i++)offsets.set(i,new Vector2f(offsets.get(i)));}
     /** Native beam callback is the only producer of forced native firing; no projectile/damage emulation. */
-    public static void beforeCannon(WeaponAPI weapon){HiNuHandCannon own=instance(weapon.getShip());if(own==null){weapon.setForceNoFireOneFrame(true);return;}
+    // 控制器缺失时走统一判据：Moci_fw_hinu_hand_cannon 在 skins/Moci_fw_hinu_hand.skin 里被
+    // weaponSlotChanges 改成 mount HIDDEN（ARM_R_MAIN），AI 无法原生开火、唯一触发源是本控制器，
+    // 因此判据结论仍是「保留禁火」——这条路径不会让任何真实武器哑火，只是把无害安全网写明来由。
+    // 判据见 XiWeaponControlOwnership。
+    public static void beforeCannon(WeaponAPI weapon){HiNuHandCannon own=instance(weapon.getShip());if(own==null){XiWeaponControlOwnership.settleWithoutController(weapon);return;}
         own.alignMuzzle();if(!own.canFire())weapon.setForceNoFireOneFrame(true);
         else if(own.phase==Phase.RELEASING&&!weapon.isForceNoFireOneFrame())weapon.setForceFireOneFrame(true);
     }
