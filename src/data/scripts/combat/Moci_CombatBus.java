@@ -277,7 +277,23 @@ public final class Moci_CombatBus {
 
     private static void detach(Moci_CombatSink sink, String phase, Throwable failure) {
         unregister(sink);
+        closeSafely(sink, phase);
         LOG.warn(PREFIX + "sink 已摘除（" + phase + " 抛错）: " + sink.getClass().getName(), failure);
+    }
+
+    /**
+     * 摘除时必须顺手 close：否则被摘掉的 sink 攥着的引擎资源（时间倍率租约、音频句柄、渲染层、
+     * 队列缓冲）就再也没有释放时机——它已经不再被 tick，谁也调不到它的 close。
+     *
+     * <p>这可能正是「处决时缓关不掉」的根因之一：处决状态机抛一次错，它的 sink 被永久摘除，
+     * 而引擎上的 {@code 1/f} 时间修饰符永远留场。</p>
+     */
+    private static void closeSafely(Moci_CombatSink sink, String phase) {
+        try {
+            sink.close();
+        } catch (RuntimeException | LinkageError failure) {
+            LOG.warn(PREFIX + "sink 摘除后 close 失败（" + phase + "）: " + sink.getClass().getName(), failure);
+        }
     }
 
     private static boolean ownsSafely(Moci_CombatSink sink, CombatEngineAPI closingEngine) {

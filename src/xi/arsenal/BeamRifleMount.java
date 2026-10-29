@@ -42,13 +42,14 @@ public class BeamRifleMount implements EveryFrameWeaponEffectPluginWithAdvanceAf
         if (!rendererInstalled) { engine.addLayeredRenderingPlugin(new AttachedVisuals()); rendererInstalled = true; }
         if (engine.isPaused() || amount <= 0f) return;
         flashAge = Math.min(FLASH_SECONDS, flashAge + amount); // 枪口闪光衰减：AI 的原生开火同样会点亮枪口。
-        // 所有权契约：只有本地驾驶机体（或显式远程接管者）才吃 xi 步枪语义。
-        // AI 载机在这里早退：不建 host、不接管禁火/姿态、不写 fireOffsets ——
-        // 否则一个只会否决的控制器会把 AI 的光束步枪永久按在哑火状态（P1）。枪口动画保留。
-        if (!BeamRifleModes.controlOwned(weapon.getShip(), engine)) { syncVisual(); return; }
+        // 所有权契约：AI 载机同样建控制器，但只走「AI 语义」——控制器只提供禁火/放行，
+        // 不接管姿态、不写 fireOffsets、不碰武器组/弹仓/HUD；可见枪口动画依旧照旧。
+        ShipAPI ship = weapon.getShip();
+        if (!BeamRifleModes.hostEligible(ship)) { syncVisual(); return; }
         // 步枪模式的所有者由这把武器自己创建；必须在 beforeWeapon 之前，否则首帧会被强制禁火。
-        BeamRifleHost.ensure(weapon.getShip());
+        BeamRifleHost.ensure(ship);
         BeamRifleModes.beforeWeapon(weapon);
+        if (!BeamRifleModes.controlOwned(ship, engine)) { syncVisual(); return; } // AI：弹道起点留给原生 spec。
         FullSalvoPose.beforeWeaponUpdate(weapon);
         synchronize(); // Before the native trigger: the projectile is born at the visible pre-shot aperture.
     }
@@ -56,7 +57,8 @@ public class BeamRifleMount implements EveryFrameWeaponEffectPluginWithAdvanceAf
     @Override public void advanceAfter(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
         if (engine.isPaused()) return;
         // 所有权契约：非本机载机不做 pose/fireOffset 同步，弹道起点交还原生 spec；枪口动画照旧。
-        if (!BeamRifleModes.controlOwned(weapon.getShip(), engine)) { syncVisual(); return; }
+        // 但 AI 仍然要跑 afterWeapon：原生首亮确认（confirm）与「抬枪→释放」的相位推进都在那里。
+        if (!BeamRifleModes.controlOwned(weapon.getShip(), engine)) { syncVisual(); BeamRifleModes.afterWeapon(weapon); return; }
         synchronize(); // Native cooldown and aiming have now advanced; match the displayed recoil pose.
         FullSalvoPose.applyWeaponPose(weapon);
         RifleFiringPose.apply(weapon);

@@ -20,6 +20,7 @@ import com.fs.starfarer.api.impl.combat.dweller.RiftLightningEffect;
 import com.fs.starfarer.api.loading.ProjectileSpawnType;
 import com.fs.starfarer.api.util.Misc;
 
+import data.scripts.combat.Moci_TimeFlow;
 import data.scripts.util.Moci_Util;
 import data.scripts.util.Moci_MathPersonal;
 
@@ -85,13 +86,15 @@ public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
 	private float overloadArcTimer = 0f;
 	private float particleTimer = 0f;
 
+	// 时间流的句柄（申请名沿用原来的「系统 id_舰船 id」，只作名字用，不再当属性键）
+	private Moci_TimeFlow.Handle timeHandle;
+	private boolean timeHandleIsBullet;
+
 	public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
 		ShipAPI ship = null;
-		boolean player = false;
 
 		if (stats.getEntity() instanceof ShipAPI) {
 			ship = (ShipAPI) stats.getEntity();
-			player = ship == Global.getCombatEngine().getPlayerShip();
 			id = id + "_" + ship.getId();
 		} else {
 			return;
@@ -121,14 +124,11 @@ public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
 		ship.setJitterUnder(this, JITTER_UNDER_COLOR_RED, jitterLevel, 25, 0f, 7f + jitterRangeBonus);
 
 		// 时间加速
+		// 原来自己往船属性表与引擎各挂一个 id、unapply 时自己摘；系统被换乘或舰船离场打断时
+		// 世界倍率 1/shipTimeMult 会永久留场（「进时缓出不来」）。现在只申请句柄，
+		// 作用域失效由 Moci_TimeFlow 统一回收，本类只负责还在驱动时每帧刷新。
 		float shipTimeMult = 1f + (MAX_TIME_MULT - 1f) * effectLevel;
-		stats.getTimeMult().modifyMult(id, shipTimeMult);
-
-		if (player) {
-			Global.getCombatEngine().getTimeMult().modifyMult(id, 1f / shipTimeMult);
-		} else {
-			Global.getCombatEngine().getTimeMult().unmodify(id);
-		}
+		applyTimeFlow(ship, id, shipTimeMult);
 
 		// 红色引擎效果 + 火焰延长
 		ship.getEngineController().fadeToOtherColor(this, ENGINE_COLOR_RED, new Color(0, 0, 0, 0), effectLevel, 0.5f);
@@ -183,6 +183,44 @@ public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
 		}
 	}
 
+	/**
+	 * 申请/刷新本系统的时间流。
+	 *
+	 * <p>形态照原语义：玩家舰「船 ×shipTimeMult + 世界 ×1/shipTimeMult」成对（子弹时间），
+	 * 非玩家舰只要船侧。世界半的有无是结构性的，换乘一翻转就必须重建句柄，不能只 {@code set()}。</p>
+	 */
+	private void applyTimeFlow(ShipAPI ship, String handleId, float shipTimeMult) {
+		CombatEngineAPI engine = Global.getCombatEngine();
+		if (engine == null || ship == null) {
+			releaseTimeFlow("没有可申请的作用域");
+			return;
+		}
+		boolean bullet = ship == engine.getPlayerShip();
+		if (timeHandle != null && timeHandle.active() && timeHandleIsBullet == bullet) {
+			timeHandle.set(shipTimeMult);
+			return;
+		}
+		releaseTimeFlow("时间申请形态变化");
+		timeHandle = bullet
+				? Moci_TimeFlow.openBulletTime(ship, handleId, shipTimeMult)
+				: Moci_TimeFlow.openShip(ship, handleId, shipTimeMult);
+		timeHandleIsBullet = bullet;
+	}
+
+	/** 收回时间申请；幂等。 */
+	private void releaseTimeFlow(String why) {
+		Moci_TimeFlow.Handle handle = timeHandle;
+		timeHandle = null;
+		if (handle == null) {
+			return;
+		}
+		if (Moci_TimeFlow.TRACE) {
+			Global.getLogger(Moci_ShroudedTemporalShellStats_new.class)
+					.info("[MOCI-TIME] Moci_ShroudedTemporalShell 收回时间申请 原因=" + why);
+		}
+		handle.release();
+	}
+
 	public void unapply(MutableShipStatsAPI stats, String id) {
 		ShipAPI ship = null;
 
@@ -193,8 +231,8 @@ public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
 			return;
 		}
 
-		Global.getCombatEngine().getTimeMult().unmodify(id);
-		stats.getTimeMult().unmodify(id);
+		// 时间倍率只经句柄收回，不再直接触碰 time mult 属性表
+		releaseTimeFlow("unapply");
 		stats.getMaxSpeed().unmodify(id);
 		stats.getAcceleration().unmodify(id);
 		stats.getDeceleration().unmodify(id);

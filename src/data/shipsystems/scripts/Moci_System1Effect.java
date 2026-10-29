@@ -1,6 +1,7 @@
 package data.shipsystems.scripts;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipSystemAPI;
@@ -8,6 +9,7 @@ import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
+import data.scripts.combat.Moci_TimeFlow;
 import org.lwjgl.util.vector.Vector2f;
 import org.magiclib.util.MagicRender;
 import com.fs.starfarer.api.combat.CombatEngineLayers;
@@ -37,6 +39,11 @@ public class Moci_System1Effect extends BaseShipSystemScript {
     private float afterimageAccumulator = 0f;
 
     protected Object STATUSKEY1 = new Object();
+
+    // 时间流的申请名字（只作 Handle 名；属性键由 Moci_TimeFlow 统一持有，全模组只有一个 id）
+    private static final String TIME_HANDLE_ID = "Moci_System1";
+    private Moci_TimeFlow.Handle timeHandle;
+    private boolean timeHandleIsBullet;
     @Override
     public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
         // 1. 首先初始化ship和player变量
@@ -50,13 +57,11 @@ public class Moci_System1Effect extends BaseShipSystemScript {
         }
 
         // 4. 时间流速控制
+        // 原实现自己往引擎/船属性表挂 id、unapply 时自己摘；系统被换乘或舰船离场打断时
+        // 世界倍率 1/timeMult 会永久留场（「进了时缓出不来」）。现在只向 Moci_TimeFlow 申请句柄，
+        // 失效由权威统一回收，本类只负责「还在驱动时每帧刷新倍率」。
         float timeMult = 1f + (TIME_MULT - 1f) * effectLevel;
-        stats.getTimeMult().modifyMult(id, timeMult);
-        if (ship != null && ship == Global.getCombatEngine().getPlayerShip()) {
-            Global.getCombatEngine().getTimeMult().modifyMult(id, 1f / timeMult);
-        } else {
-            Global.getCombatEngine().getTimeMult().unmodify(id);
-        }
+        applyTimeFlow(ship, timeMult);
 
         // 5. 伤害减免效果
         stats.getHullDamageTakenMult().modifyMult(id, 1f - (1f - INCOMING_DAMAGE_MULT) * effectLevel);
@@ -108,6 +113,48 @@ public class Moci_System1Effect extends BaseShipSystemScript {
                         (int) Math.round(percent) + "% 伤害降低", false);
             }
         }
+    }
+
+    /**
+     * 申请/刷新本系统的时间流。
+     *
+     * <p>形态与原语义一致：玩家舰拿到「船 ×timeMult + 世界 ×1/timeMult」的成对子弹时间，
+     * 非玩家舰只有船侧。世界半的有无是结构性的（换乘会在两种形态间翻转），所以形态一变
+     * 就必须重建句柄——只 {@code set()} 不会凭空多出或少掉世界那一半。</p>
+     *
+     * <p>原实现在 {@code ship == null}（stats 不属于任何舰船）时仍会直接写 {@code stats.getTimeMult()}；
+     * 那种输入对船用系统脚本不可达，这里退化为「没有可申请的作用域就收回申请」，
+     * 不会留下无主的修饰符。</p>
+     */
+    private void applyTimeFlow(ShipAPI ship, float timeMult) {
+        CombatEngineAPI engine = Global.getCombatEngine();
+        if (engine == null || ship == null) {
+            releaseTimeFlow("没有可申请的作用域");
+            return;
+        }
+        boolean bullet = ship == engine.getPlayerShip();
+        if (timeHandle != null && timeHandle.active() && timeHandleIsBullet == bullet) {
+            timeHandle.set(timeMult);
+            return;
+        }
+        releaseTimeFlow("时间申请形态变化");
+        timeHandle = bullet
+                ? Moci_TimeFlow.openBulletTime(ship, TIME_HANDLE_ID, timeMult)
+                : Moci_TimeFlow.openShip(ship, TIME_HANDLE_ID, timeMult);
+        timeHandleIsBullet = bullet;
+    }
+
+    /** 收回时间申请；幂等。 */
+    private void releaseTimeFlow(String why) {
+        Moci_TimeFlow.Handle handle = timeHandle;
+        timeHandle = null;
+        if (handle == null) {
+            return;
+        }
+        if (Moci_TimeFlow.TRACE) {
+            Global.getLogger(Moci_System1Effect.class).info("[MOCI-TIME] Moci_System1 收回时间申请 原因=" + why);
+        }
+        handle.release();
     }
 
     // 新的残影创建方法
@@ -219,9 +266,8 @@ public class Moci_System1Effect extends BaseShipSystemScript {
     @Override
     public void unapply(MutableShipStatsAPI stats, String id) {
         effected = false;
-        // 移除所有状态修饰器
-        stats.getTimeMult().unmodify(id);
-        Global.getCombatEngine().getTimeMult().unmodify(id);
+        // 移除所有状态修饰器；时间倍率只经句柄收回，不再直接触碰 time mult 属性表
+        releaseTimeFlow("unapply");
 
         stats.getMaxSpeed().unmodify(id);
         stats.getAcceleration().unmodify(id);

@@ -20,6 +20,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 
 import data.scripts.Moci_CollisionStateManager;
+import data.scripts.combat.Moci_TimeFlow;
 import data.scripts.util.Moci_TextLoader;
 import data.scripts.visual.Moci_PsycommuGlowVisual;
 import data.subsystems.Moci_NTDSubsystem;
@@ -61,6 +62,7 @@ public class Moci_PsycommuSystem extends BaseHullMod {
     private static final Color NTD_SYSTEM_COLOR = new Color(255, 0, 0, 255); // NTD固定红色
     private static final float PARTICLE_INTERVAL = 0.1f; // 粒子生成间隔时间（秒）
     private static final String PARTICLE_TIMER_KEY = "moci_psycommu_particle_timer"; // 粒子计时器存储键
+    private static final String TIME_FLOW_KEY = "moci_psycommu_timeflow"; // 每船时间流句柄的存储键
     private static final float HALO_SIZE_MULT = 1.9f;
     private static final float HALO_INTENSITY_MULT = 3.4f;
     private static final float HALO_ALPHA_MULT = 3.2f;
@@ -135,7 +137,7 @@ public class Moci_PsycommuSystem extends BaseHullMod {
                 }
             }
 
-            applyNewtypeTimeMult(ship, stats, engine);
+            applyNewtypeTimeMult(ship, engine);
 
             // 处理粒子效果生成 - 每个舰船独立的计时器
             if (shouldSpawnParticles()) {
@@ -166,7 +168,7 @@ public class Moci_PsycommuSystem extends BaseHullMod {
             stats.getDeceleration().unmodify(getHullModId()); // 移除减速度修改
             stats.getTurnAcceleration().unmodify(getHullModId()); // 移除转向加速度修改
             stats.getMaxTurnRate().unmodify(getHullModId()); // 移除最大转向速度修改
-            unapplyNewtypeTimeMult(ship, stats, engine);
+            releaseNewtypeTimeMult(ship, "系统关闭");
         }
     }
 
@@ -325,29 +327,75 @@ public class Moci_PsycommuSystem extends BaseHullMod {
         return 1f + 0.5f * getEffectMult();
     }
 
-    private void applyNewtypeTimeMult(ShipAPI ship, MutableShipStatsAPI stats, CombatEngineAPI engine) {
-        if (!hasNewtypePilot(ship)) {
-            unapplyNewtypeTimeMult(ship, stats, engine);
+    /**
+     * 申请/刷新精神感应系统的时间流。
+     *
+     * <p>原实现自己往船属性表与引擎上挂 {@code HULLMOD_ID_TimeMult_<shipId>}、系统关闭时再自己摘；
+     * 只要有一条退出路径没走到（换乘、舰船离场、异常），世界倍率 1/1.2 就永久留在引擎上，
+     * 症状正是「进了时缓出不来」。现在只向 Moci_TimeFlow 申请句柄：申请的有效期由权威按「舰船是否还在场」
+     * 判定，本类只负责「我还在驱动时每帧刷新倍率」。</p>
+     *
+     * <p>为什么状态挂在 {@code ship.getCustomData()} 而不是字段：船插 effect 实例是全模组共享的
+     * （{@code HullModSpec.getEffect()} 返回单例），字段会被多舰互相覆盖；这也是本类粒子计时器
+     * 一直放 customData 的原因。</p>
+     */
+    private void applyNewtypeTimeMult(ShipAPI ship, CombatEngineAPI engine) {
+        if (ship == null) {
             return;
         }
-
-        String timeId = getTimeModifierId(ship);
-        stats.getTimeMult().modifyMult(timeId, NEWTYPE_TIME_MULT);
-        if (ship == engine.getPlayerShip()) {
-            engine.getTimeMult().modifyMult(timeId, 1f / NEWTYPE_TIME_MULT);
-        } else {
-            engine.getTimeMult().unmodify(timeId);
+        TimeFlowState state = timeFlowState(ship);
+        if (engine == null || !hasNewtypePilot(ship)) {
+            releaseNewtypeTimeMult(ship, engine == null ? "没有战斗引擎" : "没有新人类飞行员");
+            return;
         }
+        // 世界半的有无是结构性的：玩家舰才是「船 ×1.2 + 世界 ×1/1.2」，换乘一翻转就得重建句柄
+        boolean bullet = ship == engine.getPlayerShip();
+        if (state.handle != null && state.handle.active() && state.bullet == bullet) {
+            state.handle.set(NEWTYPE_TIME_MULT);
+            return;
+        }
+        releaseNewtypeTimeMult(ship, "时间申请形态变化");
+        state.handle = bullet
+                ? Moci_TimeFlow.openBulletTime(ship, getTimeModifierId(ship), NEWTYPE_TIME_MULT)
+                : Moci_TimeFlow.openShip(ship, getTimeModifierId(ship), NEWTYPE_TIME_MULT);
+        state.bullet = bullet;
     }
 
-    private void unapplyNewtypeTimeMult(ShipAPI ship, MutableShipStatsAPI stats, CombatEngineAPI engine) {
-        String timeId = getTimeModifierId(ship);
-        stats.getTimeMult().unmodify(timeId);
-        if (engine != null) {
-            engine.getTimeMult().unmodify(timeId);
+    /** 收回时间申请；幂等。 */
+    private void releaseNewtypeTimeMult(ShipAPI ship, String why) {
+        if (ship == null) {
+            return;
         }
+        TimeFlowState state = timeFlowState(ship);
+        Moci_TimeFlow.Handle handle = state.handle;
+        state.handle = null;
+        if (handle == null) {
+            return;
+        }
+        if (Moci_TimeFlow.TRACE) {
+            Global.getLogger(Moci_PsycommuSystem.class)
+                    .info("[MOCI-TIME] Moci_PsycommuSystem 收回时间申请 ship=" + ship.getId() + " 原因=" + why);
+        }
+        handle.release();
     }
 
+    private TimeFlowState timeFlowState(ShipAPI ship) {
+        Object existing = ship.getCustomData().get(TIME_FLOW_KEY);
+        if (existing instanceof TimeFlowState) {
+            return (TimeFlowState) existing;
+        }
+        TimeFlowState created = new TimeFlowState();
+        ship.setCustomData(TIME_FLOW_KEY, created);
+        return created;
+    }
+
+    /** 每条船自己的时间流句柄（船插 effect 实例共享，所以状态必须挂在船上）。 */
+    private static final class TimeFlowState {
+        private Moci_TimeFlow.Handle handle;
+        private boolean bullet;
+    }
+
+    /** 申请名：沿用原来的「船插 id_TimeMult_舰船 id」，只作句柄名，不再当属性键。 */
     private String getTimeModifierId(ShipAPI ship) {
         return getHullModId() + "_TimeMult_" + ship.getId();
     }

@@ -3,12 +3,14 @@ package data.shipsystems.scripts;
 import java.awt.Color;
 import java.util.EnumSet;
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.CombatEngineLayers;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
+import data.scripts.combat.Moci_TimeFlow;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 import org.magiclib.util.MagicRender;
@@ -37,6 +39,11 @@ public class Moci_FluxArmor extends BaseShipSystemScript {
 	private Color originalShipColor; // 存储舰船原始颜色
 	private static final String AFTERIMAGE_TRACKER_ID = "moci_fluxarmor_afterimage";
 	private float afterimageAccumulator = 0f;
+
+	// 时间流的申请名字（只作 Handle 名，不再当属性键用；属性键由 Moci_TimeFlow 统一持有）
+	private static final String TIME_HANDLE_ID = "Moci_FluxArmor";
+	private Moci_TimeFlow.Handle timeHandle;
+	private boolean timeHandleIsBullet;
 
 	// 系统状态跟踪
 	private boolean playedSound = false;
@@ -70,13 +77,11 @@ public class Moci_FluxArmor extends BaseShipSystemScript {
 		}
 
 		// 时间流速控制
+		// 原实现是「自己挂 id、unapply 时自己摘」，于是系统被换乘、舰船离场或异常打断时，
+		// 世界倍率 1/timeMult 会永久留在引擎上 = 进了时缓出不来。改由 Moci_TimeFlow 记账，
+		// 申请失效（舰船离场）时由权威自动作废，本类只负责「还在驱动时每帧刷新」。
 		float timeMult = 1f + (TIME_MULT - 1f) * effectLevel;
-		stats.getTimeMult().modifyMult(id, timeMult);
-		if (ship == Global.getCombatEngine().getPlayerShip()) {
-			Global.getCombatEngine().getTimeMult().modifyMult(id, 1f / timeMult);
-		} else {
-			Global.getCombatEngine().getTimeMult().unmodify(id);
-		}
+		applyTimeFlow(ship, timeMult);
 
 		// 伤害减免效果
 		stats.getHullDamageTakenMult().modifyMult(id, 1f - (1f - INCOMING_DAMAGE_MULT) * effectLevel);
@@ -113,10 +118,49 @@ public class Moci_FluxArmor extends BaseShipSystemScript {
 		}
 	}
 
+	/**
+	 * 申请/刷新本系统的时间流。
+	 *
+	 * <p>形态选择照原语义：玩家舰是「自己 ×timeMult + 世界 ×1/timeMult」的成对子弹时间
+	 * （{@link Moci_TimeFlow#openBulletTime}），非玩家舰只有船侧（{@link Moci_TimeFlow#openShip}）。
+	 * 世界半的**有无是结构性的**（换乘会让同一台系统在两种形态间翻转），所以形态变化必须重建句柄，
+	 * 只 {@code set()} 无法凭空多出或少掉世界那一半。</p>
+	 */
+	private void applyTimeFlow(ShipAPI ship, float timeMult) {
+		CombatEngineAPI engine = Global.getCombatEngine();
+		if (engine == null || ship == null) {
+			// 不在战斗里（比如装备界面预览）时没有时间流可申请，也就不该留下任何修饰符。
+			releaseTimeFlow("没有战斗引擎");
+			return;
+		}
+		boolean bullet = ship == engine.getPlayerShip();
+		if (timeHandle != null && timeHandle.active() && timeHandleIsBullet == bullet) {
+			timeHandle.set(timeMult);
+			return;
+		}
+		releaseTimeFlow("时间申请形态变化");
+		timeHandle = bullet
+				? Moci_TimeFlow.openBulletTime(ship, TIME_HANDLE_ID, timeMult)
+				: Moci_TimeFlow.openShip(ship, TIME_HANDLE_ID, timeMult);
+		timeHandleIsBullet = bullet;
+	}
+
+	/** 收回时间申请；幂等，重复调用无副作用。 */
+	private void releaseTimeFlow(String why) {
+		Moci_TimeFlow.Handle handle = timeHandle;
+		timeHandle = null;
+		if (handle == null) {
+			return;
+		}
+		if (Moci_TimeFlow.TRACE) {
+			Global.getLogger(Moci_FluxArmor.class).info("[MOCI-TIME] Moci_FluxArmor 收回时间申请 原因=" + why);
+		}
+		handle.release();
+	}
+
 	public void unapply(MutableShipStatsAPI stats, String id) {
-		// 移除所有状态修饰器
-		stats.getTimeMult().unmodify(id);
-		Global.getCombatEngine().getTimeMult().unmodify(id);
+		// 移除所有状态修饰器；时间倍率只经句柄收回，不再直接触碰 time mult 属性表
+		releaseTimeFlow("unapply");
 
 		stats.getMaxSpeed().unmodify(id);
 		stats.getAcceleration().unmodify(id);

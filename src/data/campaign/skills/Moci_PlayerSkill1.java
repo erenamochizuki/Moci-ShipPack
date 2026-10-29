@@ -7,13 +7,16 @@ import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
+import data.scripts.combat.Moci_TimeFlow;
 import data.scripts.util.Moci_TextLoader;
 import data.shipsystems.scripts.Moci_MissileJammerSystemScript;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class Moci_PlayerSkill1 {
@@ -183,6 +186,13 @@ public class Moci_PlayerSkill1 {
         float active = 0;
         float checkInterval = 0;
         Object key = new Object();
+
+        // 时间流句柄。技能的效果是「本舰 ×1.5→1」叠加「世界 ×0.9→1」，两者不是互为倒数，
+        // 所以不能合成一发子弹时间，而是「船一份 + 世界一份」两笔独立申请；模块树再逐模块各一份。
+        // 申请的有效期由 Moci_TimeFlow 按「作用域舰船是否还在场」判定，本类只负责还在驱动时每帧刷新。
+        private Moci_TimeFlow.Handle shipTimeLease;
+        private Moci_TimeFlow.Handle worldTimeLease;
+        private final Map<ShipAPI, Moci_TimeFlow.Handle> moduleTime = new IdentityHashMap<>();
 
         public static listener getInstance(ShipAPI ship) {
             if (ship.getCustomData().containsKey(LISTENER_DATA_KEY)) {
@@ -390,11 +400,11 @@ public class Moci_PlayerSkill1 {
             float shipTimeMult = SHIP_TIME_MULT + (1f - SHIP_TIME_MULT) * clampedProgress;
             float worldTimeMult = WORLD_TIME_MULT + (1f - WORLD_TIME_MULT) * clampedProgress;
 
-            ship.getMutableStats().getTimeMult().modifyMult(id, shipTimeMult);
+            shipTimeLease = ensureShipTime(ship, shipTimeLease, shipTimeMult);
             syncChildModuleTimeMult(shipTimeMult);
 
             if (player && Global.getCombatEngine() != null) {
-                Global.getCombatEngine().getTimeMult().modifyMult(id, worldTimeMult);
+                worldTimeLease = ensureWorldTime(worldTimeLease, worldTimeMult);
                 Global.getCombatEngine().maintainStatusForPlayerShip(
                         key,
                         spriteName,
@@ -404,16 +414,18 @@ public class Moci_PlayerSkill1 {
                         false
                 );
             } else if (Global.getCombatEngine() != null) {
-                Global.getCombatEngine().getTimeMult().unmodify(id);
+                // 卸任/换乘后世界那一份必须真的收回：原来只 unmodify 属性键，
+                // 句柄模型里就是 release，否则世界会被永久压到 0.9。
+                releaseWorldTime("非玩家舰不压世界");
             }
         }
 
         private void unapply() {
-            ship.getMutableStats().getTimeMult().unmodify(id);
+            // 时间倍率一律经句柄收回：本舰、模块树、世界三笔各自独立，
+            // 原实现这里只反挂属性键，一旦某条退出路径没走到世界就会被永久压到 0.9。
+            releaseShipTime("unapply");
             clearChildModuleTimeMult();
-            if (Global.getCombatEngine() != null) {
-                Global.getCombatEngine().getTimeMult().unmodify(id);
-            }
+            releaseWorldTime("unapply");
         }
 
         private boolean isPlayerShip() {
@@ -421,11 +433,73 @@ public class Moci_PlayerSkill1 {
             return playerShip != null && getRootShip(playerShip) == ship;
         }
 
+        /** 申请/刷新本舰自己的时间倍率句柄（句柄失效时重建，保持与权威的唯一契约）。 */
+        private Moci_TimeFlow.Handle ensureShipTime(ShipAPI target, Moci_TimeFlow.Handle handle, float mult) {
+            if (handle != null && handle.active()) {
+                handle.set(mult);
+                return handle;
+            }
+            if (handle != null) {
+                releaseHandle(handle, "本舰句柄失效重建");
+            }
+            return Moci_TimeFlow.openShip(target, id, mult);
+        }
+
+        /** 申请/刷新「压慢世界」那一笔（只有玩家正在驾驶本舰时才存在）。 */
+        private Moci_TimeFlow.Handle ensureWorldTime(Moci_TimeFlow.Handle handle, float mult) {
+            if (handle != null && handle.active()) {
+                handle.set(mult);
+                return handle;
+            }
+            if (handle != null) {
+                releaseHandle(handle, "世界句柄失效重建");
+            }
+            // 独立的申请名：世界申请与船申请即使同名也在不同的作用域键里，但仍分开命名以便排查
+            return Moci_TimeFlow.openWorld(id + "_world", mult);
+        }
+
+        private void releaseShipTime(String why) {
+            Moci_TimeFlow.Handle handle = shipTimeLease;
+            shipTimeLease = null;
+            releaseHandle(handle, why);
+        }
+
+        private void releaseWorldTime(String why) {
+            Moci_TimeFlow.Handle handle = worldTimeLease;
+            worldTimeLease = null;
+            releaseHandle(handle, why);
+        }
+
+        private void releaseHandle(Moci_TimeFlow.Handle handle, String why) {
+            if (handle == null) {
+                return;
+            }
+            if (Moci_TimeFlow.TRACE) {
+                Global.getLogger(Moci_PlayerSkill1.class)
+                        .info("[MOCI-TIME] Moci_PlayerSkill1 收回时间申请 ship=" + ship.getId() + " 原因=" + why);
+            }
+            handle.release();
+        }
+
+        /** 逐模块刷新时间倍率；掉出模块树的模块先收回申请再移出。 */
         private void syncChildModuleTimeMult(float shipTimeMult) {
-            syncChildModuleTimeMult(ship, shipTimeMult, new HashSet<>());
+            Set<ShipAPI> visited = new HashSet<>();
+            Set<ShipAPI> alive = new HashSet<>();
+            syncChildModuleTimeMult(ship, shipTimeMult, visited, alive);
+            Iterator<Map.Entry<ShipAPI, Moci_TimeFlow.Handle>> it = moduleTime.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<ShipAPI, Moci_TimeFlow.Handle> entry = it.next();
+                if (alive.contains(entry.getKey())) {
+                    continue;
+                }
+                // 模块已被摘离（被打爆/分离）：它的属性表不会再被本技能刷新，
+                // 不收回就会一直停在 1.5 倍时流上；先 release 再从表里移出。
+                releaseHandle(entry.getValue(), "模块已脱离模块树");
+                it.remove();
+            }
         }
 
-        private void syncChildModuleTimeMult(ShipAPI parent, float shipTimeMult, Set<ShipAPI> visited) {
+        private void syncChildModuleTimeMult(ShipAPI parent, float shipTimeMult, Set<ShipAPI> visited, Set<ShipAPI> alive) {
             if (parent == null || !visited.add(parent) || parent.getChildModulesCopy() == null) {
                 return;
             }
@@ -434,27 +508,26 @@ public class Moci_PlayerSkill1 {
                 if (module == null) {
                     continue;
                 }
-                module.getMutableStats().getTimeMult().modifyMult(id, shipTimeMult);
-                syncChildModuleTimeMult(module, shipTimeMult, visited);
+                alive.add(module);
+                Moci_TimeFlow.Handle handle = moduleTime.get(module);
+                if (handle != null && handle.active()) {
+                    handle.set(shipTimeMult);
+                } else {
+                    if (handle != null) {
+                        releaseHandle(handle, "模块句柄失效重建");
+                    }
+                    moduleTime.put(module, Moci_TimeFlow.openShip(module, id, shipTimeMult));
+                }
+                syncChildModuleTimeMult(module, shipTimeMult, visited, alive);
             }
         }
 
+        /** 收回所有模块的时间申请（不再按「当前模块树」递归摘除——树可能已经变了）。 */
         private void clearChildModuleTimeMult() {
-            clearChildModuleTimeMult(ship, new HashSet<>());
-        }
-
-        private void clearChildModuleTimeMult(ShipAPI parent, Set<ShipAPI> visited) {
-            if (parent == null || !visited.add(parent) || parent.getChildModulesCopy() == null) {
-                return;
+            for (Moci_TimeFlow.Handle handle : moduleTime.values()) {
+                releaseHandle(handle, "unapply");
             }
-
-            for (ShipAPI module : parent.getChildModulesCopy()) {
-                if (module == null) {
-                    continue;
-                }
-                module.getMutableStats().getTimeMult().unmodify(id);
-                clearChildModuleTimeMult(module, visited);
-            }
+            moduleTime.clear();
         }
     }
 }

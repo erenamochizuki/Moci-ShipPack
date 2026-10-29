@@ -11,13 +11,20 @@ import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import com.fs.starfarer.api.plugins.ShipSystemStatsScript;
 import com.fs.starfarer.api.util.IntervalUtil;
+import data.scripts.combat.Moci_TimeFlow;
 import data.scripts.util.Moci_ExcelsiorUtil;
 import java.awt.Color;
 import java.util.Random;
 import org.lazywizard.lazylib.MathUtils;
+import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
 public class Moci_ExcelsiorPhaseStats extends BaseShipSystemScript {
+
+    // ===== 时间泄漏排查开关（常驻，不绑 devMode）=====
+    public static final boolean TRACE = true;
+    private static final String LOG_PREFIX = "[MOCI-TIME] ";
+    private static final Logger LOG = Global.getLogger(Moci_ExcelsiorPhaseStats.class);
 
     private static final float ARMOR_REPAIR_MULTIPLIER = 300.0f;
     private static final float HULL_REPAIR_MULTIPLIER = 100.0f;
@@ -59,6 +66,20 @@ public class Moci_ExcelsiorPhaseStats extends BaseShipSystemScript {
 
     private float killTimer = 0f;
 
+    /**
+     * 时间申请的名字。迁移到 Moci_TimeFlow 后它只作 Handle 名，不再参与任何属性键 ——
+     * 原实现 apply 用 {@code id + "_" + shipId}、unapply 用基 id 的「id 分裂」缺陷因此按构造消失：
+     * 句柄自己带着两半申请，释放时不需要重新推导任何字符串。
+     */
+    private static final String TIME_HANDLE_ID = "Moci_ExcelsiorPhaseStats";
+    /** 本场生效中的时间申请；null = 当前没有申请。 */
+    private Moci_TimeFlow.Handle timeHandle;
+    /**
+     * 当前申请是否带「世界 ×1/倍率」这一半（= 玩家舰的子弹时间形态）。
+     * player 判定每帧都可能翻转，形态一变必须重开申请，不能只 set()。
+     */
+    private boolean timeHandleIsBullet;
+
     @Override
     public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
         CombatEngineAPI engine = Global.getCombatEngine();
@@ -82,7 +103,8 @@ public class Moci_ExcelsiorPhaseStats extends BaseShipSystemScript {
         }
 
         if (state == State.COOLDOWN || state == State.IDLE) {
-            unapply(stats, actualId);
+            // 传基 id：真正的复合 id 由 unapply 自己按实体重算（对称，且对它重复调用也安全）
+            unapply(stats, id);
             return;
         }
 
@@ -129,12 +151,9 @@ public class Moci_ExcelsiorPhaseStats extends BaseShipSystemScript {
         ship.setApplyExtraAlphaToEngines(true);
 
         float shipTimeMult = Math.min(Math.max(1f + ((getMaxTimeMult(stats) - 1f) * effectLevel * Math.max(0f, fluxLevel)), 1f), getMaxTimeMult(stats));
-        stats.getTimeMult().modifyMult(actualId, shipTimeMult);
-        if (player) {
-            engine.getTimeMult().modifyMult(actualId, 1f / shipTimeMult);
-        } else {
-            engine.getTimeMult().unmodify(actualId);
-        }
+        // 时间倍率交给 Moci_TimeFlow：玩家舰成对（船 ×shipTimeMult、世界 ×1/shipTimeMult），
+        // 非玩家舰只压船侧。数值与原实现一字不差，只是「挂」不再分散在本类的属性表直写上。
+        applyTimeFlow(ship, player, shipTimeMult);
 
         interval.advance(engine.getElapsedInLastFrame() * stats.getTimeMult().getModifiedValue());
         if (interval.intervalElapsed()) {
@@ -227,6 +246,53 @@ public class Moci_ExcelsiorPhaseStats extends BaseShipSystemScript {
         }
     }
 
+    /**
+     * 申请/续期本系统的时间倍率。
+     *
+     * <p>原语义：船侧 {@code ×shipTimeMult}；玩家舰额外把世界压到 {@code 1/shipTimeMult}，
+     * 非玩家舰把世界那一半摘掉。迁移后玩家舰用 {@code openBulletTime}（船 ×f、世界 ×1/f，
+     * 成对出现、成对消失），非玩家舰用 {@code openShip}（绝不触碰世界）。</p>
+     *
+     * <p>player 每帧都可能翻转（换乘/交出驾驶权），形态一变就重开申请，因此不需要
+     * 原来那种「非玩家时 unmodify 一次」的显式摘除分支 —— 那句正是 id 分裂缺陷的现场。</p>
+     */
+    private void applyTimeFlow(ShipAPI ship, boolean player, float shipTimeMult) {
+        if (timeHandle == null || !timeHandle.active() || timeHandleIsBullet != player) {
+            releaseTimeFlow("重建时间申请 形态=" + (player ? "bullet" : "ship"));
+            timeHandle = player
+                    ? Moci_TimeFlow.openBulletTime(ship, TIME_HANDLE_ID, shipTimeMult)
+                    : Moci_TimeFlow.openShip(ship, TIME_HANDLE_ID, shipTimeMult);
+            timeHandleIsBullet = player;
+            if (TRACE && timeHandle != null && timeHandle.active()) {
+                LOG.info(LOG_PREFIX + "ExcelsiorPhase 申请时间 形态=" + (player ? "bullet" : "ship")
+                        + " 船×" + shipTimeMult + (player ? " 世界×" + (1f / shipTimeMult) : ""));
+            }
+        } else {
+            timeHandle.set(shipTimeMult);
+        }
+    }
+
+    /**
+     * 收回本类唯一的时间申请（幂等）。
+     * 句柄自带船侧与世界侧两半，所以这里一次就是原来的两条 unmodify，且不可能只成功一半。
+     */
+    private void releaseTimeFlow(String why) {
+        Moci_TimeFlow.Handle handle = timeHandle;
+        if (handle == null) {
+            return;
+        }
+        timeHandle = null;
+        boolean wasActive = handle.active();
+        try {
+            handle.release();
+        } catch (RuntimeException | LinkageError failure) {
+            LOG.warn(LOG_PREFIX + "ExcelsiorPhase 收回时间申请失败 id=" + TIME_HANDLE_ID + " -> " + failure);
+        }
+        if (TRACE && wasActive) {
+            LOG.info(LOG_PREFIX + "ExcelsiorPhase 收回时间申请 id=" + TIME_HANDLE_ID + " 原因=" + why);
+        }
+    }
+
     @Override
     public void unapply(MutableShipStatsAPI stats, String id) {
         ShipAPI ship;
@@ -236,17 +302,55 @@ public class Moci_ExcelsiorPhaseStats extends BaseShipSystemScript {
             return;
         }
 
-        stats.getMaxSpeed().unmodify(id);
-        stats.getMaxTurnRate().unmodify(id);
-        stats.getTurnAcceleration().unmodify(id);
-        stats.getAcceleration().unmodify(id);
-        stats.getDeceleration().unmodify(id);
+        // 时间申请先收：句柄成对持有船侧与世界侧，一次 release 等价于原来的
+        // stats.getTimeMult().unmodify(actualId) + engine.getTimeMult().unmodify(actualId)。
+        // 原实现的 id 分裂泄漏（apply 写复合 id、unapply 传基 id → 两条 unmodify 全是 no-op，
+        // 第一次激活就把 1/shipTimeMult 永久留给世界）迁移后不可能再发生：
+        // 释放路径不再依赖任何重新推导出来的字符串。
+        releaseTimeFlow("unapply");
 
-        Global.getCombatEngine().getTimeMult().unmodify(id);
-        stats.getTimeMult().unmodify(id);
+        // 剩下的 maxSpeed / 转向 / 加减速仍是普通属性修饰，按 apply 实际写入的复合 id 摘除。
+        // actualIdOf 得以保留是因为它现在只服务这些非时间属性；时间路径已完全不经它。
+        if (id != null) {
+            releaseStats(stats, actualIdOf(id, ship));
+        }
 
         ship.setPhased(false);
         ship.setExtraAlphaMult(1f);
+    }
+
+    /** 把基 id 还原成 apply 真正写入的 id；已经是复合 id 时原样返回（幂等） */
+    private static String actualIdOf(String id, ShipAPI ship) {
+        if (id == null) {
+            return null;
+        }
+        String suffix = "_" + ship.getId();
+        return id.endsWith(suffix) ? id : id + suffix;
+    }
+
+    /**
+     * 释放某个 id 在本舰上的**非时间**属性修饰（逐项兜底，一项失败不影响后续）。
+     * 时间倍率已不在这里摘：它由 Moci_TimeFlow 的申请独占，见 {@link #releaseTimeFlow(String)}。
+     */
+    private void releaseStats(MutableShipStatsAPI stats, String modifierId) {
+        if (modifierId == null) {
+            return;
+        }
+        releaseQuietly(() -> stats.getMaxSpeed().unmodify(modifierId), "max speed", modifierId);
+        releaseQuietly(() -> stats.getMaxTurnRate().unmodify(modifierId), "max turn rate", modifierId);
+        releaseQuietly(() -> stats.getTurnAcceleration().unmodify(modifierId), "turn accel", modifierId);
+        releaseQuietly(() -> stats.getAcceleration().unmodify(modifierId), "accel", modifierId);
+        releaseQuietly(() -> stats.getDeceleration().unmodify(modifierId), "decel", modifierId);
+    }
+
+    /** 单步释放：一步失败只记一条日志，不影响后续步骤 */
+    private void releaseQuietly(Runnable step, String what, String modifierId) {
+        try {
+            step.run();
+        } catch (RuntimeException | LinkageError failure) {
+            LOG.warn(LOG_PREFIX + "ExcelsiorPhase 释放失败 " + what + " id=" + modifierId
+                    + " -> " + failure);
+        }
     }
 
     @Override

@@ -42,9 +42,9 @@ public final class BeamRifleHost implements Moci_CombatSink {
         Object existing = ship.getCustomData().get(KEY);
         if (existing instanceof BeamRifleHost host) return host.closed ? null : host;
         if (Boolean.TRUE.equals(ship.getCustomData().get(UNAVAILABLE))) return null;
-        // P1 修复点：控制权判据必须在 supports 之前——AI 载机不得进入 xi 步枪状态机。
-        if (!BeamRifleModes.controlOwned(ship, engine)) return null;
-        if (!BeamRifleModes.supports(ship)) return null;
+        // P1 修复点 1：装配门槛只问「装没装齐」；这条船该走哪套语义由控制器自己决定
+        // （本地驾驶机体 = xi 语义；AI 载机 = 只做禁火/放行的原生语义）。
+        if (!BeamRifleModes.hostEligible(ship)) return null;
         BeamRifleHost created = new BeamRifleHost(ship, engine);
         try {
             created.modes = new BeamRifleModes(ship);
@@ -68,9 +68,10 @@ public final class BeamRifleHost implements Moci_CombatSink {
             close();
             return;
         }
-        // 所有权契约：本机不再驾驶这艘船时立刻卸载。否则残留控制器会继续每帧 toggleOff
-        // 蓄力组、并否决它的原生开火 —— 换乘后的旧舰与 AI 载机必须走原生语义。
-        if (!BeamRifleModes.controlOwned(ship, engine)) {
+        // 所有权契约：控制权相对建号时翻转（玩家换乘走 / 远程接管失效）就立刻卸载，
+        // 下一帧由武器回调按新语义重建控制器 —— 旧舰不会留着上一套状态机继续否决原生开火。
+        boolean owned = BeamRifleModes.controlOwned(ship, engine);
+        if (modes.aiMode() == owned) {
             close();
             return;
         }
