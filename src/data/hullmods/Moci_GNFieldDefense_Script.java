@@ -62,6 +62,7 @@ public class Moci_GNFieldDefense_Script implements DamageTakenModifier, Advancea
         if (hasShield(ship)) {
             return ship.getListeners(Moci_GNFieldDefense_Script.class).get(0);
         } else {
+            if (!org.moci.filmshield.api.FilmShield.isSelected(ship,"Moci_GNFieldDefenseSystem")) return null;
             Moci_GNFieldDefense_Script l = new Moci_GNFieldDefense_Script(ship);
             ship.addListener(l);
             return l;

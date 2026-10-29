@@ -4,6 +4,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
+import data.shipsystems.scripts.Moci_EnergyCoreOverclock;
 import com.fs.starfarer.api.combat.ShipSystemAIScript;
 import com.fs.starfarer.api.combat.ShipSystemAPI;
 import com.fs.starfarer.api.combat.ShipwideAIFlags;
@@ -98,23 +99,12 @@ public class Moci_EnergyCoreOverclockAI implements ShipSystemAIScript {
     }
     
     /**
-     * 检查是否有待恢复的幅能
+     * 检查是否有待恢复的幅能（直接读系统脚本的公开访问器，不再用反射）。
      */
     private boolean hasPendingFlux() {
-        Object data = ship.getCustomData().get("Moci_EnergyCoreOverclock_Data");
-        if (data != null) {
-            try {
-                java.lang.reflect.Field field = data.getClass().getDeclaredField("pendingFlux");
-                field.setAccessible(true);
-                float pendingFlux = field.getFloat(data);
-                return pendingFlux > ship.getFluxTracker().getMaxFlux() * 0.1f;
-            } catch (Exception e) {
-                return false;
-            }
-        }
-        return false;
+        return Moci_EnergyCoreOverclock.pendingFluxOf(ship) > ship.getFluxTracker().getMaxFlux() * 0.1f;
     }
-    
+
     /**
      * 检查是否有准备开火的能量武器
      */

@@ -15,11 +15,11 @@ import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
  *
  * 功能目标：
  * 1. 激活后进入“不可碰撞 + 难以被锁定”的深潜状态。
- * 2. 激活期间大幅提高机动，并临时免疫船体伤害。
+ * 2. 激活期间临时免疫船体伤害；机动加成由磁流体控制系统船插负责。
  * 3. 通过自定义标记 + 引擎插件，强制清理敌方对本舰的目标锁定与自动开火。
  *
  * 设计说明：
- * - 该实现按 HSIDeepDive 的行为等价复刻，尽量保持同一触发与数值逻辑。
+ * - 使用自定义深潜标记，不进入原生 isPhased 流程。
  * - 所有核心步骤均使用中文注释，便于后续维护与二次开发。
  */
 public class Moci_DeepDive extends BaseShipSystemScript {
@@ -32,16 +32,10 @@ public class Moci_DeepDive extends BaseShipSystemScript {
     /** 非玩家方视觉透明倍率。 */
     private static final float ENEMY_ALPHA_MULT = 0.95f;
 
-    /** 最高航速百分比加成（随 effectLevel 线性插值）。 */
-    private static final float SPEED_BUFF_PERCENT = 100f;
-    /** 机动相关属性百分比加成（随 effectLevel 线性插值）。 */
-    private static final float MANEUVER_BUFF_PERCENT = 200f;
     /** 深潜期间装甲修复比例（每秒按 ShipAPI 舰体装甲值百分比计算）。 */
     private static final float ARMOR_REPAIR_PERCENT_PER_SECOND = 2.5f;
     /** 深潜期间装甲修复上限（每秒固定值）。 */
     private static final float ARMOR_REPAIR_FLAT_CAP_PER_SECOND = 100f;
-    /** 玩家状态栏显示键（机动加成）。 */
-    private static final String STATUS_KEY_MOBILITY = "moci_deep_dive_status_mobility";
     /** 玩家状态栏显示键（装甲修复）。 */
     private static final String STATUS_KEY_ARMOR_REPAIR = "moci_deep_dive_status_armor_repair";
 
@@ -51,6 +45,8 @@ public class Moci_DeepDive extends BaseShipSystemScript {
     private boolean initialized = false;
     /** 原始船体尺寸缓存。 */
     private HullSize originalHullSize;
+    /** 每次进入深潜前记录碰撞类型，unapply 也能独立恢复。 */
+    private CollisionClass originalCollision;
     /** 是否在本次深潜期间对舰船施加了 drone/fighter 伪装。 */
     private boolean spoofedAsDroneFighter = false;
 
@@ -113,6 +109,7 @@ public class Moci_DeepDive extends BaseShipSystemScript {
 
         CombatEngineAPI engine = Global.getCombatEngine();
         Moci_DeepDiveEnginePlugin.getInstance(engine);
+        Moci_DeepDiveWeaponControl.attach(ship);
         ShipSystemAPI cloak = ship.getPhaseCloak();
         if (cloak == null) {
             cloak = ship.getSystem();
@@ -121,17 +118,14 @@ public class Moci_DeepDive extends BaseShipSystemScript {
         // 空闲/冷却阶段：退出深潜状态并恢复碰撞类型。
         if (state == State.IDLE || state == State.COOLDOWN) {
             unapply(stats, id);
-            if (ship.getCollisionClass() == CollisionClass.NONE && ship.isFighter()) {
-                ship.setCollisionClass(CollisionClass.FIGHTER);
-            }
-            if (ship.getCollisionClass() == CollisionClass.NONE && !ship.isFighter()) {
-                ship.setCollisionClass(CollisionClass.SHIP);
-            }
             return;
         }
 
         // 充能/激活/退场阶段：应用深潜效果。
         if (state == State.IN || state == State.ACTIVE || state == State.OUT) {
+            if (originalCollision == null) {
+                originalCollision = ship.getCollisionClass();
+            }
             // 取消实体碰撞，使舰船在深潜期间不可被常规碰撞阻挡。
             if (ship.getCollisionClass() != CollisionClass.NONE) {
                 ship.setCollisionClass(CollisionClass.NONE);
@@ -148,7 +142,9 @@ public class Moci_DeepDive extends BaseShipSystemScript {
             // 自动驾驶接管玩家舰时，若被标记为 drone/fighter，可能出现 AI 无法正常接管的问题。
             // 因此仅对非玩家舰保留该伪装，玩家舰始终保持原始舰船类别。
             boolean isPlayerShip = engine != null && ship == engine.getPlayerShip();
-            if (!isPlayerShip) {
+            // TDD 保持原始舰级和舰船 AI 身份，避免原版攻击模块按战机策略作战。
+            // 隐身仍由无碰撞、自定义标记和反锁定监听器负责。
+            if (!isPlayerShip && !Moci_DeepDiveWeaponControl.isTdd(ship)) {
                 ship.setDrone(true);
                 ship.setHullSize(HullSize.FIGHTER);
                 spoofedAsDroneFighter = true;
@@ -162,6 +158,7 @@ public class Moci_DeepDive extends BaseShipSystemScript {
 
             // 写入深潜状态标记，供 AI 与插件联动识别。
             ship.setCustomData(DEEP_DIVE_FLAG_KEY, true);
+            Moci_DeepDiveWeaponControl.suppressSurfaceWeapons(ship);
 
             // 若玩家当前锁定该目标，则立即清除目标锁定。
             if (engine != null && engine.getPlayerShip() != null && engine.getPlayerShip().getShipTarget() == ship) {
@@ -178,17 +175,9 @@ public class Moci_DeepDive extends BaseShipSystemScript {
                 repairArmorWhileDeepDive(ship, engine.getElapsedInLastFrame());
             }
 
-            // 玩家可见状态提示（与 getStatusData 保持两条一致）。
+            // 系统仅显示装甲修复；机动状态由提供加成的船插显示。
             if (engine != null && ship == engine.getPlayerShip() && effectLevel > 0f) {
-                String mobilityStatus = getMobilityStatusText(effectLevel);
                 String armorRepairStatus = getArmorRepairStatusText(ship);
-                engine.maintainStatusForPlayerShip(
-                        STATUS_KEY_MOBILITY,
-                        "graphics/icons/hullsys/phase_cloak.png",
-                        "深潜战术",
-                        mobilityStatus,
-                        false
-                );
                 engine.maintainStatusForPlayerShip(
                         STATUS_KEY_ARMOR_REPAIR,
                         "graphics/icons/hullsys/phase_cloak.png",
@@ -200,12 +189,6 @@ public class Moci_DeepDive extends BaseShipSystemScript {
 
         }
 
-        // 机动增益：速度与转向全套同步提升。
-        ship.getMutableStats().getMaxSpeed().modifyPercent(id, SPEED_BUFF_PERCENT * effectLevel);
-        ship.getMutableStats().getAcceleration().modifyPercent(id, MANEUVER_BUFF_PERCENT * effectLevel);
-        ship.getMutableStats().getDeceleration().modifyPercent(id, MANEUVER_BUFF_PERCENT * effectLevel);
-        ship.getMutableStats().getMaxTurnRate().modifyPercent(id, MANEUVER_BUFF_PERCENT * effectLevel);
-        ship.getMutableStats().getTurnAcceleration().modifyPercent(id, MANEUVER_BUFF_PERCENT * effectLevel);
     }
 
     @Override
@@ -227,6 +210,10 @@ public class Moci_DeepDive extends BaseShipSystemScript {
         // 恢复视觉与系统状态。
         ship.setAlphaMult(1f);
         ship.setExtraAlphaMult(1f);
+        if (originalCollision != null) {
+            ship.setCollisionClass(originalCollision);
+            originalCollision = null;
+        }
         stats.getHullDamageTakenMult().unmodify(id);
         ship.setForceHideFFOverlay(false);
         if (spoofedAsDroneFighter) {
@@ -242,7 +229,7 @@ public class Moci_DeepDive extends BaseShipSystemScript {
         // 清除深潜标记。
         ship.setCustomData(DEEP_DIVE_FLAG_KEY, false);
 
-        // 清理机动属性修改。
+        // 清理旧版系统可能遗留的机动修改，不影响船插独立 ID 的加成。
         ship.getMutableStats().getMaxSpeed().unmodify(id);
         ship.getMutableStats().getAcceleration().unmodify(id);
         ship.getMutableStats().getDeceleration().unmodify(id);
@@ -332,16 +319,7 @@ public class Moci_DeepDive extends BaseShipSystemScript {
     }
 
     /**
-     * 第一条状态文本：机动加成。
-     */
-    private String getMobilityStatusText(float effectLevel) {
-        float speedBonus = SPEED_BUFF_PERCENT * effectLevel;
-        float maneuverBonus = MANEUVER_BUFF_PERCENT * effectLevel;
-        return String.format("深潜中：速度+%.0f%%，机动性+%.0f%%", speedBonus, maneuverBonus);
-    }
-
-    /**
-     * 第二条状态文本：装甲修复速率。
+     * 装甲修复速率状态文本。
      */
     private String getArmorRepairStatusText(ShipAPI ship) {
         return String.format("装甲修复中：%.1f/秒", getArmorRepairPerSecond(ship));
@@ -350,9 +328,6 @@ public class Moci_DeepDive extends BaseShipSystemScript {
     @Override
     public StatusData getStatusData(int index, State state, float effectLevel) {
         if (index == 0) {
-            return new StatusData(getMobilityStatusText(effectLevel), false);
-        }
-        if (index == 1) {
             return new StatusData(getArmorRepairStatusText(ship), false);
         }
         return null;

@@ -16,8 +16,10 @@ import java.util.List;
  *     <li>{@link #HARDENED_SHIELD} 强化护盾</li>
  *     <li>{@link #EXPANDED_MAGAZINES} 弹匣扩容</li>
  *     <li>{@link #EXPANDED_MISSILE_RACKS} 导弹挂架</li>
+ *     <li>{@link #ADVANCED_OPTICS} 先进光学器件</li>
+ *     <li>{@link #HEAVY_ARMOR} 重型装甲</li>
  * </ul>
- * 单选由 {@link #applyToVariant} 保证：先移除 variant 上所有带标记的战术改装，再写入选中项。
+ * 防御与输出各选一项；切换一组不影响另一组。
  * 本类只做纯工具调用，不持有状态、不读存档、不依赖 devMode。
  * </p>
  */
@@ -25,6 +27,9 @@ public final class Moci_TacticalHullmods {
 
     /** 在船插规格的 tags（不是 uiTags）中添加此标记即可加入战术改装。 */
     public static final String TAG = "moci_tactical";
+    public static final String DEFENSE_TAG = "moci_tactical_defense";
+    public static final String OFFENSE_TAG = "moci_tactical_offense";
+    public enum Group { DEFENSE, OFFENSE }
 
     /** 战术改装：强化护盾。 */
     public static final String HARDENED_SHIELD = "moci_tactical_hardened_shield";
@@ -32,13 +37,15 @@ public final class Moci_TacticalHullmods {
     public static final String EXPANDED_MAGAZINES = "moci_tactical_expanded_magazines";
     /** 战术改装：导弹挂架。 */
     public static final String EXPANDED_MISSILE_RACKS = "moci_tactical_expanded_missile_racks";
+    public static final String ADVANCED_OPTICS = "moci_tactical_advanced_optics";
+    public static final String HEAVY_ARMOR = "moci_tactical_heavy_armor";
 
-    /** 三个战术改装的兜底贴图路径（直接复用原版贴图，不复制文件）。 */
+    /** 战术改装的兜底贴图路径（直接复用原版贴图，不复制文件）。 */
     private static final String FALLBACK_SPRITE_HARDENED_SHIELD = "graphics/hullmods/hardened_shields.png";
     private static final String FALLBACK_SPRITE_EXPANDED_MAGAZINES = "graphics/hullmods/expanded_magazines2.png";
     private static final String FALLBACK_SPRITE_EXPANDED_MISSILE_RACKS = "graphics/hullmods/expanded_missile_racks.png";
 
-    /** 三个战术改装的兜底显示名，仅在 CSV/运行时规格缺失时使用。 */
+    /** 战术改装的兜底显示名，仅在 CSV/运行时规格缺失时使用。 */
     private static final String FALLBACK_NAME_HARDENED_SHIELD = "强化护盾";
     private static final String FALLBACK_NAME_EXPANDED_MAGAZINES = "弹匣扩容";
     private static final String FALLBACK_NAME_EXPANDED_MISSILE_RACKS = "导弹挂架";
@@ -123,15 +130,55 @@ public final class Moci_TacticalHullmods {
      * @param selectedIdOrNull 选中的战术改装 id，null 表示清空
      */
     public static void applyToVariant(ShipVariantAPI variant, String selectedIdOrNull) {
+        applySelections(variant, selectedIdOrNull == null ? List.of() : List.of(selectedIdOrNull));
+    }
+
+    /** Tagged extensions without a group retain an output slot by default. */
+    public static Group group(String id) {
+        HullModSpecAPI spec = spec(id);
+        return HARDENED_SHIELD.equals(id) || HEAVY_ARMOR.equals(id)
+                || (spec != null && spec.hasTag(DEFENSE_TAG)) ? Group.DEFENSE : Group.OFFENSE;
+    }
+
+    public static boolean validSelection(List<String> ids) {
+        if (ids == null) return false;
+        java.util.EnumSet<Group> groups = java.util.EnumSet.noneOf(Group.class);
+        for (String id : ids) if (!isTactical(id) || !groups.add(group(id))) return false;
+        return true;
+    }
+
+    public static List<String> normalize(List<String> ids) {
+        List<String> result = new ArrayList<>();
+        if (ids != null) for (String id : ids) if (isTactical(id)) result.add(id);
+        if (!validSelection(result)) throw new IllegalArgumentException("每组战术改装最多选择一项");
+        result.sort(String::compareTo);
+        return List.copyOf(result);
+    }
+
+    public static List<String> toggle(List<String> current, String choice) {
+        if (!isTactical(choice)) return current;
+        List<String> next = new ArrayList<>(current);
+        boolean selected = next.contains(choice);
+        next.removeIf(id -> group(id) == group(choice));
+        if (!selected) next.add(choice);
+        return normalize(next);
+    }
+
+    public static void applySelections(ShipVariantAPI variant, List<String> ids) {
         if (variant == null) return;
-        try {
-            for (String id : new ArrayList<>(variant.getHullMods())) {
-                if (isTactical(id)) variant.removeMod(id);
-            }
-            if (isTactical(selectedIdOrNull)) variant.addMod(selectedIdOrNull);
-        } catch (Throwable t) {
-            // variant 处于不可修改状态（例如正在被游戏保存）时不应把异常抛给 UI 调用方
+        List<String> effective = normalize(ids);
+        for (String id : new ArrayList<>(variant.getHullMods())) {
+            if (isTactical(id)) variant.removeMod(id);
         }
+        for (String id : effective) variant.addMod(id);
+    }
+
+    public static List<String> selectedAll(ShipVariantAPI variant) {
+        if (variant == null) return List.of();
+        List<String> ids = new ArrayList<>();
+        for (String id : variant.getHullMods()) if (isTactical(id)) ids.add(id);
+        ids.sort(String::compareTo);
+        return List.copyOf(ids);
     }
 
     /**
@@ -177,6 +224,8 @@ public final class Moci_TacticalHullmods {
     }
 
     private static String fallbackSprite(String hullmodId) {
+        if (ADVANCED_OPTICS.equals(hullmodId)) return "graphics/hullmods/advanced_optics.png";
+        if (HEAVY_ARMOR.equals(hullmodId)) return "graphics/hullmods/heavy_armor.png";
         if (HARDENED_SHIELD.equals(hullmodId)) return FALLBACK_SPRITE_HARDENED_SHIELD;
         if (EXPANDED_MAGAZINES.equals(hullmodId)) return FALLBACK_SPRITE_EXPANDED_MAGAZINES;
         if (EXPANDED_MISSILE_RACKS.equals(hullmodId)) return FALLBACK_SPRITE_EXPANDED_MISSILE_RACKS;
@@ -184,6 +233,8 @@ public final class Moci_TacticalHullmods {
     }
 
     private static String fallbackName(String hullmodId) {
+        if (ADVANCED_OPTICS.equals(hullmodId)) return "先进光学器件";
+        if (HEAVY_ARMOR.equals(hullmodId)) return "重型装甲";
         if (HARDENED_SHIELD.equals(hullmodId)) return FALLBACK_NAME_HARDENED_SHIELD;
         if (EXPANDED_MAGAZINES.equals(hullmodId)) return FALLBACK_NAME_EXPANDED_MAGAZINES;
         if (EXPANDED_MISSILE_RACKS.equals(hullmodId)) return FALLBACK_NAME_EXPANDED_MISSILE_RACKS;

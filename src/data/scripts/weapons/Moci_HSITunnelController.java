@@ -1,5 +1,19 @@
 package data.scripts.weapons;
 
+/* 海牛（Hi-v）翼部浮游炮控制器 —— 我方本体代码。
+ *
+ * 历史：这段逻辑原本就是我们的 Moci_HSITunnelController.java；合并版把它 fork 成 xi.arsenal 下的两个类
+ * （PsychoframeHiNuController / PsychoframeHiNuHwsController）并让翼武器改指 fork。
+ * 本轮已把 fork 完整收编回本类（生成、动画、索敌、传送、母舰时流、回归、船坞冷却等
+ * 原逻辑一字未改），同时保留合并版在 fork 里加的四项改进：
+ *   1) 精神感应框架加成真正生效：movementMult / turnMult 参与位移与转向计算；
+ *   2) 射击冷却门 ShotGate：回收惩罚被保留，不再靠"母舰冷却归零"刷攻击节奏；
+ *   3) 出生来源实体级记账 registerProvenance（替代 native null-ID 共享 AI flags）；
+ *   4) 自有适配标记 ADAPTER_KEY（供 PsychoframeEnhancement 识别脚本化移动的浮游炮）。
+ * 另加非战斗上下文守卫：改装界面等会推进武器脚本，这里不生成实体。
+ */
+
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +26,7 @@ import org.lazywizard.lazylib.combat.AIUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.Global;
+import xi.arsenal.PsychoframeHiNuSupport;
 import com.fs.starfarer.api.combat.AmmoTrackerAPI;
 import com.fs.starfarer.api.combat.CollisionClass;
 import com.fs.starfarer.api.combat.CombatAsteroidAPI;
@@ -55,6 +70,12 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
     }
 
     private List<HSITunnelScript> drones = new ArrayList<>();
+
+    /** Owned controller observations only; does not advance a drone or original callback. */
+    public List<Map<String,Object>> psychoframeStatus() {
+        return drones.stream().map(HSITunnelScript::psychoframeStatus).toList();
+    }
+
 
     protected static final int MAX_AMMO = 8; // 最大弹药/无人机数量
     // 不同点位无人机发射动画帧
@@ -134,6 +155,13 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
     Vector2f targetLocation = null;
 
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
+        // 改装界面等非战斗上下文也会推进武器脚本：那里生成的无人机没有真实出生来源，
+        // 会被出生来源校验拒绝并直接中断游戏。只允许在真实战斗里运行本脚本。
+        if (engine == null || weapon == null || weapon.getShip() == null
+                || Global.getCurrentState() != com.fs.starfarer.api.GameState.COMBAT
+                || Global.getCombatEngine() != engine) {
+            return;
+        }
 
         // 初始化武器位置判断
         String slotId = weapon.getSlot().getId();
@@ -294,6 +322,7 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
         // int i = 0;
         for (HSITunnelScript drone : drones) {
             drone.advance(amount);
+            drone.recordPsychoframe();
             if (end) {
                 drone.notifyEnd();
                 continue;
@@ -359,7 +388,8 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
         }
         w.setForceHideFFOverlay(true);
         w.setDrone(true);
-        w.getAIFlags().setFlag(ShipwideAIFlags.AIFlags.DRONE_MOTHERSHIP, 100000f, weapon.getShip());
+        // Owned per-entity source provenance is attached after native AI removal below.
+        // Native null-ID/no-AI flags are shared and must not store a Hi-Nu mother link.
 
         // 新增：查找无人机上的装饰武器
         WeaponAPI droneDecoWeapon = null;
@@ -395,9 +425,18 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
         Global.getCombatEngine().addEntity(w);
         w.getLocation().set(getLocation(weapon, point));
         w.setShipAI(null);
+        try {
+            PsychoframeHiNuSupport.registerProvenance(w, weapon);
+        } catch (RuntimeException rejected) {
+            // 出生来源校验失败时宁可丢掉这一架无人机，也不让异常穿到引擎把整局游戏打崩。
+            log.warn("Hi-Nu drone birth rejected: " + rejected.getMessage(), rejected);
+            engine.removeEntity(w);
+            return;
+        }
 
         // 创建无人机脚本时传入装饰武器
         drones.add(new HSITunnelScript(w, weapon, point, droneDecoWeapon));
+        w.setCustomData(PsychoframeHiNuSupport.ADAPTER_KEY, PsychoframeHiNuSupport.adapterMarker(getClass().getName()));
     }
 
     /**
@@ -457,6 +496,13 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
         private int point = 0; // 无人机编号 (0,1,2)
 
         private boolean fired = false;
+        private final PsychoframeHiNuSupport.ShotGate psychoframeShotGate = new PsychoframeHiNuSupport.ShotGate();
+        private final PsychoframeHiNuSupport.Probe psychoframeProbe = new PsychoframeHiNuSupport.Probe();
+        public Map<String,Object> psychoframeStatus() { return psychoframeProbe.status(); }
+        private void recordPsychoframe() {
+            psychoframeProbe.record(drone, source, mainWeapon, stage.name(), point, attackCount, CD, psychoframeShotGate);
+        }
+
 
         private WeaponAPI decoWeapon; // 新增：关联的装饰武器
         // 新增变量
@@ -589,6 +635,11 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
             float toFace = drone.getFacing();
             Vector2f speed = new Vector2f();
             float mult = 1f;
+            // Preserve the original clock, including its original return-time arithmetic.
+            psychoframeShotGate.advance(amount * timeMult);
+            float effectiveMaxSpeed = maxSpeed * PsychoframeHiNuSupport.movementMult(source.getShip());
+            float effectiveTurnRate = turnRate * PsychoframeHiNuSupport.turnMult(source.getShip());
+
             switch (stage) {
                 case IN_CD:
                     if (CD > 0) {
@@ -657,7 +708,7 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
                     mult = 2.5f;
 
                     // 根据无人机实际移动速度更新贝塞尔曲线进度，应用时流倍率
-                    float moveDistance = maxSpeed * mult * amount * timeMult;
+                    float moveDistance = effectiveMaxSpeed * mult * amount * timeMult;
                     accumulatedDistance += moveDistance;
 
                     // 根据累计距离计算新的进度
@@ -740,8 +791,9 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
                             VectorUtils.getAngle(drone.getLocation(), shipTarget.getLocation())));
                     float distanceToTarget = MathUtils.getDistance(drone.getLocation(), shipTarget.getLocation());
 
-                    if (rotationDiff <= 1f && distanceToTarget <= attackRange) {
+                    if (rotationDiff <= 1f && distanceToTarget <= attackRange && psychoframeShotGate.allowsFire(mainWeapon)) {
                         drone.giveCommand(ShipCommand.FIRE, shipTarget.getLocation(), 0);
+                        psychoframeProbe.fireRequested();
                         fired = true;
                     }
                     if (fired && mainWeapon != null && mainWeapon.getCooldownRemaining() > 0 &&
@@ -750,7 +802,7 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
                         attackCount++;
                         if (attackCount < maxAttackCount) {
                             // 重置武器冷却
-                            mainWeapon.setRemainingCooldownTo(0f);
+                            psychoframeShotGate.retainPenaltyAndResetNative(mainWeapon, source.getShip());
                         // 选择相对当前角度+0°+(±45°偏移)的位置
                         attackAngleOffset += 0f + (Math.random() > 0.5 ? 45f : -45f);
                             fired = false;
@@ -826,7 +878,7 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
             }
             // 平滑转向，应用时流倍率
             float rotation = MathUtils.getShortestRotation(drone.getFacing(), expectedFacing);
-            float effectiveTurnAmount = turnRate * amount * timeMult;
+            float effectiveTurnAmount = effectiveTurnRate * amount * timeMult;
             if (Math.abs(rotation) > effectiveTurnAmount) {
                 toFace = drone.getFacing() + Math.signum(rotation) * effectiveTurnAmount;
             } else {
@@ -842,8 +894,8 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
                 if (!stage.equals(AIStage.WAITING_ORDER) && !stage.equals(AIStage.IN_CD)) {
                     // 移动计算也应用时流倍率
                     float effectiveAmount = amount * timeMult;
-                    if (diff.length() > maxSpeed * effectiveAmount) {
-                        diff.scale(maxSpeed * mult * effectiveAmount / diff.length());
+                    if (diff.length() > effectiveMaxSpeed * effectiveAmount) {
+                        diff.scale(effectiveMaxSpeed * mult * effectiveAmount / diff.length());
                     }
                     drone.getEngineController().forceShowAccelerating();
                     drone.giveCommand(ShipCommand.ACCELERATE, drone.getMouseTarget(), 0);
@@ -941,7 +993,7 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
             Vector2f calculatedTarget = MathUtils.getPointOnCircumference(target, facing * 60 * point, attackRange);
 
             // 防护：检查计算出的目标是否与当前位置过于接近
-            if (drone != null && MathUtils.getDistanceSquared(drone.getLocation(), calculatedTarget) < 10f * 10f) {
+            if (drone != null && MathUtils.getDistance(drone.getLocation(), calculatedTarget) < 10f) {
                 // 如果太近，稍微增加距离（增加100像素）
                 calculatedTarget = MathUtils.getPointOnCircumference(target, facing * 60 * point, attackRange + 100f);
             }

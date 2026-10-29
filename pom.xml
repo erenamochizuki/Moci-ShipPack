@@ -202,26 +202,26 @@
 
         <dependency>
             <groupId>com.fs.starfarer</groupId>
-            <artifactId>port_obf</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/port_obf.jar</systemPath>
-        </dependency>
-		
-        <dependency>
-            <groupId>com.fs.starfarer</groupId>
             <artifactId>starfarer.api</artifactId>
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/starfarer.api.jar</systemPath>
         </dependency>
-		
+
         <dependency>
             <groupId>com.fs.starfarer</groupId>
             <artifactId>starfarer_obf</artifactId>
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/starfarer_obf.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fs.starfarer</groupId>
+            <artifactId>port_obf</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Administrator/IdeaProjects/Moci/lib/port_obf.jar</systemPath>
         </dependency>
 		
         <dependency>

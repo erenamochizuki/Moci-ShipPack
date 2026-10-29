@@ -51,6 +51,37 @@ final class Moci_AirSquadronLayout {
     /** 战术改装区一行 3 个图标所需的最小宽度：3 个图标 + 2 个间隔 + 少量内边距。 */
     static final float MIN_TACTICAL_WIDTH = 3f * TACTICAL_SLOT + 2f * TACTICAL_GAP + 4f;
     record Editor(float height, float topHeight, float weaponsHeight, float summaryHeight) {}
+    record Header(float bodyY, float titleWidth, float gaugeX, float gaugeY, float gaugeWidth,
+                  float textX, float textY, float textWidth) {}
+
+    // ===== 顶部能量条调整参数（单位：UI 像素） =====
+    // X 增大向右移动，Y 增大向下移动；宽窗口与窄窗口分别设置。
+    static final float ENERGY_BAR_X = 184f;
+    static final float ENERGY_BAR_Y = 12f;
+    static final float ENERGY_BAR_MAX_WIDTH = 260f; // 总宽上限；实际宽度还受窗口可用空间限制。
+    static final float ENERGY_BAR_WIDTH_RATIO = 0.45f; // 可用空间分配给能量条的比例。
+    static final float ENERGY_BAR_HEIGHT = 25f; // 总高度；所有格子共用此高度。
+    static final float ENERGY_BAR_NARROW_X = 12f; // 窗口宽度小于 720 时使用下面四项。
+    static final float ENERGY_BAR_NARROW_Y = 49f;
+    static final float ENERGY_BAR_NARROW_MAX_WIDTH = 220f;
+    static final float ENERGY_BAR_NARROW_WIDTH_RATIO = 0.43f;
+    // 移动/加宽能量条时，右侧数值文字跟随其右边缘；向下移动/加高时正文自动让位。
+    // 格子数量、格间距见 Moci_AirSquadronEnergyBar 的 SEGMENTS / SEGMENT_GAP。
+    static Header header(float width) {
+        float available = width - 24f;
+        boolean narrow = width < 720f;
+        float x = narrow ? ENERGY_BAR_NARROW_X : ENERGY_BAR_X;
+        float y = narrow ? ENERGY_BAR_NARROW_Y : ENERGY_BAR_Y;
+        float gaugeWidth = narrow
+                ? Math.min(ENERGY_BAR_NARROW_MAX_WIDTH, (available - 12f) * ENERGY_BAR_NARROW_WIDTH_RATIO)
+                : Math.min(ENERGY_BAR_MAX_WIDTH, (available - 232f) * ENERGY_BAR_WIDTH_RATIO);
+        float textX = x + gaugeWidth + 12f;
+        float textY = y - 1f;
+        float bodyY = Math.max(narrow ? 84f : 48f,
+                Math.max(y + ENERGY_BAR_HEIGHT + 4f, textY + 36f + 4f));
+        return new Header(bodyY, narrow ? available : 164f, x, y, gaugeWidth,
+                textX, textY, width - 24f - textX);
+    }
     record Carrier(float height, float iconSize, float imageTop, float infoTop) {}
 
     /**

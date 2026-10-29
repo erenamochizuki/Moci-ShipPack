@@ -1,15 +1,15 @@
 {
   "id": "moci_shippack",
-  "name": "Moci的随意之作",
+  "name": "Moci的随意之作Beta",
   "author": "Moci",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "不只是一个普通的船包了。",
   "gameVersion": "0.98",
   "dependencies": [
     {
       "id": "moci_filmshield",
       "name": "Moci的贴膜盾前置",
-      "version": "1.0.0"
+      "version": "1.2.0"
     },
     {
       "id": "lw_lazylib",

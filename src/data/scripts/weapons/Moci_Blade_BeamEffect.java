@@ -14,6 +14,9 @@ import java.util.HashSet;
 import java.util.Set;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
+import data.scripts.weapons.blade.Moci_BladeMotion;
+import data.scripts.weapons.blade.Moci_BladeMotionRegistry;
+
 import java.awt.Color;
 import org.lazywizard.lazylib.MathUtils;
 
@@ -111,14 +114,27 @@ public class Moci_Blade_BeamEffect implements BeamEffectPlugin {
     private float ambientParticleBudget;
     private final Moci_MeleeHitEffects hitEffects = new Moci_MeleeHitEffects();
     private final Moci_MeleeAttackPhases attackPhases = new Moci_MeleeAttackPhases();
+    /** 本帧是否存在动作层（决定攻击窗口与伤害时长的归属）。 */
+    private boolean motionPresent;
 
     @Override
     public void advance(float amount, CombatEngineAPI engine, BeamAPI beam) {
-        if (engine.isPaused())
+        if (engine.isPaused()) {
+            // 暂停时仍然要把原生光束藏起来，否则会和我方渲染/动作层刀光同时可见。
+            WeaponAPI pausedWeapon = beam == null ? null : beam.getWeapon();
+            Moci_BladeMotion pausedMotion = Moci_BladeMotionRegistry.get(pausedWeapon);
+            if (pausedMotion != null) pausedMotion.beamFrame(engine, beam);
             return;
+        }
 
         weapon = beam.getWeapon();
         ShipAPI ship = weapon.getShip();
+
+        // ========== 可选动作层：这里只取引用，刀光渲染推迟到本函数末尾 ==========
+        // xi 的渲染器会把原生光束颜色的 alpha 置 0 再自绘刀光；若在此处就调用 beamFrame，
+        // 本帧后面所有读取 beam.getCoreColor()/getFringeColor() 的粒子、拖尾、火线都会拿到
+        // 全透明颜色 → 我方火花与沿线粒子静默消失。所以先让本帧特效使用原始颜色，末尾再隐藏。
+        Moci_BladeMotion motion = Moci_BladeMotionRegistry.get(weapon);
 
         // ========== 初始化拖尾效果ID ==========
         if (!trailInitialized) {
@@ -143,24 +159,51 @@ public class Moci_Blade_BeamEffect implements BeamEffectPlugin {
         if (charged && !burstActive) beginBurst();
         burstActive = charged;
 
+        // 动作层在场时，攻击窗口由它给出（它自己按挥砍阶段开合）；动作层缺席时保持改造前的原始判定。
+        // 这样 xi 侧的阶段时序就是唯一权威，我方不再用亮度/开火标记二次裁剪同一个窗口。
+        motionPresent = motion != null;
+        boolean motionAction = motion != null && motion.isActionActive(weapon);
+        boolean motionRay = motion != null && motion.rayPhase(weapon) != 0;
+
         int collisionPhase = charged ? 1 : 0;
         int rayPhase = collisionPhase;
         float collisionProgress = charged ? 1f : 0f;
-        if (weapon.getSlot().getId().endsWith("_L_SOURCE") || weapon.getSlot().getId().endsWith("_R_SOURCE")) {
+        String slotId = weapon.getSlot() == null ? "" : weapon.getSlot().getId();
+        if (slotId.endsWith("_L_SOURCE") || slotId.endsWith("_R_SOURCE")) {
             // 先读取当前旧光线的碰撞阶段，不能把归位/蓄势的碰撞当成挥砍命中。
-            float swingAmount = hitEffects.advanceSlowdown(amount, engine, weapon, beam, charged && weapon.isFiring()
-                    && attackPhases.getCollisionPhase() != 0 && beam.getBrightness() >= 0.7f);
-            int nextAnimationPhase = handleWeaponAnimation(amount, swingAmount) ? 1 : 0;
-            collisionPhase = attackPhases.advance(nextAnimationPhase, animationSwingProgress);
+            // 卡肉检测始终由我方执行；动作层接管朝向时只是不采用它返回的局部挥砍速度。
+            boolean legacySwingGate = charged && weapon.isFiring()
+                    && attackPhases.getCollisionPhase() != 0 && beam.getBrightness() >= 0.7f;
+            float swingAmount = hitEffects.advanceSlowdown(amount, engine, weapon, beam,
+                    motion != null ? (motionAction && motionRay) : legacySwingGate);
+            boolean motionOwnsAim = motion != null && motion.ownsAim(weapon);
+            int nextAnimationPhase;
+            float nextAnimationProgress;
+            if (motionOwnsAim) {
+                nextAnimationPhase = motion.rayPhase(weapon) != 0 ? 1 : 0;
+                nextAnimationProgress = motion.collisionProgress(weapon);
+            } else {
+                nextAnimationPhase = handleWeaponAnimation(amount, swingAmount) ? 1 : 0;
+                nextAnimationProgress = animationSwingProgress;
+            }
+            collisionPhase = attackPhases.advance(nextAnimationPhase, nextAnimationProgress);
             collisionProgress = attackPhases.getLastCollisionProgress();
             rayPhase = attackPhases.getRayPhase();
         }
-        boolean active = charged && weapon.isFiring() && collisionPhase != 0 && beam.getBrightness() >= 0.7f;
-        Moci_BladeEffectPlugin.setAttackPhase(beam, charged ? rayPhase : 0);
+        boolean active = motion != null ? (motionAction && motionRay)
+                : (charged && weapon.isFiring() && collisionPhase != 0 && beam.getBrightness() >= 0.7f);
+        Moci_BladeEffectPlugin.setAttackPhase(beam, (charged || motionAction) ? rayPhase : 0);
 
-        if (active && target != null) {
+        // 动作层在场时，用它的累计预算比例给我方「每目标一刀满伤」封顶；不在场时为 100%。
+        float damageBudget = 1f;
+        if (motion != null) {
+            damageBudget = motionAction
+                    ? Math.max(0f, Math.min(1f, motion.damageBudgetFraction(weapon)))
+                    : 0f;
+        }
+        if (active && target != null && damageBudget > 0f) {
             float currentRange = Misc.getDistance(beam.getFrom(), beam.getTo());
-            float damageToApply = calculateOptimalDamage(target, currentRange);
+            float damageToApply = calculateOptimalDamage(target, currentRange, damageBudget);
             if (damageToApply > 0f) {
                 damageDealtThisBurst.put(target, damageDealtThisBurst.getOrDefault(target, 0f) + damageToApply);
                 Moci_MeleeDamage.applyDamage(engine, beam, target, beam.getTo(), damageToApply, damageToApply);
@@ -293,6 +336,9 @@ public class Moci_Blade_BeamEffect implements BeamEffectPlugin {
                 }
             }
         }
+
+        // 我方本帧的粒子/拖尾/火线都已用原始颜色生成完毕，最后再把原生光束交给动作层隐藏并自绘。
+        if (motion != null) motion.beamFrame(engine, beam);
     }
 
     private void beginBurst() {
@@ -322,7 +368,7 @@ public class Moci_Blade_BeamEffect implements BeamEffectPlugin {
         }
         if (cooldown) return false;
         float slotCenterAngle = weapon.getShip().getFacing() + weapon.getSlot().getAngle();
-        boolean isLeftArm = weapon.getSlot().getId().endsWith("_L_SOURCE");
+        boolean isLeftArm = weapon.getSlot() != null && weapon.getSlot().getId().endsWith("_L_SOURCE");
         float arc = weapon.getArc();
         float startAngle = slotCenterAngle + (isLeftArm ? -arc : arc) * 0.5f;
         float targetRotation = isLeftArm ? arc : -arc;
@@ -378,9 +424,11 @@ public class Moci_Blade_BeamEffect implements BeamEffectPlugin {
         return 0.33f;
     }
 
-    /** 同一目标一刀最多满伤；更近距离命中只补足差额。 */
-    private float calculateOptimalDamage(CombatEntityAPI target, float distance) {
-        float fullDamage = Moci_MeleeDamage.calculateFullDamage(weapon);
+    /** 同一目标一刀最多满伤；更近距离命中只补足差额。budget 为动作层给出的累计比例（无动作层时 1）。 */
+    private float calculateOptimalDamage(CombatEntityAPI target, float distance, float budget) {
+        // 动作层在场时把基础攻击时长固定为 1 秒：xi 把 burst 从 0.75 调到 1.1 后，
+        // 我方 max(1, burstDuration) 会顺手把满伤放大 10%，这里把这条隐式加成去掉。
+        float fullDamage = Moci_MeleeDamage.calculateFullDamage(weapon, motionPresent ? 1f : 0f) * budget;
         float multiplier = Moci_BladeEffectPlugin.calculateDistanceDamageMultiplier(
                 distance, weapon.getSpec().getMaxRange());
         return Math.max(0f, fullDamage * multiplier - damageDealtThisBurst.getOrDefault(target, 0f));

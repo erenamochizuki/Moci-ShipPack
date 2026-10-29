@@ -3,7 +3,10 @@ package data.hullmods;
 import java.awt.Color;
 
 import org.lwjgl.util.vector.Vector2f;
+import org.magiclib.util.MagicIncompatibleHullmods;
 
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.CombatEntityAPI;
 import com.fs.starfarer.api.combat.DamageAPI;
 import com.fs.starfarer.api.combat.DamageType;
@@ -20,6 +23,7 @@ import com.fs.starfarer.api.loading.DamagingExplosionSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.util.Moci_TextLoader;
+import data.shipsystems.scripts.Moci_DeepDive;
 
 public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
     private static final String TEXT_ID = "Moci_ElectroMagneticFluidControl";
@@ -34,13 +38,35 @@ public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
 
 	// 船插ID，用于监听器检查
 	private static final String HULLMOD_ID = "Moci_ElectroMagneticFluidControl";
+    private static final String INCOMPATIBLE_HULLMOD_ID = "adaptive_coils";
 
 	@Override
 	public void applyEffectsBeforeShipCreation(HullSize hullSize, MutableShipStatsAPI stats, String id) {
+		if (stats.getVariant() != null && stats.getVariant().hasHullMod(INCOMPATIBLE_HULLMOD_ID)) {
+			MagicIncompatibleHullmods.removeHullmodWithWarning(stats.getVariant(), INCOMPATIBLE_HULLMOD_ID, HULLMOD_ID);
+		}
 		stats.getSensorProfile().modifyMult(id, SENSOR_PROFILE_MULT);
 		stats.getDynamic().getStat(Stats.CORONA_EFFECT_MULT).modifyMult(id, CORONA_EFFECT);
 		stats.getDynamic().getMod("individual_ship_recovery_mod").modifyFlat(id, 1000.0F); //打捞恢复概率
 	}
+
+    @Override
+    public boolean isApplicableToShip(ShipAPI ship) {
+        if (ship != null && ship.getVariant() != null
+                && ship.getVariant().hasHullMod(INCOMPATIBLE_HULLMOD_ID)) {
+            return false;
+        }
+        return super.isApplicableToShip(ship);
+    }
+
+    @Override
+    public String getUnapplicableReason(ShipAPI ship) {
+        if (ship != null && ship.getVariant() != null
+                && ship.getVariant().hasHullMod(INCOMPATIBLE_HULLMOD_ID)) {
+            return "与自适应相位线圈不兼容";
+        }
+        return super.getUnapplicableReason(ship);
+    }
 
 	@Override
 	public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
@@ -53,11 +79,40 @@ public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
 	public void advanceInCombat(ShipAPI ship, float amount) {
 		if (ship == null) return;
 		
+        updatePhaseMobility(ship);
 		hideWeaponCovers(ship);
 		hideMissileSprites(ship);
 		// 同步武器贴图与装甲损伤
 		ship.syncWeaponDecalsWithArmorDamage();
 	}
+
+    /** 硬幅能占总容量的比例为 0..1；相位期间提供额外正向机动加成。 */
+    private void updatePhaseMobility(ShipAPI ship) {
+        MutableShipStatsAPI stats = ship.getMutableStats();
+        String id = HULLMOD_ID + "_phase_mobility";
+        if (!ship.isAlive() || ship.isHulk()
+                || !(ship.isPhased() || Moci_DeepDive.isDeepDiveActive(ship))) {
+            stats.getMaxSpeed().unmodify(id);
+            stats.getAcceleration().unmodify(id);
+            stats.getDeceleration().unmodify(id);
+            stats.getMaxTurnRate().unmodify(id);
+            stats.getTurnAcceleration().unmodify(id);
+            return;
+        }
+        float hardFlux = Math.max(0f, Math.min(1f, ship.getHardFluxLevel()));
+        float speedBonus = 100f + 100f * hardFlux;
+        float mobilityBonus = 100f + 100f * hardFlux;
+        stats.getMaxSpeed().modifyMult(id, 1f + speedBonus / 100f);
+        stats.getAcceleration().modifyMult(id, 1f + mobilityBonus / 100f);
+        stats.getDeceleration().modifyMult(id, 1f + mobilityBonus / 100f);
+        stats.getMaxTurnRate().modifyMult(id, 1f + mobilityBonus / 100f);
+        stats.getTurnAcceleration().modifyMult(id, 1f + mobilityBonus / 100f);
+        CombatEngineAPI engine = Global.getCombatEngine();
+        if (engine != null && ship == engine.getPlayerShip()) {
+            engine.maintainStatusForPlayerShip(id, "graphics/icons/hullsys/phase_cloak.png",
+                    "磁流体控制系统", String.format("最大航速+%.0f%%，机动性+%.0f%%", speedBonus, mobilityBonus), false);
+        }
+    }
 
 	/**
 	 * 碰撞和殉爆伤害监听器
@@ -151,6 +206,9 @@ public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
 		Color good = Misc.getPositiveHighlightColor();
 
 		tooltip.addPara(Moci_TextLoader.getText(TEXT_ID, "description.intro"), pad);
+        tooltip.addPara(Moci_TextLoader.getText(TEXT_ID, "description.phase_mobility"), pad, h,
+                Moci_TextLoader.getHighlights(TEXT_ID, "description.phase_mobility_highlights").toArray(new String[0]));
+        tooltip.addPara("与}%s}不兼容。", pad, Misc.getNegativeHighlightColor(), "自适应相位线圈");
 
 		tooltip.addPara(
 				Moci_TextLoader.getTextWithReplacements(TEXT_ID, "description.sensor_profile",

@@ -1,5 +1,17 @@
 package data.scripts.weapons;
 
+
+/* MSN-04-2 双翼浮游炮武器效果 —— 我方本体代码。
+ *
+ * 历史：这段逻辑原本就是我们的 Moci_MSN04Wingman_Effect；合并版把它 fork 成
+ * xi.arsenal.NightWingmanEffect 并让 Moci_MSN_04_2_wing_left/_right.wpn 改指 fork。
+ * 本轮把 fork 完整收编回本类：原逻辑（生成、BasicShipAI、来源链接、数量上限、
+ * 死亡清理、双翼交替）保持不变，同时保留合并版新增的创建来源记账、真实落地才返还
+ * 1 发弹药、以及更严格的失效无人机清理。
+ */
+
+import data.scripts.weapons.Moci_WingmanSupport;
+import java.util.*;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -24,21 +36,33 @@ import com.fs.starfarer.api.loading.WeaponGroupSpec;
 import com.fs.starfarer.api.loading.WeaponGroupType;
 import org.lwjgl.util.vector.Vector2f;
 
-/**
- * MSN04 浮游炮效果类
- * 
- * 功能说明：
- * 1. 生成浮游炮无人机
- * 2. 管理每个武器的浮游炮数量上限
- * 3. 超出上限时自动摧毁最早的浮游炮
- * 4. 提供玩家UI状态显示
- * 5. 支持发射动画
- * 
- * 核心代码来自光环的小帮手
- */
-public class Moci_MSN04Wingman_Effect implements EveryFrameWeaponEffectPlugin, OnFireEffectPlugin {
+public final class Moci_MSN04Wingman_Effect implements EveryFrameWeaponEffectPlugin, OnFireEffectPlugin {
     
     // 默认浮游炮数量上限
+
+
+    // 合并版在本类之上追加的能力：创建来源记账（Origin）与「真实落地才返还 1 发弹药」。
+    // 原逻辑（生成、BasicShipAI、来源链接、数量上限、死亡清理）保持不变；本类即唯一的武器回调。
+    public static final String KEY="xi.arsenal.nightLaunch";
+    private static final Set<String> IDS=Set.of("Moci_MSN_04_2_wing_left","Moci_MSN_04_2_wing_right");
+    private static final class Origin {
+        final CombatEngineAPI engine;final ShipAPI drone,mother,launchShip;final WeaponAPI launcher;final int owner;
+        boolean returned;
+        Origin(CombatEngineAPI engine,ShipAPI drone,ShipAPI mother,WeaponAPI launcher){
+            this.engine=engine;this.drone=drone;this.mother=mother;this.launcher=launcher;launchShip=launcher.getShip();owner=drone.getOwner();
+        }
+    }
+    private static final class Counters {
+        long created,returned,refunded,rejected;
+        final Map<String,Object> facts=new LinkedHashMap<>();
+        void publish(){facts.put("schema",1);facts.put("created",created);facts.put("returned",returned);facts.put("refunded",refunded);facts.put("rejected",rejected);}
+    }
+    private static Counters counters(CombatEngineAPI engine){
+        Object found=engine.getCustomData().get(KEY);
+        if(found instanceof Counters count)return count;
+        if(found!=null)throw new IllegalStateException("Night launch provenance already owned");
+        Counters count=new Counters();engine.getCustomData().put(KEY,count);engine.getCustomData().put(KEY+".status",Collections.unmodifiableMap(count.facts));count.publish();return count;
+    }
     private static final int DEFAULT_MAX_DRONES = 4;
     private static final int MIN_MAX_DRONES = 1;
     private static final int MAX_MAX_DRONES = 20;
@@ -71,7 +95,13 @@ public class Moci_MSN04Wingman_Effect implements EveryFrameWeaponEffectPlugin, O
         ShipAPI mothership = Moci_WingmanSupport.resolveRootMothership(ship);
 
         // 清理已死亡的浮游炮
-        cleanupDeadDrones();
+        cleanupDeadDrones(engine);
+
+        // 翼浮游炮的自有 AI：谁发射谁负责把 coordinator 装上（不依赖任何船插）。
+        try {
+            xi.arsenal.NightFunnelHost.ensure(engine);
+        } catch (RuntimeException | LinkageError ignored) {
+        }
 
         if (Moci_WingmanSupport.destroyAllDronesIfMothershipInvalid(engine, activeDrones, mothership)) {
             return;
@@ -94,7 +124,7 @@ public class Moci_MSN04Wingman_Effect implements EveryFrameWeaponEffectPlugin, O
     /**
      * 清理已死亡或变成残骸的浮游炮
      */
-    private void cleanupDeadDrones() {
+    private void cleanupDeadDrones(CombatEngineAPI engine) {
         if (activeDrones.isEmpty()) {
             return;
         }
@@ -102,7 +132,7 @@ public class Moci_MSN04Wingman_Effect implements EveryFrameWeaponEffectPlugin, O
         Iterator<ShipAPI> iterator = activeDrones.iterator();
         while (iterator.hasNext()) {
             ShipAPI drone = iterator.next();
-            if (drone == null || !drone.isAlive() || drone.isHulk()) {
+            if (drone == null || !drone.isAlive() || drone.isHulk() || drone.wasRemoved() || !engine.isEntityInPlay(drone)) {
                 iterator.remove();
             }
         }
@@ -200,6 +230,12 @@ public class Moci_MSN04Wingman_Effect implements EveryFrameWeaponEffectPlugin, O
             
             if (drone != null) {
                 activeDrones.add(drone);
+                ShipAPI mother=Moci_WingmanSupport.resolveRootMothership(weapon.getShip());
+                if(IDS.contains(weapon.getId())&&drone.getOwner()==mother.getOwner()
+                        &&Moci_WingmanSupport.getTrackedMothership(drone)==mother&&!drone.getCustomData().containsKey(KEY)){
+                    drone.setCustomData(KEY,new Origin(engine,drone,mother,weapon));
+                    Counters count=counters(engine);count.created++;count.publish();
+                }
             }
         }
         
@@ -231,7 +267,7 @@ public class Moci_MSN04Wingman_Effect implements EveryFrameWeaponEffectPlugin, O
      * 强制执行数量上限
      */
     private void enforceMaxDrones(CombatEngineAPI engine) {
-        cleanupDeadDrones();
+        cleanupDeadDrones(engine);
         
         while (activeDrones.size() >= maxDrones) {
             ShipAPI oldestDrone = activeDrones.pollFirst();
@@ -304,5 +340,24 @@ public class Moci_MSN04Wingman_Effect implements EveryFrameWeaponEffectPlugin, O
             );
             return null;
         }
+    }
+    /** Refund only an actual completed native landing, to the exact still-installed launch weapon, once. */
+    public static boolean completeReturn(CombatEngineAPI engine,ShipAPI drone,ShipAPI mother){
+        if(engine==null||drone==null||mother==null)return false;
+        Object value=drone.getCustomData().get(KEY);
+        if(!(value instanceof Origin origin)||origin.engine!=engine||origin.drone!=drone||origin.mother!=mother||origin.returned)return false;
+        if(!drone.isFinishedLanding())return false;
+        Counters count=counters(engine);
+        boolean launcherPresent=origin.launchShip!=null&&origin.launchShip.getAllWeapons().stream().anyMatch(w->w==origin.launcher);
+        if(!mother.isAlive()||mother.isHulk()||!engine.isEntityInPlay(mother)||!drone.isAlive()||drone.isHulk()
+                ||drone.getOwner()!=origin.owner||mother.getOwner()!=origin.owner||!launcherPresent
+                ||origin.launchShip.getOwner()!=origin.owner||!origin.launchShip.isAlive()||origin.launchShip.isHulk()
+                ||Moci_WingmanSupport.resolveRootMothership(origin.launchShip)!=mother||!origin.launcher.usesAmmo()){
+            origin.returned=true;count.rejected++;count.publish();return false;
+        }
+        origin.returned=true;count.returned++;
+        int old=origin.launcher.getAmmo(),next=Math.min(origin.launcher.getMaxAmmo(),old+1);
+        if(next>old){origin.launcher.setAmmo(next);count.refunded+=next-old;}
+        count.publish();return true;
     }
 }

@@ -141,6 +141,8 @@ public class Moci_GuidingWeapon implements EveryFrameWeaponEffectPlugin, OnFireE
      */
     @Override
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
+        // xi 光学收尾的宿主：保证存在（幂等），失败不影响武器本身。
+        try { xi.arsenal.PsychoArmamentVisuals.ensure(engine); } catch (RuntimeException | LinkageError ignored) { }
         // 更新TrailEntity光线
         updateTrailEntities(amount);
         

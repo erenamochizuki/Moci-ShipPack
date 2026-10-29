@@ -17,6 +17,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Sounds;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.DumpMemory;
 import com.fs.starfarer.api.impl.campaign.rulecmd.FireAll;
+import com.fs.starfarer.api.impl.campaign.rulecmd.Moci_AugmentedHumanCommand;
 import com.fs.starfarer.api.util.Misc;
 import data.campaign.skills.Moci_AugmentedHumanSkill;
 import org.lwjgl.input.Keyboard;
@@ -33,6 +34,7 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
     public static final int ALPHA_CORE_COST = 1;
 
     private enum OptionId {
+        INSTITUTE,
         MAIN,
         BACK
     }
@@ -63,7 +65,7 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
         this.dialog = dialog;
         this.text = dialog.getTextPanel();
         this.options = dialog.getOptionPanel();
-        showMain(true);
+        showInstitute(true);
     }
 
     @Override
@@ -81,12 +83,22 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
             return;
         }
 
-        if (optionData == OptionId.MAIN) {
-            showMain(false);
-            return;
-        }
         if (optionData == OptionId.BACK) {
             returnToMarket();
+            return;
+        }
+        String accessUnavailable = Moci_AugmentedHumanCommand.getAccessUnavailableReason(dialog);
+        if (accessUnavailable != null) {
+            text.addPara(accessUnavailable, Misc.getNegativeHighlightColor());
+            returnToMarket();
+            return;
+        }
+        if (optionData == OptionId.INSTITUTE) {
+            showInstitute(false);
+            return;
+        }
+        if (optionData == OptionId.MAIN) {
+            showMain(true);
             return;
         }
         if (optionData instanceof UnitOption) {
@@ -94,9 +106,28 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
         }
     }
 
+    private void showInstitute(boolean withIntro) {
+        if (withIntro) {
+            text.addPara("弗拉纳冈机构的地下区划被层层隔离门封闭。值勤人员确认了你的授权后，将机构提供的服务列在终端上。");
+        }
+        options.clearOptions();
+        options.addOption("强化人培育", OptionId.MAIN);
+        String unavailable = Moci_AugmentedHumanCommand.getAccessUnavailableReason(dialog);
+        if (unavailable == null && !hasAlphaCore()) {
+            unavailable = "需要 1 个 Alpha Core。";
+        }
+        if (unavailable == null && !hasEligibleTarget()) {
+            unavailable = "没有可进行强化人培育的玩家或军官。";
+        }
+        options.setEnabled(OptionId.MAIN, unavailable == null);
+        options.setTooltip(OptionId.MAIN, unavailable == null
+                ? "消耗 1 个 Alpha Core，为玩家或军官授予强化人技能。" : unavailable);
+        options.addOption("返回市场", OptionId.BACK);
+        options.setShortcut(OptionId.BACK, Keyboard.KEY_ESCAPE, false, false, false, true);
+    }
+
     private void showMain(boolean withIntro) {
         if (withIntro) {
-            text.addPara("弗拉纳冈机构的地下区划被层层隔离门封闭。值勤人员确认了你的授权后，将一份适格者名单投到终端上。");
             text.addPara("每次强化人培育需要消耗 %s 个 Alpha Core。培育完成后，目标会获得强化人技能，可无视米诺夫斯基粒子的干扰效果，但不会获得新人类的时流能力。",
                     Misc.getTextColor(), Misc.getHighlightColor(), String.valueOf(ALPHA_CORE_COST), "强化人");
         }
@@ -125,8 +156,8 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
                     : "货舱中需要至少 1 个 Alpha Core。");
         }
 
-        options.addOption("返回市场", OptionId.BACK);
-        options.setShortcut(OptionId.BACK, Keyboard.KEY_ESCAPE, false, false, false, true);
+        options.addOption("返回弗拉纳冈机构", OptionId.INSTITUTE);
+        options.setShortcut(OptionId.INSTITUTE, Keyboard.KEY_ESCAPE, false, false, false, true);
         if (Global.getSettings().isDevMode()) {
             DevMenuOptions.addOptions(dialog);
         }
@@ -176,8 +207,8 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
     private void showContinue() {
         options.clearOptions();
         options.addOption("继续", OptionId.MAIN);
-        options.addOption("返回市场", OptionId.BACK);
-        options.setShortcut(OptionId.BACK, Keyboard.KEY_ESCAPE, false, false, false, true);
+        options.addOption("返回弗拉纳冈机构", OptionId.INSTITUTE);
+        options.setShortcut(OptionId.INSTITUTE, Keyboard.KEY_ESCAPE, false, false, false, true);
         if (Global.getSettings().isDevMode()) {
             DevMenuOptions.addOptions(dialog);
         }

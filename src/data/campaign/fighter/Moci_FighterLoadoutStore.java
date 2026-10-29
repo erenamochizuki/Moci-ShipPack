@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 
-/** Cross-save catalog, loaded before save deserialization. Never prune historical definitions. */
+/** Cross-save catalog, loaded before save deserialization. Retain all supported definitions. */
 public final class Moci_FighterLoadoutStore {
     static final String FILE_NAME = "moci_fighter_loadouts_v1.json";
     static final String BACKUP_FILE = FILE_NAME + ".backup";
@@ -127,7 +127,18 @@ public final class Moci_FighterLoadoutStore {
         Map<String, Moci_FighterLoadoutSpec> result = new LinkedHashMap<>();
         JSONArray entries = root.getJSONArray("definitions");
         for (int i = 0; i < entries.length(); i++) {
-            Moci_FighterLoadoutSpec spec = Moci_FighterLoadoutSpec.fromJSON(entries.getJSONObject(i));
+            JSONObject entry = entries.getJSONObject(i);
+            String id = entry.getString("id");
+            if (id.startsWith(Moci_FighterLoadoutSpec.ID_PREFIX) && !id.endsWith("_wing")) {
+                // The catalog is shared by new campaigns too. Discard verified pre-suffix
+                // records instead of registering unsafe IDs or locking every new campaign.
+                // Validate the full definition first so corruption still enters read-only recovery.
+                JSONObject validated = new JSONObject(entry.toString());
+                validated.put("id", id + "_wing");
+                Moci_FighterLoadoutSpec.fromJSON(validated);
+                continue;
+            }
+            Moci_FighterLoadoutSpec spec = Moci_FighterLoadoutSpec.fromJSON(entry);
             Moci_FighterLoadoutSpec old = result.put(spec.getWingId(), spec);
             if (old != null) throw new IllegalArgumentException("Duplicate catalog ID");
         }

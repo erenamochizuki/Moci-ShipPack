@@ -11,6 +11,10 @@ import com.fs.starfarer.api.util.Misc;
 
 /** All eligibility policy lives here; custom wings are judged by their prototype. */
 public final class Moci_FighterLoadoutEligibility {
+    /** 武器改装是否要求 acceptedWingTags（默认 moci_ms_fighter）；改为 false 后开放给所有 LPC。 */
+    public static boolean RESTRICT_WEAPON_REFIT_BY_TAG = true;
+    /** 战术改装独立控制；默认不要求 moci_ms_fighter。 */
+    public static boolean RESTRICT_TACTICAL_REFIT_BY_TAG = false;
     public static final String CONFIG_PATH = "data/config/Moci_FighterLoadout.json";
     private static Set<String> acceptedTags = Set.of("moci_ms_fighter");
     private static String failure;
@@ -39,7 +43,17 @@ public final class Moci_FighterLoadoutEligibility {
         return Misc.isAutomated(variant) ? "自动化或无人舰船不能使用航空中队管理" : null;
     }
     public static boolean accepts(FighterWingSpecAPI prototype) {
+        return acceptsWeapons(prototype);
+    }
+    public static boolean acceptsWeapons(FighterWingSpecAPI prototype) {
+        return accepts(prototype, RESTRICT_WEAPON_REFIT_BY_TAG);
+    }
+    public static boolean acceptsTactical(FighterWingSpecAPI prototype) {
+        return accepts(prototype, RESTRICT_TACTICAL_REFIT_BY_TAG);
+    }
+    private static boolean accepts(FighterWingSpecAPI prototype, boolean restricted) {
         if (prototype == null || failure != null) return false;
+        if (!restricted) return true;
         for (String tag : acceptedTags) if (prototype.hasTag(tag)) return true;
         return false;
     }

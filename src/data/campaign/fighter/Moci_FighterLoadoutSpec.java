@@ -5,6 +5,9 @@ import java.security.MessageDigest;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import org.json.JSONArray;
 import java.util.TreeMap;
 import org.json.JSONObject;
 import data.hullmods.Moci_TacticalHullmods;
@@ -12,36 +15,37 @@ import data.hullmods.Moci_TacticalHullmods;
 /** Immutable, content-addressed loadout. The free-weapon baseline travels with the LPC. */
 public final class Moci_FighterLoadoutSpec {
     public static final String ID_PREFIX = "moci_flo_";
+    private static final String ID_SUFFIX = "_wing";
     public static final String TAG = "moci_custom_fighter_loadout";
     /**
      * 指纹版本：v1 只描述原型 + 默认基线 + 当前装配，是历史存档里 wingId 的来源。
-     * v2 在末尾追加战术改装 ID；未选战术改装时必须继续用 v1，否则旧存档的 wingId 会全部漂移。
+     * v2 追加单个战术改装 ID，v3 追加按 ID 排序的两组改装；相同装配始终得到相同 ID。
      */
     private static final String CANONICAL_V1 = "moci-fighter-loadout-v1;";
     private static final String CANONICAL_V2 = "moci-fighter-loadout-v2;";
+    private static final String CANONICAL_V3 = "moci-fighter-loadout-v3;";
     private final String baseWingId;
     private final Map<String, String> baseline;
     private final Map<String, String> loadout;
-    private final String tacticalHullmod;
+    private final List<String> tacticalHullmods;
     private final String wingId;
 
     public Moci_FighterLoadoutSpec(String baseWingId, Map<String, String> baseline,
             Map<String, String> loadout) {
-        this(baseWingId, baseline, loadout, null, false);
+        this(baseWingId, baseline, loadout, List.of(), false);
     }
 
     /** 带战术改装的构造：仅接受 null 或已注册且带战术改装 tag 的船插，其它值按未选处理。 */
     public Moci_FighterLoadoutSpec(String baseWingId, Map<String, String> baseline,
             Map<String, String> loadout, String tacticalHullmod) {
-        this(baseWingId, baseline, loadout, tacticalHullmod, false);
+        this(baseWingId, baseline, loadout, tacticalHullmod == null || tacticalHullmod.isBlank() ? List.of() : List.of(tacticalHullmod), false);
     }
 
     /**
-     * @param rawTrusted true 时原样保留 tacticalHullmod 文本（只读存档解析用），保证历史定义的 wingId 不变；
-     *                   false 时走 normaliseTactical 归一化。
+     * @param rawTrusted 读取保存定义时保留原始 ID；新建时校验已注册的战术改装及分组。
      */
     private Moci_FighterLoadoutSpec(String baseWingId, Map<String, String> baseline,
-            Map<String, String> loadout, String tacticalHullmod, boolean rawTrusted) {
+            Map<String, String> loadout, List<String> tacticalHullmods, boolean rawTrusted) {
         if (baseWingId == null || baseWingId.isBlank() || baseWingId.startsWith(ID_PREFIX)) {
             throw new IllegalArgumentException("Invalid prototype wing");
         }
@@ -51,13 +55,13 @@ public final class Moci_FighterLoadoutSpec {
         if (!this.baseline.keySet().equals(this.loadout.keySet())) {
             throw new IllegalArgumentException("Loadout and baseline must describe the same slots");
         }
-        this.tacticalHullmod = rawTrusted ? emptyToNull(tacticalHullmod)
-                : normaliseTactical(tacticalHullmod);
-        this.wingId = ID_PREFIX + digest(canonical());
+        this.tacticalHullmods = rawTrusted ? tacticalHullmods.stream().sorted().toList()
+                : Moci_TacticalHullmods.normalize(tacticalHullmods);
+        this.wingId = ID_PREFIX + digest(canonical()) + ID_SUFFIX;
     }
 
     private static Map<String, String> immutable(Map<String, String> value) {
-        if (value == null || value.isEmpty()) throw new IllegalArgumentException("Empty slot definition");
+        if (value == null) throw new IllegalArgumentException("Empty slot definition");
         TreeMap<String, String> sorted = new TreeMap<>();
         for (Map.Entry<String, String> entry : value.entrySet()) {
             if (entry.getKey() == null || entry.getKey().isBlank() || entry.getValue() == null) {
@@ -68,32 +72,19 @@ public final class Moci_FighterLoadoutSpec {
         return Collections.unmodifiableMap(new LinkedHashMap<>(sorted));
     }
 
-    private static String emptyToNull(String value) {
-        return value == null || value.isBlank() ? null : value;
-    }
-
-    /**
-     * 战术改装 tag 归一化：helper 类缺失或船插未定义时一律按“未选战术改装”处理，
-     * 绝不让一个过期/非法的船插 ID 阻断存档读取或抛异常。
-     */
-    private static String normaliseTactical(String value) {
-        String id = emptyToNull(value);
-        if (id == null) return null;
-        try {
-            return Moci_TacticalHullmods.isTactical(id) ? id : null;
-        } catch (Throwable ignored) {
-            // 船插 helper 不可用（类缺失 / 未初始化）时按未选处理。
-            return null;
-        }
+    public static Moci_FighterLoadoutSpec withTacticals(String baseWingId,
+            Map<String, String> baseline, Map<String, String> loadout, List<String> ids) {
+        if (!Moci_TacticalHullmods.validSelection(ids)) throw new IllegalArgumentException("Invalid tactical selection");
+        return new Moci_FighterLoadoutSpec(baseWingId, baseline, loadout, ids, false);
     }
 
     private String canonical() {
-        StringBuilder text = new StringBuilder(tacticalHullmod == null ? CANONICAL_V1 : CANONICAL_V2);
+        StringBuilder text = new StringBuilder(tacticalHullmods.isEmpty() ? CANONICAL_V1 : tacticalHullmods.size() == 1 ? CANONICAL_V2 : CANONICAL_V3);
         append(text, baseWingId);
         appendMap(text, baseline);
         appendMap(text, loadout);
-        // v2 才追加战术改装；此处的 append 编码与其它字段完全一致，不改变任何既有字段的编码方式。
-        if (tacticalHullmod != null) append(text, tacticalHullmod);
+        // v2/v3 追加排序后的战术改装 ID。
+        for (String id : tacticalHullmods) append(text, id);
         return text.toString();
     }
     private static void append(StringBuilder text, String value) {
@@ -120,12 +111,13 @@ public final class Moci_FighterLoadoutSpec {
     public Map<String, String> getBaseline() { return baseline; }
     public Map<String, String> getLoadout() { return loadout; }
     /** 战术改装船插 ID；null 表示未选。 */
-    public String getTacticalHullmod() { return tacticalHullmod; }
-    public boolean hasTacticalHullmod() { return tacticalHullmod != null; }
+    public String getTacticalHullmod() { return tacticalHullmods.isEmpty() ? null : tacticalHullmods.get(0); }
+    public List<String> getTacticalHullmods() { return tacticalHullmods; }
+    public boolean hasTacticalHullmod() { return !tacticalHullmods.isEmpty(); }
     public boolean sameDefinition(Moci_FighterLoadoutSpec other) {
         return other != null && baseWingId.equals(other.baseWingId)
                 && baseline.equals(other.baseline) && loadout.equals(other.loadout)
-                && java.util.Objects.equals(tacticalHullmod, other.tacticalHullmod);
+                && tacticalHullmods.equals(other.tacticalHullmods);
     }
     public JSONObject toJSON() throws org.json.JSONException {
         JSONObject json = new JSONObject();
@@ -133,7 +125,8 @@ public final class Moci_FighterLoadoutSpec {
         json.put("baseline", new JSONObject(baseline));
         json.put("loadout", new JSONObject(loadout));
         // null 时不写字段，旧版本读到的 JSON 与历史文件保持一致。
-        if (tacticalHullmod != null) json.put("tacticalHullmod", tacticalHullmod);
+        if (tacticalHullmods.size() == 1) json.put("tacticalHullmod", tacticalHullmods.get(0));
+        else if (!tacticalHullmods.isEmpty()) json.put("tacticalHullmods", new JSONArray(tacticalHullmods));
         return json;
     }
     public static Moci_FighterLoadoutSpec fromJSON(JSONObject json) throws org.json.JSONException {
@@ -141,19 +134,23 @@ public final class Moci_FighterLoadoutSpec {
         Map<String, String> baseline = readMap(json.getJSONObject("baseline"));
         Map<String, String> loadout = readMap(json.getJSONObject("loadout"));
         String storedId = json.getString("id");
-        String raw = json.has("tacticalHullmod") && !json.isNull("tacticalHullmod")
-                ? json.getString("tacticalHullmod") : null;
-        Moci_FighterLoadoutSpec spec = new Moci_FighterLoadoutSpec(baseWingId, baseline, loadout, raw);
-        if (!spec.wingId.equals(storedId)) {
-            // 归一化可能把“历史/非法船插值”改成 null 从而改变指纹：先按原样文本重算一次，
-            // 只要与保存的 id 一致就原样保留，绝不因为战术改装非法而丢掉整条定义或抛到上层。
-            if (raw != null) {
-                Moci_FighterLoadoutSpec preserved =
-                        new Moci_FighterLoadoutSpec(baseWingId, baseline, loadout, raw, true);
-                if (preserved.wingId.equals(storedId)) return preserved;
-            }
-            throw new IllegalArgumentException("Definition digest mismatch");
+        if (json.has("tacticalHullmod") && json.has("tacticalHullmods")) {
+            throw new IllegalArgumentException("Conflicting tactical fields");
         }
+        List<String> raw = new ArrayList<>();
+        if (json.has("tacticalHullmods")) {
+            JSONArray array = json.getJSONArray("tacticalHullmods");
+            if (array.length() != 2) throw new IllegalArgumentException("Invalid tactical count");
+            for (int i = 0; i < array.length(); i++) raw.add(array.getString(i));
+        } else if (json.has("tacticalHullmod") && !json.isNull("tacticalHullmod")) {
+            String id = json.getString("tacticalHullmod");
+            if (!id.isBlank()) raw.add(id);
+        }
+        if (raw.stream().anyMatch(String::isBlank) || raw.stream().distinct().count() != raw.size()) {
+            throw new IllegalArgumentException("Invalid tactical IDs");
+        }
+        Moci_FighterLoadoutSpec spec = new Moci_FighterLoadoutSpec(baseWingId, baseline, loadout, raw, true);
+        if (!spec.wingId.equals(storedId)) throw new IllegalArgumentException("Definition digest mismatch");
         return spec;
     }
     private static Map<String, String> readMap(JSONObject json) throws org.json.JSONException {

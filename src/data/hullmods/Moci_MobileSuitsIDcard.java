@@ -38,6 +38,7 @@ import com.fs.starfarer.api.util.Misc;
 import data.scripts.Moci_CollisionStateManager;
 import data.scripts.weapons.render.Moci_Kratogen_EngineSimulator;
 import data.scripts.util.Moci_TextLoader;
+import data.shipsystems.scripts.Moci_MSLaunchTravelDrive;
 
 import java.util.Arrays;
 
@@ -50,6 +51,8 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 	// 碰撞状态管理
 	private static final String COLLISION_MODIFIER_ID = "Moci_MobileSuitsIDcard";
 	private static final int COLLISION_PRIORITY = 100; // 机动兵器ID卡的碰撞优先级（低于精神感应系统的200）
+	private static final String DISABLED_COLLISION_MODIFIER_ID = COLLISION_MODIFIER_ID + "_disabled";
+	private static final int DISABLED_COLLISION_PRIORITY = 250; // 失能时覆盖战机碰撞，但让位于起降和整备
 	private Moci_CollisionStateManager collisionManager = Moci_CollisionStateManager.getInstance();
 
 	// 护卫舰特殊规则相关常量
@@ -321,6 +324,7 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 			return;
 		}
 		if (!ship.isAlive() || ship.isHulk() || ship.getHitpoints() <= 0f) {
+			maintainMobileSuitCollision(ship);
 			killChildModules(ship);
 			return;
 		}
@@ -336,6 +340,10 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 		if (ship.getVariant() == null || !ship.getVariant().hasHullMod("Moci_LandingSequence")) {
 			Moci_LandingSequence.advanceLandingLogic(ship, amount);
 		}
+
+		maintainMobileSuitCollision(ship);
+		// 母舰侧同步，避免模块同步器先执行时留下 1 帧的错误碰撞类型。
+		synchronizeModuleCollision(ship);
 
 		if (ship.getEngineController() == null)
 			return;
@@ -363,24 +371,6 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 			}
 		}
 
-		// 持续维护护卫舰碰撞类型（支持相位穿越后恢复）
-		if (ship.getCustomData().get(FRIGATE_RULES_KEY) != null
-				|| ship.getCustomData().get(COLLISION_ONLY_KEY) != null) {
-			
-			// 检查主舰船的碰撞类型，只有非NONE时才修改
-			CollisionClass defaultCollision = collisionManager.getDefaultCollision(ship);
-			if (defaultCollision != null && defaultCollision != CollisionClass.NONE) {
-				// 检查当前碰撞类型是否正确
-				if (ship.getCollisionClass() != CollisionClass.FIGHTER) {
-					// 使用碰撞管理器设置碰撞类型为战机
-					collisionManager.setCollisionModifier(ship, COLLISION_MODIFIER_ID, COLLISION_PRIORITY, CollisionClass.FIGHTER);
-				}
-			}
-		}
-
-		// 从母舰侧同步一次模块碰撞，避免模块同步器先于本体碰撞更新执行时留下 1 帧的 SHIP 窗口。
-		synchronizeModuleCollision(ship);
-		
 		// 同步武器贴图与装甲损伤
 		ship.syncWeaponDecalsWithArmorDamage();
 
@@ -443,6 +433,54 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 				Global.getCombatEngine().addLayeredRenderingPlugin(simulator);
 			}
 			ship.setCustomData("Moci_EngineRenderersCreated", true);
+		}
+	}
+
+	/** 轻型机动兵器失能时恢复舰船碰撞，恢复作战能力后重新使用战机碰撞。 */
+	private void maintainMobileSuitCollision(ShipAPI ship) {
+		if (!Boolean.TRUE.equals(ship.getCustomData().get(FRIGATE_RULES_KEY))
+				&& !Boolean.TRUE.equals(ship.getCustomData().get(COLLISION_ONLY_KEY))) {
+			return;
+		}
+
+		boolean disabled = !ship.isAlive() || ship.isHulk() || ship.getHitpoints() <= 0f
+				|| (ship.getFluxTracker() != null && ship.getFluxTracker().isOverloaded())
+				|| (ship.getEngineController() != null && ship.getEngineController().isFlamedOut());
+		CollisionClass previousCollision = ship.getCollisionClass();
+		boolean preserveCollision = ship.isPhased() || previousCollision == CollisionClass.NONE;
+		boolean launching = ship.getCustomData().containsKey(Moci_MSLaunchTravelDrive.LAUNCH_TIMER_KEY);
+		boolean hasDisabledModifier = collisionManager.getCollisionModifier(ship, DISABLED_COLLISION_MODIFIER_ID) != null;
+
+		if ((!disabled || launching) && hasDisabledModifier) {
+			collisionManager.removeCollisionModifier(ship, DISABLED_COLLISION_MODIFIER_ID);
+			// 移除修改器会立即恢复管理器状态；保留相位或外部脚本设置的无碰撞状态。
+			if (preserveCollision) {
+				ship.setCollisionClass(previousCollision);
+			}
+		}
+		// 独立起飞流程使用 150 优先级，低于失能状态；显式让出起飞窗口。
+		if (launching) {
+			return;
+		}
+
+		Moci_CollisionStateManager.CollisionModifier currentModifier = collisionManager.getCurrentModifier(ship);
+		// 受管理器保护的无碰撞状态下仍可登记失能修改器；整备/飞行装甲结束后，
+		// 管理器便能立即回落到 SHIP，而不必等下一帧。外部无碰撞及相位状态不覆盖。
+		boolean protectedByManager = currentModifier != null
+				&& currentModifier.priority > DISABLED_COLLISION_PRIORITY
+				&& currentModifier.collisionClass == previousCollision;
+		if (preserveCollision && !protectedByManager) {
+			return;
+		}
+		if (disabled) {
+			if (!hasDisabledModifier || (ship.getCollisionClass() != CollisionClass.SHIP
+					&& (currentModifier == null || currentModifier.priority <= DISABLED_COLLISION_PRIORITY))) {
+				collisionManager.setCollisionModifier(ship, DISABLED_COLLISION_MODIFIER_ID,
+						DISABLED_COLLISION_PRIORITY, CollisionClass.SHIP);
+			}
+		} else if (ship.getCollisionClass() != CollisionClass.FIGHTER
+				&& (currentModifier == null || currentModifier.priority <= COLLISION_PRIORITY)) {
+			collisionManager.setCollisionModifier(ship, COLLISION_MODIFIER_ID, COLLISION_PRIORITY, CollisionClass.FIGHTER);
 		}
 	}
 

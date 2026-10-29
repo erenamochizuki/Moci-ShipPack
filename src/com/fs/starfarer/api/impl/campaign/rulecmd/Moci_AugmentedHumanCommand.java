@@ -1,5 +1,6 @@
 package com.fs.starfarer.api.impl.campaign.rulecmd;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
@@ -12,7 +13,9 @@ import java.util.Map;
 
 public class Moci_AugmentedHumanCommand extends BaseCommandPlugin {
 
-    public static final String OPTION_ID = "moci_flanagan_augmented_human";
+    public static final String OPTION_ID = "moci_flanagan_institute";
+    public static final String NERGAL_FACTION_ID = "Moci_NergalHeavyIndustries";
+    public static final float REQUIRED_REPUTATION = 0.25f;
 
     @Override
     public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params,
@@ -25,12 +28,12 @@ public class Moci_AugmentedHumanCommand extends BaseCommandPlugin {
         if ("canShow".equals(command)) {
             return hasFlanaganInstitute(dialog);
         }
-        if ("checkCost".equals(command)) {
+        if ("checkAccess".equals(command)) {
             updateOptionState(dialog);
             return true;
         }
         if ("open".equals(command)) {
-            if (!hasFlanaganInstitute(dialog)) {
+            if (getAccessUnavailableReason(dialog) != null) {
                 return false;
             }
             Moci_FlanaganInstituteDialogPlugin plugin =
@@ -48,6 +51,17 @@ public class Moci_AugmentedHumanCommand extends BaseCommandPlugin {
         return market != null && market.hasIndustry(Moci_FlanaganInstitute.INDUSTRY_ID);
     }
 
+    public static String getAccessUnavailableReason(InteractionDialogAPI dialog) {
+        if (!hasFlanaganInstitute(dialog)) {
+            return "此处没有弗拉纳冈机构。";
+        }
+        if (Global.getSector() == null || Global.getSector().getPlayerFaction() == null
+                || Global.getSector().getPlayerFaction().getRelationship(NERGAL_FACTION_ID) < REQUIRED_REPUTATION) {
+            return "需要与尼尔加的好感度至少达到 25。";
+        }
+        return null;
+    }
+
     private static MarketAPI getMarket(InteractionDialogAPI dialog) {
         if (dialog == null || dialog.getInteractionTarget() == null) {
             return null;
@@ -60,17 +74,9 @@ public class Moci_AugmentedHumanCommand extends BaseCommandPlugin {
             return;
         }
 
-        if (!Moci_FlanaganInstituteDialogPlugin.hasAlphaCore()) {
-            dialog.getOptionPanel().setEnabled(OPTION_ID, false);
-            dialog.getOptionPanel().setTooltip(OPTION_ID, "需要 1 个 Alpha Core。");
-            return;
-        }
-        if (!Moci_FlanaganInstituteDialogPlugin.hasEligibleTarget()) {
-            dialog.getOptionPanel().setEnabled(OPTION_ID, false);
-            dialog.getOptionPanel().setTooltip(OPTION_ID, "没有可进行强化人培育的玩家或军官。");
-            return;
-        }
-
-        dialog.getOptionPanel().setTooltip(OPTION_ID, "消耗 1 个 Alpha Core，为玩家或军官授予强化人技能。");
+        String unavailable = getAccessUnavailableReason(dialog);
+        dialog.getOptionPanel().setEnabled(OPTION_ID, unavailable == null);
+        dialog.getOptionPanel().setTooltip(OPTION_ID, unavailable == null
+                ? "进入弗拉纳冈机构，使用强化人培育服务。" : unavailable);
     }
 }

@@ -226,6 +226,21 @@ public class Moci_CollisionStateManager {
     }
     
     /**
+     * 按 ID 查询碰撞修改器，包括被更高优先级状态遮盖的修改器。
+     * 调用方应以管理器记录为准，避免额外标记在修改器被清理后失效。
+     */
+    public CollisionModifier getCollisionModifier(ShipAPI ship, String modifierId) {
+        if (ship == null || modifierId == null) return null;
+        List<CollisionModifier> modifiers = activeModifiers.get(ship);
+        if (modifiers == null) return null;
+        for (int i = 0; i < modifiers.size(); i++) {
+            CollisionModifier modifier = modifiers.get(i);
+            if (modifierId.equals(modifier.modifierId)) return modifier;
+        }
+        return null;
+    }
+
+    /**
      * 获取舰船当前的碰撞修改器（最高优先级的）
      * 
      * @param ship 目标舰船
@@ -246,4 +261,4 @@ public class Moci_CollisionStateManager {
         defaultCollisionClasses.clear();
         activeModifiers.clear();
     }
-} 
+}

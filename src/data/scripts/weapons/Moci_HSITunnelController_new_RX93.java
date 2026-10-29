@@ -143,6 +143,12 @@ public class Moci_HSITunnelController_new_RX93 implements EveryFrameWeaponEffect
     Vector2f targetLocation = null;
 
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
+        // 改装界面等非战斗上下文也会推进武器脚本：那里创建实体只会污染预览引擎。
+        if (com.fs.starfarer.api.Global.getCurrentState()
+                != com.fs.starfarer.api.GameState.COMBAT) {
+            return;
+        }
+
         String slotId = weapon.getSlot().getId();
         if (slotId.endsWith("_L")) {
             weaponSide = WeaponSide.LEFT;

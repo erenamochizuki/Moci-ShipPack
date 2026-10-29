@@ -19,6 +19,7 @@ final class Moci_AirSquadronWeaponTile extends BaseCustomUIPanelPlugin {
     private static final Color BORDER = new Color(112, 228, 207, 90);
     private final Moci_AirSquadronArt.Model model;
     private final Color fill;
+    private final Color borderColor;
     private final boolean selected;
     private final float inset;
     private final BooleanSupplier enabled;
@@ -29,6 +30,12 @@ final class Moci_AirSquadronWeaponTile extends BaseCustomUIPanelPlugin {
 
     Moci_AirSquadronWeaponTile(Moci_AirSquadronArt.Model model, Color fill, boolean selected,
                              float inset, BooleanSupplier enabled, Runnable click) {
+        this(model, fill, selected, inset, enabled, click, null);
+    }
+
+    Moci_AirSquadronWeaponTile(Moci_AirSquadronArt.Model model, Color fill, boolean selected,
+                             float inset, BooleanSupplier enabled, Runnable click, Color borderColor) {
+        this.borderColor = borderColor;
         this.model = model;
         this.fill = fill;
         this.selected = selected;
@@ -83,7 +90,8 @@ final class Moci_AirSquadronWeaponTile extends BaseCustomUIPanelPlugin {
                         fill.getBlue() / 255f, alpha * fill.getAlpha() / 255f);
                 rect(x, y, w, h);
             }
-            Color border = selected || hovered ? ACCENT : (fill == null ? BORDER : fill);
+            Color border = !enabled.getAsBoolean() ? Color.GRAY
+                    : borderColor != null ? borderColor : selected || hovered ? ACCENT : (fill == null ? BORDER : fill);
             GL11.glLineWidth(selected || hovered ? 2f : 1f);
             GL11.glColor4f(border.getRed() / 255f, border.getGreen() / 255f,
                     border.getBlue() / 255f, alpha * (selected || hovered ? 0.95f : 0.70f));
@@ -100,7 +108,10 @@ final class Moci_AirSquadronWeaponTile extends BaseCustomUIPanelPlugin {
                 position.getX() + inset, position.getY() + inset,
                 Math.max(1f, position.getWidth() - 2f * inset), Math.max(1f, position.getHeight() - 2f * inset));
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-        try { model.render(transform, alpha); } finally { GL11.glPopAttrib(); }
+        try {
+            boolean active = enabled.getAsBoolean();
+            model.render(transform, active ? alpha : alpha * 0.4f, active ? Color.WHITE : Color.GRAY);
+        } finally { GL11.glPopAttrib(); }
     }
 
     private static void rect(float x, float y, float w, float h) {

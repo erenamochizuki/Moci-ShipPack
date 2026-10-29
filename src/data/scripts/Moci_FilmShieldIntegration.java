@@ -6,6 +6,8 @@ import org.moci.filmshield.api.ShieldProfile;
 /** Moci-specific values/settings stay in the content mod; mechanics and presentation live in the prerequisite. */
 public final class Moci_FilmShieldIntegration {
     private static final ShieldProfile PROFILE=ShieldProfile.builder("moci_gnshield_v1")
+        .hullmodId("Moci_GNShield")
+        .nativeShieldArc(1f)
         .fluxPerDamage(1f).fragmentationMultiplier(0.25f).followParent(true).showStatus(true)
         .modifierId("Moci_GNShield_Absorb").suppressSpecLessModuleProjectiles(true)
         .labels(data.scripts.util.Moci_TextLoader.getText("Moci_GNShieldStatus","status.main_title"),

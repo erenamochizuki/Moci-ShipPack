@@ -1,21 +1,28 @@
 package data.scripts.weapons;
 
-import org.lwjgl.input.Keyboard;
+/* MSZ-006 背包变形控制器 —— 我方本体代码。
+ *
+ * 历史：这段逻辑原本就是我们的 Moci_MechTransformController；合并版把它 fork 成
+ * xi.arsenal.ZetaTransformController 并让 Moci_MSZ_006_backpack.wpn 改指 fork。
+ * 本轮把 fork 完整收编回本类，保留合并版带来的改进（事件驱动切换、连续变形进度、
+ * Wave Rider 移动参数、武器组可见性/开火控制、迟到姿态应用、只读探针、资源清理），
+ * 但按用户要求恢复我方原本的 4 秒变形冷却。
+ */
+
+import java.util.Map;
 
 import com.fs.starfarer.api.combat.CombatEngineAPI;
-import com.fs.starfarer.api.combat.EveryFrameWeaponEffectPlugin;
+import com.fs.starfarer.api.combat.EveryFrameWeaponEffectPluginWithAdvanceAfter;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
-import data.scripts.util.Moci_VariableFrameWeaponModeUtil;
 
-/**
- * MSZ-006 backpack transform controller.
- *
- * Mounted on the BACKPACK decorative weapon. The backpack sprite sheet is the
- * transform animation; the other visible mech parts are switched to their blank
- * frames while the ship is in wave-rider form.
- */
-public class Moci_MechTransformController implements EveryFrameWeaponEffectPlugin {
+import xi.arsenal.RifleFiringPose;
+import xi.arsenal.ZetaMobility;
+import xi.arsenal.ZetaRifleModes;
+import xi.arsenal.ZetaTetherPose;
+import xi.arsenal.ZetaWeaponGroups;
+
+public final class Moci_MechTransformController implements EveryFrameWeaponEffectPluginWithAdvanceAfter, AutoCloseable {
     private static final String HULL_ID = "Moci_MSZ_006";
     private static final String BACKPACK_SLOT = "BACKPACK";
 
@@ -26,7 +33,7 @@ public class Moci_MechTransformController implements EveryFrameWeaponEffectPlugi
     public static final String CUSTOM_TRANSFORM_PREPARE = "MOCI_MSZ_006_TRANSFORM_PREPARE";
     public static final String CUSTOM_PARTS_HIDDEN = "MOCI_MSZ_006_PARTS_HIDDEN";
 
-    private static final float HOLD_TIME = 0.75f;
+
     private static final float COOLDOWN_TIME = 4f;
     private static final float TRANSFORM_ANIM_TIME = 0.55f;
     private static final float REVERT_ANIM_TIME = 0.55f;
@@ -56,7 +63,10 @@ public class Moci_MechTransformController implements EveryFrameWeaponEffectPlugi
             "HEAD_SOURCE",
             "ARM_L_SOURCE",
             "ARM_L_FOLLOW",
-            "ARM_R_SOURCE"
+            "ARM_R_SOURCE",
+            "ZETA_RIFLE_SNIPER",
+            "ZETA_WRIST_L",
+            "ZETA_WRIST_R"
     };
 
     private enum State {
@@ -68,21 +78,26 @@ public class Moci_MechTransformController implements EveryFrameWeaponEffectPlugi
     }
 
     private State state = State.NORMAL;
+    private WeaponAPI boundBackpack;
+    private CombatEngineAPI boundEngine;
+    private ZetaMobility mobility;
+    private boolean closed;
     private boolean initialized = false;
-    private boolean keyWasDown = false;
+
     private boolean partsHidden = false;
-    private float holdTimer = 0f;
+
     private float cooldownTimer = 0f;
     private float animationTimer = 0f;
+    private float transformProgress;
 
     @Override
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
-        if (engine == null || engine.isPaused() || weapon == null) {
+        if (closed || engine == null || engine.isPaused() || weapon == null) {
             return;
         }
 
         ShipAPI ship = weapon.getShip();
-        if (ship == null || ship.getHullSpec() == null || !HULL_ID.equals(ship.getHullSpec().getHullId())) {
+        if (!ZetaMobility.supports(ship)) {
             return;
         }
 
@@ -91,68 +106,88 @@ public class Moci_MechTransformController implements EveryFrameWeaponEffectPlugi
         }
 
         if (!ship.isAlive() || ship.isHulk()) {
-            clearStats(ship);
-            restoreNormalVisuals(ship, weapon);
-            ship.removeCustomData(CUSTOM_TRANSFORM_STATE);
-            ship.removeCustomData(CUSTOM_TRANSFORM_PREPARE);
+            close();
             return;
         }
 
         if (!initialized) {
             initialized = true;
+            boundBackpack = weapon; boundEngine = engine; mobility = new ZetaMobility(ship);
             setFrame(weapon, NORMAL_FRAME);
             showParts(ship);
         }
 
+        if (boundBackpack != weapon || boundEngine != engine) throw new IllegalStateException("Zeta transform callback reused across weapons/engines" );
         if (cooldownTimer > 0f) {
             cooldownTimer = Math.max(0f, cooldownTimer - amount);
         }
 
-        handleInput(amount, engine, ship);
+        if(state==State.NORMAL||state==State.TRANSFORMED)ship.removeCustomData(CUSTOM_TRANSFORM_PREPARE);
         updateState(amount, ship, weapon);
         updateWeaponMode(ship);
         ship.setCustomData(CUSTOM_TRANSFORM_STATE, state.name());
         applyStats(ship);
+        mobility.apply(state == State.TRANSFORMED || state == State.REVERTING || state == State.REVERT_COMPLETE);
         updatePlayerStatus(engine, ship);
     }
 
-    private void handleInput(float amount, CombatEngineAPI engine, ShipAPI ship) {
-        if (engine.getPlayerShip() != ship || ship.getShipAI() != null || !canStartTransform()) {
-            keyWasDown = false;
-            holdTimer = 0f;
-            ship.removeCustomData(CUSTOM_TRANSFORM_PREPARE);
-            return;
-        }
+    public record Request(boolean accepted, String reason) { }
 
-        boolean keyDown = Keyboard.isKeyDown(Keyboard.KEY_X);
-        if (keyDown) {
-            if (!keyWasDown) {
-                keyWasDown = true;
-                holdTimer = 0f;
-            }
-            ship.setCustomData(CUSTOM_TRANSFORM_PREPARE, Boolean.TRUE);
-            returnAllWeaponsToDefaultAngle(ship);
-            holdTimer += amount;
-            if (holdTimer >= HOLD_TIME) {
-                beginTransition();
-                keyWasDown = false;
-                holdTimer = 0f;
-                ship.removeCustomData(CUSTOM_TRANSFORM_PREPARE);
-            }
-        } else {
-            keyWasDown = false;
-            holdTimer = 0f;
-            ship.removeCustomData(CUSTOM_TRANSFORM_PREPARE);
-        }
+    /** Late cosmetic reconciliation only; the native advance above remains the sole transform clock. */
+    @Override public void advanceAfter(float amount,CombatEngineAPI engine,WeaponAPI weapon){
+        if(closed||engine==null||engine.isPaused()||weapon==null||weapon.getSlot()==null||!BACKPACK_SLOT.equals(weapon.getSlot().getId()))return;
+        RifleFiringPose.apply(weapon);ZetaTetherPose.apply(weapon);
     }
 
-    private boolean canStartTransform() {
-        return cooldownTimer <= 0f && (state == State.NORMAL || state == State.TRANSFORMED);
+    /** Root forwards one unconsumed real X key-down event here and owns consumption of that control.
+     * This class never polls Keyboard and never advances an extra original transform callback.
+     * Modes may call the same public command; cooldown/state checks cannot be bypassed. */
+    public Request requestTransform() {
+        if (closed) return new Request(false, "Z变形控制器已关闭");
+        if (!initialized || boundBackpack == null || boundEngine == null) return new Request(false, "Z背包尚未完成原生初始化");
+        ShipAPI ship = boundBackpack.getShip();
+        if (com.fs.starfarer.api.Global.getCombatEngine() != boundEngine || !ZetaMobility.supports(ship) || !ship.isAlive() || ship.isHulk() || ship.wasRemoved()
+                || !boundEngine.isEntityInPlay(ship) || boundEngine.isCombatOver()) return new Request(false, "Z本体已离场或失效");
+        if (boundEngine.isPaused()) return new Request(false, "暂停时不能开始变形");
+        if(ship.controlsLocked()||ship.getFluxTracker()!=null&&ship.getFluxTracker().isOverloaded())return new Request(false,"机体当前无法执行变形");
+        beginTransition();
+        return new Request(true, state == State.TRANSFORMING ? "开始冲浪者变形" : "开始复归MS形态");
+    }
+
+    public String state() { return state.name(); }
+    /** Continuous 0..1 visual travel shared by the held rifle effect; requests reverse its direction without resetting it. */
+    public float transformProgress(){return transformProgress;}
+    public boolean waveRiderReady() {
+        return !closed && initialized && state == State.TRANSFORMED && boundBackpack != null
+                && boundBackpack.getAnimation() != null && boundBackpack.getAnimation().getFrame() == BACKPACK_TRANSFORMED_FRAME;
+    }
+    public Map<String, Object> status() {
+        return Map.of("state", state.name(), "closed", closed, "initialized", initialized,
+                "cooldownRemaining", cooldownTimer, "animationTime", animationTimer,
+                "backpackFrame", boundBackpack == null || boundBackpack.getAnimation() == null ? -1 : boundBackpack.getAnimation().getFrame(),
+                "waveRiderReady", waveRiderReady(), "transformProgress",transformProgress,"input", "public requestTransform; real X events owned by root",
+                "mobility", mobility == null ? Map.of() : mobility.status());
+    }
+    @Override public void close() {
+        if (closed) return;
+        closed = true;
+        if (mobility != null) mobility.close();
+        if (boundBackpack != null) {
+            ShipAPI ship = boundBackpack.getShip();
+            if (ship != null) {
+                clearStats(ship); restoreNormalVisuals(ship, boundBackpack);transformProgress=0;state=State.NORMAL;
+                ship.removeCustomData(CUSTOM_TRANSFORM_STATE); ship.removeCustomData(CUSTOM_TRANSFORM_PREPARE);
+            }
+        }
     }
 
     private void beginTransition() {
-        animationTimer = 0f;
-        state = state == State.TRANSFORMED ? State.REVERTING : State.TRANSFORMING;
+        animationTimer=0f;cooldownTimer=0f;
+        state=state==State.TRANSFORMED||state==State.TRANSFORMING?State.REVERTING:State.TRANSFORMING;
+        ShipAPI ship=boundBackpack.getShip();
+        ship.setCustomData(CUSTOM_TRANSFORM_PREPARE,Boolean.TRUE);
+        ship.setCustomData(CUSTOM_TRANSFORM_STATE,state.name());
+        RifleFiringPose.clear(ship); // Release only the pose lease, not the rifle's held state.
     }
 
     private void returnAllWeaponsToDefaultAngle(ShipAPI ship) {
@@ -183,59 +218,21 @@ public class Moci_MechTransformController implements EveryFrameWeaponEffectPlugi
         return diff;
     }
 
-    private void updateState(float amount, ShipAPI ship, WeaponAPI backpack) {
-        switch (state) {
-            case TRANSFORMING:
-                animationTimer += amount;
+    private void updateState(float amount,ShipAPI ship,WeaponAPI backpack) {
+        switch(state){
+            case TRANSFORMING,REVERTING -> {
+                animationTimer+=amount;
+                boolean forward=state==State.TRANSFORMING;
+                transformProgress=Math.max(0,Math.min(1,transformProgress+(forward?1:-1)*amount/TRANSFORM_ANIM_TIME));
                 returnAllWeaponsToDefaultAngle(ship);
-                setBackpackFrame(backpack, 0, getBackpackMidFrame(backpack), animationTimer / TRANSFORM_ANIM_TIME);
-                if (isBackpackPastNormalFrame(backpack)) {
-                    hideParts(ship);
-                } else {
-                    showParts(ship);
-                }
-                if (animationTimer >= TRANSFORM_ANIM_TIME) {
-                    state = State.TRANSFORMED;
-                    animationTimer = 0f;
-                    cooldownTimer = COOLDOWN_TIME;
-                    setFrame(backpack, getBackpackMidFrame(backpack));
-                    ship.setCustomData(CUSTOM_TRANSFORMED, Boolean.TRUE);
-                }
-                break;
-            case TRANSFORMED:
-                hideParts(ship);
-                setFrame(backpack, getBackpackMidFrame(backpack));
-                ship.setCustomData(CUSTOM_TRANSFORMED, Boolean.TRUE);
-                break;
-            case REVERTING:
-                animationTimer += amount;
-                returnAllWeaponsToDefaultAngle(ship);
-                setBackpackFrame(backpack, getBackpackMidFrame(backpack), getBackpackLastFrame(backpack),
-                        animationTimer / REVERT_ANIM_TIME);
-                if (isBackpackAtRestorePartsFrame(backpack)) {
-                    showParts(ship);
-                } else {
-                    hideParts(ship);
-                }
-                if (animationTimer >= REVERT_ANIM_TIME) {
-                    state = State.REVERT_COMPLETE;
-                    animationTimer = 0f;
-                    setFrame(backpack, getBackpackLastFrame(backpack));
-                }
-                break;
-            case REVERT_COMPLETE:
-                state = State.NORMAL;
-                cooldownTimer = COOLDOWN_TIME;
-                restoreNormalVisuals(ship, backpack);
-                ship.removeCustomData(CUSTOM_TRANSFORMED);
-                break;
-            case NORMAL:
-            default:
-                showParts(ship);
-                setFrame(backpack, NORMAL_FRAME);
-                ship.removeCustomData(CUSTOM_TRANSFORMED);
-                ship.removeCustomData(CUSTOM_TRANSFORM_PREPARE);
-                break;
+                setFrame(backpack,Math.round(transformProgress*getBackpackMidFrame(backpack)));
+                if(transformProgress>.0001f)hideParts(ship);else showParts(ship);
+                ship.setCustomData(CUSTOM_TRANSFORM_PREPARE,Boolean.TRUE);
+                if(transformProgress>=1){state=State.TRANSFORMED;animationTimer=0;setFrame(backpack,getBackpackMidFrame(backpack));ship.setCustomData(CUSTOM_TRANSFORMED,Boolean.TRUE);ship.removeCustomData(CUSTOM_TRANSFORM_PREPARE);}
+                else if(transformProgress<=0){state=State.NORMAL;animationTimer=0;restoreNormalVisuals(ship,backpack);ship.removeCustomData(CUSTOM_TRANSFORM_PREPARE);}
+            }
+            case TRANSFORMED -> {transformProgress=1;hideParts(ship);setFrame(backpack,getBackpackMidFrame(backpack));ship.setCustomData(CUSTOM_TRANSFORMED,Boolean.TRUE);}
+            case REVERT_COMPLETE,NORMAL -> {state=State.NORMAL;transformProgress=0;showParts(ship);setFrame(backpack,NORMAL_FRAME);ship.removeCustomData(CUSTOM_TRANSFORMED);ship.removeCustomData(CUSTOM_TRANSFORM_PREPARE);}
         }
     }
 
@@ -327,11 +324,9 @@ public class Moci_MechTransformController implements EveryFrameWeaponEffectPlugi
             data = String.format("冷却 %.1f秒", cooldownTimer);
             isDebuff = true;
         } else if (state == State.TRANSFORMED) {
-            data = String.format("Wave Rider: 速度 +%.0f%%，长按X复归", TRANSFORMED_SPEED_BONUS);
-        } else if (holdTimer > 0f) {
-            data = String.format("变形准备 %.0f%%", Math.min(1f, holdTimer / HOLD_TIME) * 100f);
+            data = "Wave Rider: 基准最高330 / 加速度650 / 转向60，X切换复归";
         } else {
-            data = String.format("MS形态: 机动 +%.0f%%，长按X变形", NORMAL_MANEUVER_BONUS);
+            data = "MS形态: 加速度220 / 刹车400 / 转向100，X切换变形";
         }
 
         engine.maintainStatusForPlayerShip(STATUS_KEY,
@@ -371,10 +366,20 @@ public class Moci_MechTransformController implements EveryFrameWeaponEffectPlugi
     }
 
     private void updateWeaponMode(ShipAPI ship) {
+        // Weapon callbacks may execute inside a native live WeaponGroup iterator.
+        // Only the outer combat-plugin actor may prepare groups. Until it exists,
+        // suppress the managed attacks; callbacks never compose or reindex groups.
+        if(ZetaRifleModes.instance(ship)==null){
+            for(WeaponAPI current:ship.getAllWeapons())if(current.getSlot()!=null){
+                String slot=current.getSlot().getId();
+                for(String managed:MS_COMBAT_WEAPON_SLOTS)if(managed.equals(slot)){current.setForceNoFireOneFrame(true);break;}
+            }
+            return;
+        }
         boolean wrMode = state == State.TRANSFORMED;
         boolean suppressFire = state == State.TRANSFORMING
                 || state == State.REVERTING
                 || state == State.REVERT_COMPLETE;
-        Moci_VariableFrameWeaponModeUtil.applyWeaponMode(ship, wrMode, suppressFire, MS_COMBAT_WEAPON_SLOTS);
+        ZetaWeaponGroups.applyVisibilityAndFireControl(ship,wrMode,suppressFire);
     }
 }

@@ -9,6 +9,7 @@ public class Moci_GNShield_Script extends FilmShieldController {
     public static final String KEY="Moci_GNShield_Absorb";
     public Moci_GNShield_Script(ShipAPI ship) { super(ship,Moci_FilmShieldIntegration.profile()); }
     public static Moci_GNShield_Script getInstance(ShipAPI ship) {
+        if(!FilmShield.isSelected(ship,"Moci_GNShield")) return null;
         FilmShieldController current=FilmShield.find(ship);
         if(current instanceof Moci_GNShield_Script) return (Moci_GNShield_Script)current;
         if(current!=null) throw new IllegalStateException("Ship already uses a third-party film shield");
@@ -20,7 +21,8 @@ public class Moci_GNShield_Script extends FilmShieldController {
     public static String getKey() { return KEY; }
     @Override protected void attachModules() {
         if(getShip().isShipWithModules()) for(ShipAPI module:getShip().getChildModulesCopy())
-            if(module.isAlive()&&!module.isHulk()&&FilmShield.find(module)==null&&FilmShield.visual(module)==null) getInstance(module);
+            if(module.isAlive()&&!module.isHulk()&&FilmShield.find(module)==null&&FilmShield.visual(module)==null
+                    &&FilmShield.getLocalSelectedHullmodId(module)==null) getInstance(module);
     }
     @Override public boolean shouldRender(ShipAPI ship,int fighters) { return Moci_FilmShieldIntegration.shouldRender(ship,fighters); }
     @Override protected Hit createHit(Vector2f point,float time,float size) { return new Moci_GNShieldHitData(getShip(),point,time,size); }

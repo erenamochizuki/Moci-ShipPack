@@ -248,6 +248,11 @@ public class Moci_PlayerSkill1 {
             if (Global.getCombatEngine() == null || Global.getCombatEngine().isPaused()) {
                 return;
             }
+            // 新人类主动能力（叠加层）只在这名飞行员拥有本技能时安装，不再是全局战斗插件。
+            if (Global.getCombatEngine().getPlayerShip() == ship) {
+                try { xi.arsenal.OwnNewtypeController.ensure(Global.getCombatEngine()); }
+                catch (RuntimeException | LinkageError ignored) { }
+            }
 
             if (!ship.isAlive()) {
                 unapply();

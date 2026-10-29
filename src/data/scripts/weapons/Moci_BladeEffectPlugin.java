@@ -13,10 +13,15 @@ import com.fs.starfarer.api.combat.BeamAPI;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.DamagingProjectileAPI;
 import com.fs.starfarer.api.combat.EveryFrameWeaponEffectPlugin;
+import com.fs.starfarer.api.combat.EveryFrameWeaponEffectPluginWithAdvanceAfter;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
+import data.scripts.weapons.blade.Moci_BladeMotionRegistry;
+
+import data.scripts.weapons.blade.Moci_BladeMotion;
+import data.scripts.weapons.blade.Moci_BladeMotionRegistry;
 
 /**
  * 光剑武器基础效果插件
@@ -33,7 +38,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
  * - DAMAGE_FALLOFF_RANGE_MULTIPLIER: 衰减范围倍数
  * - MINIMUM_DAMAGE_RATIO: 保底伤害比例
  */
-public class Moci_BladeEffectPlugin implements EveryFrameWeaponEffectPlugin {
+public class Moci_BladeEffectPlugin implements EveryFrameWeaponEffectPlugin, EveryFrameWeaponEffectPluginWithAdvanceAfter {
     protected WeaponAPI weapon; // 武器实例
     protected BeamAPI beam = null;
 
@@ -87,6 +92,11 @@ public class Moci_BladeEffectPlugin implements EveryFrameWeaponEffectPlugin {
     @Override
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
         this.weapon = weapon;
+        // 可选动作层：先推进它的时钟与姿态，再走我方原有拦截/斩切逻辑。
+        // xi 光学收尾的宿主：保证存在（幂等），失败不影响武器本身。
+        try { xi.arsenal.PsychoArmamentVisuals.ensure(engine); } catch (RuntimeException | LinkageError ignored) { }
+        Moci_BladeMotion motion = Moci_BladeMotionRegistry.get(weapon);
+        if (motion != null) motion.advance(amount, engine, weapon);
         if (engine == null || engine.isPaused()) return;
 
         List<BeamAPI> beams = weapon.getBeams();
@@ -99,7 +109,8 @@ public class Moci_BladeEffectPlugin implements EveryFrameWeaponEffectPlugin {
             if (!state.phasePublished) state.phase = state.observedByWeapon ? 1 : 0;
             state.observedByWeapon = true;
         }
-        if (weapon.getChargeLevel() <= 0f || beams.isEmpty()) return;
+        // 动作层在场时由它决定攻击窗口，允许原生充能已归零但仍在划砍尾段的帧继续拦截。
+        if ((weapon.getChargeLevel() <= 0f && motion == null) || beams.isEmpty()) return;
 
         // 一把武器每帧只推进一次计时器，多炮口也按相同频率检查。
         checkInterval.advance(amount);
@@ -109,8 +120,14 @@ public class Moci_BladeEffectPlugin implements EveryFrameWeaponEffectPlugin {
         if (!blade && !cut) return;
 
         for (BeamAPI currentBeam : beams) {
-            if (currentBeam == null || currentBeam.getBrightness() < 0.7f
-                    || stateFor(currentBeam).phase == 0) continue;
+            if (currentBeam == null || stateFor(currentBeam).phase == 0) continue;
+            // 动作层在场时，只有它认为「处于有效攻击」才允许拦截/斩切弹丸（替代旧的 MUTE 压制）；
+            // 此时刀光被动作层改写，亮度不再是可靠判据，改由动作层的阶段窗口决定。
+            if (motion != null) {
+                if (!motion.isActionActive(weapon) || motion.rayPhase(weapon) == 0) continue;
+            } else if (currentBeam.getBrightness() < 0.7f) {
+                continue;
+            }
             this.beam = currentBeam;
             float deflectionWidth = currentBeam.getWidth() * WIDTH_MULTIPLIER;
             if (blade) {
@@ -374,7 +391,20 @@ public class Moci_BladeEffectPlugin implements EveryFrameWeaponEffectPlugin {
         // 特意保留设计：本舰导弹武器倍率也增强光剑的导弹拦截。
         // 真正的 getDamageToMissiles() 由引擎根据来源舰船自动应用，不在此重复计算。
         float missileDamageMult = weapon.getShip().getMutableStats().getMissileWeaponDamageMult().computeMultMod();
-        return Math.max(0f, Moci_MeleeDamage.calculateFullDamage(weapon) * missileDamageMult);
+        // 动作层在场时基础时长固定 1 秒，与刀身保持同一口径（否则会吃 burst 1.1 的 +10%）。
+        float durationFloor = Moci_BladeMotionRegistry.get(weapon) != null ? 1f : 0f;
+        return Math.max(0f, Moci_MeleeDamage.calculateFullDamage(weapon, durationFloor) * missileDamageMult);
+    }
+
+    /**
+     * 引擎在武器回调之后还会按瞄准写一次角度；动作层可在此把姿态压回去。
+     * 未注册动作层时本方法为空操作。
+     */
+    @Override
+    public void advanceAfter(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
+        if (engine == null || engine.isPaused()) return;
+        Moci_BladeMotion motion = Moci_BladeMotionRegistry.get(weapon);
+        if (motion != null) motion.lateReassert(weapon);
     }
 
 }

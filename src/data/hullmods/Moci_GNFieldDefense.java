@@ -27,7 +27,7 @@ import static data.scripts.weapons.render.Moci_GNShieldRendering_Shader.RENDER_K
  * 负面效果：
  * - 峰值时间减少至一半
  */
-public class Moci_GNFieldDefense extends BaseHullMod {
+public class Moci_GNFieldDefense extends BaseHullMod implements org.moci.filmshield.api.FilmShieldProvider {
     private static final String TEXT_ID = "Moci_GNFieldDefenseSystem";
 
     // 峰值时间倍率（减少至一半）
@@ -42,13 +42,12 @@ public class Moci_GNFieldDefense extends BaseHullMod {
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
         // 添加GN力场防御脚本监听器
-        if (!ship.hasListenerOfClass(Moci_GNFieldDefense_Script.class)) {
-            ship.addListener(new Moci_GNFieldDefense_Script(ship));
-        }
+        Moci_GNFieldDefense_Script.getInstance(ship);
     }
 
     @Override
     public void advanceInCombat(ShipAPI ship, float amount) {
+        if (!Moci_GNFieldDefense_Script.hasShield(ship)) return;
         // 确保高性能渲染器已初始化
         if (!Global.getCombatEngine().getCustomData().containsKey(RENDER_KEY)) {
             Moci_GNShieldRendering_Shader renderer = Moci_GNShieldRendering_Shader.getInstance();
@@ -63,9 +62,9 @@ public class Moci_GNFieldDefense extends BaseHullMod {
         // 处理模块护盾
         if (ship.isShipWithModules()) {
             for (ShipAPI module : ship.getChildModulesCopy()) {
-                if (!module.hasListenerOfClass(Moci_GNFieldDefense_Script.class)) {
-                    module.addListener(new Moci_GNFieldDefense_Script(module));
-                }
+                if (module.isAlive() && !module.isHulk()
+                        && org.moci.filmshield.api.FilmShield.getLocalSelectedHullmodId(module)==null)
+                    Moci_GNFieldDefense_Script.getInstance(module);
             }
         }
     }

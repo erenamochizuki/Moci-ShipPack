@@ -12,8 +12,18 @@ import data.scripts.util.Moci_FluxRiftLightningUtil;
 public class Moci_FluxRiftVent extends BaseHullMod {
 
     @Override
+    public boolean isApplicableToShip(ShipAPI ship) {
+        return Moci_ShroudedLaboratory.hasLaboratory(ship);
+    }
+
+    @Override
+    public String getUnapplicableReason(ShipAPI ship) {
+        return isApplicableToShip(ship) ? null : "需要第八战斗群-隐匿实验室";
+    }
+
+    @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
-        if (ship == null || ship.isFighter() || ship.isStationModule()) {
+        if (!isApplicableToShip(ship) || ship.isFighter() || ship.isStationModule()) {
             return;
         }
         if (!ship.hasListenerOfClass(FluxRiftVentListener.class)) {

@@ -26,6 +26,11 @@ public class Moci_DeepDiveEnginePlugin extends BaseEveryFrameCombatPlugin {
 
     /** 引擎 customData 注册键，保证插件单实例。 */
     private static final String KEY = "Moci_DeepDive_Plugin";
+    private final Moci_DeepDiveMissileManager missileManager = new Moci_DeepDiveMissileManager();
+
+    Moci_DeepDiveMissileManager getMissileManager() {
+        return missileManager;
+    }
 
     /**
      * 获取或创建插件实例。
@@ -51,12 +56,17 @@ public class Moci_DeepDiveEnginePlugin extends BaseEveryFrameCombatPlugin {
     public void advance(float amount, List<InputEventAPI> events) {
         super.advance(amount, events);
 
+        CombatEngineAPI engine = Global.getCombatEngine();
+        if (engine != null) {
+            // 统一接管没有专用 onFire 脚本的隐藏导弹，并推进已登记导弹的潜射状态。
+            missileManager.advance(engine, amount);
+        }
+
         // 原逻辑为低频抽样更新（约10%帧触发一次），用于降低循环成本。
         if (Math.random() >= 0.1f) {
             return;
         }
 
-        CombatEngineAPI engine = Global.getCombatEngine();
         if (engine == null) {
             return;
         }
@@ -133,4 +143,3 @@ public class Moci_DeepDiveEnginePlugin extends BaseEveryFrameCombatPlugin {
         }
     }
 }
-

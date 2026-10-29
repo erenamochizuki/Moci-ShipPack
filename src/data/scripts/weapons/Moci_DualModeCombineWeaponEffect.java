@@ -64,6 +64,9 @@ public class Moci_DualModeCombineWeaponEffect implements EveryFrameWeaponEffectP
     @Override
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
         if (engine == null || engine.isPaused() || weapon == null) return;
+        // xi 光学收尾的宿主：保证存在（幂等），失败不影响武器本身。
+        try { xi.arsenal.PsychoArmamentVisuals.ensure(engine); } catch (RuntimeException | LinkageError ignored) { }
+
 
         // 初始化
         if (!initialized) {

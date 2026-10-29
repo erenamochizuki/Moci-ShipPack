@@ -85,6 +85,8 @@ public class Moci_bounty_plugin extends BaseModPlugin {
     private Moci_CombatSquadBattleListener battleListener;
     // 舰载AI系统
     private Moci_ShipboardAIBattleListener shipboardAIBattleListener;
+    // 并入的 xi/arsenal 内容（PsychoMissile 制导、船体系统与内容映射）
+    private final xi.arsenal.PsychoModPlugin psychoframeContent = new xi.arsenal.PsychoModPlugin();
 
     // 白骑士尾部纹理路径
     private static final String TAIL_S_SPRITE_PATH = "graphics/ships/Mobile_Suit/Moci_ReinWeissRitter/tail/ReinWeissRitter_tail_s.png";
@@ -270,6 +272,15 @@ public class Moci_bounty_plugin extends BaseModPlugin {
         }
         return null;
     }
+
+    @Override
+    public PluginPick<MissileAIPlugin> pickMissileAI(MissileAPI missile, ShipAPI launchingShip) {
+        if (missile != null && xi.arsenal.PsychoMissileAI.PROJECTILE_ID.equals(missile.getProjectileSpecId())) {
+            return new PluginPick<MissileAIPlugin>(
+                    new xi.arsenal.PsychoMissileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
+        }
+        return super.pickMissileAI(missile, launchingShip);
+    }
                     
     @Override
     public void onApplicationLoad() throws Exception {
@@ -307,6 +318,9 @@ public class Moci_bounty_plugin extends BaseModPlugin {
         Global.getSettings().loadTexture(Black_Sarena_TAIL_START_SPRITE_PATH);
         Global.getSettings().loadTexture(Black_Sarena_TAIL_MID_SPRITE_PATH);
         Global.getSettings().loadTexture(Black_Sarena_TAIL_END_SPRITE_PATH);
+
+        // 并入的 xi/arsenal 内容初始化（船体系统与内容映射表）
+        psychoframeContent.onApplicationLoad();
     }
 
     /**

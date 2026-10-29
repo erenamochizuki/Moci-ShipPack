@@ -14,14 +14,22 @@ public final class Moci_MeleeDamage {
     }
 
     public static float calculateFullDamage(WeaponAPI weapon) {
+        return calculateFullDamage(weapon, 0f);
+    }
+
+    /**
+     * @param durationFloor <=0 时使用武器 spec 的 burst 时长（原有行为）；>0 时用该值作为基础攻击时长，
+     *        供动作层显式指定「一刀=1 秒」的预算口径。
+     */
+    public static float calculateFullDamage(WeaponAPI weapon, float durationFloor) {
         if (weapon == null || weapon.getShip() == null) {
             return 0f;
         }
 
         // Preserve the existing minimum one-second attack budget before modifiers.
         // Applying this floor after modifiers would silently cancel damage penalties.
-        float baseDamage = weapon.getDamage().getDamage()
-                * Math.max(1f, weapon.getSpec().getBurstDuration());
+        float duration = durationFloor > 0f ? durationFloor : weapon.getSpec().getBurstDuration();
+        float baseDamage = weapon.getDamage().getDamage() * Math.max(1f, duration);
         MutableShipStatsAPI stats = weapon.getShip().getMutableStats();
         MutableStat weaponDamage = null;
         if (weapon.getType() == WeaponAPI.WeaponType.ENERGY) {

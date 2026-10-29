@@ -50,13 +50,16 @@ final class Moci_AirSquadronArt {
             return Moci_AirSquadronLayout.fit(minX, minY, maxX, maxY, x, y, w, h);
         }
         void render(Moci_AirSquadronLayout.Transform transform, float alpha) {
-            for (Layer layer : layers) layer.render(transform, alpha);
+            render(transform, alpha, Color.WHITE);
+        }
+        void render(Moci_AirSquadronLayout.Transform transform, float alpha, Color tint) {
+            for (Layer layer : layers) layer.render(transform, alpha, tint);
         }
     }
 
     private record Layer(SpriteAPI sprite, float width, float height, float pivotX, float pivotY,
                          float x, float y, float angle) {
-        void render(Moci_AirSquadronLayout.Transform t, float alpha) {
+        void render(Moci_AirSquadronLayout.Transform t, float alpha, Color tint) {
             float oldW = sprite.getWidth(), oldH = sprite.getHeight(), oldX = sprite.getCenterX(), oldY = sprite.getCenterY();
             float oldAngle = sprite.getAngle(), oldAlpha = sprite.getAlphaMult();
             Color oldColor = sprite.getColor();
@@ -64,7 +67,7 @@ final class Moci_AirSquadronArt {
             try {
                 sprite.setSize(width * t.scale(), height * t.scale());
                 sprite.setCenter(pivotX * t.scale(), pivotY * t.scale());
-                sprite.setAngle(angle); sprite.setColor(Color.WHITE); sprite.setAlphaMult(alpha);
+                sprite.setAngle(angle); sprite.setColor(tint); sprite.setAlphaMult(alpha);
                 sprite.setNormalBlend();
                 sprite.renderAtCenter(t.mapX(x), t.mapY(y));
             } finally {

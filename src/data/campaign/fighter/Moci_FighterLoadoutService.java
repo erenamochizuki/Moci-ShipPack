@@ -25,6 +25,7 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.loading.WeaponSlotAPI;
@@ -36,6 +37,7 @@ import data.hullmods.Moci_TacticalHullmods;
 /** Single-carrier transactions. Global prototypes and cargo LPC stacks are never edited. */
 public final class Moci_FighterLoadoutService {
     public static final String HULLMOD_ID = "Moci_air_squadron_manager";
+    private static final Set<String> CUSTOM_FIGHTER_TAGS = Set.of(Tags.WING_NO_DROP, Tags.WING_NO_SELL, Tags.RESTRICTED);
     /** 排查日志前缀：装配落库后打印最终 Variant 的 hullMods/槽位，便于逐环核对「装了却没生效」。 */
     private static final String LOG_PREFIX = "Moci-AirSquadron|loadout|";
     private static boolean initialized;
@@ -46,7 +48,12 @@ public final class Moci_FighterLoadoutService {
     static Supplier<List<CargoAPI>> inventorySources = Moci_FighterLoadoutService::nativeSources;
     private Moci_FighterLoadoutService() {}
     public record BayEntry(int index, String wingId, FighterWingSpecAPI wing,
-            boolean builtIn, boolean eligible, String lockReason) {}
+            boolean builtIn, boolean eligible, String lockReason, boolean weaponEligible, boolean tacticalEligible) {
+        public BayEntry(int index, String wingId, FighterWingSpecAPI wing,
+                boolean builtIn, boolean eligible, String lockReason) {
+            this(index, wingId, wing, builtIn, eligible, lockReason, eligible, eligible);
+        }
+    }
     /** A fitting weapon that is present in at least one visible player-accessible source. */
     public record WeaponAvailability(WeaponSpecAPI spec, int cargo, int storage,
             int market, int blackMarket) {
@@ -69,10 +76,10 @@ public final class Moci_FighterLoadoutService {
         public final Map<String, Integer> returns;
         public final String blockReason;
         public final boolean hasChanges;
-        /** 目标战术改装船插 ID；null 表示这次改装不带战术改装。 */
-        public final String tacticalHullmod;
-        /** 源（当前）战术改装船插 ID；null 表示当前未选，供 UI 显示“将改为”与脏判定。 */
-        public final String sourceTacticalHullmod;
+        /** 目标战术改装，每组至多一项。 */
+        public final List<String> tacticalHullmods;
+        /** 当前战术改装，供 UI 比较草稿。 */
+        public final List<String> sourceTacticalHullmods;
         /** 应用时需要从市场购买的武器（货舱/仓库不够的部分）；空表表示无需购买。 */
         public final List<Purchase> purchases;
         /** 购买总价（信用点）；0 表示无需购买。 */
@@ -81,15 +88,15 @@ public final class Moci_FighterLoadoutService {
         private RefitPlan(String memberId, int bayIndex, String sourceWingId,
                 String targetWingId, Map<String, String> loadout, Map<String, Integer> consume,
                 Map<String, Integer> returns, String blockReason, boolean hasChanges,
-                Moci_FighterLoadoutSpec targetSpec, String sourceTacticalHullmod,
-                String tacticalHullmod, List<Purchase> purchases, int purchaseCost) {
+                Moci_FighterLoadoutSpec targetSpec, List<String> sourceTacticalHullmods,
+                List<String> tacticalHullmods, List<Purchase> purchases, int purchaseCost) {
             this.memberId = memberId; this.bayIndex = bayIndex;
             this.sourceWingId = sourceWingId; this.targetWingId = targetWingId;
             this.loadout = immutable(loadout); this.consume = immutable(consume);
             this.returns = immutable(returns); this.blockReason = blockReason;
             this.hasChanges = hasChanges; this.targetSpec = targetSpec;
-            this.sourceTacticalHullmod = sourceTacticalHullmod;
-            this.tacticalHullmod = tacticalHullmod;
+            this.sourceTacticalHullmods = List.copyOf(sourceTacticalHullmods);
+            this.tacticalHullmods = List.copyOf(tacticalHullmods);
             this.purchases = List.copyOf(purchases);
             this.purchaseCost = purchaseCost;
         }
@@ -170,11 +177,12 @@ public final class Moci_FighterLoadoutService {
             else if (id == null || id.isEmpty()) reason = "空机库";
             else if (wing == null) reason = "联队规格缺失，已保留原装配";
             else if (isCustomWingId(id)) reason = validateSource(id);
-            if (reason == null && !Moci_FighterLoadoutEligibility.accepts(getWingSpec(getBaseWingId(id)))) {
-                reason = "该联队不支持装配管理";
-            }
-            if (reason == null && getEditableSlots(wing).isEmpty()) reason = "没有可编辑的武器槽";
-            result.add(new BayEntry(i, id, wing, builtIn, reason == null, reason));
+            FighterWingSpecAPI prototype = getWingSpec(getBaseWingId(id));
+            boolean weapons = reason == null && Moci_FighterLoadoutEligibility.acceptsWeapons(prototype)
+                    && !getEditableSlots(wing).isEmpty();
+            boolean tactical = reason == null && Moci_FighterLoadoutEligibility.acceptsTactical(prototype);
+            if (reason == null && !weapons && !tactical) reason = "该联队不支持装配管理";
+            result.add(new BayEntry(i, id, wing, builtIn, weapons || tactical, reason, weapons, tactical));
         }
         return result;
     }
@@ -195,19 +203,52 @@ public final class Moci_FighterLoadoutService {
         return wing == null ? new LinkedHashMap<>() : readVariant(wing.getVariant(), getEditableSlots(wing));
     }
     public static LinkedHashMap<String, String> readPrototypeLoadout(String wingId) {
-        return readLoadout(getBaseWingId(wingId));
+        String baseId = getBaseWingId(wingId);
+        FighterWingSpecAPI prototype = getWingSpec(baseId);
+        return prototype == null ? new LinkedHashMap<>()
+                : readVariant(prototype.getVariant(), getEditableSlots(prototype), true);
+    }
+    /** Count only replacements relative to the original prototype, never relative to the last draft. */
+    public static Moci_FighterRefitBudget.Budget refitBudget(String wingId, Map<String, String> loadout,
+                                                           String tacticalHullmod) {
+        return refitBudgetForTacticals(wingId, loadout, tacticalHullmod == null ? List.of() : List.of(tacticalHullmod));
+    }
+    public static Moci_FighterRefitBudget.Budget refitBudgetForTacticals(String wingId,
+            Map<String, String> loadout, List<String> tacticalHullmods) {
+        FighterWingSpecAPI prototype = getWingSpec(getBaseWingId(wingId));
+        if (prototype == null || prototype.getVariant() == null || loadout == null) {
+            throw new IllegalArgumentException("原型联队规格或装配缺失");
+        }
+        int points = Moci_TacticalHullmods.normalize(tacticalHullmods).size() * Moci_FighterRefitBudget.TACTICAL_POINTS;
+        for (WeaponSlotAPI slot : getEditableSlots(prototype)) {
+            String id = loadout.get(slot.getId());
+            String original = prototype.getVariant().getWeaponId(slot.getId());
+            if (id == null || id.isEmpty() || id.equals(original)) continue;
+            WeaponSpecAPI spec = weapon(id);
+            if (spec == null || spec.getSize() == null) throw new IllegalArgumentException("武器尺寸不可用：" + id);
+            int cost = switch (spec.getSize()) {
+                case SMALL -> Moci_FighterRefitBudget.SMALL_POINTS;
+                case MEDIUM -> Moci_FighterRefitBudget.MEDIUM_POINTS;
+                case LARGE -> Moci_FighterRefitBudget.LARGE_POINTS;
+            };
+            points = Math.addExact(points, cost);
+        }
+        // A null stats argument reads raw wing-spec OP; custom wings always resolve back to their prototype.
+        return new Moci_FighterRefitBudget.Budget(prototype.getOpCost(null), points);
     }
     /**
      * 读取某联队当前生效的战术改装：优先取已注册保存定义里的值，再从联队 variant 的 hullMods 兜底。
      * 返回 null 表示未选；非法值同样返回 null，不抛异常。
      */
     public static String getTacticalHullmod(String wingId) {
-        if (wingId == null || wingId.isEmpty()) return null;
+        List<String> ids = getTacticalHullmods(wingId);
+        return ids.isEmpty() ? null : ids.get(0);
+    }
+    public static List<String> getTacticalHullmods(String wingId) {
         Moci_FighterLoadoutSpec spec = Moci_FighterLoadoutStore.get(wingId);
-        if (spec != null && isTacticalSafe(spec.getTacticalHullmod())) return spec.getTacticalHullmod();
+        if (spec != null) return Moci_TacticalHullmods.normalize(spec.getTacticalHullmods());
         FighterWingSpecAPI wing = getWingSpec(wingId);
-        String onVariant = wing == null ? null : selectedTactical(wing.getVariant());
-        return isTacticalSafe(onVariant) ? onVariant : null;
+        return wing == null ? List.of() : selectedTactical(wing.getVariant());
     }
     /** UI 用：按规格表顺序列出所有带战术改装标记的船插。 */
     public static List<String> getTacticalHullmodOptions() {
@@ -217,6 +258,19 @@ public final class Moci_FighterLoadoutService {
     /** UI 用：该船插当前是否已注册可用（未注册返回 false，不抛异常）。 */
     public static boolean isTacticalHullmodAvailable(String tacticalHullmodId) {
         return isTacticalAvailable(tacticalHullmodId);
+    }
+    /** UI 与提交校验共用的适用条件；null 表示可以安装。 */
+    public static String tacticalUnavailableReason(String id, ShipVariantAPI variant) {
+        if (!isTacticalAvailable(id)) return "当前不可用。";
+        if (Moci_TacticalHullmods.HARDENED_SHIELD.equals(id)) {
+            com.fs.starfarer.api.combat.ShieldAPI.ShieldType type = variant == null || variant.getHullSpec() == null
+                    ? null : variant.getHullSpec().getShieldType();
+            if (type != com.fs.starfarer.api.combat.ShieldAPI.ShieldType.FRONT
+                    && type != com.fs.starfarer.api.combat.ShieldAPI.ShieldType.OMNI) {
+                return "该舰载机没有护盾，无法安装强化护盾。";
+            }
+        }
+        return null;
     }
     /** 战术改装 tag 判断：helper 类缺失或未初始化时一律按 false 处理。 */
     private static boolean isTacticalSafe(String hullmodId) {
@@ -230,27 +284,40 @@ public final class Moci_FighterLoadoutService {
         try { return Moci_TacticalHullmods.spec(hullmodId) != null; }
         catch (Throwable ignored) { return false; }
     }
-    /** 把战术改装写进变体：先清空带标记的战术插，再按需加一个。 */
-    private static void applyTactical(ShipVariantAPI variant, String hullmodId) {
-        if (variant == null) return;
-        String effective = isTacticalAvailable(hullmodId) ? hullmodId : null;
-        try { Moci_TacticalHullmods.applyToVariant(variant, effective); }
-        catch (Throwable t) {
-            Global.getLogger(Moci_FighterLoadoutService.class).warn("战术改装写入变体失败：" + effective, t);
-        }
+    /** Replace both tactical groups together; failures propagate to transaction rollback. */
+    private static void applyTactical(ShipVariantAPI variant, List<String> ids) {
+        Moci_TacticalHullmods.applySelections(variant, ids);
     }
-    /** 读取变体上的战术改装；helper 缺失时返回 null。 */
-    private static String selectedTactical(ShipVariantAPI variant) {
-        if (variant == null) return null;
-        try { return Moci_TacticalHullmods.selected(variant); }
-        catch (Throwable ignored) { return null; }
+    private static List<String> selectedTactical(ShipVariantAPI variant) {
+        return Moci_TacticalHullmods.selectedAll(variant);
     }
     private static LinkedHashMap<String, String> readVariant(ShipVariantAPI variant, List<WeaponSlotAPI> slots) {
+        return readVariant(variant, slots, false);
+    }
+    /**
+     * Reads the editable portion of a variant. A stock hull can contain an old
+     * or malformed weapon/slot pair; when requested, expose that pair as empty
+     * so a draft can replace it instead of being rejected before it is applied.
+     */
+    private static LinkedHashMap<String, String> readVariant(ShipVariantAPI variant, List<WeaponSlotAPI> slots,
+                                                               boolean clearInvalid) {
         LinkedHashMap<String, String> result = new LinkedHashMap<>();
         if (variant != null) for (WeaponSlotAPI slot : slots) {
-            result.put(slot.getId(), Objects.toString(variant.getWeaponId(slot.getId()), ""));
+            String id = Objects.toString(variant.getWeaponId(slot.getId()), "");
+            if (clearInvalid && !id.isEmpty() && !canFitSlot(slot, id)) id = "";
+            result.put(slot.getId(), id);
         }
         return result;
+    }
+
+    /** True when every editable stock weapon is legal for its declared slot. */
+    private static boolean legalPrototypeLoadout(FighterWingSpecAPI prototype, List<WeaponSlotAPI> slots) {
+        if (prototype == null || prototype.getVariant() == null) return false;
+        for (WeaponSlotAPI slot : slots) {
+            String id = prototype.getVariant().getWeaponId(slot.getId());
+            if (id != null && !id.isEmpty() && !canFitSlot(slot, id)) return false;
+        }
+        return true;
     }
     private static WeaponSpecAPI weapon(String id) {
         if (id == null || id.isEmpty()) return null;
@@ -540,7 +607,7 @@ public final class Moci_FighterLoadoutService {
     }
     private static RefitPlan blocked(String memberId, int bay, String source, String reason) {
         return new RefitPlan(memberId, bay, source, source, Map.of(), Map.of(), Map.of(), reason, false,
-                null, null, null, List.of(), 0);
+                null, List.of(), List.of(), List.of(), 0);
     }
     /** 旧签名：战术改装沿用当前值，历史调用方行为不变。 */
     public static RefitPlan preview(String memberId, int bayIndex, String expectedWingId,
@@ -553,19 +620,23 @@ public final class Moci_FighterLoadoutService {
      */
     public static RefitPlan preview(String memberId, int bayIndex, String expectedWingId,
             Map<String, String> draft, String tacticalHullmod) {
-        return previewInternal(memberId, bayIndex, expectedWingId, draft, tacticalHullmod, true);
+        return previewInternal(memberId, bayIndex, expectedWingId, draft, tacticalHullmod == null || tacticalHullmod.isBlank() ? List.of() : List.of(tacticalHullmod), true);
+    }
+    public static RefitPlan previewTactical(String memberId, int bayIndex, String expectedWingId,
+            Map<String, String> draft, List<String> tacticalHullmods) {
+        return previewInternal(memberId, bayIndex, expectedWingId, draft, tacticalHullmods, true);
     }
     private static RefitPlan previewInternal(String memberId, int bayIndex, String expectedWingId,
-            Map<String, String> draft, String tacticalHullmod, boolean explicitTactical) {
+            Map<String, String> draft, List<String> tacticalHullmods, boolean explicitTactical) {
         try {
-            return previewChecked(memberId, bayIndex, expectedWingId, draft, tacticalHullmod, explicitTactical);
+            return previewChecked(memberId, bayIndex, expectedWingId, draft, tacticalHullmods, explicitTactical);
         } catch (RuntimeException ex) {
             Global.getLogger(Moci_FighterLoadoutService.class).warn("Cannot preview fighter refit", ex);
             return blocked(memberId, bayIndex, expectedWingId, "装配数据异常，已保留原装配");
         }
     }
     private static RefitPlan previewChecked(String memberId, int bayIndex, String expectedWingId,
-            Map<String, String> draft, String tacticalHullmod, boolean explicitTactical) {
+            Map<String, String> draft, List<String> tacticalHullmods, boolean explicitTactical) {
         if (!isAvailable()) return blocked(memberId, bayIndex, expectedWingId, getUnavailableReason());
         FleetMemberAPI member = findMember(memberId);
         if (member == null) return blocked(memberId, bayIndex, expectedWingId, "母舰已不在玩家舰队");
@@ -575,25 +646,31 @@ public final class Moci_FighterLoadoutService {
         BayEntry bay = collectBays(member).stream().filter(b -> b.index == bayIndex).findFirst().orElse(null);
         if (bay == null || !bay.eligible) return blocked(memberId, bayIndex, expectedWingId,
                 bay == null ? "机库不存在" : bay.lockReason);
-        // 战术改装：显式参数优先，旧签名沿用当前值；非法/未注册一律不写进新定义。
-        String sourceTactical = getTacticalHullmod(expectedWingId);
-        String targetTactical;
-        if (!explicitTactical) {
-            targetTactical = sourceTactical;
-        } else if (tacticalHullmod == null || tacticalHullmod.isBlank()) {
-            targetTactical = null;
-        } else if (!isTacticalSafe(tacticalHullmod)) {
-            return blocked(memberId, bayIndex, expectedWingId, "战术改装不可用，请重新选择");
-        } else if (!isTacticalAvailable(tacticalHullmod)) {
-            return blocked(memberId, bayIndex, expectedWingId, "战术改装尚未注册，请重新选择");
-        } else {
-            targetTactical = tacticalHullmod;
+        List<String> sourceTactical = getTacticalHullmods(expectedWingId);
+        List<String> targetTactical = explicitTactical ? tacticalHullmods : sourceTactical;
+        if (!Moci_TacticalHullmods.validSelection(targetTactical)) {
+            return blocked(memberId, bayIndex, expectedWingId, "战术改装不可用或同组重复，请重新选择");
+        }
+        targetTactical = Moci_TacticalHullmods.normalize(targetTactical);
+        if (!bay.tacticalEligible && !targetTactical.equals(sourceTactical)) {
+            return blocked(memberId, bayIndex, expectedWingId, "该联队不支持战术改装");
+        }
+        for (String id : targetTactical) {
+            String issue = tacticalUnavailableReason(id, bay.wing.getVariant());
+            if (issue != null) return blocked(memberId, bayIndex, expectedWingId, issue);
+        }
+        if (targetTactical.contains(Moci_TacticalHullmods.ADVANCED_OPTICS)
+                && bay.wing.getVariant().hasHullMod(com.fs.starfarer.api.impl.campaign.ids.HullMods.HIGH_SCATTER_AMP)) {
+            return blocked(memberId, bayIndex, expectedWingId, "先进光学器件与高散射增幅器不兼容");
         }
         String baseId = getBaseWingId(expectedWingId);
         FighterWingSpecAPI prototype = getWingSpec(baseId);
         List<WeaponSlotAPI> slots = getEditableSlots(prototype);
-        Map<String, String> defaults = readPrototypeLoadout(baseId);
-        Map<String, String> source = readVariant(bay.wing.getVariant(), slots);
+        Map<String, String> defaults = bay.weaponEligible ? readPrototypeLoadout(baseId)
+                : readVariant(prototype.getVariant(), slots);
+        Map<String, String> source = isCustomWingId(expectedWingId)
+                ? readVariant(bay.wing.getVariant(), slots)
+                : defaults;
         Moci_FighterLoadoutSpec sourceSpec = Moci_FighterLoadoutStore.get(expectedWingId);
         Map<String, String> baseline = sourceSpec == null ? defaults : sourceSpec.getBaseline();
         LinkedHashMap<String, String> target = new LinkedHashMap<>();
@@ -603,15 +680,32 @@ public final class Moci_FighterLoadoutService {
         for (WeaponSlotAPI slot : slots) {
             String id = draft.containsKey(slot.getId()) ? draft.get(slot.getId()) : source.get(slot.getId());
             if (id == null) return blocked(memberId, bayIndex, expectedWingId, "草稿武器无效");
-            if (!id.isEmpty() && !canFitSlot(slot, id)) {
+            // A stock prototype may still expose a stale weapon ID that no longer
+            // fits its slot. Treat that unchanged stock entry as the sanitized
+            // empty default; an explicit replacement is still validated normally.
+            String rawPrototype = prototype.getVariant().getWeaponId(slot.getId());
+            if (bay.weaponEligible && !isCustomWingId(expectedWingId) && id.equals(rawPrototype)
+                    && !id.isEmpty() && !canFitSlot(slot, id)) {
+                id = defaults.get(slot.getId());
+            }
+            if (!id.isEmpty() && !canFitSlot(slot, id) && (bay.weaponEligible || !id.equals(source.get(slot.getId())))) {
                 return blocked(memberId, bayIndex, expectedWingId, "武器不适配槽位：" + slot.getId());
             }
             target.put(slot.getId(), id);
         }
+        if (!bay.weaponEligible && !target.equals(source)) {
+            return blocked(memberId, bayIndex, expectedWingId, "该联队不支持武器换装");
+        }
+        // Validate the same calculation used by the header and the registered wing before any payment.
+        refitBudgetForTacticals(baseId, target, targetTactical);
         // 只有“武器回到原型默认且不带战术改装”才算回到原型定义；战术改装本身也参与 digest。
-        boolean vanilla = target.equals(defaults) && targetTactical == null;
+        // Reusing the stock wing is safe only when its editable stock weapons are
+        // legal. If a legacy hull declares an invalid default, materialize the
+        // sanitized draft as a custom wing so applying the prototype still works.
+        boolean vanilla = target.equals(defaults) && targetTactical.isEmpty()
+                && (!bay.weaponEligible || legalPrototypeLoadout(prototype, slots));
         Moci_FighterLoadoutSpec targetSpec = vanilla ? null
-                : new Moci_FighterLoadoutSpec(baseId, baseline, target, targetTactical);
+                : Moci_FighterLoadoutSpec.withTacticals(baseId, baseline, target, targetTactical);
         String targetId = vanilla ? baseId : targetSpec.getWingId();
         boolean changed = !expectedWingId.equals(targetId);
         Map<String, Integer> consume = new LinkedHashMap<>(), returns = new LinkedHashMap<>();
@@ -632,7 +726,7 @@ public final class Moci_FighterLoadoutService {
                 int shortfall = need - owned;
                 int remaining = shortfall;
                 WeaponSpecAPI purchased = weapon(entry.getKey());
-                if (purchased == null) { reason = "武备不足：" + entry.getKey(); break; }
+                if (purchased == null) { reason = "武备不足：未知武器"; break; }
                 for (DisplayCargo marketSource : markets) {
                     if (remaining <= 0) break;
                     int take = Math.min(remaining, safeQuantity(marketSource.cargo(), entry.getKey()));
@@ -643,7 +737,7 @@ public final class Moci_FighterLoadoutService {
                             Math.multiplyExact(marketUnitPrice(purchased, marketSource.submarket()), take));
                     remaining -= take;
                 }
-                if (remaining > 0) { reason = "武备不足：" + entry.getKey(); purchases.clear(); purchaseCost = 0; break; }
+                if (remaining > 0) { reason = "武备不足：" + Objects.toString(purchased.getWeaponName(), "未知武器"); purchases.clear(); purchaseCost = 0; break; }
             }
         }
         if (reason == null && purchaseCost > 0) {
@@ -661,8 +755,8 @@ public final class Moci_FighterLoadoutService {
         if (plan == null) return "无可用装配方案";
         busy = true;
         try {
-            RefitPlan fresh = preview(plan.memberId, plan.bayIndex, plan.sourceWingId, plan.loadout,
-                    plan.tacticalHullmod);
+            RefitPlan fresh = previewTactical(plan.memberId, plan.bayIndex, plan.sourceWingId, plan.loadout,
+                    plan.tacticalHullmods);
             if (fresh.blockReason != null) return fresh.blockReason;
             if (!Objects.equals(fresh.targetWingId, plan.targetWingId)) return "原型或装配定义已改变，请重新确认";
             FleetMemberAPI member = findMember(fresh.memberId);
@@ -720,7 +814,7 @@ public final class Moci_FighterLoadoutService {
                     .append(" bay=").append(plan.bayIndex)
                     .append(" wing=").append(plan.targetWingId)
                     .append(" specVariant=").append(plan.targetSpec == null ? "-" : plan.targetSpec.getVariantId())
-                    .append(" tactical=").append(plan.tacticalHullmod == null ? "-" : plan.tacticalHullmod)
+                    .append(" tactical=").append(plan.tacticalHullmods)
                     .append(" specLoadout=").append(plan.targetSpec == null ? "-" : plan.targetSpec.getLoadout());
             FighterWingSpecAPI wing = getWingSpec(plan.targetWingId);
             ShipVariantAPI variant = wing == null ? null : wing.getVariant();
@@ -828,7 +922,7 @@ public final class Moci_FighterLoadoutService {
             ShipVariantAPI before = member.getVariant();
             ShipVariantAPI next = null;
             // 母舰变体上若残留战术改装（例如曾被其它链路写入），卸下管理船插时必须一并清掉。
-            boolean tacticalResidue = selectedTactical(before) != null;
+            boolean tacticalResidue = !selectedTactical(before).isEmpty();
             Map<String, Integer> returns = new LinkedHashMap<>();
             for (int i = 0; i < before.getWings().size(); i++) {
                 String id = before.getWingId(i);
@@ -846,7 +940,7 @@ public final class Moci_FighterLoadoutService {
             if (next == null && tacticalResidue) next = isolatedVariant(before, member.getId());
             if (next == null) return null;
             // 卸下“航空中队管理”船插时同步移除战术改装，避免战术插残留在恢复后的装配上。
-            applyTactical(next, null);
+            applyTactical(next, List.of());
             if (!Moci_FighterLoadoutStore.verifyDurableCatalog()) return Moci_FighterLoadoutStore.getFailure();
             return transact(member, before, next, Map.of(), returns);
         } catch (RuntimeException ex) {
@@ -945,7 +1039,8 @@ public final class Moci_FighterLoadoutService {
         if (issue != null) return issue;
         FighterWingSpecAPI wing = getWingSpec(id);
         if (wing == null || !source.getVariantId().equals(wing.getVariantId())
-                || !source.getLoadout().equals(readLoadout(id))) return "自定义联队与保存定义不一致，已保留装配";
+                || !source.getLoadout().equals(readLoadout(id))
+                || !Moci_TacticalHullmods.normalize(source.getTacticalHullmods()).equals(selectedTactical(wing.getVariant()))) return "自定义联队与保存定义不一致，已保留装配";
         return null;
     }
     private static String definitionIssue(Moci_FighterLoadoutSpec spec) {
@@ -956,7 +1051,9 @@ public final class Moci_FighterLoadoutService {
         for (WeaponSlotAPI slot : slots) {
             ids.add(slot.getId());
             String weaponId = spec.getLoadout().get(slot.getId());
-            if (weaponId == null || (!weaponId.isEmpty() && !canFitSlot(slot, weaponId))) {
+            boolean stockWeapon = weaponId != null && weapon(weaponId) != null
+                    && weaponId.equals(prototype.getVariant().getWeaponId(slot.getId()));
+            if (weaponId == null || (!weaponId.isEmpty() && !stockWeapon && !canFitSlot(slot, weaponId))) {
                 return "保存的武器或槽位已失效，已保留装配";
             }
         }
@@ -978,8 +1075,10 @@ public final class Moci_FighterLoadoutService {
             if (variant == null || variant == prototype.getVariant()) return "战机变体无法隔离";
             variant.setHullVariantId(spec.getVariantId()); variant.setSource(VariantSource.STOCK);
             for (WeaponSlotAPI slot : getEditableSlots(prototype)) {
-                variant.clearSlot(slot.getId());
                 String id = spec.getLoadout().get(slot.getId());
+                // Tactical-only refits preserve stock weapon/slot pairs even if normal fitting rejects them.
+                if (id != null && weapon(id) != null && id.equals(prototype.getVariant().getWeaponId(slot.getId()))) continue;
+                variant.clearSlot(slot.getId());
                 if (id != null && id.isEmpty()) continue;
                 if (id != null && canFitSlot(slot, id)) variant.addWeapon(slot.getId(), id);
                 else {
@@ -997,20 +1096,48 @@ public final class Moci_FighterLoadoutService {
                 }
             }
             // 战术改装必须在变体注册前写进 hullMods：注册后再 addMod 不会同步到已注册的 HullVariantSpec。
-            applyTactical(variant, spec.getTacticalHullmod());
+            applyTactical(variant, spec.getTacticalHullmods());
+            applyCustomFighterTags(variant);
             if (!Moci_FighterLoadoutRegistry.registerVariant(variant)) return "战机变体注册失败";
         }
         FighterWingSpecAPI wing = getWingSpec(spec.getWingId());
         if (wing == null) {
-            wing = copyWing(spec, prototype);
+            // Invalid legacy definitions already fall back to prototype weapons above;
+            // retain the original OP for that read-only fallback instead of rejecting recovery.
+            float opCost = metadataIssue == null
+                    ? refitBudgetForTacticals(spec.getBaseWingId(), spec.getLoadout(), spec.getTacticalHullmods()).opCost()
+                    : prototype.getOpCost(null);
+            wing = copyWing(spec, prototype, opCost);
             if (wing == null) return "联队规格复制失败：自动装配分类或来源模组信息无法继承";
             if (!Moci_FighterLoadoutRegistry.registerWing(spec.getWingId(), wing)) return "联队规格注册失败";
         }
-        if (!spec.getVariantId().equals(wing.getVariantId()) || (metadataIssue == null
-                && !spec.getLoadout().equals(readLoadout(spec.getWingId())))) return "型号 ID 或装配定义冲突";
+        if (!spec.getWingId().equals(wing.getId()) || !spec.getVariantId().equals(wing.getVariantId())) {
+            return "型号 ID 或装配定义冲突";
+        }
+        ShipVariantAPI registeredVariant = wing.getVariant();
+        if (registeredVariant == null || !spec.getVariantId().equals(registeredVariant.getHullVariantId())) {
+            return "联队变体规格缺失或 ID 不匹配";
+        }
+        if (metadataIssue == null && !spec.getLoadout().equals(readLoadout(spec.getWingId()))) {
+            return "型号 ID 或装配定义冲突";
+        }
+        if (!Moci_TacticalHullmods.normalize(spec.getTacticalHullmods()).equals(selectedTactical(registeredVariant))) {
+            return "战术改装与保存定义不一致";
+        }
+        applyCustomFighterTags(registeredVariant);
+        applyCustomFighterTags(wing);
+        Moci_ScveSnapshotBridge.noteWingRegistered(wing);
+        if (metadataIssue == null) {
+            // Existing saved definitions keep their IDs, but receive the current derived OP rule on load.
+            float opCost = refitBudgetForTacticals(spec.getBaseWingId(), spec.getLoadout(), spec.getTacticalHullmods()).opCost();
+            if (Float.compare(wing.getOpCost(null), opCost) != 0) {
+                wing.setOpCost(opCost);
+                Moci_ScveSnapshotBridge.noteWingRegistered(wing);
+            }
+        }
         return metadataIssue;
     }
-    private static FighterWingSpecAPI copyWing(Moci_FighterLoadoutSpec spec, FighterWingSpecAPI prototype) {
+    private static FighterWingSpecAPI copyWing(Moci_FighterLoadoutSpec spec, FighterWingSpecAPI prototype, float opCost) {
         FighterWingSpecAPI wing = Moci_FighterLoadoutRegistry.createWingSpec();
         if (wing == null) return null;
         wing.setId(spec.getWingId()); wing.setVariantId(spec.getVariantId());
@@ -1020,9 +1147,35 @@ public final class Moci_FighterLoadoutService {
         wing.setRarity(prototype.getRarity()); wing.setRoleDesc(prototype.getRoleDesc());
         wing.setRange(prototype.getRange()); wing.setAttackRunRange(prototype.getAttackRunRange());
         wing.setAttackPositionOffset(prototype.getAttackPositionOffset());
-        wing.setBaseValue(prototype.getBaseValue()); wing.setOpCost(prototype.getOpCost(null));
-        wing.getTags().addAll(prototype.getTags()); wing.addTag(Moci_FighterLoadoutSpec.TAG);
+        wing.setBaseValue(prototype.getBaseValue());
+        wing.setOpCost(opCost);
+        wing.getTags().addAll(prototype.getTags());
+        applyCustomFighterTags(wing);
         if (!Moci_FighterLoadoutRegistry.inheritUnsettableWingFields(wing, prototype)) return null;
         return wing;
+    }
+
+    /** Exclude dynamic LPCs from blueprint packages, salvage and generated market stock. */
+    private static void applyCustomFighterTags(ShipVariantAPI variant) {
+        if (variant == null) return;
+        for (String tag : new ArrayList<>(variant.getTags())) {
+            if (isBlueprintTag(tag)) variant.removeTag(tag);
+        }
+        variant.removeTag("variant"); // Remove the literal tag mistakenly added by the previous implementation.
+        for (String tag : CUSTOM_FIGHTER_TAGS) variant.addTag(tag);
+    }
+
+    static void applyCustomFighterTags(FighterWingSpecAPI wing) {
+        // addTag() clears autofitPriorityCategories even if the tag already exists.
+        // These tags do not affect autofit categories; preserve the inherited priority list.
+        Set<String> tags = wing.getTags();
+        tags.removeIf(Moci_FighterLoadoutService::isBlueprintTag);
+        tags.remove("variant");
+        tags.addAll(CUSTOM_FIGHTER_TAGS);
+        tags.add(Moci_FighterLoadoutSpec.TAG);
+    }
+
+    private static boolean isBlueprintTag(String tag) {
+        return tag != null && tag.endsWith("_bp");
     }
 }

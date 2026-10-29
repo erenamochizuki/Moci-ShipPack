@@ -70,8 +70,18 @@ public class Moci_ChainLightningCapacitor extends BaseHullMod {
     private static final Color BAR_GLOW_COLOR = new Color(255, 220, 190, 180);
 
     @Override
+    public boolean isApplicableToShip(ShipAPI ship) {
+        return Moci_ShroudedLaboratory.hasLaboratory(ship);
+    }
+
+    @Override
+    public String getUnapplicableReason(ShipAPI ship) {
+        return isApplicableToShip(ship) ? null : "需要第八战斗群-隐匿实验室";
+    }
+
+    @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
-        if (ship == null || ship.isFighter() || ship.isStationModule()) {
+        if (!isApplicableToShip(ship) || ship.isFighter() || ship.isStationModule()) {
             return;
         }
 

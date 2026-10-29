@@ -192,6 +192,15 @@ public class Moci_EnergyCoreOverclock extends BaseShipSystemScript {
     }
     
     /**
+     * 读取待恢复幅能（供 AI 使用；脚本类加载器禁 java.lang.reflect，故提供正式访问器）。
+     */
+    public static float pendingFluxOf(ShipAPI ship) {
+        if (ship == null) return 0f;
+        Object data = ship.getCustomData().get(DATA_KEY);
+        return data instanceof OverclockData overclock ? overclock.pendingFlux : 0f;
+    }
+
+    /**
      * 超频数据类
      */
     private static class OverclockData {
