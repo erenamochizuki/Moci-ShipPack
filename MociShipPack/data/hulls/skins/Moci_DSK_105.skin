@@ -1,0 +1,43 @@
+{
+  "baseHullId": "Moci_RX_105",
+  "skinHullId": "Moci_DSK_105",
+  "hullName": "DS柯西",
+  "descriptionId": "Moci_RX_105",
+  "systemId": "Moci_fw_xi_minovsky_flight",
+  "ordnancePoints": 120,
+  "incompatibleWithBaseHull": true,
+  "descriptionPrefix": "DS计划试作机 · 柯西高达的步枪节奏测试平台。用于验证蓄力狙击的速度曲线与分档节奏，不改动原柯西的任何定义。",
+  "tags": [
+    "moci_ms",
+    "ds",
+    "no_dealer",
+    "no_sell"
+  ],
+  "builtInMods": [
+    "Moci_fw_xi_high_mobility"
+  ],
+  "builtInWeapons": {
+    "ARM_L": "Moci_fw_xi_salvo_arm_left",
+    "ARM_R": "Moci_fw_xi_salvo_arm_right",
+    "ARM_R_SOURCE": "Moci_fw_xi_beam_rifle",
+    "WS0002": "Moci_fw_xi_mega_particle",
+    "WS0003": "Moci_fw_xi_mega_particle",
+    "WS0001": "Moci_fw_psycho_missile_6",
+    "WS0004": "Moci_fw_psycho_missile_6",
+    "WS0005": "Moci_fw_psycho_missile_5",
+    "WS0006": "Moci_fw_psycho_missile_5",
+    "WS0007": "Moci_fw_psycho_missile_6",
+    "WS0008": "Moci_fw_psycho_missile_6",
+    "WS0009": "Moci_fw_psycho_missile_5",
+    "WS0010": "Moci_fw_psycho_missile_5",
+    "ARSENAL_RIFLE_CHARGE": "Moci_fw_xi_rifle_charge"
+  },
+  "weaponSlotChanges": {
+    "WS0002": {
+      "arc": 120
+    },
+    "WS0003": {
+      "arc": 120
+    }
+  }
+}

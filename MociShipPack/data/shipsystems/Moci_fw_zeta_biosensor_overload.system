@@ -1,0 +1,10 @@
+{
+  "id": "Moci_fw_zeta_biosensor_overload",
+  "type": "STAT_MOD",
+  "aiType": "WEAPON_BOOST",
+  "statsScript": "xi.arsenal.ZetaBiosensorSystem",
+  "weaponGlowColor": [195, 70, 255, 200],
+  "weaponTypes": ["ENERGY"],
+  "useSound": "system_high_energy_focus_activate",
+  "deactivateSound": "system_high_energy_focus_deactivate"
+}

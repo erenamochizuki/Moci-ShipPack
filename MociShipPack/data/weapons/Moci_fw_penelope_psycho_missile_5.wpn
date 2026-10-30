@@ -1,0 +1,46 @@
+{
+  "id": "Moci_fw_penelope_psycho_missile_5",
+  "specClass": "projectile",
+  "type": "MISSILE",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/swarmer_srm_launcher_turret_base.png",
+  "hardpointSprite": "graphics/weapons/swarmer_srm_launcher_hardpoint_base.png",
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "SMOKE",
+  "interruptibleBurst": false,
+  "displayArcRadius": 5000,
+  "smokeSpec": {
+    "particleSizeMin": 8,
+    "particleSizeRange": 10,
+    "cloudParticleCount": 1,
+    "cloudDuration": 0.3,
+    "cloudRadius": 5,
+    "blowbackParticleCount": 1,
+    "blowbackDuration": 0.4,
+    "blowbackLength": 12,
+    "blowbackSpread": 8,
+    "particleColor": [
+      110,
+      210,
+      240,
+      110
+    ]
+  },
+  "projectileSpecId": "Moci_fw_xi_psycho_missile_shot",
+  "everyFrameEffect": "xi.arsenal.PsychoWeaponClock",
+  "fireSoundTwo": "swarmer_fire"
+}

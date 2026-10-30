@@ -42,7 +42,7 @@ Trans_AM,Moci_Trans_AM,,,,,,,,,,1,5,1,10,,,,,,,,,,,,,graphics/icons/hullsys/temp
 跳跃引擎,Moci_TravelJump,1,,,,,,,,,2,,2,0,TRUE,,,,TRUE,TRUE,TRUE,TRUE,TRUE,,,,graphics/icons/hullsys/burn_drive.png
 起飞引擎,Moci_MSLaunchTravelDrive,,,,,,,,,,2,,2,10,TRUE,,,,TRUE,FALSE,TRUE,TRUE,TRUE,,,,graphics/icons/hullsys/burn_drive.png
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,
-深潜,Moci_DeepDive,,,,,,,,,,0.5,,0.5,4,TRUE,,TRUE,TRUE,,,,,,TRUE,TRUE,defensive,graphics/icons/hullsys/phase_cloak.png
+深潜,Moci_DeepDive,,,,,,,,,,0.5,,0.5,4,TRUE,,TRUE,TRUE,,,,,,,TRUE,defensive,graphics/icons/hullsys/phase_cloak.png
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,
 波动推进,Moci_TravelDriveYamato,1,,,,,,,,,1,,1,4,TRUE,,,,,TRUE,TRUE,TRUE,TRUE,,,movement,graphics/icons/hullsys/Moci_combat_burn.png
 弹幕射击,Moci_YamatoAirDefense,,,,,,,,10,0.25,0.25,,,0.25,,,,,,,,,,,,defensive,graphics/icons/hullsys/Moci_canister_flak.png
@@ -57,3 +57,7 @@ Trans_AM,Moci_Trans_AM,,,,,,,,,,1,5,1,10,,,,,,,,,,,,,graphics/icons/hullsys/temp
 相位潜伏空雷,Moci_phase_mine_strike,,,,,,0.1,,5,0.2,0.25,,0.25,0,,,,,,,,,,,,offensive,graphics/icons/hullsys/mine_strike.png
 #熵抑制器,damper_omega,1,,,,,,,2,0.05,0.25,3,0.25,0,,,,,,,,,TRUE,TRUE,,uses_damper_ai,graphics/icons/hullsys/damper_field.png
 #空雷突袭,mine_strike,,,,,,0.1,,5,0.2,0.25,,0.25,0,,,,,,,,,,,,,graphics/icons/hullsys/interdictor_array.png
+米诺夫斯基飞行系统,Moci_fw_xi_minovsky_flight,60,,,,,,,,,0,,0,0,TRUE,FALSE,TRUE,FALSE,,,,,,FALSE,,movement,graphics/icons/hullsys/maneuvering_jets.png
+米诺夫斯基飞行系统·佩涅罗佩,Moci_fw_xi_minovsky_flight_penelope,60,,,,,,,,,0,,0,0,TRUE,FALSE,TRUE,FALSE,,,,,,FALSE,,movement,graphics/icons/hullsys/maneuvering_jets.png
+精神感应框架,Moci_fw_psychoframe,0,,,,,,,,,0.15,,0.15,0.5,TRUE,FALSE,FALSE,FALSE,,,,,,FALSE,,movement,graphics/icons/hullsys/targeting_feed.png
+生物传感器过载,Moci_fw_zeta_biosensor_overload,0,,,300,,,,,,0.35,40,0.35,20,FALSE,FALSE,FALSE,FALSE,,,,,,,,weapon_boost,graphics/icons/hullsys/high_energy_focus.png

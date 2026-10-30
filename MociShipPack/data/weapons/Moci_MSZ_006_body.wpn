@@ -1,5 +1,6 @@
 {
   "id": "Moci_MSZ_006_body",
+  "everyFrameEffect": "xi.arsenal.ZetaRifleBodyEffect",
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",

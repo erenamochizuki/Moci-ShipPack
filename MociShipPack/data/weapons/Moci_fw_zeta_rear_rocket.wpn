@@ -1,0 +1,51 @@
+{
+  "id": "Moci_fw_zeta_rear_rocket",
+  "specClass": "projectile",
+  "type": "MISSILE",
+  "size": "SMALL",
+  "turretSprite": "graphics/fx/empty.png",
+  "hardpointSprite": "graphics/fx/empty.png",
+  "everyFrameEffect": "xi.arsenal.ZetaRearRocketEffect",
+  "projectileSpecId": "Moci_fw_zeta_rear_rocket_shot",
+  "turretOffsets": [
+    0,
+    -31,
+    0,
+    31
+  ],
+  "hardpointOffsets": [
+    0,
+    -31,
+    0,
+    31
+  ],
+  "turretAngleOffsets": [
+    -7,
+    7
+  ],
+  "hardpointAngleOffsets": [
+    -7,
+    7
+  ],
+  "barrelMode": "ALTERNATING",
+  "interruptibleBurst": false,
+  "animationType": "SMOKE",
+  "fireSoundTwo": "annihilator_fire",
+  "smokeSpec": {
+    "particleSizeMin": 6,
+    "particleSizeRange": 8,
+    "cloudParticleCount": 2,
+    "cloudDuration": 0.4,
+    "cloudRadius": 8,
+    "blowbackParticleCount": 2,
+    "blowbackDuration": 0.2,
+    "blowbackLength": 8,
+    "blowbackSpread": 5,
+    "particleColor": [
+      180,
+      170,
+      160,
+      80
+    ]
+  }
+}

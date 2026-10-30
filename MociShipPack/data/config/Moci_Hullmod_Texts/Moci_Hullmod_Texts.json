@@ -135,7 +135,7 @@
       "frigate_collision_only_highlights": [
         "赛克缪系统"
       ],
-      "frigate_collision_only_benefit1": "%s 碰撞类型变为战机( %s )",
+      "frigate_collision_only_benefit1": "%s 碰撞类型变为战机( %s )。过载、引擎完全熄火或被毁时恢复舰船碰撞；过载及熄火解除后恢复战机碰撞。相位、起降和整备状态优先。",
       "frigate_collision_only_benefit1_highlights": [
         "#",
         "可穿越陨石、舰船、残骸"
@@ -149,7 +149,7 @@
       "frigate_rules_intro_highlights": [
         "轻型机动兵器"
       ],
-      "frigate_rule1": "%s 碰撞类型变为战机( %s )",
+      "frigate_rule1": "%s 碰撞类型变为战机( %s )。过载、引擎完全熄火或被毁时恢复舰船碰撞；过载及熄火解除后恢复战机碰撞。相位、起降和整备状态优先。",
       "frigate_rule1_highlights": [
         "#",
         "可穿越陨石、舰船、残骸"
@@ -306,6 +306,8 @@
     "name": "磁流体控制系统",
     "description": {
       "intro": "通过磁流体控制系统，该系统能够大幅降低舰船的传感器信号，并提高对抗糟糕环境的能力。",
+      "phase_mobility": "相位或深潜期间，额外提高最大航速}%s}至}%s}、加减速与转向能力}%s}至}%s}。加成随硬幅能占总容量的比例线性增长：无硬幅能时取最低值，硬幅能满载时取最高值，上浮后移除。",
+      "phase_mobility_highlights": ["10%", "40%", "5%", "25%"],
       "sensor_profile": "传感器信号降低 %s ，传统的雷达无法跟踪这艘舰船。",
       "sensor_profile_highlights": [
         "{sensor_profile}%"
@@ -1296,10 +1298,12 @@
     "name": "相位潜射",
     "description": {
       "title": "相位潜射机制",
-      "effect_1": "当舰船在 %s 时，内置的 %s 在发射时将进入 %s 状态，直到敌人出现在其足够近的范围内才会脱离 %s 。",
+      "launch_bonus": "深潜状态下通过发射的导弹，飞行速度与最长飞行时间各提高}%s}；导弹退潜后仍保留此加成。",
+      "launch_bonus_highlights": ["20%"],
+      "effect_1": "当舰船在}%s}时，}%s}发射的导弹将进入}%s}状态，接近敌舰后脱离}%s}。外置源武器在深潜期间禁止开火，上浮后恢复。",
       "effect_1_highlights": [
         "P空间",
-        "反舰导弹",
+        "内置与隐藏发射器",
         "相位移动",
         "P空间"
       ],

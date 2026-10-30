@@ -6,28 +6,74 @@
   "style": "MOCI_MS",
   "height": 206,
   "width": 48,
-  "center": [24, 103],
+  "center": [
+    24,
+    103
+  ],
   "collisionRadius": 59,
-  "shieldCenter": [0, 0],
+  "shieldCenter": [
+    0,
+    0
+  ],
   "shieldRadius": 59,
   "viewOffset": 0,
   "builtInMods": [
     "Moci_antibeamcoating_shield",
     "Moci_module_collision_controller"
   ],
-  "weaponSlots": [],
+  "weaponSlots": [
+    {
+      "id": "ZETA_SHIELD_COUNTER_A",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        16,
+        14
+      ]
+    },
+    {
+      "id": "ZETA_SHIELD_COUNTER_B",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -6,
+        14
+      ]
+    }
+  ],
   "engineSlots": [],
   "bounds": [
-    39.5, 4.5,
-    39.5, 9.5,
-    32.5, 15.5,
-    16.5, 19.5,
-    1.5, 23.5,
-    -7.5, 23.5,
-    -34.5, 19.5,
-    -51.5, 14.5,
-    -47.5, 10.5,
-    -18.5, 6.5,
-    8.5, 3.5
-  ]
+    39.5,
+    4.5,
+    39.5,
+    9.5,
+    32.5,
+    15.5,
+    16.5,
+    19.5,
+    1.5,
+    23.5,
+    -7.5,
+    23.5,
+    -34.5,
+    19.5,
+    -51.5,
+    14.5,
+    -47.5,
+    10.5,
+    -18.5,
+    6.5,
+    8.5,
+    3.5
+  ],
+  "builtInWeapons": {
+    "ZETA_SHIELD_COUNTER_A": "Moci_fw_zeta_shield_counter",
+    "ZETA_SHIELD_COUNTER_B": "Moci_fw_zeta_shield_counter"
+  }
 }

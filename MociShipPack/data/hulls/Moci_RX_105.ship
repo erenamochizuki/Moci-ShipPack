@@ -3,12 +3,18 @@
   "hullId": "Moci_RX_105",
   "hullSize": "DESTROYER",
   "spriteName": "graphics/ships/Mobile_Suit/RX_105/body/RX_105.png",
-  "style": "MOCI_MS",
+  "style": "MOCI_MS_XI",
   "height": 306,
   "width": 204,
-  "center": [102, 153],
+  "center": [
+    102,
+    153
+  ],
   "collisionRadius": 133,
-  "shieldCenter": [0, 0],
+  "shieldCenter": [
+    0,
+    0
+  ],
   "shieldRadius": 133,
   "viewOffset": 0,
   "builtInMods": [
@@ -40,7 +46,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [18, -0]
+      "locations": [
+        18,
+        0
+      ]
     },
     {
       "id": "BODY",
@@ -49,7 +58,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [0, -0],
+      "locations": [
+        0,
+        0
+      ],
       "renderOrderMod": 1
     },
     {
@@ -59,7 +71,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [-1, -32],
+      "locations": [
+        -1,
+        -32
+      ],
       "renderOrderMod": 5
     },
     {
@@ -69,7 +84,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [-1, 31],
+      "locations": [
+        -1,
+        31
+      ],
       "renderOrderMod": 6
     },
     {
@@ -79,7 +97,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [-4, -51],
+      "locations": [
+        -4,
+        -51
+      ],
       "renderOrderMod": 3
     },
     {
@@ -89,7 +110,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [-4, 54],
+      "locations": [
+        -4,
+        54
+      ],
       "renderOrderMod": 3
     },
     {
@@ -99,7 +123,10 @@
       "mount": "TURRET",
       "arc": 100,
       "angle": 0,
-      "locations": [-4, -51],
+      "locations": [
+        -4,
+        -51
+      ],
       "renderOrderMod": 4
     },
     {
@@ -109,7 +136,10 @@
       "mount": "TURRET",
       "arc": 120,
       "angle": 0,
-      "locations": [-3, -0],
+      "locations": [
+        -3,
+        0
+      ],
       "renderOrderMod": 6
     },
     {
@@ -119,7 +149,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [-4, 54],
+      "locations": [
+        -4,
+        54
+      ],
       "renderOrderMod": 7
     },
     {
@@ -129,7 +162,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [-3, -0],
+      "locations": [
+        -3,
+        0
+      ],
       "renderOrderMod": 7
     },
     {
@@ -139,7 +175,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [-1, 31],
+      "locations": [
+        -1,
+        31
+      ],
       "renderOrderMod": 4
     },
     {
@@ -148,8 +187,11 @@
       "type": "DECORATIVE",
       "mount": "TURRET",
       "arc": 360,
-      "angle": -0,
-      "locations": [-1, -32],
+      "angle": 0,
+      "locations": [
+        -1,
+        -32
+      ],
       "renderOrderMod": 4
     },
     {
@@ -159,7 +201,10 @@
       "mount": "HIDDEN",
       "arc": 360,
       "angle": 0,
-      "locations": [16.5, -17.5]
+      "locations": [
+        16.5,
+        -17.5
+      ]
     },
     {
       "id": "WS0003",
@@ -167,8 +212,11 @@
       "type": "MISSILE",
       "mount": "HIDDEN",
       "arc": 360,
-      "angle": -0,
-      "locations": [16.5, 17.5]
+      "angle": 0,
+      "locations": [
+        16.5,
+        17.5
+      ]
     },
     {
       "id": "WS0001",
@@ -177,7 +225,10 @@
       "mount": "HIDDEN",
       "arc": 360,
       "angle": 0,
-      "locations": [11, -30.5]
+      "locations": [
+        11,
+        -30.5
+      ]
     },
     {
       "id": "WS0004",
@@ -185,8 +236,11 @@
       "type": "MISSILE",
       "mount": "HIDDEN",
       "arc": 360,
-      "angle": -0,
-      "locations": [11, 30.5]
+      "angle": 0,
+      "locations": [
+        11,
+        30.5
+      ]
     },
     {
       "id": "WS0005",
@@ -194,8 +248,11 @@
       "type": "MISSILE",
       "mount": "HIDDEN",
       "arc": 360,
-      "angle": -0,
-      "locations": [31, -19.5]
+      "angle": 0,
+      "locations": [
+        31,
+        -19.5
+      ]
     },
     {
       "id": "WS0006",
@@ -204,7 +261,10 @@
       "mount": "HIDDEN",
       "arc": 360,
       "angle": 0,
-      "locations": [31, 19.5]
+      "locations": [
+        31,
+        19.5
+      ]
     },
     {
       "id": "WS0007",
@@ -212,8 +272,11 @@
       "type": "MISSILE",
       "mount": "HIDDEN",
       "arc": 360,
-      "angle": -0,
-      "locations": [12, 45]
+      "angle": 0,
+      "locations": [
+        12,
+        45
+      ]
     },
     {
       "id": "WS0008",
@@ -222,7 +285,10 @@
       "mount": "HIDDEN",
       "arc": 360,
       "angle": 0,
-      "locations": [12, -45]
+      "locations": [
+        12,
+        -45
+      ]
     },
     {
       "id": "WS0009",
@@ -230,8 +296,11 @@
       "type": "MISSILE",
       "mount": "HIDDEN",
       "arc": 360,
-      "angle": -0,
-      "locations": [11.5, 59.5]
+      "angle": 0,
+      "locations": [
+        11.5,
+        59.5
+      ]
     },
     {
       "id": "WS0010",
@@ -240,12 +309,31 @@
       "mount": "HIDDEN",
       "arc": 360,
       "angle": 0,
-      "locations": [11.5, -59.5]
+      "locations": [
+        11.5,
+        -59.5
+      ]
+    },
+    {
+      "id": "ARSENAL_RIFLE_CHARGE",
+      "size": "LARGE",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 100,
+      "angle": 0,
+      "locations": [
+        -4,
+        -51
+      ],
+      "renderOrderMod": -1
     }
   ],
   "engineSlots": [
     {
-      "location": [-24, -12],
+      "location": [
+        -24,
+        -12
+      ],
       "length": 30,
       "width": 10,
       "angle": -160,
@@ -253,7 +341,10 @@
       "style": "HIGH_TECH"
     },
     {
-      "location": [-24, 12],
+      "location": [
+        -24,
+        12
+      ],
       "length": 30,
       "width": 10,
       "angle": 160,
@@ -261,7 +352,10 @@
       "style": "HIGH_TECH"
     },
     {
-      "location": [-24, -10],
+      "location": [
+        -24,
+        -10
+      ],
       "length": 19,
       "width": 8,
       "angle": 180,
@@ -269,7 +363,10 @@
       "style": "HIGH_TECH"
     },
     {
-      "location": [-24, 10],
+      "location": [
+        -24,
+        10
+      ],
       "length": 19,
       "width": 8,
       "angle": -180,
@@ -278,15 +375,25 @@
     }
   ],
   "bounds": [
-    -38, -14,
-    -6, -29,
-    4, -29,
-    24, -18,
-    30, -7,
-    30, 7,
-    24, 18,
-    4, 29,
-    -6, 29,
-    -38, 14
+    -38,
+    -14,
+    -6,
+    -29,
+    4,
+    -29,
+    24,
+    -18,
+    30,
+    -7,
+    30,
+    7,
+    24,
+    18,
+    4,
+    29,
+    -6,
+    29,
+    -38,
+    14
   ]
 }

@@ -1,0 +1,54 @@
+{
+  "id": "Moci_fw_zeta_rifle_sniper",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "everyFrameEffect": "xi.arsenal.ZetaRifleWeaponEffect",
+  "beamEffect": "xi.arsenal.ZetaRifleBeamFx",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/fx/empty.png",
+  "hardpointSprite": "graphics/fx/empty.png",
+  "turretOffsets": [
+    100.5,
+    0
+  ],
+  "hardpointOffsets": [
+    152,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "beamFireOnlyOnFullCharge": true,
+  "fringeColor": [
+    255,
+    65,
+    180,
+    255
+  ],
+  "coreColor": [
+    255,
+    245,
+    255,
+    255
+  ],
+  "glowColor": [
+    245,
+    80,
+    210,
+    200
+  ],
+  "width": 48,
+  "hitGlowRadius": 80,
+  "textureType": [
+    "graphics/fx/Moci_magnum_beam_fringe.png",
+    "graphics/fx/Moci_magnum_beam_core.png"
+  ],
+  "textureScrollSpeed": 600,
+  "pixelsPerTexel": 4,
+  "autocharge": false
+}

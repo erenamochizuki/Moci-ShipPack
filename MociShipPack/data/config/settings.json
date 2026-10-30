@@ -191,6 +191,7 @@
 		"mociCombatSquadCombatPlugin": "data.scripts.Moci_CombatSquadCombatPlugin",
 		"mociShroudedDragonTailCombatPlugin": "data.scripts.Moci_ShroudedDragonTailCombatPlugin",
 		"mociProjectileDistortionPlugin": "data.scripts.Moci_ProjectileDistortionPlugin",
-		"mociProjectileConvergenceCombatPlugin": "data.scripts.Moci_ProjectileConvergenceCombatPlugin"
+		"mociProjectileConvergenceCombatPlugin": "data.scripts.Moci_ProjectileConvergenceCombatPlugin",
+		"moci_combat_bus": "data.scripts.Moci_CombatBusPlugin"
     }
 }

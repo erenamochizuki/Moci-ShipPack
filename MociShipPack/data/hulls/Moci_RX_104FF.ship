@@ -3,12 +3,18 @@
   "hullId": "Moci_RX_104FF",
   "hullSize": "CRUISER",
   "spriteName": "graphics/ships/Mobile_Suit/RX_104FF/body/RX_104FF_body_00.png",
-  "style": "MOCI_MS",
+  "style": "MOCI_MS_PENELOPE",
   "height": 566,
   "width": 446,
-  "center": [223, 283],
+  "center": [
+    223,
+    283
+  ],
   "collisionRadius": 190,
-  "shieldCenter": [0, 0],
+  "shieldCenter": [
+    0,
+    0
+  ],
   "shieldRadius": 210,
   "viewOffset": 0,
   "builtInMods": [
@@ -34,7 +40,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [-0, -0],
+      "locations": [
+        0,
+        0
+      ],
       "renderOrderMod": 1
     },
     {
@@ -44,7 +53,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [0, -0],
+      "locations": [
+        0,
+        0
+      ],
       "renderOrderMod": 15
     },
     {
@@ -54,7 +66,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [-50, -0]
+      "locations": [
+        -50,
+        0
+      ]
     },
     {
       "id": "ARM_R",
@@ -63,7 +78,10 @@
       "mount": "TURRET",
       "arc": 90,
       "angle": 0,
-      "locations": [-2, -58],
+      "locations": [
+        -2,
+        -58
+      ],
       "renderOrderMod": 3
     },
     {
@@ -73,7 +91,10 @@
       "mount": "TURRET",
       "arc": 105,
       "angle": 0,
-      "locations": [-2, 58],
+      "locations": [
+        -2,
+        58
+      ],
       "renderOrderMod": 3
     },
     {
@@ -83,7 +104,10 @@
       "mount": "TURRET",
       "arc": 90,
       "angle": 0,
-      "locations": [-2, -58],
+      "locations": [
+        -2,
+        -58
+      ],
       "renderOrderMod": 4
     },
     {
@@ -93,7 +117,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [5, -0],
+      "locations": [
+        5,
+        0
+      ],
       "renderOrderMod": 20
     },
     {
@@ -103,7 +130,10 @@
       "mount": "HIDDEN",
       "arc": 360,
       "angle": 0,
-      "locations": [30.5, -17.5]
+      "locations": [
+        30.5,
+        -17.5
+      ]
     },
     {
       "id": "WS0002",
@@ -111,8 +141,11 @@
       "type": "MISSILE",
       "mount": "HIDDEN",
       "arc": 360,
-      "angle": -0,
-      "locations": [30.5, 17.5]
+      "angle": 0,
+      "locations": [
+        30.5,
+        17.5
+      ]
     },
     {
       "id": "WS0003",
@@ -121,7 +154,10 @@
       "mount": "HIDDEN",
       "arc": 360,
       "angle": 0,
-      "locations": [28.5, -34.5]
+      "locations": [
+        28.5,
+        -34.5
+      ]
     },
     {
       "id": "WS0004",
@@ -129,8 +165,11 @@
       "type": "MISSILE",
       "mount": "HIDDEN",
       "arc": 360,
-      "angle": -0,
-      "locations": [28.5, 34.5]
+      "angle": 0,
+      "locations": [
+        28.5,
+        34.5
+      ]
     },
     {
       "id": "WS0005",
@@ -139,7 +178,10 @@
       "mount": "HIDDEN",
       "arc": 360,
       "angle": 0,
-      "locations": [22, -53]
+      "locations": [
+        22,
+        -53
+      ]
     },
     {
       "id": "WS0006",
@@ -147,8 +189,11 @@
       "type": "MISSILE",
       "mount": "HIDDEN",
       "arc": 360,
-      "angle": -0,
-      "locations": [22, 53]
+      "angle": 0,
+      "locations": [
+        22,
+        53
+      ]
     },
     {
       "id": "WS0007",
@@ -157,7 +202,10 @@
       "mount": "HIDDEN",
       "arc": 360,
       "angle": 0,
-      "locations": [-1.5, -27]
+      "locations": [
+        -1.5,
+        -27
+      ]
     },
     {
       "id": "WS0008",
@@ -165,8 +213,11 @@
       "type": "MISSILE",
       "mount": "HIDDEN",
       "arc": 360,
-      "angle": -0,
-      "locations": [-1.5, 27]
+      "angle": 0,
+      "locations": [
+        -1.5,
+        27
+      ]
     },
     {
       "id": "WS0009",
@@ -175,7 +226,10 @@
       "mount": "HIDDEN",
       "arc": 360,
       "angle": 0,
-      "locations": [-29.5, -27.5]
+      "locations": [
+        -29.5,
+        -27.5
+      ]
     },
     {
       "id": "WS0010",
@@ -183,13 +237,32 @@
       "type": "MISSILE",
       "mount": "HIDDEN",
       "arc": 360,
-      "angle": -0,
-      "locations": [-29.5, 27.5]
+      "angle": 0,
+      "locations": [
+        -29.5,
+        27.5
+      ]
+    },
+    {
+      "id": "ARSENAL_RIFLE_CHARGE",
+      "size": "LARGE",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        -2,
+        -58
+      ],
+      "renderOrderMod": -1
     }
   ],
   "engineSlots": [
     {
-      "location": [-39.5, -17.5],
+      "location": [
+        -39.5,
+        -17.5
+      ],
       "length": 32.699925,
       "width": 8.652144,
       "angle": -173.5,
@@ -197,7 +270,10 @@
       "style": "HIGH_TECH"
     },
     {
-      "location": [-39.5, 17.5],
+      "location": [
+        -39.5,
+        17.5
+      ],
       "length": 32.699925,
       "width": 8.652144,
       "angle": 173.5,
@@ -205,7 +281,10 @@
       "style": "HIGH_TECH"
     },
     {
-      "location": [-81.5, -8.5],
+      "location": [
+        -81.5,
+        -8.5
+      ],
       "length": 23,
       "width": 6,
       "angle": 180,
@@ -213,7 +292,10 @@
       "style": "HIGH_TECH"
     },
     {
-      "location": [-81.5, 8.5],
+      "location": [
+        -81.5,
+        8.5
+      ],
       "length": 23,
       "width": 6,
       "angle": -180,
@@ -222,17 +304,29 @@
     }
   ],
   "bounds": [
-    -90.5, -11.5,
-    -48.5, -12.5,
-    -7.5, -66.5,
-    -0.5, -66.5,
-    57.5, -3.5,
-    57.5, 3.5,
-    -0.5, 66.5,
-    -7.5, 66.5,
-    -48.5, 12.5,
-    -90.5, 11.5,
-    -94.5, 7.5,
-    -94.5, -7.5
+    -90.5,
+    -11.5,
+    -48.5,
+    -12.5,
+    -7.5,
+    -66.5,
+    -0.5,
+    -66.5,
+    57.5,
+    -3.5,
+    57.5,
+    3.5,
+    -0.5,
+    66.5,
+    -7.5,
+    66.5,
+    -48.5,
+    12.5,
+    -90.5,
+    11.5,
+    -94.5,
+    7.5,
+    -94.5,
+    -7.5
   ]
 }

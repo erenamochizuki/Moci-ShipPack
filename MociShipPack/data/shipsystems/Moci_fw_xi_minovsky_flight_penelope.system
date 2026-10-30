@@ -1,0 +1,12 @@
+{
+  "id": "Moci_fw_xi_minovsky_flight_penelope",
+  "type": "ENGINE_MOD",
+  "aiType": "NONE",
+  "statsScript": "xi.arsenal.MinovskyFlightStats",
+  "runScriptWhileIdle": true,
+  "flameoutOnImpactChance": 0,
+  "clampTurnRateAfter": true,
+  "clampMaxSpeedAfter": false,
+  "useSound": "moci_minovsky_start_penelope",
+  "fadeActivationSoundOnChargedown": true
+}

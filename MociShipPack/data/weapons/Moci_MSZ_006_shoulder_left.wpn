@@ -1,6 +1,6 @@
 {
   "id": "Moci_MSZ_006_shoulder_left",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechShoulderDecoWeaponEffect",
+  "everyFrameEffect": "xi.arsenal.ZetaRifleShoulderEffect",
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",

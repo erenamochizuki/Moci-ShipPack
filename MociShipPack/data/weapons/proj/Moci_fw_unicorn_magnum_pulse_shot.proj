@@ -1,0 +1,18 @@
+{
+  "id":"Moci_fw_unicorn_magnum_pulse_shot",
+  "specClass":"projectile",
+  "spawnType":"BALLISTIC_AS_BEAM",
+  "collisionClass":"RAY",
+  "collisionClassByFighter":"RAY_FIGHTER",
+  "onFireEffect":"xi.arsenal.UnicornMagnumPulseOnFire",
+  "onHitEffect":"xi.arsenal.UnicornMagnumPulseOnFire",
+  "hitGlowRadius":100,
+  "length":150,
+  "width":150,
+  "fadeTime":0.08,
+  "fringeColor":[255,255,255,0],
+  "coreColor":[255,255,255,0],
+  "textureType":"ROUGH",
+  "textureScrollSpeed":600,
+  "pixelsPerTexel":4
+}

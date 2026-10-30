@@ -1,0 +1,61 @@
+{
+  "id": "Moci_fw_xi_rifle_charge",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "everyFrameEffect": "xi.arsenal.BeamRifleChargeEffect",
+  "beamEffect": "xi.arsenal.BeamRifleChargeEffect",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/fx/empty.png",
+  "hardpointSprite": "graphics/fx/empty.png",
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "beamFireOnlyOnFullCharge": true,
+  "autocharge": false,
+  "fringeColor": [
+    72,
+    255,
+    116,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "glowColor": [
+    72,
+    255,
+    116,
+    255
+  ],
+  "width": 42,
+  "hitGlowRadius": 70,
+  "textureType": [
+    "graphics/fx/Moci_magnum_beam_fringe.png",
+    "graphics/fx/Moci_magnum_beam_core.png"
+  ],
+  "textureScrollSpeed": 470,
+  "pixelsPerTexel": 3,
+  "pierceSet": [
+    "PROJECTILE_FF",
+    "PROJECTILE_NO_FF",
+    "PROJECTILE_FIGHTER",
+    "MISSILE_FF",
+    "MISSILE_NO_FF"
+  ]
+}

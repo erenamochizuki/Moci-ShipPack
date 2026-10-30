@@ -8,7 +8,16 @@
   "quality": 1,
   "permaMods": [],
   "hullMods": [],
-  "weaponGroups": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "ZETA_SHIELD_COUNTER_A": "Moci_fw_zeta_shield_counter",
+        "ZETA_SHIELD_COUNTER_B": "Moci_fw_zeta_shield_counter"
+      }
+    }
+  ],
   "modules": [],
   "wings": []
 }

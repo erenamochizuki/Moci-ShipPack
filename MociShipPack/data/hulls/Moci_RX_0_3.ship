@@ -26,6 +26,7 @@
     "Moci_GNShield"
   ],
   "builtInWeapons": {
+    "UNICORN_MAGNUM_CHARGE": "Moci_fw_unicorn_magnum_charge",
     "ARM_L": "Moci_RX_0_3_arm_left",
     "ARM_L_SOURCE": "RX_0_1_arm_left_weapon_machinegun",
     "ARM_R": "Moci_RX_0_3_arm_right",
@@ -37,6 +38,19 @@
     "SHOULDER_R": "Moci_RX_0_3_shoulder_right"
   },
   "weaponSlots": [
+    {
+      "id": "UNICORN_MAGNUM_CHARGE",
+      "size": "LARGE",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        3,
+        -39
+      ],
+      "renderOrderMod": -1
+    },
     {
       "id": "LEGS",
       "size": "SMALL",

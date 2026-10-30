@@ -1,0 +1,33 @@
+{
+  "id": "Moci_fw_zeta_wrist_grenade_shot",
+  "specClass": "projectile",
+  "spawnType": "BALLISTIC",
+  "collisionClass": "PROJECTILE_FF",
+  "collisionClassByFighter": "PROJECTILE_FIGHTER",
+  "length": 14,
+  "width": 8,
+  "fadeTime": 0.15,
+  "hitGlowRadius": 30,
+  "fringeColor": [255, 170, 75, 190],
+  "coreColor": [255, 245, 210, 255],
+  "bulletSprite": "graphics/missiles/mortar_round.png",
+  "onFireEffect": "xi.arsenal.ZetaWristOnFire",
+  "behaviorSpec": {
+    "behavior": "PROXIMITY_FUSE",
+    "onExplosionEffect": "xi.arsenal.ZetaWristOnFire",
+    "range": 12,
+    "explosionSpec": {
+      "duration": 0.1,
+      "radius": 85,
+      "coreRadius": 40,
+      "collisionClass": "PROJECTILE_FF",
+      "collisionClassByFighter": "PROJECTILE_FIGHTER",
+      "particleSizeMin": 3,
+      "particleSizeRange": 4,
+      "particleDuration": 0.5,
+      "particleCount": 45,
+      "particleColor": [255, 180, 85, 230],
+      "sound": "explosion_flak"
+    }
+  }
+}

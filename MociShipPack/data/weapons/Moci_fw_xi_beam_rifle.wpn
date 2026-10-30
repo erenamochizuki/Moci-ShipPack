@@ -1,0 +1,33 @@
+{
+  "id": "Moci_fw_xi_beam_rifle",
+  "specClass": "projectile",
+  "projectileSpecId": "Moci_fw_xi_beam_rifle_shot",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "everyFrameEffect": "xi.arsenal.BeamRifleMount",
+  "renderHints": ["SUSPEND_RECOIL"],
+  "turretSprite": "",
+  "turretGlowSprite": "",
+  "turretGunSprite": "graphics/ships/Mobile_Suit/RX_105/arms/RX_105_arm_gun.png",
+  "hardpointSprite": "",
+  "hardpointGlowSprite": "",
+  "hardpointGunSprite": "graphics/ships/Mobile_Suit/RX_105/arms/RX_105_arm_gun.png",
+  "glowColor": [72, 255, 116, 255],
+  "visualRecoil": 2.5,
+  "turretOffsets": [178, 14],
+  "turretAngleOffsets": [0],
+  "hardpointOffsets": [268, 14],
+  "hardpointAngleOffsets": [0],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 55,
+    "spread": 18,
+    "particleSizeMin": 22,
+    "particleSizeRange": 12,
+    "particleDuration": 0.12,
+    "particleCount": 12,
+    "particleColor": [190, 255, 218, 255]
+  },
+  "fireSoundTwo": "Moci_fw_arsenal_beam_rifle_shot"
+}

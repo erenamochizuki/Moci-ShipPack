@@ -39,7 +39,7 @@
     },
     {
       "id": "ARM_L",
-      "size": "SMALL",
+      "size": "MEDIUM",
       "type": "BALLISTIC",
       "mount": "TURRET",
       "arc": 360,
@@ -49,7 +49,7 @@
     },
     {
       "id": "ARM_R",
-      "size": "SMALL",
+      "size": "MEDIUM",
       "type": "BALLISTIC",
       "mount": "TURRET",
       "arc": 90,

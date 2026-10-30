@@ -1,0 +1,40 @@
+{
+  "baseHullId": "Moci_RX_104FF",
+  "skinHullId": "Moci_RX_104FF_framework_arsenal",
+  "hullName": "佩涅罗佩·精神力武装",
+  "descriptionId": "Moci_RX_104FF",
+  "systemId": "Moci_fw_xi_minovsky_flight_penelope",
+  "incompatibleWithBaseHull": true,
+  "tags": [
+    "moci_ms",
+    "no_dealer",
+    "no_sell"
+  ],
+  "builtInMods": [
+    "Moci_fw_penelope_high_mobility"
+  ],
+  "builtInWeapons": {
+    "ARM_L": "Moci_fw_penelope_salvo_arm_left",
+    "ARM_R": "Moci_fw_penelope_salvo_arm_right",
+    "ARM_R_SOURCE": "Moci_fw_penelope_beam_rifle",
+    "WS0005": "Moci_fw_penelope_mega_particle",
+    "WS0006": "Moci_fw_penelope_mega_particle",
+    "WS0001": "Moci_fw_penelope_psycho_missile_8",
+    "WS0002": "Moci_fw_penelope_psycho_missile_8",
+    "WS0003": "Moci_fw_penelope_psycho_missile_8",
+    "WS0004": "Moci_fw_penelope_psycho_missile_8",
+    "WS0007": "Moci_fw_penelope_psycho_missile_8",
+    "WS0008": "Moci_fw_penelope_psycho_missile_8",
+    "WS0009": "Moci_fw_penelope_psycho_missile_8",
+    "WS0010": "Moci_fw_penelope_psycho_missile_8",
+    "ARSENAL_RIFLE_CHARGE": "Moci_fw_penelope_rifle_charge"
+  },
+  "weaponSlotChanges": {
+    "WS0005": {
+      "arc": 8
+    },
+    "WS0006": {
+      "arc": 8
+    }
+  }
+}

@@ -5,7 +5,7 @@
   "size": "SMALL",
   "everyFrameEffect": "data.scripts.weapons.Moci_RX105FullBodyAnimationController",
   "showDamageWhenDecorative": false,
-  "renderBelowAllWeapons": false,
+  "renderBelowAllWeapons": true,
   "turretSprite": "graphics/ships/Mobile_Suit/RX_105/legs/RX_105_legs_00.png",
   "hardpointSprite": "graphics/ships/Mobile_Suit/RX_105/legs/RX_105_legs_00.png",
   "turretOffsets": [

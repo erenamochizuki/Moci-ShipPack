@@ -1,0 +1,33 @@
+{
+  "id": "Moci_fw_penelope_mega_particle",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "mountTypeOverride": "MISSILE",
+  "size": "SMALL",
+  "everyFrameEffect": "xi.arsenal.PenaMegaMagazine",
+  "beamEffect": "xi.arsenal.MegaParticleBeamEffect",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "",
+  "hardpointSprite": "",
+  "glowColor": [165, 100, 255, 235],
+  "hitGlowRadius": 100,
+  "turretOffsets": [0, 0],
+  "turretAngleOffsets": [0],
+  "hardpointOffsets": [0, 0],
+  "hardpointAngleOffsets": [0],
+  "beamFireOnlyOnFullCharge": true,
+  "fringeColor": [255, 255, 255, 255],
+  "coreColor": [255, 255, 255, 255],
+  "width": 200,
+  "textureType": [
+    "graphics/fx/Moci_magnum_beam_fringe.png",
+    "graphics/fx/Moci_magnum_beam_core.png"
+  ],
+  "textureScrollSpeed": 600,
+  "pixelsPerTexel": 4,
+  "pierceSet": [
+    "PROJECTILE_FF", "PROJECTILE_NO_FF", "PROJECTILE_FIGHTER",
+    "MISSILE_FF", "MISSILE_NO_FF"
+  ]
+}

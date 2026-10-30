@@ -1,0 +1,66 @@
+{
+  "id": "Moci_fw_hinu_hand_cannon",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "everyFrameEffect": "xi.arsenal.HiNuCannonWeaponEffect",
+  "beamEffect": "data.scripts.weapons.Moci_BeamHardFlux",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "",
+  "hardpointSprite": "",
+  "hiddenSprite": "",
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    0,
+    0
+  ],
+  "hiddenOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "hiddenAngleOffsets": [
+    0
+  ],
+  "barrelMode": "LINKED",
+  "glowColor": [
+    165,
+    100,
+    255,
+    235
+  ],
+  "hitGlowRadius": 100,
+  "fringeColor": [
+    85,
+    25,
+    215,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 200,
+  "textureType": "ROUGH",
+  "textureScrollSpeed": 292,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    "PROJECTILE_FF",
+    "PROJECTILE_NO_FF",
+    "PROJECTILE_FIGHTER",
+    "MISSILE_FF",
+    "MISSILE_NO_FF"
+  ],
+  "fireSoundTwo": "tachyon_lance_fire"
+}

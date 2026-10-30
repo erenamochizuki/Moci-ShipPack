@@ -1,0 +1,17 @@
+{
+  "id": "Moci_fw_zeta_wrist_grenade",
+  "specClass": "projectile",
+  "type": "BALLISTIC",
+  "size": "SMALL",
+  "turretSprite": "graphics/fx/empty.png",
+  "hardpointSprite": "graphics/fx/empty.png",
+  "turretOffsets": [25, 2, 25, -1],
+  "hardpointOffsets": [25, 2, 25, -1],
+  "turretAngleOffsets": [0, 0],
+  "hardpointAngleOffsets": [0, 0],
+  "barrelMode": "ALTERNATING",
+  "animationType": "NONE",
+  "projectileSpecId": "Moci_fw_zeta_wrist_grenade_shot",
+  "everyFrameEffect": "xi.arsenal.ZetaWristMount",
+  "fireSoundOne": "light_mortar_fire"
+}

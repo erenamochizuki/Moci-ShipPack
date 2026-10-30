@@ -364,6 +364,88 @@
 		"dHullOverlayMedium":"graphics/damage/dmod_overlay_hightech_medium.png",
 		"dHullOverlayHeavy":"graphics/damage/dmod_overlay_hightech_heavy.png",
 	},
+	"MOCI_MS_XI":{ # 舰船风格 ID，必改
+		"hyperspaceJitterColor":[100,165,255,200], # 在大地图时的光芒颜色
+		"baseCampaignExplosionColor":[100,165,255,255], # 在大地图爆炸时的颜色
+		"baseCombatExplosionColor":[100,165,255,255], # 在战斗中爆炸时的颜色
+		"combatExplosionNonFlashColorOverride":[100,165,255,255], 
+		"fighterRepairFlickerColor":[100,165,255,255], # 甲板维修战机时冒火花的颜色
+		"fighterChipIconColor":[100,165,255,255], # 战机LPC的颜色
+		"weaponDisabledExplosionColor":[100,165,255,255], # 武器下线冒火花的颜色
+		"shieldRingColor":[255,255,255,255], # 护盾外圈颜色
+		"shieldInnerColor":[125,125,255,75], # 护盾内圈颜色
+		"fluxVentCoreColor":[214,255,223,185],# V排內圈颜色
+		"fluxVentFringeColor":[116,209,154,255],# V排外圈颜色
+		"fluxVentTextureSheet":"graphics/fx/Moci_nebula_colorless.png", # V排外圈材质
+		"fluxVentRadialTexture":"graphics/fx/radial_fx.png", # V排内圈材质
+		"engineLoopSet":"moci_minovsky_loop_xi", # 引擎音效
+		"engineAccelerateSet":"engine_accelerate",# 零幅能加速瞬间音效
+		"empLoopSet":"emp_loop",# 过载后的随机音效
+		"fluxLoopSet":"flux_loop",# V排循环音效
+		"ventFluxSet":"vent_flux", # V排瞬间音效
+		"shieldBurnoutSet":"shield_burnout",# 过载瞬间音效
+		"shieldLowerSet":"shield_lower",# 护盾关闭音效
+		"shieldRaiseSet":"shield_raise",# 护盾打开音效
+		"explosionShipSet":"explosion_ship",# 舰船爆炸音效
+		"damageDecalSheet":"graphics/damage/damage_decal_sheet_base.png", # 损伤贴图
+		"damageDecalGlowSheet":"graphics/damage/damage_decal_sheet_glow.png", # 带光效的损伤贴图
+		                                         
+		#"colorShiftCovers":true, # 武器盖板颜色是否自适应舰体，false否 true是
+		"coversColorShiftAmount":1, # 0 to 1   # 自适应舰体程度，0~1，越大越接近舰体颜色
+		"coversMatchShipBrightness":true, # 自适应舰体光效
+		# 武器盖板贴图
+		"slotCoverSmallTurret":"graphics/weapons/covers/Moci_cover.png",
+		"slotCoverSmallHardpoint":"graphics/weapons/covers/Moci_cover.png", 
+		"slotCoverMediumTurret":"graphics/weapons/covers/Moci_cover.png",              
+		"slotCoverMediumHardpoint":"graphics/weapons/covers/Moci_cover.png",
+		"slotCoverLargeTurret":"graphics/weapons/covers/Moci_cover.png",
+		"slotCoverLargeHardpoint":"graphics/weapons/covers/Moci_cover.png",
+		# D插覆盖贴图
+		"dHullOverlayLight":"graphics/damage/dmod_overlay_hightech_light.png",
+		"dHullOverlayMedium":"graphics/damage/dmod_overlay_hightech_medium.png",
+		"dHullOverlayHeavy":"graphics/damage/dmod_overlay_hightech_heavy.png",
+	},
+	"MOCI_MS_PENELOPE":{ # 舰船风格 ID，必改
+		"hyperspaceJitterColor":[100,165,255,200], # 在大地图时的光芒颜色
+		"baseCampaignExplosionColor":[100,165,255,255], # 在大地图爆炸时的颜色
+		"baseCombatExplosionColor":[100,165,255,255], # 在战斗中爆炸时的颜色
+		"combatExplosionNonFlashColorOverride":[100,165,255,255], 
+		"fighterRepairFlickerColor":[100,165,255,255], # 甲板维修战机时冒火花的颜色
+		"fighterChipIconColor":[100,165,255,255], # 战机LPC的颜色
+		"weaponDisabledExplosionColor":[100,165,255,255], # 武器下线冒火花的颜色
+		"shieldRingColor":[255,255,255,255], # 护盾外圈颜色
+		"shieldInnerColor":[125,125,255,75], # 护盾内圈颜色
+		"fluxVentCoreColor":[214,255,223,185],# V排內圈颜色
+		"fluxVentFringeColor":[116,209,154,255],# V排外圈颜色
+		"fluxVentTextureSheet":"graphics/fx/Moci_nebula_colorless.png", # V排外圈材质
+		"fluxVentRadialTexture":"graphics/fx/radial_fx.png", # V排内圈材质
+		"engineLoopSet":"moci_minovsky_loop_penelope", # 引擎音效
+		"engineAccelerateSet":"engine_accelerate",# 零幅能加速瞬间音效
+		"empLoopSet":"emp_loop",# 过载后的随机音效
+		"fluxLoopSet":"flux_loop",# V排循环音效
+		"ventFluxSet":"vent_flux", # V排瞬间音效
+		"shieldBurnoutSet":"shield_burnout",# 过载瞬间音效
+		"shieldLowerSet":"shield_lower",# 护盾关闭音效
+		"shieldRaiseSet":"shield_raise",# 护盾打开音效
+		"explosionShipSet":"explosion_ship",# 舰船爆炸音效
+		"damageDecalSheet":"graphics/damage/damage_decal_sheet_base.png", # 损伤贴图
+		"damageDecalGlowSheet":"graphics/damage/damage_decal_sheet_glow.png", # 带光效的损伤贴图
+		                                         
+		#"colorShiftCovers":true, # 武器盖板颜色是否自适应舰体，false否 true是
+		"coversColorShiftAmount":1, # 0 to 1   # 自适应舰体程度，0~1，越大越接近舰体颜色
+		"coversMatchShipBrightness":true, # 自适应舰体光效
+		# 武器盖板贴图
+		"slotCoverSmallTurret":"graphics/weapons/covers/Moci_cover.png",
+		"slotCoverSmallHardpoint":"graphics/weapons/covers/Moci_cover.png", 
+		"slotCoverMediumTurret":"graphics/weapons/covers/Moci_cover.png",              
+		"slotCoverMediumHardpoint":"graphics/weapons/covers/Moci_cover.png",
+		"slotCoverLargeTurret":"graphics/weapons/covers/Moci_cover.png",
+		"slotCoverLargeHardpoint":"graphics/weapons/covers/Moci_cover.png",
+		# D插覆盖贴图
+		"dHullOverlayLight":"graphics/damage/dmod_overlay_hightech_light.png",
+		"dHullOverlayMedium":"graphics/damage/dmod_overlay_hightech_medium.png",
+		"dHullOverlayHeavy":"graphics/damage/dmod_overlay_hightech_heavy.png",
+	},
 }
 
 

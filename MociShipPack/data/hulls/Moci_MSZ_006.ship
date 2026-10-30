@@ -6,9 +6,15 @@
   "style": "MOCI_PT",
   "height": 126,
   "width": 82,
-  "center": [41, 63],
+  "center": [
+    41,
+    63
+  ],
   "collisionRadius": 72.5,
-  "shieldCenter": [0, 0],
+  "shieldCenter": [
+    0,
+    0
+  ],
   "shieldRadius": 72,
   "viewOffset": 0,
   "builtInMods": [
@@ -24,7 +30,7 @@
     "ARM_L": "Moci_MSZ_006_arm_left",
     "ARM_L_SOURCE": "MSZ_006_arm_left_gun_Sabre",
     "ARM_R": "Moci_MSZ_006_arm_right",
-    "ARM_R_SOURCE": "MSZ_006_arm_right_gun_rifle",
+    "ARM_R_SOURCE": "Moci_fw_zeta_rifle_burst",
     "BACKPACK": "Moci_MSZ_006_backpack",
     "BODY": "Moci_MSZ_006_body",
     "HEAD": "Moci_MSZ_006_head",
@@ -32,7 +38,16 @@
     "LEGS": "Moci_MSZ_006_legs",
     "SHIELD_L_COVER": "Moci_MSZ_006_SHIELD_COVER",
     "SHOULDER_L": "Moci_MSZ_006_shoulder_left",
-    "SHOULDER_R": "Moci_MSZ_006_shoulder_right"
+    "SHOULDER_R": "Moci_MSZ_006_shoulder_right",
+    "ZETA_WRIST_L": "Moci_fw_zeta_wrist_grenade",
+    "ZETA_WRIST_R": "Moci_fw_zeta_wrist_grenade",
+    "ZETA_RIFLE_SNIPER": "Moci_fw_zeta_rifle_sniper",
+    "WR_MAINGUN": "Moci_fw_zeta_rifle_burst",
+    "WR_RIFLE_SNIPER": "Moci_fw_zeta_rifle_sniper",
+    "WR_REAR_ROCKET": "Moci_fw_zeta_rear_rocket",
+    "ZETA_TETHER_COMMAND": "Moci_fw_zeta_tether_command",
+    "ZETA_TETHER_LAUNCHER": "Moci_fw_zeta_tether_launcher",
+    "ZETA_BEAM_DEFLECTION": "Moci_fw_zeta_beam_deflection"
   },
   "weaponSlots": [
     {
@@ -42,7 +57,10 @@
       "mount": "TURRET",
       "arc": 143,
       "angle": 0,
-      "locations": [13, -0]
+      "locations": [
+        13,
+        0
+      ]
     },
     {
       "id": "ARM_L",
@@ -51,7 +69,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [1, 26],
+      "locations": [
+        1,
+        26
+      ],
       "renderOrderMod": 1
     },
     {
@@ -61,7 +82,10 @@
       "mount": "TURRET",
       "arc": 95,
       "angle": 0,
-      "locations": [4, -21],
+      "locations": [
+        4,
+        -21
+      ],
       "renderOrderMod": 1
     },
     {
@@ -71,7 +95,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [0, -18],
+      "locations": [
+        0,
+        -18
+      ],
       "renderOrderMod": 4
     },
     {
@@ -81,7 +108,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [0, 18],
+      "locations": [
+        0,
+        18
+      ],
       "renderOrderMod": 4
     },
     {
@@ -91,7 +121,10 @@
       "mount": "TURRET",
       "arc": 120,
       "angle": 0,
-      "locations": [7, -0],
+      "locations": [
+        7,
+        0
+      ],
       "renderOrderMod": 7
     },
     {
@@ -101,7 +134,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [0, -0],
+      "locations": [
+        0,
+        0
+      ],
       "renderOrderMod": 3
     },
     {
@@ -111,7 +147,10 @@
       "mount": "TURRET",
       "arc": 95,
       "angle": 0,
-      "locations": [1, 26],
+      "locations": [
+        1,
+        26
+      ],
       "renderOrderMod": 1
     },
     {
@@ -121,7 +160,10 @@
       "mount": "TURRET",
       "arc": 95,
       "angle": 0,
-      "locations": [1, 27.5]
+      "locations": [
+        1,
+        27.5
+      ]
     },
     {
       "id": "ARM_R_SOURCE",
@@ -130,7 +172,10 @@
       "mount": "TURRET",
       "arc": 95,
       "angle": 0,
-      "locations": [4, -21],
+      "locations": [
+        4,
+        -21
+      ],
       "renderOrderMod": 1
     },
     {
@@ -140,7 +185,10 @@
       "mount": "TURRET",
       "arc": 120,
       "angle": 0,
-      "locations": [7, -0]
+      "locations": [
+        7,
+        0
+      ]
     },
     {
       "id": "BACKPACK",
@@ -149,7 +197,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [-3, -0],
+      "locations": [
+        -3,
+        0
+      ],
       "renderOrderMod": 50
     },
     {
@@ -159,7 +210,10 @@
       "mount": "TURRET",
       "arc": 95,
       "angle": 0,
-      "locations": [1, 26]
+      "locations": [
+        1,
+        26
+      ]
     },
     {
       "id": "SHIELD_L_COVER",
@@ -168,7 +222,10 @@
       "mount": "TURRET",
       "arc": 360,
       "angle": 0,
-      "locations": [1, 26],
+      "locations": [
+        1,
+        26
+      ],
       "renderOrderMod": 7
     },
     {
@@ -178,7 +235,10 @@
       "mount": "HIDDEN",
       "arc": 2,
       "angle": 0,
-      "locations": [95, -0]
+      "locations": [
+        95,
+        0
+      ]
     },
     {
       "id": "WR_LEFT_WP_1",
@@ -187,7 +247,10 @@
       "mount": "HIDDEN",
       "arc": 4,
       "angle": 0,
-      "locations": [13, 18]
+      "locations": [
+        13,
+        18
+      ]
     },
     {
       "id": "WR_RIGHT_WP_1",
@@ -195,8 +258,11 @@
       "type": "ENERGY",
       "mount": "HIDDEN",
       "arc": 4,
-      "angle": -0,
-      "locations": [13, -18]
+      "angle": 0,
+      "locations": [
+        13,
+        -18
+      ]
     },
     {
       "id": "SPWP",
@@ -205,12 +271,114 @@
       "mount": "HIDDEN",
       "arc": 0,
       "angle": 0,
-      "locations": [49, -0]
+      "locations": [
+        49,
+        0
+      ]
+    },
+    {
+      "id": "ZETA_WRIST_L",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "HIDDEN",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        1,
+        26
+      ]
+    },
+    {
+      "id": "ZETA_WRIST_R",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "HIDDEN",
+      "arc": 90,
+      "angle": 0,
+      "locations": [
+        4,
+        -21
+      ]
+    },
+    {
+      "id": "ZETA_RIFLE_SNIPER",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 95,
+      "angle": 0,
+      "locations": [
+        4,
+        -21
+      ]
+    },
+    {
+      "id": "WR_RIFLE_SNIPER",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 2,
+      "angle": 0,
+      "locations": [
+        95,
+        0
+      ]
+    },
+    {
+      "id": "WR_REAR_ROCKET",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 16,
+      "angle": 180,
+      "locations": [
+        -40,
+        0
+      ]
+    },
+    {
+      "id": "ZETA_TETHER_COMMAND",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ZETA_TETHER_LAUNCHER",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HIDDEN",
+      "arc": 100,
+      "angle": 0,
+      "locations": [
+        1,
+        26
+      ]
+    },
+    {
+      "id": "ZETA_BEAM_DEFLECTION",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        0,
+        0
+      ]
     }
   ],
   "engineSlots": [
     {
-      "location": [-13, -8],
+      "location": [
+        -13,
+        -8
+      ],
       "length": 16,
       "width": 4,
       "angle": -180,
@@ -218,7 +386,10 @@
       "style": "HIGH_TECH"
     },
     {
-      "location": [-13, 8],
+      "location": [
+        -13,
+        8
+      ],
       "length": 16,
       "width": 4,
       "angle": 180,
@@ -226,7 +397,10 @@
       "style": "HIGH_TECH"
     },
     {
-      "location": [-13, -9.5],
+      "location": [
+        -13,
+        -9.5
+      ],
       "length": 12,
       "width": 3,
       "angle": -169.5,
@@ -234,7 +408,10 @@
       "style": "HIGH_TECH"
     },
     {
-      "location": [-13, 9.5],
+      "location": [
+        -13,
+        9.5
+      ],
       "length": 12,
       "width": 3,
       "angle": 169.5,
@@ -243,15 +420,25 @@
     }
   ],
   "bounds": [
-    -5.5, 18.5,
-    3.5, 18.5,
-    11.5, 13.5,
-    17.5, 2.5,
-    17.5, -2.5,
-    11.5, -13.5,
-    3.5, -18.5,
-    -5.5, -18.5,
-    -17.5, -3.5,
-    -17.5, 3.5
+    -5.5,
+    18.5,
+    3.5,
+    18.5,
+    11.5,
+    13.5,
+    17.5,
+    2.5,
+    17.5,
+    -2.5,
+    11.5,
+    -13.5,
+    3.5,
+    -18.5,
+    -5.5,
+    -18.5,
+    -17.5,
+    -3.5,
+    -17.5,
+    3.5
   ]
 }

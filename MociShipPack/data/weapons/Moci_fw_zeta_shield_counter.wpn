@@ -1,0 +1,44 @@
+{
+  "id": "Moci_fw_zeta_shield_counter",
+  "specClass": "projectile",
+  "type": "MISSILE",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/swarmer_srm_launcher_turret_base.png",
+  "hardpointSprite": "graphics/weapons/swarmer_srm_launcher_hardpoint_base.png",
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "projectileSpecId": "Moci_fw_zeta_shield_counter_shot",
+  "everyFrameEffect": "xi.arsenal.ZetaCounterWeaponEffect",
+  "fireSoundTwo": "swarmer_fire",
+  "animationType": "SMOKE",
+  "smokeSpec": {
+    "particleSizeMin": 4,
+    "particleSizeRange": 4,
+    "cloudParticleCount": 2,
+    "cloudDuration": 0.3,
+    "cloudRadius": 6,
+    "blowbackParticleCount": 1,
+    "blowbackDuration": 0.2,
+    "blowbackLength": 6,
+    "blowbackSpread": 4,
+    "particleColor": [
+      160,
+      160,
+      150,
+      60
+    ]
+  }
+}

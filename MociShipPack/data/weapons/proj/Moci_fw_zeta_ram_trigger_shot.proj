@@ -1,0 +1,14 @@
+{
+  "id": "Moci_fw_zeta_ram_trigger_shot",
+  "specClass": "projectile",
+  "spawnType": "BALLISTIC_AS_BEAM",
+  "collisionClass": "NONE",
+  "collisionClassByFighter": "NONE",
+  "length": 1,
+  "width": 0,
+  "fadeTime": 0,
+  "hitGlowRadius": 0,
+  "fringeColor": [0, 0, 0, 0],
+  "coreColor": [0, 0, 0, 0],
+  "onFireEffect": "xi.arsenal.ZetaRamTrigger"
+}

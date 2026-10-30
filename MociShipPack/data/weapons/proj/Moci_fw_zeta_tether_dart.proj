@@ -1,0 +1,67 @@
+{
+  "id": "Moci_fw_zeta_tether_dart",
+  "specClass": "missile",
+  "missileType": "HEATSEEKER",
+  "sprite": "graphics/projectiles/Moci_fw_zeta_tether_dart.png",
+  "size": [
+    16,
+    32
+  ],
+  "center": [
+    8,
+    16
+  ],
+  "collisionRadius": 5,
+  "collisionClass": "MISSILE_NO_FF",
+  "onFireEffect": "xi.arsenal.ZetaTetherAttackEffect",
+  "onHitEffect": "xi.arsenal.ZetaTetherAttackEffect",
+  "explosionRadius": 12,
+  "explosionColor": [
+    145,
+    155,
+    165,
+    150
+  ],
+  "engineSpec": {
+    "turnAcc": 300,
+    "turnRate": 100,
+    "acc": 6000,
+    "dec": 500
+  },
+  "engineSlots": [
+    {
+      "id": "ES1",
+      "loc": [
+        -15,
+        0
+      ],
+      "style": "CUSTOM",
+      "width": 3,
+      "length": 10,
+      "angle": 180,
+      "styleSpec": {
+        "mode": "QUAD_STRIP",
+        "engineColor": [
+          255,
+          145,
+          75,
+          255
+        ],
+        "contrailDuration": 0.2,
+        "contrailWidthMult": 1,
+        "contrailWidthAddedFractionAtEnd": 2,
+        "contrailMinSeg": 5,
+        "contrailMaxSpeedMult": 0,
+        "contrailAngularVelocityMult": 0.5,
+        "contrailSpawnDistMult": 0.5,
+        "contrailColor": [
+          100,
+          100,
+          100,
+          150
+        ],
+        "type": "SMOKE"
+      }
+    }
+  ]
+}

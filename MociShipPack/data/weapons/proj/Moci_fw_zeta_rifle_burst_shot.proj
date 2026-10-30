@@ -1,0 +1,29 @@
+{
+  "id": "Moci_fw_zeta_rifle_burst_shot",
+  "specClass": "projectile",
+  "spawnType": "BALLISTIC_AS_BEAM",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "onFireEffect": "xi.arsenal.ZetaRifleBurstFx",
+  "onHitEffect": "xi.arsenal.ZetaRifleBurstFx",
+  "hitGlowRadius": 100,
+  "length": 120,
+  "width": 30,
+  "fadeTime": 0.08,
+  "fringeColor": [
+    255,
+    65,
+    180,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "textureType": "ROUGH",
+  "textureScrollSpeed": -256,
+  "pixelsPerTexel": 1,
+  "coreWidthMult": 0.65
+}

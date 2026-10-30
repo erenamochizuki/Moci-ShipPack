@@ -46,10 +46,10 @@ Omega特征,Moci_omega_engine,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_Om
 根据舰船等级每秒产生 %s / %s / %s / %s 的硬幅能，减少 %s 船体和装甲受到的伤害，延长 %s 的过载时间。当舰船超载时将失去减伤效果。",禁用武器并大幅减少舰船收到的伤害。,,graphics/hullmods/Moci_damped_armor.png
 高速导弹挂架改装,Moci_highspeed_missilerack,3,0.5,MOCI武库,req_spaceport,"导弹, 武器",10000,,,,8,12,20,30,data.hullmods.Moci_HighSpeedMissileRack,改装导弹的装填系统，用额外驱动的装弹机和挂架实现导弹的高速装填。,快速冷却导弹武器并产生幅能。,,graphics/hullmods/Moci_highspeed_missilerack.png
 高能聚焦武器改装,Moci_high_energy_focus,3,0.5,MOCI武库,"req_spaceport, no_build_in",武器,10000,,,,10,18,26,34,data.hullmods.Moci_HighEnergyFocus,一种集成化的高能聚焦系统，通过额外的武器供能系统使得能量武器能够发挥出远超其原本的性能。,提高能量武器的辐能消耗和伤害，禁用战术系统。,,graphics/hullmods/Moci_high_energy_focus.png
-裂隙排幅回路,Moci_flux_rift_vent,3,0.5,MOCI武库,"req_spaceport, no_build_in",特殊,10000,TRUE,,,8,12,20,30,data.hullmods.Moci_FluxRiftVent,"排幅时，每排掉 %s 点幅能就会从系统槽位释放一道裂隙电弧。电弧会优先攻击 %s 范围内最近的敌方舰船、战机和导弹；命中造成 %s 能量伤害和 %s EMP伤害。",排幅时按消散幅能释放裂隙电弧。,,graphics/icons/hullsys/quantum_disruptor.png
-连锁雷暴电容器,Moci_chain_lightning_capacitor,3,0.5,MOCI武库,"req_spaceport, no_build_in","特殊, 武器",10000,TRUE,,,8,12,20,30,data.hullmods.Moci_ChainLightningCapacitor,"在舰船旁显示雷暴充能条，充能满 %s 点时释放一次连锁闪电。充能会以每秒 %s 点自然增长；本舰以 weapon 不为空的武器对敌人造成实际伤害时，每造成 %s 点实际伤害额外累计 1 点；由伤害带来的充能每秒最多累计 25 点。主闪电链射程 %s ，后续弹跳射程 %s ，主链造成 %s 能量伤害与等量 EMP 伤害，默认弹跳 %s 次，每次弹跳伤害衰减 %s 。",按时间和武器伤害积蓄雷暴充能，满值后释放连锁闪电。,,graphics/icons/hullsys/quantum_disruptor.png
-超载雷暴调谐,Moci_chain_lightning_overload,3,0.5,MOCI武库,"req_spaceport, no_build_in","特殊, 武器",10000,TRUE,,,0,0,0,0,data.hullmods.Moci_ChainLightningOverload,"连锁雷暴电容器的调谐插件。提高 %s 的自然充能速度和 %s 的闪电链伤害，但弹跳次数减少 %s 次，并且每点伤害充能所需实际伤害提高 %s 点。与分叉雷暴调谐互斥。",提高雷暴充能和伤害，减少弹跳。,,graphics/icons/hullsys/quantum_disruptor.png
-分叉雷暴调谐,Moci_chain_lightning_branching,3,0.5,MOCI武库,"req_spaceport, no_build_in","特殊, 武器",10000,TRUE,,,0,0,0,0,data.hullmods.Moci_ChainLightningBranching,"连锁雷暴电容器的调谐插件。弹跳次数增加 %s 次，弹跳伤害衰减降低为 %s ，但每点伤害充能所需实际伤害提高 %s 点。与超载雷暴调谐互斥。",增加雷暴弹跳并降低弹跳衰减。,,graphics/icons/hullsys/quantum_disruptor.png
+裂隙排幅回路,Moci_flux_rift_vent,3,0.5,MOCI武库,"req_spaceport, no_build_in",特殊,10000,TRUE,,,8,12,20,30,data.hullmods.Moci_FluxRiftVent,排幅时，每排掉 %s 点幅能就会从系统槽位释放一道裂隙电弧。电弧会优先攻击 %s 范围内最近的敌方舰船、战机和导弹；命中造成 %s 能量伤害和 %s EMP伤害。,排幅时按消散幅能释放裂隙电弧。,,graphics/icons/hullsys/quantum_disruptor.png
+连锁雷暴电容器,Moci_chain_lightning_capacitor,3,0.5,MOCI武库,"req_spaceport, no_build_in","特殊, 武器",10000,TRUE,,,8,12,20,30,data.hullmods.Moci_ChainLightningCapacitor,启用雷暴电容器，每充能 %s 点时释放一次连锁闪电。充能会以每秒 %s 点自然增长；本舰对敌人造成伤害时，每造成 %s 点伤害额外累计 1 点；由伤害带来的充能每秒最多累计 25 点。主闪电链射程 %s ，后续弹跳射程 %s ，主链造成 %s 能量伤害与等量 EMP 伤害，默认弹跳 %s 次，每次弹跳伤害衰减 %s 。,按时间和武器伤害积蓄雷暴充能，满值后释放连锁闪电。,,graphics/icons/hullsys/quantum_disruptor.png
+超载雷暴调谐,Moci_chain_lightning_overload,3,0.5,MOCI武库,"req_spaceport, no_build_in","特殊, 武器",10000,TRUE,,,0,0,0,0,data.hullmods.Moci_ChainLightningOverload,连锁雷暴电容器的调谐插件。提高 %s 的自然充能速度和 %s 的闪电链伤害，但弹跳次数减少 %s 次，并且每点伤害充能所需实际伤害提高 %s 点。与分叉雷暴调谐互斥。,提高雷暴充能和伤害，减少弹跳。,,graphics/icons/hullsys/quantum_disruptor.png
+稳定雷暴调谐,Moci_chain_lightning_branching,3,0.5,MOCI武库,"req_spaceport, no_build_in","特殊, 武器",10000,TRUE,,,0,0,0,0,data.hullmods.Moci_ChainLightningBranching,连锁雷暴电容器的调谐插件。弹跳次数增加 %s 次，弹跳伤害衰减降低为 %s ，但每点伤害充能所需实际伤害提高 %s 点。与超载雷暴调谐互斥。,增加雷暴弹跳并降低弹跳衰减。,,graphics/icons/hullsys/quantum_disruptor.png
 集成式熵抑制器,Moci_entropy_suppressor,3,0.5,MOCI武库,req_spaceport,防御,10000,,,,10,15,25,35,data.hullmods.Moci_EntropySuppressor,通过对 不明舰船 的 熵抑制器 进行逆向工程实现的一种舰船改装，在原本的武器和引擎位置安装一个小型的 熵抑制器 来快速修复损坏的武器和引擎。,以降低护甲和辐能的代价瞬间修复武器和引擎。,,graphics/hullmods/Moci_entropy_suppressor.png
 实弹武器协调系统,Moci_ballisticweaponcountrangefinder,2,0.5,MOCI武库,"offensive, merc, standard",武器,10000,,,,5,12,20,30,data.hullmods.Moci_BallisticWeaponCountRangefinder,协调不同尺寸的实弹武器，通过相互测距来提高武器的射程，但当武器较多时效果会变差。,提高实弹武器的射程。,,graphics/hullmods/Moci_ballisticweaponcountrangefinder.png
 能量武器协调系统,Moci_energyweaponcountrangefinder,2,0.5,MOCI武库,"offensive, merc, standard",武器,10000,,,,5,12,20,30,data.hullmods.Moci_EnergyWeaponCountRangefinder,协调不同尺寸的能量武器，通过相互测距来提高武器的射程，但当武器较多时效果会变差。,提高能量武器的射程。,,graphics/hullmods/Moci_energyweaponcountrangefinder.png
@@ -103,6 +103,7 @@ CR值流失速度提升{%s}，但该舰峰值时间增加{%s}；舰船装配小�
 ,,,,,,,,,,,,,,,,,,,
 第十四战斗群(前线改装),Moci_fourteenth_front,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_Fourteenth_Front,"霸主 的前身 (人之领 第十四战斗群) 所配备的战舰是现如今研究 人之领 海军 ""决战"" 教条的原始样本。与常见的十四军团改装不同，前线改装型更侧重于高压战斗下的持久作战能力，并且对校射雷达进行了升级。提高{%s}的射程，提高{%s}的最低装甲值，提高{%s}的强制排幅效率，降低{%s}的最高航速与机动性。而调整到极佳状态下的能源系统让该舰的幅能耗散/容量提高{%s}。",,,graphics/hullmods/fourteenth.png
 第八战斗群,Moci_legion_VIII,,,第八战斗群,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_legion_VIII,第八战斗群倾向于使用能量武器和护盾防御，他们的舰船通常拥有更高功率的反应堆。提高{%s}的射程，提高{%s}的幅能容量和幅能耗散，降低{%s}护盾受到的伤害，同时护甲值降低{%s}。,,,graphics/hullmods/Moci_legion_VIII.png
+第八战斗群-隐匿实验室,Moci_legion_VIII_shrouded_lab,,,第八战斗群,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_ShroudedLaboratory,第八作战群-隐匿实验室更倾向于在远距离进行火力投射。提高{%s}的所有武器射程和{%s}的所有武器射速，降低{%s}的所有武器伤害和{%s}的护甲值。,,,graphics/hullmods/Moci_legion_VIII_shrouded.png
 六十六军团设计,Moci_legion_LXVI,,,第六十六卫队 ,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_legion_LXVI,不会受到EMP伤害，装甲受到的动能与高爆伤害的倍率系数修正至{%s}。,,,graphics/hullmods/Moci_legion_LXVI.png
 ,,,,,,,,,,,,,,,,,,,
 激光聚焦重定向,Moci_high_scatter_amp,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_HighScatterAmp,"辛达强权的最新科技成果，对舰船的幅能系统进行整个重构使其完全服务于光束武器，其难度不亚于重新设计并建造一艘相同的舰船，而其昂贵的价格足以武装一整支舰队。该改装被用于辛达瑞亚之狮的座舰，用代表其威严的光束武器向这片星域耀武扬威。
@@ -128,8 +129,8 @@ CR值流失速度提升{%s}，但该舰峰值时间增加{%s}；舰船装配小�
 人形机动兵器,Moci_MobileSuits,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_MobileSuitsIDcard,<Tooltip created in script>,机动兵器作为独特的舰船类型，不受大多数殉爆和撞击伤害。,,graphics/hullmods/Moci_MobileSuits.png
 可变式框架,Moci_VariableFrame,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_VariableFrame,<Tooltip created in script>,支持MS/WR形态切换的可变式骨架。,,graphics/hullmods/Moci_VariableFrame.png
 机动装甲,Moci_MobileArmour,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_MobileArmour,<Tooltip created in script>,机动装甲作为独特的舰船类型，战场表现与通常舰船有所不同。,,graphics/hullmods/Moci_MobileArmor.png
-喷气背包子系统,Moci_MobilitySubsystemHullmod,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_MobilitySubsystemHullmod,你不应该看到这个船插,你不应该看到这个船插,,
-NTD,Moci_NTDSubsystemHullmod,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_NTDSubsystemHullmod,这艘舰船具有名为New-Type Destroyer System的系统(简称NTD)。启动时，会解锁机体的额外武装，并赋予强大的战斗能力。,NTD系统,,
+喷气背包子系统,Moci_MobilitySubsystemHullmod,,,,,,,,TRUE,TRUE,0,0,0,0,xi.arsenal.SmoothMobilityHullmod,启动保留当前惯性并连续加力；原有速度与加减速强度保留，结束时速度加成平滑收回；原生充能、按键、AI与尾焰继续工作。,平滑喷气背包。,,
+NTD,Moci_NTDSubsystemHullmod,,,,,,,,TRUE,,0,0,0,0,xi.arsenal.UnicornSharedNtdHullmod,三机共享常驻NTD：启动500软幅能、维持20软幅能每本机秒；关闭按累计时长支付结构成本并进入过载与武器停摆；多机精神共振自动展开并锁定关闭，过载优先强制解除。,常驻NTD与精神感应共振。,,
 抗光束涂层,Moci_antibeamcoating,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_AntiBeamCoating,"在舰船的表面涂装一种特殊的涂层，使得伤害较低的光束武器难以对该舰船造成伤害。同时还会使得舰船免疫日冕等环境伤害。
 
 舰船受到的光束武器伤害降低 %s 。",降低舰船受到的光束伤害。,,graphics/hullmods/Moci_antibeamcoating.png
@@ -213,7 +214,7 @@ HWS装备,Moci_RX93v2HWS,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_RX93_HWS,"加�
 真红闪电,Moci_CrimsonLightning,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_CrimsonLightning,经由王牌驾驶员的改装，抛弃了无用的防御，全部的配置都用来提供更强力的火力。,提高伤害增加受伤。,,graphics/hullmods/Moci_SMS.png
 白狼,Moci_WhiteWolf,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WhiteWolf,定制化的改装让该舰船不仅拥有更厚的装甲，还能在战斗中更加致命。,增加装甲值，开启战术系统后还将获得伤害加成。,,graphics/hullmods/Moci_SMS.png
 ,,,,,,,,,,,,,,,,,,,
-相位潜射,Moci_PhaseSubLaunch,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_PhaseSubLaunch,这艘舰船使用了非常规的相位系统，在进入P空间时雷达信号会完全消失，并允许部分武器在相位空间中发射。,内置反舰导弹可在P空间中进行相位潜射。,,
+相位潜射,Moci_PhaseSubLaunch,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_PhaseSubLaunch,这艘舰船使用了非常规的相位系统，在进入P空间时雷达信号会完全消失，并允许部分武器在相位空间中发射。,内置与隐藏发射器的导弹可在P空间中潜射，飞行速度与最长飞行时间各提高20%；外置源武器需上浮后开火。,,
 磁流体控制系统,Moci_ElectroMagneticFluidControl,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_Electro_Magnetic_Fluid_Control,,,,
 ,,,,,,,,,,,,,,,,,,,
 次元歪曲防壁,Moci_PhaseShiftArmor,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_PhaseShiftArmor,,,,graphics/hullmods/Moci_PhaseShiftArmor.png
@@ -236,6 +237,11 @@ I立场,Moci_IField,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_IField,阻止来自�
 ,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,
 航空中队管理,Moci_air_squadron_manager,,,MOCI武库,no_build_in,战机,,TRUE,,,0,0,0,0,data.hullmods.Moci_AirSquadronManager,允许在情报界面的航空中队管理中逐机库调整适用联队的武器装配。无需军官；自动化或无人舰船无法安装；卸下后于退出改装及市场界面时安全恢复原型并返还额外武器。,在情报界面按母舰管理航空中队装配。,,graphics/hullmods/Moci_fighter_expand.png
-强化护盾,moci_tactical_hardened_shield,0,,,moci_tactical,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalHardenedShieldEmitter,降低 %s 护盾所受伤害，并降低护盾被 EMP 电弧击穿的概率。,降低护盾所受伤害。,,graphics/hullmods/hardened_shields.png
-弹匣扩容,moci_tactical_expanded_magazines,0,,,moci_tactical,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalExpandedMagazines,提高实弹武器和能量武器 %s 的备弹量。,提高实弹/能量武器的备弹量。,提高 %s 的实弹和能量武器备弹回复速率。,graphics/hullmods/expanded_magazines2.png
-导弹挂架,moci_tactical_expanded_missile_racks,0,,,moci_tactical,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalExpandedMissileRacks,提高导弹武器 %s 备弹量。,提高导弹武器的备弹量。,降低导弹武器 %s 的射速。,graphics/hullmods/expanded_missile_racks.png
+强化护盾,moci_tactical_hardened_shield,0,,,"moci_tactical,moci_tactical_defense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalHardenedShieldEmitter,降低 %s 护盾所受伤害，并降低护盾被 EMP 电弧击穿的概率。,降低护盾所受伤害。,,graphics/hullmods/hardened_shields.png
+弹匣扩容,moci_tactical_expanded_magazines,0,,,"moci_tactical,moci_tactical_offense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalExpandedMagazines,提高实弹武器和能量武器 %s 的备弹量。,提高实弹/能量武器的备弹量。,提高 %s 的实弹和能量武器备弹回复速率。,graphics/hullmods/expanded_magazines2.png
+导弹挂架,moci_tactical_expanded_missile_racks,0,,,"moci_tactical,moci_tactical_offense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalExpandedMissileRacks,提高导弹武器 %s 备弹量。,提高导弹武器的备弹量。,降低导弹武器 %s 的射速。,graphics/hullmods/expanded_missile_racks.png
+先进光学器件,moci_tactical_advanced_optics,0,,,"moci_tactical,moci_tactical_offense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalAdvancedOptics,提高 %s 光束武器射程，降低 %s 光束转动速度。,提高光束武器射程。,,graphics/hullmods/advanced_optics.png
+重型装甲,moci_tactical_heavy_armor,0,,,"moci_tactical,moci_tactical_defense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalHeavyArmor,提高 %s 装甲值。,降低 %s 的机动性。,,graphics/hullmods/heavy_armor.png
+精神力高速机动,Moci_fw_xi_high_mobility,5,,精神力试制武装,restricted,机动,0,,true,,0,0,0,0,xi.arsenal.XiAgilityHullmod,本型基础航速220、加速度260、减速度360、转速80度每秒、转向加速度240；装配点120、框架船坞散热口与电容上限各40。米飞开启后航速增加220至440、转速增加95；加速3.2倍、减速3.6倍、转向加速度3.6倍。原有船插与技能继续生效。,高速横移与快速起停回转。,,graphics/hullmods/auxilliary_thrusters.png
+重装直线机动,Moci_fw_penelope_high_mobility,5,,精神力试制武装,restricted,机动,0,,true,,0,0,0,0,xi.arsenal.PenelopeAgilityHullmod,本型基础航速220、加速度200、减速度110、转速40度每秒、转向加速度100；米飞开启后航速增加170至390、转速增加15；加速1.5倍、减速1.08倍、转向加速度1.2倍。原生照射与离散光束弹伤害额外降低35%；五发短照射米加炮与64枚导弹三波齐射侧重持续火力；回转与急停弱于柯西。原有船插与技能继续生效。,重装火力试验机：五发米加炮及光束抗性。,,graphics/hullmods/auxilliary_thrusters.png
+全周天驾驶舱,moci_panoramic_cockpit,,,,,,,TRUE,,,0,0,0,0,data.hullmods.Moci_PanoramicCockpit,全周天座舱告警：敌对舰载机进入接近距离、或来袭导弹锁定本舰时会给出本地座舱提示音；只有装了本船插的舰船有该音频、没有写死的舰船名单。,全周天驾驶舱座舱告警.,,

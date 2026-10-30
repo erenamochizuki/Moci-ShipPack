@@ -1,10 +1,10 @@
 {
   "id": "MSN_04_2_arm_right_rifle",
   "specClass": "projectile",
-  "projectileSpecId": "MSN_04_2_arm_right_rifle_shot",
+  "projectileSpecId": "Moci_fw_night_rifle_shot",
   "type": "ENERGY",
   "size": "MEDIUM",
-  "everyFrameEffect": "data.scripts.weapons.Moci_ChargeFireEffect",
+  "everyFrameEffect": "xi.arsenal.NightRifleChargeEffect",
   "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/arms/MSN_04_2_arm_right_rifle_glow.png",
   "turretSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/arms/MSN_04_2_arm_right_rifle.png",
   "hardpointGlowSprite": "graphics/ships/Mobile_Suit/Moci_MSN_04_2/arms/MSN_04_2_arm_right_rifle_glow.png",

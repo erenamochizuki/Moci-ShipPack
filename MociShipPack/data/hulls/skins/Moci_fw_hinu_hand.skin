@@ -1,0 +1,30 @@
+{
+  "baseHullId": "Moci_RX_93_v2",
+  "skinHullId": "Moci_fw_hinu_hand",
+  "hullName": "Hi-v高达 · 右臂展开炮",
+  "incompatibleWithBaseHull": true,
+  "descriptionId": "Moci_RX_93_v2",
+  "descriptionPrefix": "普通海牛右臂展开炮试装型，可甩出右手武器，空手展开大炮，收炮后近距拾回原武器。",
+  "tags": [
+    "moci_ms",
+    "Moci_fw_hinu_hand"
+  ],
+  "removeBuiltInMods": [
+    "Moci_RX_93_v2_WeaponSwap"
+  ],
+  "removeBuiltInWeapons": [
+    "ARM_R"
+  ],
+  "builtInWeapons": {
+    "ARM_R": "Moci_fw_hinu_hand_arm",
+    "ARM_R_MAIN": "Moci_fw_hinu_hand_cannon"
+  },
+  "weaponSlotChanges": {
+    "ARM_R_MAIN": {
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "size": "LARGE",
+      "arc": 360
+    }
+  }
+}

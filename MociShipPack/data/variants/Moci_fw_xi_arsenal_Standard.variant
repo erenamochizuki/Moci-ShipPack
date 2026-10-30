@@ -1,0 +1,16 @@
+{
+  "displayName": "双米加炮 · 44枚精神力导弹",
+  "fluxCapacitors": 20,
+  "fluxVents": 20,
+  "goalVariant": true,
+  "hullId": "Moci_RX_105_framework_arsenal",
+  "hullMods": ["moci_panoramic_cockpit"],
+  "variantId": "Moci_fw_xi_arsenal_Standard",
+  "weaponGroups": [
+    {"autofire": false, "mode": "LINKED", "weapons": {"WS0002": "Moci_fw_xi_mega_particle", "WS0003": "Moci_fw_xi_mega_particle"}},
+    {"autofire": false, "mode": "LINKED", "weapons": {"WS0001": "Moci_fw_psycho_missile_6", "WS0004": "Moci_fw_psycho_missile_6", "WS0005": "Moci_fw_psycho_missile_5", "WS0006": "Moci_fw_psycho_missile_5", "WS0007": "Moci_fw_psycho_missile_6", "WS0008": "Moci_fw_psycho_missile_6", "WS0009": "Moci_fw_psycho_missile_5", "WS0010": "Moci_fw_psycho_missile_5"}},
+    {"autofire": true, "mode": "LINKED", "weapons": {"ARM_R_SOURCE": "Moci_fw_xi_beam_rifle", "HEAD_SOURCE": "RX_105_head_vulcan"}}
+  ],
+  "wings": [],
+  "modules": [{"SHIELD_L": "Moci_RX_105_SHIELD_L_base"}]
+}

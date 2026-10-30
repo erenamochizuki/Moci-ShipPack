@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechBodyController_MSZ006",
+  "everyFrameEffect": "xi.arsenal.ZetaRifleLegEffect",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/MSZ_006/legs/MSZ_006_legs_00.png",

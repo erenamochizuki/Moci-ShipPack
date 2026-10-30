@@ -512,6 +512,54 @@
     "Moci_engine_loop":{
         "sounds":[
             {"file":"sounds/moci/effects/Moci_engine_loop1.ogg","pitch":0.67,"volume":1},
+            {"file":"sounds/moci/effects/Moci_engine_loop1.ogg","pitch":0.67,"volume":1},
+            {"file":"sounds/moci/effects/Moci_engine_loop1.ogg","pitch":0.67,"volume":1},
+            {"file":"sounds/moci/effects/Moci_engine_loop1.ogg","pitch":0.67,"volume":1},
+            {"file":"sounds/moci/effects/Moci_engine_loop1.ogg","pitch":0.67,"volume":1}
             ],
         },
+  # xi 米诺夫斯基引擎音（D6：替代原世界循环音）
+    "moci_minovsky_loop_xi":{
+        "sounds":[
+            {"file":"sounds/moci/effects/moci_minovsky_loop_xi.ogg","pitch":1.00,"volume":1},
+            {"file":"sounds/moci/effects/moci_minovsky_loop_xi.ogg","pitch":1.00,"volume":1},
+            {"file":"sounds/moci/effects/moci_minovsky_loop_xi.ogg","pitch":1.00,"volume":1},
+            {"file":"sounds/moci/effects/moci_minovsky_loop_xi.ogg","pitch":1.00,"volume":1},
+            {"file":"sounds/moci/effects/moci_minovsky_loop_xi.ogg","pitch":1.00,"volume":1}
+            ],
+        },
+  # xi 米诺夫斯基引擎音（D6：替代原世界循环音）
+    "moci_minovsky_loop_penelope":{
+        "sounds":[
+            {"file":"sounds/moci/effects/moci_minovsky_loop_penelope.ogg","pitch":1.00,"volume":1},
+            {"file":"sounds/moci/effects/moci_minovsky_loop_penelope.ogg","pitch":1.00,"volume":1},
+            {"file":"sounds/moci/effects/moci_minovsky_loop_penelope.ogg","pitch":1.00,"volume":1},
+            {"file":"sounds/moci/effects/moci_minovsky_loop_penelope.ogg","pitch":1.00,"volume":1},
+            {"file":"sounds/moci/effects/moci_minovsky_loop_penelope.ogg","pitch":1.00,"volume":1}
+            ],
+        },
+    "moci_minovsky_start_xi":
+    [
+        {"file":"sounds/moci/effects/moci_minovsky_start_xi.ogg","pitch":1.00,"volume":1.0},
+    ],
+    "moci_minovsky_start_penelope":
+    [
+        {"file":"sounds/moci/effects/moci_minovsky_start_penelope.ogg","pitch":1.00,"volume":1.0},
+    ],
+    "Moci_fw_xi_flight_loop":
+    [
+        {"file":"sounds/fx/Moci_xi_flight_loop.wav","pitch":1.00,"volume":1.0},
+    ],
+    "Moci_fw_xi_enemy_near_loop":
+    [
+        {"file":"sounds/fx/Moci_xi_enemy_near_loop.wav","pitch":1.00,"volume":1.0},
+    ],
+    "Moci_fw_xi_incoming_loop":
+    [
+        {"file":"sounds/fx/Moci_xi_incoming_loop.wav","pitch":1.00,"volume":1.0},
+    ],
+    "Moci_fw_arsenal_beam_rifle_shot":
+    [
+        {"file":"sounds/fx/Moci_xi_rifle_shot_01.wav","pitch":1.00,"volume":1.0},
+    ],
 }

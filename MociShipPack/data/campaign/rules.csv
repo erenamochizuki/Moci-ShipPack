@@ -133,8 +133,8 @@ Moci_CampaignTextCommand ""addText"" ""rules.nergal_flavor_4b"" ""marketFlavorTe
 ,,,,,,, ,
 # 弗拉纳冈机构：强化人培育入口,,,,,,,,
 MociFlanaganInstituteOption,PopulateOptions,"$hasMarket
-Moci_AugmentedHumanCommand canShow","Moci_AugmentedHumanCommand ""checkCost""",,10:moci_flanagan_augmented_human:强化人培育,,,
-MociFlanaganInstituteSelected,DialogOptionSelected,$option == moci_flanagan_augmented_human score:1000,"Moci_AugmentedHumanCommand ""open""",,,,,
+Moci_AugmentedHumanCommand canShow","Moci_AugmentedHumanCommand ""checkAccess""",,10:moci_flanagan_institute:弗拉纳冈机构,,,
+MociFlanaganInstituteSelected,DialogOptionSelected,$option == moci_flanagan_institute score:1000,"Moci_AugmentedHumanCommand ""open""",,,,,
 ,,,,,,,,
 # Lotus 酒吧：抚子任务线固定入口,,,,,,,,
 MociLotusNadesicoBarEvent,AddBarEvents,$market.id == market_moci_nergal_lotus && $hasMarket,"Moci_CampaignTextCommand ""addBarEvent"" ""moci_lotus_nadesico_selected"" ""rules.lotus_nadesico.option"" ""rules.lotus_nadesico.prompt"" ""highlight""",,,,,

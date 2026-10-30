@@ -1,0 +1,663 @@
+{
+  "callbackRule": "The native callback wrapper invokes its original callback once; guard runs only at native advanceAfter. No global callback replay.",
+  "excluded": [
+    "RX-0 unit3: BACKPACK_SHIELD_L/R, no physical left-arm SHIELD_L",
+    "Jesta regular/leader: SHIELD_SHOULDER_L, not a left-hand module",
+    "Zaku basic/Johnny/Psycho: SHIELD_RS shoulder only",
+    "Penelope: no SHIELD_L declaration",
+    "No inferred shield from a sprite, decorative weapon, energy shield or name"
+  ],
+  "normalCalibration": "Collision-bounds principal normal; native visual/physical interception acceptance still required",
+  "ownXiIntegration": "Moci_fw_xi_salvo_arm_left is not overridden; its owner invokes AdaptiveShieldGuard.applyAfter after the existing pose chain",
+  "schema": 1,
+  "jointRangePolicy": "Intersect finite merged HullSpec ARM_L/SOURCE/FOLLOW/SHIELD_L SHIP-relative traverse. All-360 Xi uses explicit owned BODY-neutral defensive range;not an original anatomy limit. Unreachable incoming directions are rejected,not clamped or pursued.",
+  "scope": "Exact physical ARM_L / live SHIELD_L module families only",
+  "weapons": [
+    {
+      "mounts": [
+        {
+          "hullId": "Moci_AMS_119",
+          "moduleHullId": "Moci_AMS_119_SHIELD_L",
+          "moduleVariantEvidence": "Moci_AMS_119_SHIELD_L_Base",
+          "name": "基拉·多加",
+          "normalDegrees": 90,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_AMS_119_Base"
+        },
+        {
+          "hullId": "Moci_AMS_119H",
+          "moduleHullId": "Moci_AMS_119_SHIELD_L",
+          "moduleVariantEvidence": "Moci_AMS_119_SHIELD_L_Base",
+          "name": "基拉·多加(重武装式样型)",
+          "normalDegrees": 90,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_AMS_119H_Base"
+        }
+      ],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_AMS_119_arm_left.wpn",
+      "sourceSha256": "29189423aef6eaad5dab73d2684ebd73aec9fc11ad1684ccfeb6963fc8b717cc",
+      "weaponId": "Moci_AMS_119_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [
+        {
+          "hullId": "Moci_AMS_119_leader",
+          "moduleHullId": "Moci_AMS_119_leader_SHIELD_L",
+          "moduleVariantEvidence": "Moci_AMS_119_leader_SHIELD_L_Base",
+          "name": "基拉·多加(队长型)",
+          "normalDegrees": 90,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_AMS_119_leader_Base"
+        },
+        {
+          "hullId": "Moci_AMS_119H_leader",
+          "moduleHullId": "Moci_AMS_119_leader_SHIELD_L",
+          "moduleVariantEvidence": "Moci_AMS_119_leader_SHIELD_L_Base",
+          "name": "基拉·多加(重武装式样型队长型)",
+          "normalDegrees": 90,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_AMS_119H_leader_Base"
+        }
+      ],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_AMS_119_leader_arm_left.wpn",
+      "sourceSha256": "67917f7bdd39b006470460b8bc46f011e15411fec4c4834ed01e63e20b220ed9",
+      "weaponId": "Moci_AMS_119_leader_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_FA_78_3",
+        "moduleHullId": "Moci_FA_78_3_SHIELD_L",
+        "moduleVariantEvidence": "Moci_FA_78_3_SHIELD_L_Base",
+        "name": "全装甲高达七号机",
+        "normalDegrees": 76.661,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_FA_78_3_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_FA_78_3_arm_left.wpn",
+      "sourceSha256": "85768de0622a70d85a908243c00715d179bba2f233d58cd6bee6aa1e129f3b5d",
+      "weaponId": "Moci_FA_78_3_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MSN_03",
+        "moduleHullId": "Moci_MSN_03_shield",
+        "moduleVariantEvidence": "Moci_MSN_03_shield_Base",
+        "name": "乍得·多加",
+        "normalDegrees": 79.585,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MSN_03_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MSN_03_arm_left.wpn",
+      "sourceSha256": "e0e034ff86fffee88c41702ee8a11d2794815a134b73ac1078b7b84586fb5f3c",
+      "weaponId": "Moci_MSN_03_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MSN_03b",
+        "moduleHullId": "Moci_MSN_03b_shield",
+        "moduleVariantEvidence": "Moci_MSN_03b_shield_Base",
+        "name": "乍得·多加(红色涂装)",
+        "normalDegrees": 79.585,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MSN_03b_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_keepdef",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MSN_03b_arm_left.wpn",
+      "sourceSha256": "17cea6b752430db06ccc5b761c0c019707c4338cf91ef6c42b86747a7e57acf7",
+      "weaponId": "Moci_MSN_03b_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MSN_04_2",
+        "moduleHullId": "Moci_MSN_04_2_shield",
+        "moduleVariantEvidence": "Moci_MSN_04_2_shield_base",
+        "name": "夜莺",
+        "normalDegrees": 78.927,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MSN_04_2_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MSN_04_2_arm_left.wpn",
+      "sourceSha256": "019f3b42e17a77f93ffa7e0f64955b27c56c7790e5963f077a6021df99330f69",
+      "weaponId": "Moci_MSN_04_2_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MSN_06S",
+        "moduleHullId": "Moci_MSN_06S_SHIELD_L",
+        "moduleVariantEvidence": "Moci_MSN_06S_SHIELD_L_base",
+        "name": "新安洲",
+        "normalDegrees": 78.338,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MSN_06S_base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MSN_06S_arm_left.wpn",
+      "sourceSha256": "e889f432268b85575eb0cb7feda436c518c19c85f4d23e4e6cf892db461bacf6",
+      "weaponId": "Moci_MSN_06S_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MSZ_006",
+        "moduleHullId": "Moci_MSZ_006_SHIELD_L",
+        "moduleVariantEvidence": "Moci_MSZ_006_SHIELD_L_Base",
+        "name": "Z高达",
+        "normalDegrees": 87.391,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MSZ_006_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MSZ006ShieldArmEffect",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MSZ_006_arm_left.wpn",
+      "sourceSha256": "97a5c1a37627a1c2bf6040d0193dd2ec64c3337cfa7b4728bec6afdee893ccf9",
+      "weaponId": "Moci_MSZ_006_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_06_BTS",
+        "moduleHullId": "Moci_MS_06_SHIELD_L",
+        "moduleVariantEvidence": "Moci_MS_06_SHIELD_L_Base",
+        "name": "扎古(黑色三连星)",
+        "normalDegrees": 70.478,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_06_BTS_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_06_BTS_arm_left.wpn",
+      "sourceSha256": "1a939a1bb90894f146cc555e90d5837ef654d8dde9afd052829d1f8aa6976ea3",
+      "weaponId": "Moci_MS_06_BTS_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_06_Char",
+        "moduleHullId": "Moci_MS_06_SHIELD_L",
+        "moduleVariantEvidence": "Moci_MS_06_SHIELD_L_Base",
+        "name": "扎古(赤色彗星)",
+        "normalDegrees": 70.478,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_06_Char_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_06_Char_arm_left.wpn",
+      "sourceSha256": "e9f3ea3670af43ef47dda76b589eaf464de61f8df5d6c76de27f2846a2c9ac81",
+      "weaponId": "Moci_MS_06_Char_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_06_Shin",
+        "moduleHullId": "Moci_MS_06_SHIELD_L",
+        "moduleVariantEvidence": "Moci_MS_06_SHIELD_L_Base",
+        "name": "扎古(白狼)",
+        "normalDegrees": 70.478,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_06_Shin_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_06_Shin_arm_left.wpn",
+      "sourceSha256": "7ed95cad52f2603fd3e327006a8a32237a0b6bc3ce62e2f3d54f30527069cc6f",
+      "weaponId": "Moci_MS_06_Shin_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_06_leader",
+        "moduleHullId": "Moci_MS_06_SHIELD_L",
+        "moduleVariantEvidence": "Moci_MS_06_SHIELD_L_Base",
+        "name": "扎古(队长型)",
+        "normalDegrees": 70.478,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_06_leader_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_06_leader_arm_left.wpn",
+      "sourceSha256": "835a0347d005beff1f4271af2d2702b18e6eb0376fa18c1fdfe63d9e84e05828",
+      "weaponId": "Moci_MS_06_leader_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_06_leader_Axe",
+        "moduleHullId": "Moci_MS_06_SHIELD_L",
+        "moduleVariantEvidence": "Moci_MS_06_SHIELD_L_Base",
+        "name": "扎古(巴尼)",
+        "normalDegrees": 70.478,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_06_leader_Axe_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_06_leader_axe_arm_left.wpn",
+      "sourceSha256": "be1f58018d8529c9710e3b45c6edd0fcd9cc0d195726e2b43d15b2028604308d",
+      "weaponId": "Moci_MS_06_leader_axe_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_07",
+        "moduleHullId": "Moci_MS_07_SHIELD_L",
+        "moduleVariantEvidence": "Moci_MS_07_SHIELD_L_Base",
+        "name": "古夫",
+        "normalDegrees": 92.755,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_07_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_07_arm_left.wpn",
+      "sourceSha256": "4d2522713645223d8077be5fcd555e60300b289e4e45ec052a84e95673262d8d",
+      "weaponId": "Moci_MS_07_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_14_BTS",
+        "moduleHullId": "Moci_MS_14_SHIELD_L_BTS",
+        "moduleVariantEvidence": "Moci_MS_14_SHIELD_L_BTS_Base",
+        "name": "勇士(黑色三连星)",
+        "normalDegrees": 74.512,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_14_BTS_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_14_BTS_arm_left.wpn",
+      "sourceSha256": "fa3056c78cb667ce99e8ce6e2eb9f604c854628f13b2813a2d6ed63ffccda36b",
+      "weaponId": "Moci_MS_14_BTS_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_14_Char",
+        "moduleHullId": "Moci_MS_14_SHIELD_L_Char",
+        "moduleVariantEvidence": "Moci_MS_14_SHIELD_L_Char_Base",
+        "name": "勇士(赤色彗星)",
+        "normalDegrees": 74.512,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_14_Char_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_14_Char_arm_left.wpn",
+      "sourceSha256": "c9b2f2abfca2bfb90459687a4c82a23dc343855a34ec9acc7da47d5f2bfb5ed8",
+      "weaponId": "Moci_MS_14_Char_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_14_Johnny",
+        "moduleHullId": "Moci_MS_14_SHIELD_L_Johnny",
+        "moduleVariantEvidence": "Moci_MS_14_SHIELD_L_Johnny_Base",
+        "name": "勇士(真红闪电)",
+        "normalDegrees": 74.512,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_14_Johnny_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_14_Johnny_arm_left.wpn",
+      "sourceSha256": "04a1320d49a5230abf0844f1ed6f351953f0c6cf556c76f53df2ac854a4d7597",
+      "weaponId": "Moci_MS_14_Johnny_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_14_Shin",
+        "moduleHullId": "Moci_MS_14_SHIELD_L_Shin",
+        "moduleVariantEvidence": "Moci_MS_14_SHIELD_L_Shin_Base",
+        "name": "勇士(白狼)",
+        "normalDegrees": 74.512,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_14_Shin_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_14_Shin_arm_left.wpn",
+      "sourceSha256": "5cfe55a5a52de75868796076c2527c80a1de12d9059d747c99e415c94ee01558",
+      "weaponId": "Moci_MS_14_Shin_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_MS_14",
+        "moduleHullId": "Moci_MS_14_SHIELD_L",
+        "moduleVariantEvidence": "Moci_MS_14_SHIELD_L_Base",
+        "name": "勇士",
+        "normalDegrees": 74.512,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_MS_14_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_14_arm_left.wpn",
+      "sourceSha256": "1563a2343b4e79ee1a6903686c5a1642934f1a36f1dc3512c5a41db0952210f5",
+      "weaponId": "Moci_MS_14_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RGM_79P",
+        "moduleHullId": "Moci_RGM_79P_SHIELD_L",
+        "moduleVariantEvidence": "Moci_RGM_79P_SHIELD_L_Base",
+        "name": "大功率吉姆",
+        "normalDegrees": 78.693,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RGM_79P_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGM_79P_arm_left.wpn",
+      "sourceSha256": "2060062d4fac5766bd9d575ce8e990269a2a10bfd6bae417aaf8811daedf2623",
+      "weaponId": "Moci_RGM_79P_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RGM_79SP",
+        "moduleHullId": "Moci_RGM_79SP_SHIELD_L",
+        "moduleVariantEvidence": "Moci_RGM_79SP_SHIELD_L_Base",
+        "name": "狙击型吉姆",
+        "normalDegrees": 78.693,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RGM_79SP_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGM_79SP_arm_left.wpn",
+      "sourceSha256": "d973175c1754d9ff7eb3253999c8b0e956d0005aea4d4434501de67ba9ffbe08",
+      "weaponId": "Moci_RGM_79SP_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [
+        {
+          "hullId": "Moci_RGM_79",
+          "moduleHullId": "Moci_RX_78_2_SHIELD_L",
+          "moduleVariantEvidence": "Moci_RX_78_2_SHIELD_L_Base",
+          "name": "吉姆I",
+          "normalDegrees": 78.693,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_RGM_79_Base"
+        },
+        {
+          "hullId": "Moci_RMS_179",
+          "moduleHullId": "Moci_RX_78_2_SHIELD_L",
+          "moduleVariantEvidence": "Moci_RX_78_2_SHIELD_L_Base",
+          "name": "吉姆II",
+          "normalDegrees": 78.693,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_RMS_179_Base"
+        },
+        {
+          "hullId": "Moci_RGM_86",
+          "moduleHullId": "Moci_RX_78_2_SHIELD_L",
+          "moduleVariantEvidence": "Moci_RX_78_2_SHIELD_L_Base",
+          "name": "吉姆III",
+          "normalDegrees": 78.693,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_RGM_86_Base"
+        }
+      ],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGM_79_arm_left.wpn",
+      "sourceSha256": "7d065a8b3f90d30b366ea1571cb11a41cfc4342b3877c87b86861784e74855e5",
+      "weaponId": "Moci_RGM_79_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [
+        {
+          "hullId": "Moci_RGM_89",
+          "moduleHullId": "Moci_RGM_89_SHIELD_L",
+          "moduleVariantEvidence": "Moci_RGM_89_SHIELD_L_Base",
+          "name": "杰刚",
+          "normalDegrees": 68.011,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_RGM_89_Base"
+        },
+        {
+          "hullId": "Moci_RGM_89_leader",
+          "moduleHullId": "Moci_RGM_89_SHIELD_L",
+          "moduleVariantEvidence": "Moci_RGM_89_SHIELD_L_Base",
+          "name": "杰刚(队长型)",
+          "normalDegrees": 68.011,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_RGM_89_leader_Base"
+        }
+      ],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGM_89_arm_left.wpn",
+      "sourceSha256": "8395a5fcddd6a0fc4cdf7aaf30799ff837e69e7c377684b9e3a7423a8f1d8e58",
+      "weaponId": "Moci_RGM_89_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RGM_96X_strike",
+        "moduleHullId": "Moci_RGM_96X_arm_left_shield",
+        "moduleVariantEvidence": "Moci_RGM_96X_arm_left_shield_Base",
+        "name": "杰斯塔(强袭型)",
+        "normalDegrees": 77.815,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RGM_96X_strike_Standard"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGM_96X_arm_left_strike.wpn",
+      "sourceSha256": "957ed979d3b6889feb0e23e4ea347fe84b3540688a3ea38532bd4aeca108f2e0",
+      "weaponId": "Moci_RGM_96X_arm_left_strike",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RGZ_91",
+        "moduleHullId": "Moci_RGZ_91_SHIELD_L",
+        "moduleVariantEvidence": "Moci_RGZ_91_SHIELD_L_Base",
+        "name": "灵格斯",
+        "normalDegrees": 53.619,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RGZ_91_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGZ_91_arm_left.wpn",
+      "sourceSha256": "7aafa3bbf476cc45dd18b21be7c5152752d4ed4c59c15a6d6ae575843f1909fa",
+      "weaponId": "Moci_RGZ_91_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RMS_106",
+        "moduleHullId": "Moci_RMS_106_SHIELD_L",
+        "moduleVariantEvidence": "Moci_RMS_106_SHIELD_L_Base",
+        "name": "高扎古",
+        "normalDegrees": 62.109,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RMS_106_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RMS_106_arm_left.wpn",
+      "sourceSha256": "9cc20879d2f322d790e5662ec9020c387369d0c2808e62bcfc2ed12ba5f731f2",
+      "weaponId": "Moci_RMS_106_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RX_0_1",
+        "moduleHullId": "Moci_RX_0_1_shield",
+        "moduleVariantEvidence": "Moci_RX_0_1_shield_base",
+        "name": "独角兽高达(1号机)",
+        "normalDegrees": 88.263,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RX_0_1_base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_RX0",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_0_1_arm_left.wpn",
+      "sourceSha256": "ad2e557acda15759d9780ef866277d4470e57ba626cc6241f6741b1c4ef8053c",
+      "weaponId": "Moci_RX_0_1_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RX_0_2",
+        "moduleHullId": "Moci_RX_0_2_shield",
+        "moduleVariantEvidence": "Moci_RX_0_2_shield_base",
+        "name": "独角兽高达(2号机)",
+        "normalDegrees": 88.263,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RX_0_2_base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_RX0",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_0_2_arm_left.wpn",
+      "sourceSha256": "a63b83c3aed62dcb7f2fabe461bde22c45ba0cbb36ac927557aeed61410c81ff",
+      "weaponId": "Moci_RX_0_2_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RX_105",
+        "guardJointMinimumDegrees": -30,
+        "guardJointMaximumDegrees": 60,
+        "guardJointEvidence": "User-reference-calibrated large-arm BODY-neutral ordinary guard limits: -30 inward to +60 outward,from directed BODY rear-spikes and physical shield thin-front-tip alignment in user images 6537479a and b62421f9 (2026-10-26);small screenshot sampling uncertain by a few degrees,no extra admission margin. Rifle/salvo poses remain separate higher-priority actions;not original anatomical data.",
+        "moduleHullId": "Moci_RX_105_SHIELD_L",
+        "moduleVariantEvidence": "Moci_RX_105_SHIELD_L_base",
+        "name": "柯西高达",
+        "normalDegrees": 76.032,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RX_105_base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_105_arm_left.wpn",
+      "sourceSha256": "847570a9b00a80642818509af76effd33994c34e5b0da716639a9c8814c56165",
+      "weaponId": "Moci_RX_105_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RX_78_1",
+        "moduleHullId": "Moci_RX_78_1_SHIELD_L",
+        "moduleVariantEvidence": "Moci_RX_78_1_SHIELD_L_Base",
+        "name": "高达(1号机)",
+        "normalDegrees": 78.693,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RX_78_1_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_78_1_arm_left.wpn",
+      "sourceSha256": "016e77c153c55eeba4dbe59b05aebb49f90823ec54f595761cc2ead4a57db920",
+      "weaponId": "Moci_RX_78_1_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RX_78_2",
+        "moduleHullId": "Moci_RX_78_2_SHIELD_L",
+        "moduleVariantEvidence": "Moci_RX_78_2_SHIELD_L_Base",
+        "name": "高达",
+        "normalDegrees": 78.693,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RX_78_2_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_78_2_arm_left.wpn",
+      "sourceSha256": "db4eb335dcfd58d28c34a19a9e215abfc12ea843f9d55ea4d5cc36a8172dee4f",
+      "weaponId": "Moci_RX_78_2_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RX_78_3",
+        "moduleHullId": "Moci_RX_78_3_SHIELD_L",
+        "moduleVariantEvidence": "Moci_RX_78_3_SHIELD_L_Base",
+        "name": "G-3高达(3号机)",
+        "normalDegrees": 78.693,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RX_78_3_Base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_78_3_arm_left.wpn",
+      "sourceSha256": "8b9dac3d1ef7d3d4142eb3afa275eba9e3945ae2f15710b104740530c30bb81d",
+      "weaponId": "Moci_RX_78_3_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RX_93",
+        "moduleHullId": "Moci_RX_93_shield",
+        "moduleVariantEvidence": "Moci_RX_93_shield_base",
+        "name": "Nu 高达",
+        "normalDegrees": 89.325,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_RX_93_base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_93_arm_left.wpn",
+      "sourceSha256": "89e6869c6f2f07e573f539500c96f3e06254071a2f01548db7906f061da9e9f2",
+      "weaponId": "Moci_RX_93_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [
+        {
+          "hullId": "Moci_RX_93_v2",
+          "moduleHullId": "Moci_RX_93_v2_shield",
+          "moduleVariantEvidence": "Moci_RX_93_v2_shield_base",
+          "name": "Hi-Nu 高达",
+          "normalDegrees": 89.521,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_RX_93_v2_base"
+        },
+        {
+          "hullId": "Moci_RX_93_v2_HWS",
+          "moduleHullId": "Moci_RX_93_v2_shield_hws",
+          "moduleVariantEvidence": "Moci_RX_93_v2_shield_hws_base",
+          "name": "Hi-v高达(HWS装备)",
+          "normalDegrees": 92.389,
+          "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+          "variantEvidence": "Moci_RX_93_v2_HWS_base"
+        }
+      ],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_93_v2_arm_left.wpn",
+      "sourceSha256": "1aa3a5fc59ae904fd6ffc4d88a6474526e45444a1653a78a0120767380c0bb83",
+      "weaponId": "Moci_RX_93_v2_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_Vangray",
+        "moduleHullId": "Moci_Vangray_left_shield",
+        "moduleVariantEvidence": "Moci_Vangray_left_shield_base",
+        "name": "梵格雷",
+        "normalDegrees": 92.922,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_Vangray_base"
+      }],
+      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense",
+      "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_Vangray_arm_left.wpn",
+      "sourceSha256": "2301536dc7aca478462fcc14537a546a6c31599ce73568e9ed11e91744b0344a",
+      "weaponId": "Moci_Vangray_arm_left",
+      "wrapper": true
+    },
+    {
+      "mounts": [{
+        "hullId": "Moci_RX_105_framework_arsenal",
+        "guardJointMinimumDegrees": -30,
+        "guardJointMaximumDegrees": 60,
+        "guardJointEvidence": "User-reference-calibrated large-arm BODY-neutral ordinary guard limits: -30 inward to +60 outward,from directed BODY rear-spikes and physical shield thin-front-tip alignment in user images 6537479a and b62421f9 (2026-10-26);small screenshot sampling uncertain by a few degrees,no extra admission margin. Rifle/salvo poses remain separate higher-priority actions;not original anatomical data.",
+        "moduleHullId": "Moci_RX_105_SHIELD_L",
+        "moduleVariantEvidence": "Moci_RX_105_SHIELD_L_base",
+        "name": "柯西高达·精神力武装",
+        "normalDegrees": 76.032,
+        "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
+        "variantEvidence": "Moci_fw_xi_arsenal_Standard"
+      }],
+      "originalEffect": "xi.arsenal.FullSalvoArmEffect",
+      "sourceFile": "D:\\DS\\远星拆卸\\宿主层\\content\\xi-arsenal\\data\\weapons\\Moci_fw_xi_salvo_arm_left.wpn",
+      "sourceSha256": "af95ae8c0b4c805fa687255e7e10214d1ccd2a6213b97e56b1a4dd3e08db3e83",
+      "weaponId": "Moci_fw_xi_salvo_arm_left",
+      "wrapper": false
+    }
+  ]
+}

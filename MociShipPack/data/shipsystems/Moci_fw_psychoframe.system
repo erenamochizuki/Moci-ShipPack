@@ -1,0 +1,9 @@
+{
+  "id": "Moci_fw_psychoframe",
+  "type": "ENGINE_MOD",
+  "aiType": "MANEUVERING_JETS",
+  "statsScript": "xi.arsenal.PsychoframeSystem",
+  "flameoutOnImpactChance": 0,
+  "clampTurnRateAfter": true,
+  "clampMaxSpeedAfter": false
+}

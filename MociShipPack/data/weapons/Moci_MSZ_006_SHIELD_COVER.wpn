@@ -4,7 +4,7 @@
   "type": "DECORATIVE",
   "size": "SMALL",
   "showDamageWhenDecorative": false,
-  "everyFrameEffect": "data.scripts.weapons.Moci_MSZ006ShieldCoverEffect",
+  "everyFrameEffect": "xi.arsenal.ZetaShieldCoverEffect",
   "turretSprite": "graphics/ships/Mobile_Suit/MSZ_006/arms/MSZ_006_shield_00.png",
   "hardpointSprite": "graphics/ships/Mobile_Suit/MSZ_006/arms/MSZ_006_shield_00.png",
   "numFrames": 2,
@@ -54,3 +54,4 @@
     MISSILE_NO_FF
   ]
 }
+

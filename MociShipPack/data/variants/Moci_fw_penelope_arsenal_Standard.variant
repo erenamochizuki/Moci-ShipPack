@@ -1,0 +1,16 @@
+{
+  "displayName": "双米加炮 · 64枚精神力导弹三波齐射",
+  "fluxCapacitors": 20,
+  "fluxVents": 20,
+  "goalVariant": true,
+  "hullId": "Moci_RX_104FF_framework_arsenal",
+  "hullMods": ["moci_panoramic_cockpit"],
+  "variantId": "Moci_fw_penelope_arsenal_Standard",
+  "weaponGroups": [
+    {"autofire": false, "mode": "LINKED", "weapons": {"WS0005": "Moci_fw_penelope_mega_particle", "WS0006": "Moci_fw_penelope_mega_particle"}},
+    {"autofire": false, "mode": "LINKED", "weapons": {"WS0001": "Moci_fw_penelope_psycho_missile_8", "WS0002": "Moci_fw_penelope_psycho_missile_8", "WS0003": "Moci_fw_penelope_psycho_missile_8", "WS0004": "Moci_fw_penelope_psycho_missile_8", "WS0007": "Moci_fw_penelope_psycho_missile_8", "WS0008": "Moci_fw_penelope_psycho_missile_8", "WS0009": "Moci_fw_penelope_psycho_missile_8", "WS0010": "Moci_fw_penelope_psycho_missile_8"}},
+    {"autofire": true, "mode": "LINKED", "weapons": {"ARM_R_SOURCE": "Moci_fw_penelope_beam_rifle"}}
+  ],
+  "wings": [],
+  "modules": []
+}

@@ -1,0 +1,41 @@
+{
+  "id": "Moci_fw_hinu_hand_arm",
+  "specClass": "beam",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "everyFrameEffect": "xi.arsenal.HiNuRightArmEffect",
+  "showDamageWhenDecorative": false,
+  "turretSprite": "graphics/weapons/Moci_fw_hinu_hand_arm/own_hinu_arm_00.png",
+  "hardpointSprite": "graphics/weapons/Moci_fw_hinu_hand_arm/own_hinu_arm_00.png",
+  "turretOffsets": [
+    69,
+    5
+  ],
+  "hardpointOffsets": [
+    104,
+    5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "numFrames": 18,
+  "frameRate": 0,
+  "animationType": "NONE",
+  "width": 0,
+  "textureType": "SMOOTH",
+  "fringeColor": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "coreColor": [
+    0,
+    0,
+    0,
+    0
+  ]
+}

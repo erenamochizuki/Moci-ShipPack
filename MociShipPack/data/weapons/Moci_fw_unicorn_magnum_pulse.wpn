@@ -1,0 +1,19 @@
+{
+  "id":"Moci_fw_unicorn_magnum_pulse",
+  "specClass":"projectile",
+  "type":"ENERGY",
+  "size":"LARGE",
+  "barrelMode":"ALTERNATING",
+  "animationType":"NONE",
+  "everyFrameEffect":"xi.arsenal.UnicornMagnumPulseEffect",
+  "turretSprite":"graphics/ships/Mobile_Suit/Moci_RX_0/arms/RX_0_1_arm_right_weapon_magnum.png",
+  "turretGlowSprite":"graphics/ships/Mobile_Suit/Moci_RX_0/arms/RX_0_1_arm_right_weapon_magnum_glow.png",
+  "hardpointSprite":"graphics/ships/Mobile_Suit/Moci_RX_0/arms/RX_0_1_arm_right_weapon_magnum.png",
+  "hardpointGlowSprite":"graphics/ships/Mobile_Suit/Moci_RX_0/arms/RX_0_1_arm_right_weapon_magnum_glow.png",
+  "glowColor":[165,100,255,235],
+  "turretOffsets":[144,15.5],
+  "hardpointOffsets":[241,15.5],
+  "turretAngleOffsets":[0],
+  "hardpointAngleOffsets":[0],
+  "projectileSpecId":"Moci_fw_unicorn_magnum_pulse_shot"
+}

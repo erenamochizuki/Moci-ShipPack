@@ -1,0 +1,15 @@
+{
+  "id": "Moci_fw_zeta_shield_ram",
+  "specClass": "projectile",
+  "type": "UNIVERSAL",
+  "size": "LARGE",
+  "turretSprite": "graphics/fx/empty.png",
+  "hardpointSprite": "graphics/fx/empty.png",
+  "turretOffsets": [0, 0],
+  "hardpointOffsets": [0, 0],
+  "turretAngleOffsets": [0],
+  "hardpointAngleOffsets": [0],
+  "projectileSpecId": "Moci_fw_zeta_ram_trigger_shot",
+  "barrelMode": "ALTERNATING",
+  "animationType": "NONE"
+}
