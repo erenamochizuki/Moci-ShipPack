@@ -28,8 +28,6 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.vector.Vector2f;
 
-import data.scripts.combat.Moci_TimeFlow;
-
 import java.awt.Color;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -45,6 +43,12 @@ import java.util.Map;
  * 同时管理接触减速，不依赖本帧是否还有补伤额度。
  */
 public final class Moci_MeleeHitEffects {
+
+    /** 常驻排查日志开关（禁止挂到 devMode 上）。 */
+    public static final boolean TRACE = true;
+
+    private static final String LOG_PREFIX = "[MOCI-TIME] ";
+    private static final Logger LOG = Global.getLogger(Moci_MeleeHitEffects.class);
     // 调参入口：火花外观看 emitSparks()；火线颜色、宽度看 ScarRenderer.render() 的三次 drawStrip()。
     // 时间单位为游戏内秒；尺寸/距离为战场世界单位（不是随屏幕缩放保持不变的屏幕像素）。
     private static final float SAMPLE_INTERVAL = 1f / 15f; // 接触亮点/火线每秒采样15次；不再控制飞溅火花。
@@ -87,15 +91,8 @@ public final class Moci_MeleeHitEffects {
     private static final String RENDERER_KEY = "moci_melee_contact_renderer";
     private static final String SPARK_RENDERER_KEY = "moci_melee_spark_renderer";
     public static boolean ENABLE_INSTANCED_SPARKS = true; // 仅切换飞溅火花渲染：true用共享实例化/批绘制，false沿用引擎粒子，方便同场景对比；不影响命中逻辑。
-    // HIT_TIME_KEY 既是本插件在引擎 customData 里的注册键，也是「局部时流」这份时间申请的**名字**；
-    // 迁移到 Moci_TimeFlow 后它不再充当属性键（属性键统一由 Moci_TimeFlow.MODIFIER_ID 承担）。
     private static final String HIT_TIME_KEY = "moci_melee_hit_time_flow";
-    /** 全局 0.4 倍申请的名字（同样只作名字）。 */
     private static final String HIT_GLOBAL_SLOW_KEY = "moci_melee_hit_global_slow";
-    /** 时间泄漏排查开关：常驻日志前缀，由项目内常量控制，不绑 devMode。 */
-    public static final boolean TRACE = true;
-    private static final String LOG_PREFIX = "[MOCI-TIME] ";
-    private static final Logger LOG = Global.getLogger(Moci_MeleeHitEffects.class);
     // 火花使用RGBA，取值0~255，依次为红/绿/蓝/透明度；火线颜色另见 render()，不会随这里一起变色。
     private static final Color GOLD = new Color(255, 177, 32, 255); // 普通火花：不透明金橙色。
     private static final Color HOT = new Color(255, 246, 181, 255); // 少量随机火花与接触亮点：偏白的浅黄色。
@@ -201,8 +198,7 @@ public final class Moci_MeleeHitEffects {
             if (timeFlow) {
                 state.flowRemaining = Math.max(state.flowRemaining, HIT_TIME_DURATION);
                 // 所有近战武器共用同一个舰船修正项；双持命中不会重复叠加局部时流。
-                // 迁移后「修正项」是一份申请：已经存在就 set() 续期，第二次命中不会再多开一份叠乘。
-                syncFlow(ship, state);
+                ship.getMutableStats().getTimeMult().modifyMult(HIT_TIME_KEY, HIT_TIME_MULT);
             }
             if (globalSlow) state.slowRemaining = Math.max(state.slowRemaining, HIT_GLOBAL_SLOW_DURATION);
             state.refreshedAt = engine.getTotalElapsedTime(false);
@@ -211,18 +207,14 @@ public final class Moci_MeleeHitEffects {
 
         @Override
         public void advance(float amount, List<InputEventAPI> events) {
-            if (engine.isPaused() || activeShips.isEmpty()) return;
-            // ★ 原实现没有兜底：循环里任何一次抛错都会跳过末尾的 updateGlobalTime()，
-            // 世界侧的 0.4 倍就被永久留在这场战斗里 = 世界永久 40% 速。
-            // 现在世界侧与船侧都是句柄，兜底只需它们全部 release() 一次（幂等），见 releaseAll。
-            try {
-                tick(amount);
-            } catch (RuntimeException | LinkageError failure) {
-                releaseAll("advance failed: " + failure);
+            if (engine.isPaused()) return;
+            if (activeShips.isEmpty()) {
+                // 表空了也必须把引擎侧那两条修饰摘干净：否则最后一次命中留下的 0.4x 会永久挂在战场上。
+                // 没有条目时这里只是两次空表 remove，开销可以忽略。
+                updateGlobalTime();
+                return;
             }
-        }
 
-        private void tick(float amount) {
             float now = engine.getTotalElapsedTime(false);
             Iterator<Map.Entry<ShipAPI, HitTimeState>> iterator = activeShips.entrySet().iterator();
             while (iterator.hasNext()) {
@@ -239,29 +231,23 @@ public final class Moci_MeleeHitEffects {
                     }
                     boolean invalid = !ship.isAlive() || !engine.isEntityInPlay(ship);
                     if (!ENABLE_HIT_TIME_FLOW || invalid || state.flowRemaining <= 0f) {
-                        // 句柄成对持有「船侧 1.2 倍」与玩家舰独有的「世界 1/1.2」，一次 release 两半同时消失
-                        releaseFlow(state, "flow released " + ship.getId());
+                        ship.getMutableStats().getTimeMult().unmodify(HIT_TIME_KEY);
                         state.flowRemaining = 0f;
                     }
+                    if (!ENABLE_HIT_GLOBAL_SLOW || invalid || ship != engine.getPlayerShip() || state.slowRemaining <= 0f) {
+                        state.slowRemaining = 0f;
+                    }
+                    if (state.flowRemaining <= 0f && state.slowRemaining <= 0f) {
+                        // 关键顺序：先把舰船侧那条修饰摘掉，再删条目。
+                        // 反过来写的话，修饰符会随条目一起「消失」成没人记得的残留，之后再没有代码去摘它。
+                        ship.getMutableStats().getTimeMult().unmodify(HIT_TIME_KEY);
+                        iterator.remove();
+                    }
                 } catch (RuntimeException | LinkageError failure) {
-                    // 单条舰船算坏不该拖住全场：收回它的时流申请、丢弃它的状态，继续处理其它舰船，
-                    // 末尾的 updateGlobalTime() 照常执行。
-                    state.flowRemaining = 0f;
-                    state.slowRemaining = 0f;
-                    releaseFlow(state, "flow failed " + ship.getId());
-                    releaseSlow(state, "slow failed " + ship.getId());
-                    iterator.remove();
-                    if (TRACE) LOG.warn(LOG_PREFIX + "近战卡肉局部时流求值失败，已摘除该舰状态 -> " + failure);
-                    continue;
-                }
-                if (!ENABLE_HIT_GLOBAL_SLOW || ship != engine.getPlayerShip() || state.slowRemaining <= 0f) {
-                    state.slowRemaining = 0f;
-                }
-                if (state.flowRemaining <= 0f && state.slowRemaining <= 0f) {
-                    // ★ 出表之前必须把两份申请都收回：原实现直接 remove，靠下一帧「从零重算 + unmodify 幂等」
-                    // 收场；句柄模型没有「从零重算」这一层，漏收就是这条舰永久 1.2 倍 / 世界永久 0.4 倍。
-                    releaseFlow(state, "state expired " + ship.getId());
-                    releaseSlow(state, "state expired " + ship.getId());
+                    // 单舰异常不能中断整轮扫描：把这条修饰尽力摘掉并把条目移出表，
+                    // 否则后面几条舰船这一帧也全被跳过，它们的修饰同样会滞留在场上。
+                    LOG.warn(LOG_PREFIX + "命中时流单舰处理失败，已摘除并跳过：" + failure);
+                    releaseShipQuietly(ship);
                     iterator.remove();
                 }
             }
@@ -269,98 +255,47 @@ public final class Moci_MeleeHitEffects {
             updateGlobalTime();
         }
 
-        /**
-         * 异常兜底：把所有时间申请一次收回，再清空状态。
-         *
-         * <p>原 releaseLeakedTime 要在这里分别 unmodify「每条舰的船侧键」+「引擎的两个键」，
-         * 每个键各套一层 try（漏一个就是永久时缓）。迁移后每份申请是一个句柄：
-         * release() 幂等、成对、不可能只成功一半，所以那个方法按纪律删除，由这里统一收句柄。</p>
-         */
-        private void releaseAll(String why) {
-            for (HitTimeState state : activeShips.values()) {
-                releaseFlow(state, why);
-                releaseSlow(state, why);
-            }
-            activeShips.clear();
-            if (TRACE) LOG.warn(LOG_PREFIX + "近战卡肉时流异常收场 原因=" + why + "（时间申请已按句柄全部收回）");
-        }
-
-        /**
-         * 每帧核对每条舰的时间申请：局部时流要不要、要不要带世界侧；全局 0.4 倍要不要。
-         *
-         * <p>原来这里是「每帧先 unmodify 一次、需要时再 modifyMult 一次」的对偶写法，正确性依赖
-         * 两个键字符串永不写错、且每个出口都记得摘。迁移后每份申请是一个句柄：形态不对就重开
-         * （船侧 + 世界侧一起换），不需要时 release，不存在「摘了这个忘了那个」。</p>
-         */
         private void updateGlobalTime() {
-            ShipAPI player = engine.getPlayerShip();
-            for (Map.Entry<ShipAPI, HitTimeState> entry : activeShips.entrySet()) {
-                ShipAPI ship = entry.getKey();
-                HitTimeState state = entry.getValue();
-                if (ENABLE_HIT_TIME_FLOW && state.flowRemaining > 0f) {
-                    // 玩家舰：船 1.2 倍且世界 1/1.2 倍（原实现同一个 HIT_TIME_KEY 的两半，成对）；
-                    // AI 舰：只压船侧，世界一帧都不碰（原实现 AI 命中不会拖慢全场）。
-                    syncFlow(ship, state);
-                } else {
-                    releaseFlow(state, "flow released " + ship.getId());
-                }
-                if (ENABLE_HIT_GLOBAL_SLOW && ship == player && state.slowRemaining > 0f) {
-                    // 与局部时流是两份独立申请，开关/到期互不覆盖（原实现靠两个不同键达到同样效果）。
-                    state.slow = ensureSlow(state.slow);
-                } else {
-                    releaseSlow(state, "global slow released " + ship.getId());
-                }
-            }
+            HitTimeState playerState = activeShips.get(engine.getPlayerShip());
+            boolean flowWanted = ENABLE_HIT_TIME_FLOW && playerState != null && playerState.flowRemaining > 0f;
+            // 与旧方案使用不同的修正项，开关/到期互不覆盖；自身没有新方案的局部加速补偿。
+            boolean slowWanted = ENABLE_HIT_GLOBAL_SLOW && playerState != null && playerState.slowRemaining > 0f;
+            applyEngineTime(HIT_TIME_KEY, flowWanted, 1f / HIT_TIME_MULT, "旧方案世界侧补偿");
+            applyEngineTime(HIT_GLOBAL_SLOW_KEY, slowWanted, HIT_GLOBAL_TIME_MULT, "新方案全局卡肉");
         }
 
-        /** 保证该舰的局部时流申请存在，且与「现在是否玩家操控」的形态一致。 */
-        private void syncFlow(ShipAPI ship, HitTimeState state) {
-            boolean bullet = ship == engine.getPlayerShip();
-            if (state.flow != null && state.flow.active() && state.flowIsBullet == bullet) {
-                state.flow.set(HIT_TIME_MULT); // 续期并保持最新倍率：同一份申请，绝不叠乘
-                return;
-            }
-            releaseFlow(state, "flow form change " + ship.getId());
-            state.flow = bullet
-                    ? Moci_TimeFlow.openBulletTime(ship, HIT_TIME_KEY, HIT_TIME_MULT)
-                    : Moci_TimeFlow.openShip(ship, HIT_TIME_KEY, HIT_TIME_MULT);
-            state.flowIsBullet = bullet;
-        }
-
-        /** 全局 0.4 倍申请：仍有效就 set 续期，否则重开一份（每帧调用，必须幂等）。 */
-        private Moci_TimeFlow.Handle ensureSlow(Moci_TimeFlow.Handle handle) {
-            if (handle != null && handle.active()) {
-                handle.set(HIT_GLOBAL_TIME_MULT);
-                return handle;
-            }
-            releaseHandleQuietly(handle, "global slow reopen");
-            return Moci_TimeFlow.openWorld(HIT_GLOBAL_SLOW_KEY, HIT_GLOBAL_TIME_MULT);
-        }
-
-        /** 收回一条舰的局部时流申请（幂等；句柄随舰离场失效时是空操作）。 */
-        private void releaseFlow(HitTimeState state, String why) {
-            Moci_TimeFlow.Handle handle = state.flow;
-            state.flow = null;
-            releaseHandleQuietly(handle, why);
-        }
-
-        /** 收回全局 0.4 倍申请。 */
-        private void releaseSlow(HitTimeState state, String why) {
-            Moci_TimeFlow.Handle handle = state.slow;
-            state.slow = null;
-            releaseHandleQuietly(handle, why);
-        }
-
-        /** 句柄释放：一句话同时收回船侧与世界侧，不再需要按属性逐项 unmodify 的补丁。 */
-        private void releaseHandleQuietly(Moci_TimeFlow.Handle handle, String why) {
-            if (handle == null) return;
-            boolean wasActive = handle.active();
+        /**
+         * 引擎侧时间修饰的唯一出口：要就写、不要就摘。
+         * 写失败时当场回退成摘除 —— 引擎上永远只有「当前帧确实需要」的那两条修饰，
+         * 不会因为某次异常停在半路，把整场战斗按在 0.4 倍速上。
+         */
+        private void applyEngineTime(String id, boolean wanted, float value, String what) {
             try {
-                handle.release();
+                if (wanted) {
+                    engine.getTimeMult().modifyMult(id, value);
+                } else {
+                    engine.getTimeMult().unmodify(id);
+                }
             } catch (RuntimeException | LinkageError failure) {
-                LOG.warn(LOG_PREFIX + "近战卡肉时流申请释放失败 " + why + " -> " + failure);
+                LOG.warn(LOG_PREFIX + "引擎时间修饰写入失败 id=" + id + "（" + what + "），改走摘除：" + failure);
+                releaseEngineQuietly(id);
             }
-            if (TRACE && wasActive) LOG.info(LOG_PREFIX + "近战卡肉收回时流申请 " + why);
+        }
+
+        private void releaseEngineQuietly(String id) {
+            try {
+                engine.getTimeMult().unmodify(id);
+            } catch (RuntimeException | LinkageError failure) {
+                LOG.warn(LOG_PREFIX + "引擎时间修饰摘除失败 id=" + id + " 异常=" + failure);
+            }
+        }
+
+        private void releaseShipQuietly(ShipAPI ship) {
+            try {
+                ship.getMutableStats().getTimeMult().unmodify(HIT_TIME_KEY);
+            } catch (RuntimeException | LinkageError failure) {
+                LOG.warn(LOG_PREFIX + "舰船时间修饰摘除失败 异常=" + failure);
+            }
         }
     }
 
@@ -368,12 +303,6 @@ public final class Moci_MeleeHitEffects {
         private float flowRemaining;
         private float slowRemaining;
         private float refreshedAt;
-        /** 该舰的局部时流申请（玩家舰形态下自带世界侧 1/1.2）；null = 当前没有申请。 */
-        private Moci_TimeFlow.Handle flow;
-        /** 全局 0.4 倍申请，只挂在玩家船的状态上。 */
-        private Moci_TimeFlow.Handle slow;
-        /** flow 当前是否为「玩家舰形态」（带世界侧）。换乘导致形态翻转时必须重开申请。 */
-        private boolean flowIsBullet;
     }
 
     private void applyHitVelocityEffects(ShipAPI ship, BeamAPI beam) {

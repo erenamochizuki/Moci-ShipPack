@@ -18,6 +18,10 @@ import org.lwjgl.util.vector.Vector2f;
  * Exact optical weapon identities intentionally exclude bazookas, missiles and launchers.
  */
 public final class PsychoArmamentVisuals implements AutoCloseable, data.scripts.combat.Moci_CombatSink {
+    /** 总开关：整套 xi 光学叠加层（光带 / 枪口闪光 / 命中光斑 / 离子粒子 / 充能辉光）已停用。
+     *  关闭时 ensure() 直接返回 null：不注册 damage listener、不生成任何渲染；
+     *  需要恢复时把它改回 true 即可。 */
+    public static final boolean ENABLED=false;
     public static final String KEY="xi.arsenal.psychoVisuals";
     public static final int MAX_SCAN=8192,MAX_SEGMENTS=192,MAX_FLARES=96,MAX_TRACKED=1024;
     public static final int MAX_PARTICLES_PER_FRAME=24;
@@ -55,6 +59,7 @@ public final class PsychoArmamentVisuals implements AutoCloseable, data.scripts.
 
     /** 光学收尾的宿主：由用了 xi 光学武器的每帧回调惰性安装，不再是全局插件。 */
     public static PsychoArmamentVisuals ensure(CombatEngineAPI engine){
+        if(!ENABLED)return null;
         if (Global.getCurrentState() != com.fs.starfarer.api.GameState.COMBAT) return null;
         if(engine==null)return null;Object owner=engine.getCustomData().get(KEY+".owner");
         if(owner instanceof PsychoArmamentVisuals own&&!own.closed)return own;
@@ -142,7 +147,7 @@ public final class PsychoArmamentVisuals implements AutoCloseable, data.scripts.
         List<BeamAPI> all=engine.getBeams();int size=all.size(),limit=Math.min(size,MAX_SCAN);
         for(int i=0;i<limit;i++){
             BeamAPI b=all.get((beamCursor+i)%Math.max(1,size));Style style=b==null?null:style(b.getWeapon());
-            if(style==null||b.getBrightness()<=.005f)continue;
+            if(style==null||!nativeBeamVisible(b)||b.getBrightness()<=.005f)continue;
             if(addSegment(style,b.getFrom(),b.getTo(),Math.max(2,b.getWidth()),b.getBrightness(),now,true))
                 inc(style.family,"beamObservations");
             if(!style.blade&&allow(beamMuzzles,b.getWeapon(),.14f))
@@ -166,7 +171,7 @@ public final class PsychoArmamentVisuals implements AutoCloseable, data.scripts.
         // Native DAMAGE is already settled. The native parameter is still readable in this callback.
         Object param=hit.getParamAboutToApplyDamage();Style style;Vector2f point;float facing;
         if(param instanceof BeamAPI b){
-            style=style(b.getWeapon());if(style==null||!allow(beamHits,b.getWeapon(),.11f))return;
+            style=style(b.getWeapon());if(style==null||!nativeBeamVisible(b)||!allow(beamHits,b.getWeapon(),.11f))return;
             point=b.getTo();facing=angle(b.getFrom(),point);
         }else if(param instanceof DamagingProjectileAPI p){
             if(p instanceof MissileAPI||p.getWeapon()==null)return;
@@ -288,6 +293,12 @@ public final class PsychoArmamentVisuals implements AutoCloseable, data.scripts.
         if(source!=null&&source.getHullSpec()!=null&&"Moci_RX_93_v2_HWS".equals(source.getHullSpec().getHullId()))return "hws";
         if(ship.getHullSpec()!=null&&"Moci_RX_93_bit".equals(ship.getHullSpec().getHullId()))return "nu";
         return "hinu";
+    }
+    /** 原生光束两头颜色全透明时，这把武器的视觉由它自己的脚本负责（例如夜莺战斧的刀光动画），
+     *  光学层再叠一条光带就等于把"隐形光束"重新画出来。alpha 直接读 BeamAPI 的真实渲染色。 */
+    private static boolean nativeBeamVisible(BeamAPI beam){
+        Color fringe=beam.getFringeColor(),core=beam.getCoreColor();
+        return Math.max(fringe==null?0:fringe.getAlpha(),core==null?0:core.getAlpha())>0;
     }
     private static Color inner(Color c){return new Color((c.getRed()+510)/3,(c.getGreen()+510)/3,(c.getBlue()+510)/3);}
     private static float muzzleSize(Style s){return Math.min(80,36+s.width*.3f);}

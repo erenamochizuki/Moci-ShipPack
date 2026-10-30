@@ -97,23 +97,18 @@ public class Moci_HSITunnelController_v2 implements EveryFrameWeaponEffectPlugin
         if (ship.getShipAI() != null && ship.getAIFlags().hasFlag(ShipwideAIFlags.AIFlags.TARGET_FOR_SHIP_SYSTEM)) {
             target = (ShipAPI) ship.getAIFlags().getCustom(ShipwideAIFlags.AIFlags.TARGET_FOR_SHIP_SYSTEM);
         }
+        // 浮游炮是独立机动的无人机，母舰这门口径武器只当触发器用。原实现拿 weapon.getRange() 过滤
+        // 锁定目标：目标一旦超出这把装饰武器的射程就被清空，于是"锁定后按住开火"毫无反应；而鼠标
+        // 目标走的是硬指定分支、没有这道射程门，所以同一位置用鼠标反而能出击。
+        // 现在明确锁定/指定的目标一律接受，只有最后"就近找战机"的兜底仍按 range 收敛。
         if (target != null && target.getOwner() != ship.getOwner()) {
-            float dist = Misc.getDistance(ship.getLocation(), target.getLocation());
-            float radSum = ship.getCollisionRadius() + target.getCollisionRadius();
-            if (dist > range + radSum)
-                target = null;
+            targetLoc = target.getLocation();
+        } else if (player) {
+            targetLoc = ship.getMouseTarget();
         } else {
-            if (player) {
-                targetLoc = ship.getMouseTarget();
-            } else {
-                Object test = ship.getAIFlags().getCustom(ShipwideAIFlags.AIFlags.MANEUVER_TARGET);
-                if (test instanceof ShipAPI) {
-                    target = (ShipAPI) test;
-                    float dist = Misc.getDistance(ship.getLocation(), target.getLocation());
-                    float radSum = ship.getCollisionRadius() + target.getCollisionRadius();
-                    if (dist > range + radSum)
-                        target = null;
-                }
+            Object test = ship.getAIFlags().getCustom(ShipwideAIFlags.AIFlags.MANEUVER_TARGET);
+            if (test instanceof ShipAPI) {
+                target = (ShipAPI) test;
             }
         }
         if (target == null && targetLoc == null) {

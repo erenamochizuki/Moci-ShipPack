@@ -5,7 +5,6 @@ import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.input.InputEventAPI;
 import java.util.*;
 import java.util.function.DoubleSupplier;
-import data.scripts.combat.Moci_TimeFlow;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
@@ -13,35 +12,19 @@ import org.lwjgl.input.Keyboard;
 public final class OwnNewtypeController implements AutoCloseable, data.scripts.combat.Moci_CombatSink {
     public static final String INSTANCE_KEY = "xi.arsenal.newtype.controller";
     public static final String TELEMETRY_KEY = "xi.arsenal.newtype";
-    /**
-     * 迁移前的旧修饰符 id，现在只用于「识别历史残留」。
-     * 时间倍率已统一写进 {@code Moci_TimeFlow.MODIFIER_ID}（全模组唯一权威），
-     * 本类不再往属性表里写任何自己的 id。
-     */
     public static final String MODIFIER = "xi.arsenal.own_newtype.time";
     public static final float DURATION_PLAYER_SECONDS = 10f, ACTIVATION_SOFT_FLUX = 300f, SHIP_TIME_MULT = 1.5f;
     public static final float PASSIVE_INTERVAL_PLAYER_SECONDS = 20f;
-    /** 交给 Moci_TimeFlow 的申请名；模块侧与世界侧各一份申请，作用域由句柄自己保证。 */
-    private static final String TIME_HANDLE_ID = "OwnNewtypeController";
     private static final float PASSIVE_SCAN_INTERVAL = .12f;
     private static final int MAX_PASSIVE_CANDIDATES = 2048;
     private static final String ORIGINAL_PREFIX = "MociPlayerSkill1_";
     private static final String ORIGINAL_LISTENER = "MociPlayerSkill1Listener";
     private static final String ICON = "graphics/icons/hullsys/moci_skill1.png";
-    /** 时间泄漏排查开关：常驻日志前缀，由项目内常量控制，不绑 devMode。 */
+    /** 常驻排查日志开关（禁止挂到 devMode 上）。 */
     public static final boolean TRACE = true;
     private static final String LOG_PREFIX = "[MOCI-TIME] ";
     private static final Logger LOG = Global.getLogger(OwnNewtypeController.class);
-    /**
-     * 每个被加速的舰/模块 → 它自己的时间申请。
-     * 用 IdentityHashMap 保持原来的「按对象身份匹配」语义（模块是同一份对象引用，不能被 equals 合并）。
-     * 迁移后这里不再存「我改过谁」，而是「我向权威申请了什么」——句柄随舰船离场自动作废。
-     */
-    private final Map<ShipAPI, Moci_TimeFlow.Handle> moduleTime = new IdentityHashMap<>();
-    /** 世界侧 1/1.5 的申请；玩家模块树整体加速时才存在，成对配平模块侧。 */
-    private Moci_TimeFlow.Handle worldTime;
-    /** 权威不可用（被暂停/换场/注册失败）的告警只打一次，避免每帧刷屏。 */
-    private boolean timeAuthorityLost;
+    private final Set<ShipAPI> touched = Collections.newSetFromMap(new IdentityHashMap<>());
     private final List<Map<String, Object>> events = new ArrayList<>();
     private final List<Map<String, Object>> samples = new ArrayList<>();
     private final Set<Integer> heldKeys = new HashSet<>();
@@ -52,8 +35,9 @@ public final class OwnNewtypeController implements AutoCloseable, data.scripts.c
     private boolean duplicate, stopped, passiveOriginalDelegate;
     private float remaining, scanCountdown, sampleCountdown, messageRemaining, passiveCooldown, passiveScanCountdown;
     private String message = "", activeSource = "none";
-    private long activations, declined, droppedEvents, passiveActivations, passiveCandidates, passiveScanTruncations, releaseFailures, selfAudits;
-    private String lastReleaseFailure = "";
+    private long activations, declined, droppedEvents, passiveActivations, passiveCandidates, passiveScanTruncations;
+    private int timeReleaseFailures;
+    private String lastTimeReleaseFailure = "";
     private double fluxSpent, activePlayerSeconds;
 
     public OwnNewtypeController() { this(Math::random); }
@@ -84,15 +68,9 @@ public final class OwnNewtypeController implements AutoCloseable, data.scripts.c
         Object existing = engine.getCustomData().get(INSTANCE_KEY);
         if (existing != null && existing != this) { duplicate = true; return; }
         engine.getCustomData().put(INSTANCE_KEY, this);
-        // 无引擎外资源：close() 只撤销时间修饰、清 INSTANCE_KEY 并在总线上注销，
-        // 全部是引擎内状态；结束链路由本类 advance() 的自审 + Moci_CombatBus.closeAll() 覆盖。
-        // 注册失败必须当场收场：否则本实例永远不会被 tick（没有任何自愈入口）却已经占了 INSTANCE_KEY。
-        try {
-            data.scripts.combat.Moci_CombatBus.register(this);
-        } catch (RuntimeException | LinkageError failure) {
-            close();
-            throw failure;
-        }
+        // 无引擎外资源：close() 只撤销 timeMult 修饰、清 INSTANCE_KEY 并在总线上注销，
+        // 全部是引擎内状态；结束链路由本类 advance() 的 combat-over 守卫 + Moci_CombatBus.closeAll() 覆盖。
+        data.scripts.combat.Moci_CombatBus.register(this);
         publish();
     }
 
@@ -145,42 +123,28 @@ public final class OwnNewtypeController implements AutoCloseable, data.scripts.c
         activeShip = expectedPlayer; activeSource=source; remaining = DURATION_PLAYER_SECONDS; activations++;
         if ("passive".equals(source)) {passiveActivations++;passiveCooldown=PASSIVE_INTERVAL_PLAYER_SECONDS;}
         fluxSpent += flux.getCurrFlux() - before;
-        long failuresBefore = releaseFailures;
-        try {
-            apply();
-        } catch (RuntimeException | LinkageError failure) {
-            // 激活失败绝不能把半套修饰符留在战场上：当场收干净再拒绝。
-            clear("激活时应用时间修饰失败：" + failure);
-            return refuse("新人类激活失败：" + failure);
-        }
-        // apply() 内部逐项 releaseQuietly，单步失败不再向外抛；这里把「有失败」翻译成「激活失败」，
-        // 免得半套修饰符留在战场上还对外宣称激活成功。
-        if (releaseFailures != failuresBefore) {
-            String why = lastReleaseFailure;
-            clear("激活时应用时间修饰失败：" + why);
-            return refuse("新人类激活失败：" + why);
-        }
+        apply();
         message = "新人类激活"; messageRemaining = 2;
         event("activated", "passive".equals(source)?"来袭弹药概率感应":binding.keyName()+" 或显式玩家动作", Map.of("ship", expectedPlayer.getId(), "source", source, "softFluxAdded", flux.getCurrFlux() - before));
         publish(); return new Activation(true, "已激活");
     }
 
-    /**
-     * 每帧入口：先自审存活条件，再把帧体包进 try/catch。
-     * 原实现的任何一次抛错都会逃回 {@code Moci_CombatBus}，被总线永久摘除（既不再 tick 也不会 close），
-     * 于是 {@code engine.getTimeMult()} 上的 1/1.5 永远留在这场战斗里 = 世界永久 2/3 速。
-     */
     @Override public void advance(float amount, List<InputEventAPI> ignoredInputs) {
         if (duplicate || stopped || engine == null) return;
-        String invalid = invalidReason();
-        if (!invalid.isEmpty()) { selfClose(invalid); return; }
+        if (engine.isCombatOver() || Global.getCombatEngine() != engine) { close(); return; }
         try {
             tick(amount);
         } catch (RuntimeException | LinkageError failure) {
-            selfClose("advance failed: " + failure);
-            return;
+            // 单帧异常必须当场整组摘除：控制器一旦抛出，总线会把它永久摘掉，
+            // 之后再没有代码替它摘 engine 上那条 1/1.5，整个战场会永久停在 2/3 速。
+            LOG.warn(LOG_PREFIX + "新人类控制器单帧异常，已整组释放时间修饰：" + failure);
+            clear("单帧异常，已释放时间修饰");
         }
-        selfAudit();
+        try {
+            publish();
+        } catch (RuntimeException | LinkageError failure) {
+            LOG.warn(LOG_PREFIX + "新人类遥测写入失败：" + failure);
+        }
     }
 
     private void tick(float amount) {
@@ -210,57 +174,7 @@ public final class OwnNewtypeController implements AutoCloseable, data.scripts.c
             if(passiveScanCountdown<=0){passiveScanCountdown=PASSIVE_SCAN_INTERVAL;scanPassive(player);}
             if (sampleCountdown <= 0) { sample(); sampleCountdown = .5f; }
         }
-        hud(player); publish();
-    }
-
-    /** 存活条件：战斗换了/结束、或本实例已不再是这一场的时间所有者键 → 必须自愈收场。 */
-    private String invalidReason() {
-        if (stopped) return "controller already stopped";
-        if (engine == null) return "controller has no battle engine";
-        CombatEngineAPI current = Global.getCombatEngine();
-        if (current != engine) return "newtype battle ended or was replaced";
-        if (engine.isCombatOver()) return "newtype battle is over";
-        Object owner = engine.getCustomData().get(INSTANCE_KEY);
-        if (owner != this) return "newtype controller key is no longer ours";
-        return "";
-    }
-
-    /**
-     * 自审：**未激活**时引擎上不该还挂着本类的时间残留。
-     * 这一步兜住 close()/clear() 的极端遗漏（权威换场、外部误写、旧版本残留）——
-     * 只要本类还能被 tick，残留一定会在下一帧被摘掉。
-     *
-     * <p>必须显式判 {@code activeShip == null}：激活期间本类的申请本来就在场上，
-     * 把「有申请」当成残留会让自审每帧清一次场，能力等于永远不生效。</p>
-     */
-    private void selfAudit() {
-        if (activeShip != null) return; // 激活期间有申请是正常状态，不是残留
-        boolean dirty = !moduleTime.isEmpty() || worldTime != null;
-        if (!dirty) {
-            try {
-                Map<String, ?> modifiers = engine.getTimeMult().getMultMods();
-                // MODIFIER 是迁移前的旧 id：本类已不再写它，出现即历史残留/外部误写，照样清一次。
-                // 不检查 Moci_TimeFlow.MODIFIER_ID：那个 id 是全模组共用的，别的系统合法持有它不算本类的残留。
-                dirty = modifiers != null && modifiers.containsKey(MODIFIER);
-            } catch (RuntimeException | LinkageError failure) {
-                recordFailure("self audit read", failure);
-            }
-        }
-        if (dirty) {
-            selfAudits++;
-            clear("self audit: newtype time modifier left behind while inactive");
-        }
-    }
-
-    /** 自愈收场：只打一行日志，close() 本身绝对幂等且不抛。 */
-    private void selfClose(String why) {
-        boolean wasActive = activeShip != null;
-        close();
-        if (TRACE) {
-            LOG.warn(LOG_PREFIX + "新人类控制器自愈收场 modifierId=" + Moci_TimeFlow.MODIFIER_ID + " 原因=" + why
-                    + " 当时激活=" + wasActive + " 释放失败=" + releaseFailures
-                    + (lastReleaseFailure.isEmpty() ? "" : " 最后失败=" + lastReleaseFailure));
-        }
+        hud(player);
     }
 
     private String playerBlockReason(ShipAPI player,boolean manual) {
@@ -312,109 +226,44 @@ public final class OwnNewtypeController implements AutoCloseable, data.scripts.c
                 || engine.getTimeMult().getMultMods().entrySet().stream().anyMatch(e -> e.getKey().startsWith(ORIGINAL_PREFIX) && Math.abs(e.getValue().getValue() - 1) > .0001f);
     }
 
-    /**
-     * 应用时间修饰。
-     * ★ 原实现在遍历的同时就 modifyMult，而模块树上限异常是在**已经改了前面若干模块之后**才抛，
-     * 留下一套半改状态（部分模块 1.5×、引擎未压速）。现在先只收集+校验，全部通过后才第一次改属性。
-     */
-    /**
-     * 应用时间修饰。
-     *
-     * <p>★ 原实现在遍历的同时就 modifyMult，而模块树上限异常是在**已经改了前面若干模块之后**才抛，
-     * 留下一套半改状态（部分模块 1.5×、引擎未压速）。现在先只收集+校验，全部通过后才第一次申请时间。</p>
-     *
-     * <p>迁移要点：每个模块各自向 {@link Moci_TimeFlow} 申请一份船侧倍率（{@code SHIP_TIME_MULT}=1.5），
-     * 世界侧另外申请一份 {@code 1/1.5}。句柄一旦建立就自带「失效即作废」语义（模块离场由权威收走），
-     * 本类不再需要「我改过谁 → 我该摘谁」这本账。</p>
-     */
     private void apply() {
-        ShipAPI root = activeShip;
-        if (root == null) return;
         Set<ShipAPI> current = Collections.newSetFromMap(new IdentityHashMap<>());
-        ArrayDeque<ShipAPI> queue = new ArrayDeque<>(); queue.add(root);
+        ArrayDeque<ShipAPI> queue = new ArrayDeque<>(); queue.add(activeShip);
+        // 先只收集、只校验，不写任何修饰符：上限校验必须发生在第一笔 modifyMult 之前，
+        // 否则"写了一半再抛"会留下几只已经改了 timeMult、却没登记进 touched 的机体。
         while (!queue.isEmpty()) {
             ShipAPI ship = queue.removeFirst(); if (!current.add(ship)) continue;
             if (current.size() > 128) throw new IllegalStateException("Player module hierarchy exceeds Newtype ownership bound");
             for (ShipAPI child : ship.getChildModulesCopy()) if (child != null) queue.add(child);
         }
-        // —— 校验已全部通过，从这里开始才允许申请/改动时间流 ——
-        for (ShipAPI module : current) {
-            Moci_TimeFlow.Handle handle = moduleTime.get(module);
-            if (handle != null && handle.active()) {
-                handle.set(SHIP_TIME_MULT); // 续期：同一模块永远只有一份申请，倍率不会叠加
-            } else {
-                if (handle != null) releaseHandle(handle, "reopen " + module.getId()); // 旧申请已失效，收掉再开
-                Moci_TimeFlow.Handle opened = Moci_TimeFlow.openShip(module, TIME_HANDLE_ID, SHIP_TIME_MULT);
-                moduleTime.put(module, opened);
-                noteAuthority(module.getId(), opened);
-            }
+        for (ShipAPI ship : current) {
+            ship.getMutableStats().getTimeMult().modifyMult(MODIFIER, SHIP_TIME_MULT);
+            touched.add(ship);
         }
         // Detached modules keep no owned time effect, even if another Mod changes the module tree.
-        for (Iterator<Map.Entry<ShipAPI, Moci_TimeFlow.Handle>> it = moduleTime.entrySet().iterator(); it.hasNext();) {
-            Map.Entry<ShipAPI, Moci_TimeFlow.Handle> entry = it.next();
-            if (current.contains(entry.getKey())) continue;
-            releaseHandle(entry.getValue(), "drop detached " + entry.getKey().getId());
-            it.remove();
-        }
-        // 世界侧 1/1.5：玩家模块树整体加速的补偿，与模块侧配平
-        worldTime = ensureWorldTime(worldTime, 1f / SHIP_TIME_MULT);
-    }
-
-    /** 世界侧申请：仍然有效就 set 续期，否则重开一份。返回可继续使用的句柄。 */
-    private Moci_TimeFlow.Handle ensureWorldTime(Moci_TimeFlow.Handle handle, float factor) {
-        if (handle != null && handle.active()) {
-            handle.set(factor);
-            return handle;
-        }
-        if (handle != null) releaseHandle(handle, "world reopen");
-        Moci_TimeFlow.Handle opened = Moci_TimeFlow.openWorld(TIME_HANDLE_ID, factor);
-        noteAuthority("world", opened);
-        return opened;
-    }
-
-    /**
-     * 权威不可用时的告警：只报一次，避免每帧刷屏。
-     * 激活路径会比较 releaseFailures 前后差值——第一次报错就足以把激活判为失败并当场收场。
-     */
-    private void noteAuthority(String what, Moci_TimeFlow.Handle handle) {
-        if (handle != null && handle.active()) { timeAuthorityLost = false; return; }
-        if (timeAuthorityLost) return;
-        timeAuthorityLost = true;
-        recordFailure("时间流权威不可用 " + what, new IllegalStateException("Moci_TimeFlow.ensure() returned no authority"));
-    }
-
-    /** 收回一份时间申请：句柄 release 幂等且自带两半语义（船侧 + 世界侧），这里只补一行排查日志。 */
-    private void releaseHandle(Moci_TimeFlow.Handle handle, String why) {
-        if (handle == null) return;
-        boolean wasActive = handle.active();
-        try {
-            handle.release();
-        } catch (RuntimeException | LinkageError failure) {
-            recordFailure("release " + why, failure);
-        }
-        if (TRACE && wasActive) LOG.info(LOG_PREFIX + "新人类收回时间申请 id=" + TIME_HANDLE_ID + " 原因=" + why);
+        // 脱离模块树后不再归本控制器管：当场摘修饰并从归属集合里移除，摘除失败也要移除。
+        for (Iterator<ShipAPI> it = touched.iterator(); it.hasNext();) { ShipAPI ship = it.next(); if (!current.contains(ship)) { releaseShipTime(ship, "模块已脱离宿主"); it.remove(); } }
+        engine.getTimeMult().modifyMult(MODIFIER, 1f / SHIP_TIME_MULT);
     }
 
     private Activation refuse(String reason) { declined++; message = reason; messageRemaining = 3; event("refused", reason, Map.of()); publish(); return new Activation(false, reason); }
 
-    /**
-     * 幂等释放：把所有模块侧与世界侧的时间申请一次收回。
-     * 原实现逐项 unmodify，一条异常就能把 1/1.5 留在引擎上；现在每份申请都是一个句柄，
-     * 收句柄不可能留下半套状态。
-     */
     private void clear(String reason) {
-        boolean wasActive = activeShip != null || !moduleTime.isEmpty() || worldTime != null;
-        for (Map.Entry<ShipAPI, Moci_TimeFlow.Handle> entry : moduleTime.entrySet()) {
-            releaseHandle(entry.getValue(), "clear module " + entry.getKey().getId());
-        }
-        moduleTime.clear();
-        Moci_TimeFlow.Handle world = worldTime;
-        worldTime = null;
-        releaseHandle(world, "clear world time");
-        timeAuthorityLost = false;
+        boolean wasActive = activeShip != null || !touched.isEmpty();
+        // 先取快照再清集合：某个机体摘除失败不能挡住其余机体，也不能留下"集合已空但修饰还在"的状态。
+        List<ShipAPI> owned = new ArrayList<>(touched);
+        touched.clear();
+        for (ShipAPI ship : owned) releaseShipTime(ship, "clear(" + reason + ")");
+        if (engine != null) releaseEngineTime("clear(" + reason + ")");
         activeShip = null; activeSource="none"; remaining = 0;
-        if (wasActive) { message = reason; messageRemaining = 3; event("cleared", reason, Map.of()); }
-        publish();
+        // 清理自身的收尾（事件+遥测）绝不允许抛出：clear 是异常路径上的兜底，
+        // 它要是再抛，调用它的 advance/close 就会被总线摘除，时间修饰就彻底没人管了。
+        try {
+            if (wasActive) { message = reason; messageRemaining = 3; event("cleared", reason, Map.of()); }
+            publish();
+        } catch (RuntimeException | LinkageError failure) {
+            LOG.warn(LOG_PREFIX + "新人类清理事件写入失败：" + failure);
+        }
     }
 
     private void hud(ShipAPI player) {
@@ -432,7 +281,7 @@ public final class OwnNewtypeController implements AutoCloseable, data.scripts.c
         Map<String, Object> row = new LinkedHashMap<>(); row.put("engineTime", engine.getTotalElapsedTime(false)); row.put("active", activeShip != null);
         row.put("remainingPlayerSeconds", remaining); row.put("globalTimeMult", engine.getTimeMult().getModifiedValue());
         row.put("player", player == null ? "NONE" : player.getId()); row.put("playerTimeMult", player == null ? 1 : player.getMutableStats().getTimeMult().getModifiedValue());
-        row.put("ownedModuleCount", moduleTime.size()); samples.add(row);
+        row.put("ownedModuleCount", touched.size()); samples.add(row);
     }
 
     private void event(String type, String reason, Map<String, Object> extra) {
@@ -452,57 +301,68 @@ public final class OwnNewtypeController implements AutoCloseable, data.scripts.c
         state.put("passiveMissileChance",NewtypeThreatRolls.MISSILE_CHANCE);state.put("passiveProjectileChance",NewtypeThreatRolls.PROJECTILE_CHANCE);state.put("passiveScanSeconds",PASSIVE_SCAN_INTERVAL);
         state.put("keyConflicts", binding.conflicts()); state.put("keyInspectionError", binding.error()); state.put("message", message);
         state.put("ownShipTimeMult", SHIP_TIME_MULT); state.put("ownEngineTimeMult", 1f / SHIP_TIME_MULT);
-        state.put("modifierId", Moci_TimeFlow.MODIFIER_ID); state.put("legacyModifierId", MODIFIER); state.put("activeShip", activeShip == null ? "NONE" : activeShip.getId());
+        state.put("modifierId", MODIFIER); state.put("activeShip", activeShip == null ? "NONE" : activeShip.getId());
+        state.put("timeReleaseFailures", timeReleaseFailures); state.put("timeLastReleaseFailure", lastTimeReleaseFailure);
         state.put("actualNativeAutopilot", actualAutopilotState(engine));
-        state.put("timeReleaseFailures", releaseFailures); state.put("timeLastReleaseFailure", lastReleaseFailure); state.put("timeSelfAuditCleanups", selfAudits);
         state.put("events", events); state.put("samples", samples); state.put("droppedEvents", droppedEvents);
         state.put("durationClock", "10 non-paused player-local seconds: native engine callback amount multiplied by current player ship timeMult; no wall-clock timer, movement stat increase or extra cooldown.");
         state.put("bindingScope", "Stable available letter, initially B. Native GENERAL/FLIGHT and unknown unconfigurable actions, MagicLib global/ship keys and explicit reservations are retained; no F-number or numeric fallback. Undeclared direct keyboard polling cannot be discovered automatically.");
         engine.getCustomData().put(TELEMETRY_KEY, state);
     }
 
+    private void releaseShipTime(ShipAPI ship, String what) {
+        if (ship == null) return;
+        try {
+            ship.getMutableStats().getTimeMult().unmodify(MODIFIER);
+        } catch (RuntimeException | LinkageError failure) {
+            noteReleaseFailure(what + " 机体 " + ship.getId(), failure);
+        }
+    }
+
+    private void releaseEngineTime(String what) {
+        if (engine == null) return;
+        try {
+            engine.getTimeMult().unmodify(MODIFIER);
+        } catch (RuntimeException | LinkageError failure) {
+            noteReleaseFailure(what + " 引擎", failure);
+        }
+    }
+
+    private void noteReleaseFailure(String what, Throwable failure) {
+        timeReleaseFailures++;
+        lastTimeReleaseFailure = what + " -> " + failure;
+        LOG.warn(LOG_PREFIX + "新人类时间修饰摘除失败 " + lastTimeReleaseFailure);
+    }
+
     /** Owner-thread stop hook. Call at framework/mission teardown if it exits before isCombatOver is observed. */
     @Override public void close() {
-        if (duplicate || stopped) return;
-        // ★ 先置位再做任何事：close() 必须绝对幂等（原实现要先 clear 成功才置 stopped，
-        // clear 一抛就会变成「永远关不掉、又不再被 tick」的僵尸，修饰符留在战场上）。
+        if (stopped || duplicate) return;
+        // 先置 stopped 再拆解：即使后续某一步抛错，close 也不会变成可重入的半关闭状态。
         stopped = true;
         try {
             clear("新人类能力已停止");
         } catch (RuntimeException | LinkageError failure) {
-            recordFailure("clear", failure);
-        }
-        releaseQuietly(() -> heldKeys.clear(), "held keys");
-        releaseQuietly(() -> threatRolls.clear(), "threat rolls");
-        observedPlayer = null;
-        CombatEngineAPI battle = engine;
-        if (battle != null) {
-            releaseQuietly(() -> {
-                if (battle.getCustomData().get(INSTANCE_KEY) == this) battle.getCustomData().remove(INSTANCE_KEY);
-            }, "instance key");
-        }
-        releaseQuietly(() -> data.scripts.combat.Moci_CombatBus.unregister(this), "bus unregister");
-        releaseQuietly(this::publish, "publish");
-        if (TRACE && releaseFailures > 0) {
-            LOG.warn(LOG_PREFIX + "新人类控制器收场有释放失败 次数=" + releaseFailures + " 最后失败=" + lastReleaseFailure);
+            LOG.warn(LOG_PREFIX + "新人类停止时释放时间失败：" + failure);
+        } finally {
+            heldKeys.clear();threatRolls.clear();observedPlayer=null;
+            try {
+                if (engine != null && engine.getCustomData().get(INSTANCE_KEY) == this) engine.getCustomData().remove(INSTANCE_KEY);
+            } catch (RuntimeException | LinkageError failure) {
+                LOG.warn(LOG_PREFIX + "新人类控制器键清理失败：" + failure);
+            }
+            try {
+                data.scripts.combat.Moci_CombatBus.unregister(this);
+            } catch (RuntimeException | LinkageError failure) {
+                LOG.warn(LOG_PREFIX + "新人类控制器总线注销失败：" + failure);
+            }
+            try {
+                publish();
+            } catch (RuntimeException | LinkageError failure) {
+                LOG.warn(LOG_PREFIX + "新人类停止遥测写入失败：" + failure);
+            }
         }
     }
     public static void uninstall(CombatEngineAPI engine) {
         Object value = engine.getCustomData().get(INSTANCE_KEY); if (value instanceof OwnNewtypeController controller) controller.close();
-    }
-
-    /** 单步释放：一步失败只记一条日志，不影响后续步骤，绝不向外抛。 */
-    private void releaseQuietly(Runnable step, String what) {
-        try {
-            step.run();
-        } catch (RuntimeException | LinkageError failure) {
-            recordFailure(what, failure);
-        }
-    }
-
-    private void recordFailure(String what, Throwable failure) {
-        releaseFailures++;
-        lastReleaseFailure = what + " -> " + failure;
-        LOG.warn(LOG_PREFIX + "新人类控制器释放失败 " + what + " -> " + failure);
     }
 }

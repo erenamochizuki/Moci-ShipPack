@@ -294,11 +294,31 @@ public class Moci_bounty_plugin extends BaseModPlugin {
             case "Moci_MS_06R_ammo_left":
             case "Moci_MS_06R_ammo_right":
                 return new PluginPick<AutofireAIPlugin>(null, PickPriority.HIGHEST);
+            case "Moci_fw_xi_beam_rifle":
+            case "Moci_fw_xi_rifle_charge":
+            case "Moci_fw_penelope_rifle_charge":
+                return pickBeamRifleAutofire(weapon);
             // case "Moci_Weapon2":
             // return new PluginPick<AutofireAIPlugin>(new Moci_Weapon2AI(weapon),
             // PickPriority.HIGHEST);
         }
         return null;
+    }
+
+    /**
+     * 三把「臂炮 + 蓄力枪」的武器 AI。星域没有可替换的 WeaponAI 接口，但 BaseModPlugin
+     * 提供了 pickWeaponAutofireAI：引擎在「该武器归 AI 管」时逐帧问 shouldFire()。
+     * AI 舰走这条路，玩家舰在 shouldFire() 里恒为 false，手动蓄力/处决完全不受影响。
+     */
+    private PluginPick<AutofireAIPlugin> pickBeamRifleAutofire(WeaponAPI weapon) {
+        try {
+            return new PluginPick<AutofireAIPlugin>(new xi.arsenal.BeamRifleAutofireAI(weapon),
+                    CampaignPlugin.PickPriority.MOD_SPECIFIC);
+        } catch (RuntimeException | LinkageError failure) {
+            log.warn(XI_SEAM_TAG + "BeamRifleAutofireAI 构造失败，该武器回退原生 AI："
+                    + (weapon == null ? "null" : weapon.getId()), failure);
+            return null;
+        }
     }
 
     @Override

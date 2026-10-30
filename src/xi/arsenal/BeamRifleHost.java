@@ -50,14 +50,19 @@ public final class BeamRifleHost implements Moci_CombatSink {
             created.modes = new BeamRifleModes(ship);
         } catch (RuntimeException | LinkageError failure) {
             ship.getCustomData().put(UNAVAILABLE, Boolean.TRUE);
-            if (BeamRifleModes.TRACE_OWNERSHIP)
-                Global.getLogger(BeamRifleHost.class).warn("[MOCI-RIFLE] host install failed for "
-                        + ship.getName() + " (" + ship.getHullSpec().getHullId() + "): " + failure, failure);
+            // 常驻诊断（可审计、可删除、与 devMode 无关）：装配失败一次记一条，绝不刷屏。
+            Global.getLogger(BeamRifleHost.class).warn("[MOCI-RIFLE] host install failed for "
+                    + describe(ship) + ": " + failure, failure);
             return null;
         }
         ship.getCustomData().put(KEY, created);
         Moci_CombatBus.register(created);
         return created;
+    }
+
+    /** 日志用的稳定短标识：船体 id + 舰船名。 */
+    private static String describe(ShipAPI ship) {
+        return ship.getHullSpec().getHullId() + " (" + ship.getName() + ")";
     }
 
     @Override
@@ -72,6 +77,8 @@ public final class BeamRifleHost implements Moci_CombatSink {
         // 下一帧由武器回调按新语义重建控制器 —— 旧舰不会留着上一套状态机继续否决原生开火。
         boolean owned = BeamRifleModes.controlOwned(ship, engine);
         if (modes.aiMode() == owned) {
+            // 语义翻转（玩家按 U 自动驾驶 / 重新接管 / 远程接管失效）：卸载旧状态机，
+            // 下一帧武器回调按新语义重建。
             close();
             return;
         }

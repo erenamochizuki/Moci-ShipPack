@@ -30,6 +30,11 @@ public final class RifleBracedPose implements AutoCloseable {
     private final boolean originalBitmapHidden;
     private boolean bitmapOwned,closed,requested,previousRequested;
     private float weight,age,startWeight,aim,rightError,leftError,bodyYaw,rightAngle,leftAngle;
+    /** 握把标定残差：两个标记点在各自贴图上被假定为同一张 102×360 画布，
+     *  实际加载的枪/臂贴图尺寸或旋转中心不同就会留下一个恒定偏差。
+     *  它不随动作进度或瞄准角变化，所以 ready() 必须按「残差 + 容差」判断，
+     *  否则姿态视觉上已经合拢（weight=1）却永远判不通过，玩家永远打不出这一发。 */
+    private final float rightResidual,rightTolerance;
     private boolean reachable;
     private RifleBraceNativeKinematics.Solution solution;
     private float[] solvedInput;private long solverSamples,applications;
@@ -48,6 +53,8 @@ public final class RifleBracedPose implements AutoCloseable {
         Vector2f center=BeamRifleMount.baseGunCenter(gun);
         gunGrip=profile.local(gs,profile.gunGripX(),profile.gunGripY(),center.x,center.y);
         gunSupport=profile.local(gs,profile.supportX(),profile.supportY(),center.x,center.y);
+        rightResidual=Vector2f.sub(gunGrip,rightPalm,new Vector2f()).length();
+        rightTolerance=rightResidual+.75f;
         aim=gun.getCurrAngle();rightAngle=right.weapon.getCurrAngle();leftAngle=left.weapon.getCurrAngle();
         originalBitmapHidden=ship.isDoNotRenderSprite();ship.setCustomData(KEY,this);
         for(ShipAPI module:ship.getChildModulesCopy())if(module.getParentStation()==ship&&module.getStationSlot()!=null&&"SHIELD_L".equals(module.getStationSlot().getId())&&module.isAlive())shields.add(new ShieldLink(module));
@@ -71,7 +78,12 @@ public final class RifleBracedPose implements AutoCloseable {
         age+=dt;float t=smoother(age/(requested?ENTER_SECONDS:EXIT_SECONDS));weight=startWeight+((requested?1:0)-startWeight)*t;
         applyAll();
     }
-    public boolean ready(){return !closed&&requested&&reachable&&weight>.99999f&&rightError<.75f&&leftError<.75f;}
+    public boolean ready(){return !closed&&requested&&reachable&&weight>.99999f&&rightError<=rightTolerance&&leftError<.75f;}
+    public float weight(){return weight;}
+    public float rightError(){return rightError;}
+    public float leftError(){return leftError;}
+    public float rightTolerance(){return rightTolerance;}
+    public float gripResidual(){return rightResidual;}
     /** An unreachable extreme angle safely uses the native one-hand shot. */
     public boolean canRelease(){return ready()||!closed&&requested&&!reachable&&weight==0;}
     public boolean finished(){return closed||!requested&&weight<.00001f;}
@@ -134,7 +146,7 @@ public final class RifleBracedPose implements AutoCloseable {
     }
     public Map<String,Object> status(){
         Map<String,Object> r=new LinkedHashMap<>();r.put("active",!closed);r.put("profile",profile.id());r.put("requested",requested);r.put("weight",weight);r.put("ready",ready());r.put("reachable",reachable);
-        r.put("bodyYaw",bodyYaw);r.put("gunAngle",aim);r.put("rightArmAngle",rightAngle);r.put("leftArmAngle",leftAngle);r.put("rightGripError",rightError);r.put("leftSupportError",leftError);r.put("gunShiftX",gunShift.x);r.put("gunShiftY",gunShift.y);
+        r.put("bodyYaw",bodyYaw);r.put("gunAngle",aim);r.put("rightArmAngle",rightAngle);r.put("leftArmAngle",leftAngle);r.put("rightGripError",rightError);r.put("leftSupportError",leftError);r.put("rightGripResidual",rightResidual);r.put("rightGripTolerance",rightTolerance);r.put("gunShiftX",gunShift.x);r.put("gunShiftY",gunShift.y);
         r.put("rightArmLength",rightPalm.length());r.put("leftArmLength",leftPalm.length());r.put("foregroundArms",false);r.put("foregroundGun",foreground);r.put("solverSamples",solverSamples);r.put("lateApplications",applications);r.put("rightForward",solution==null?0:solution.rightForward());r.put("leftForward",solution==null?0:solution.leftForward());r.put("limbPolicy","NATIVE_SLOT_PIVOTS; shoulder and arm use the same rigid group movement");r.put("clock","CALLER_LOCAL_TIME_ONCE");return Collections.unmodifiableMap(r);
     }
     @Override public void close(){

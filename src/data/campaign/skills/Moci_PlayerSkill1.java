@@ -7,19 +7,22 @@ import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
-import data.scripts.combat.Moci_TimeFlow;
 import data.scripts.util.Moci_TextLoader;
 import data.shipsystems.scripts.Moci_MissileJammerSystemScript;
+import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.MathUtils;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 public class Moci_PlayerSkill1 {
+    private static final Logger LOG = Global.getLogger(Moci_PlayerSkill1.class);
+    private static final String LOG_PREFIX = "[MOCI-TIME] ";
+
     private static final String TEXT_ID = "Moci_PlayerSkill1";
     private static final String AUGMENTED_HUMAN_SKILL_ID = "Moci_AugmentedHumanSkill";
 
@@ -187,12 +190,13 @@ public class Moci_PlayerSkill1 {
         float checkInterval = 0;
         Object key = new Object();
 
-        // 时间流句柄。技能的效果是「本舰 ×1.5→1」叠加「世界 ×0.9→1」，两者不是互为倒数，
-        // 所以不能合成一发子弹时间，而是「船一份 + 世界一份」两笔独立申请；模块树再逐模块各一份。
-        // 申请的有效期由 Moci_TimeFlow 按「作用域舰船是否还在场」判定，本类只负责还在驱动时每帧刷新。
-        private Moci_TimeFlow.Handle shipTimeLease;
-        private Moci_TimeFlow.Handle worldTimeLease;
-        private final Map<ShipAPI, Moci_TimeFlow.Handle> moduleTime = new IdentityHashMap<>();
+        /**
+         * 已经写过时缓的子模块。必须记账：模块掉出父舰的模块树后仍在场，
+         * 只按「当前树」清理会把它身上的修饰符永久留下。
+         */
+        private final Set<ShipAPI> touchedModules = Collections.newSetFromMap(new IdentityHashMap<>());
+        /** 本次挂载是否已经为「船/模块没了」打过日志；只为避免每帧刷屏，重新挂载时复位。 */
+        private boolean releaseLogged;
 
         public static listener getInstance(ShipAPI ship) {
             if (ship.getCustomData().containsKey(LISTENER_DATA_KEY)) {
@@ -258,17 +262,20 @@ public class Moci_PlayerSkill1 {
             if (Global.getCombatEngine() == null || Global.getCombatEngine().isPaused()) {
                 return;
             }
+
+            // 这是本监听器唯一的每帧入口（Ship.advance 遍历 AdvanceableListener 调它，对残骸也照调）。
+            // 引擎不会在舰船被打爆时回头摘掉修饰符，世界那一笔会永久留场 —— 只能在这里自己发现。
+            if (dead(ship)) {
+                releaseForDead(ship, "宿主舰");
+                ship.getCustomData().remove(LISTENER_DATA_KEY);
+                ship.removeListener(this);
+                return;
+            }
+
             // 新人类主动能力（叠加层）只在这名飞行员拥有本技能时安装，不再是全局战斗插件。
             if (Global.getCombatEngine().getPlayerShip() == ship) {
                 try { xi.arsenal.OwnNewtypeController.ensure(Global.getCombatEngine()); }
                 catch (RuntimeException | LinkageError ignored) { }
-            }
-
-            if (!ship.isAlive()) {
-                unapply();
-                ship.getCustomData().remove(LISTENER_DATA_KEY);
-                ship.removeListener(this);
-                return;
             }
 
             if (isChildModule(ship)) {
@@ -400,12 +407,15 @@ public class Moci_PlayerSkill1 {
             float shipTimeMult = SHIP_TIME_MULT + (1f - SHIP_TIME_MULT) * clampedProgress;
             float worldTimeMult = WORLD_TIME_MULT + (1f - WORLD_TIME_MULT) * clampedProgress;
 
-            shipTimeLease = ensureShipTime(ship, shipTimeLease, shipTimeMult);
+            ship.getMutableStats().getTimeMult().modifyMult(id, shipTimeMult);
             syncChildModuleTimeMult(shipTimeMult);
 
-            if (player && Global.getCombatEngine() != null) {
-                worldTimeLease = ensureWorldTime(worldTimeLease, worldTimeMult);
-                Global.getCombatEngine().maintainStatusForPlayerShip(
+            var engine = Global.getCombatEngine();
+            // 世界那一半只给玩家舰且必须还活着：舰船被打爆后没人会把它改回 1 倍速，
+            // 于是「开着技能被打死」会把全局永久拖慢 0.9 倍 —— 这就是「进了时缓出不来」。
+            if (player && engine != null && ship.isAlive() && !ship.wasRemoved()) {
+                engine.getTimeMult().modifyMult(id, worldTimeMult);
+                engine.maintainStatusForPlayerShip(
                         key,
                         spriteName,
                         Moci_TextLoader.getText(TEXT_ID, "status.title"),
@@ -413,19 +423,49 @@ public class Moci_PlayerSkill1 {
                                 Moci_TextLoader.mapOf("ship_time_mult", formatTwoDecimals(shipTimeMult))),
                         false
                 );
-            } else if (Global.getCombatEngine() != null) {
-                // 卸任/换乘后世界那一份必须真的收回：原来只 unmodify 属性键，
-                // 句柄模型里就是 release，否则世界会被永久压到 0.9。
-                releaseWorldTime("非玩家舰不压世界");
+            } else if (engine != null) {
+                engine.getTimeMult().unmodify(id);
+            }
+            // 重新挂上就是新的一次挂载，允许「船没了」再报一次
+            releaseLogged = false;
+        }
+
+        /**
+         * 这艘船的时缓还该不该存在：判「船没了」。
+         *
+         * <p>为什么判这四条：被打爆（{@code isHulk}）与自然消失（{@code wasRemoved}）都要摘；
+         * 换场后 {@code Global.getCombatEngine()} 会换人或为 null，旧战场的属性表已经没意义；
+         * {@code isEntityInPlay} 覆盖「还活着但已被移出场」这种中间态。</p>
+         */
+        private boolean dead(ShipAPI target) {
+            if (target == null) return true;
+            if (!target.isAlive() || target.isHulk() || target.wasRemoved()) return true;
+            var engine = Global.getCombatEngine();
+            return engine == null || !engine.isEntityInPlay(target);
+        }
+
+        /** 船/模块没了：把本条时缓摘干净并留一条日志。摘除本身幂等，重复调用无害。 */
+        private void releaseForDead(ShipAPI target, String what) {
+            unapply();
+            if (!releaseLogged) {
+                releaseLogged = true;
+                LOG.warn(LOG_PREFIX + what + "已死亡或离场，摘掉时缓（ship="
+                        + (target == null ? "-" : target.getId()) + "）");
             }
         }
 
         private void unapply() {
-            // 时间倍率一律经句柄收回：本舰、模块树、世界三笔各自独立，
-            // 原实现这里只反挂属性键，一旦某条退出路径没走到世界就会被永久压到 0.9。
-            releaseShipTime("unapply");
+            try {
+                ship.getMutableStats().getTimeMult().unmodify(id);
+            } catch (RuntimeException | LinkageError ignored) {
+                // 舰船已被回收：这条属性表不存在了，没有可摘的东西
+            }
             clearChildModuleTimeMult();
-            releaseWorldTime("unapply");
+            try {
+                var engine = Global.getCombatEngine();
+                if (engine != null) engine.getTimeMult().unmodify(id);
+            } catch (RuntimeException | LinkageError ignored) {
+            }
         }
 
         private boolean isPlayerShip() {
@@ -433,73 +473,28 @@ public class Moci_PlayerSkill1 {
             return playerShip != null && getRootShip(playerShip) == ship;
         }
 
-        /** 申请/刷新本舰自己的时间倍率句柄（句柄失效时重建，保持与权威的唯一契约）。 */
-        private Moci_TimeFlow.Handle ensureShipTime(ShipAPI target, Moci_TimeFlow.Handle handle, float mult) {
-            if (handle != null && handle.active()) {
-                handle.set(mult);
-                return handle;
-            }
-            if (handle != null) {
-                releaseHandle(handle, "本舰句柄失效重建");
-            }
-            return Moci_TimeFlow.openShip(target, id, mult);
-        }
-
-        /** 申请/刷新「压慢世界」那一笔（只有玩家正在驾驶本舰时才存在）。 */
-        private Moci_TimeFlow.Handle ensureWorldTime(Moci_TimeFlow.Handle handle, float mult) {
-            if (handle != null && handle.active()) {
-                handle.set(mult);
-                return handle;
-            }
-            if (handle != null) {
-                releaseHandle(handle, "世界句柄失效重建");
-            }
-            // 独立的申请名：世界申请与船申请即使同名也在不同的作用域键里，但仍分开命名以便排查
-            return Moci_TimeFlow.openWorld(id + "_world", mult);
-        }
-
-        private void releaseShipTime(String why) {
-            Moci_TimeFlow.Handle handle = shipTimeLease;
-            shipTimeLease = null;
-            releaseHandle(handle, why);
-        }
-
-        private void releaseWorldTime(String why) {
-            Moci_TimeFlow.Handle handle = worldTimeLease;
-            worldTimeLease = null;
-            releaseHandle(handle, why);
-        }
-
-        private void releaseHandle(Moci_TimeFlow.Handle handle, String why) {
-            if (handle == null) {
-                return;
-            }
-            if (Moci_TimeFlow.TRACE) {
-                Global.getLogger(Moci_PlayerSkill1.class)
-                        .info("[MOCI-TIME] Moci_PlayerSkill1 收回时间申请 ship=" + ship.getId() + " 原因=" + why);
-            }
-            handle.release();
-        }
-
-        /** 逐模块刷新时间倍率；掉出模块树的模块先收回申请再移出。 */
         private void syncChildModuleTimeMult(float shipTimeMult) {
-            Set<ShipAPI> visited = new HashSet<>();
-            Set<ShipAPI> alive = new HashSet<>();
-            syncChildModuleTimeMult(ship, shipTimeMult, visited, alive);
-            Iterator<Map.Entry<ShipAPI, Moci_TimeFlow.Handle>> it = moduleTime.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<ShipAPI, Moci_TimeFlow.Handle> entry = it.next();
-                if (alive.contains(entry.getKey())) {
-                    continue;
+            Set<ShipAPI> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+            syncChildModuleTimeMult(ship, shipTimeMult, seen);
+            // 掉出父舰模块树的老模块仍在场，但这一帧没人再写它：
+            // 必须先把它身上的旧修饰符摘掉，否则它会带着时缓活到战斗结束。
+            if (!touchedModules.isEmpty()) {
+                Set<ShipAPI> dropped = Collections.newSetFromMap(new IdentityHashMap<>());
+                for (ShipAPI module : touchedModules) {
+                    if (!seen.contains(module)) dropped.add(module);
                 }
-                // 模块已被摘离（被打爆/分离）：它的属性表不会再被本技能刷新，
-                // 不收回就会一直停在 1.5 倍时流上；先 release 再从表里移出。
-                releaseHandle(entry.getValue(), "模块已脱离模块树");
-                it.remove();
+                for (ShipAPI module : dropped) {
+                    try {
+                        module.getMutableStats().getTimeMult().unmodify(id);
+                    } catch (RuntimeException | LinkageError ignored) {
+                        // 模块已被回收：没有可摘的东西
+                    }
+                    touchedModules.remove(module);
+                }
             }
         }
 
-        private void syncChildModuleTimeMult(ShipAPI parent, float shipTimeMult, Set<ShipAPI> visited, Set<ShipAPI> alive) {
+        private void syncChildModuleTimeMult(ShipAPI parent, float shipTimeMult, Set<ShipAPI> visited) {
             if (parent == null || !visited.add(parent) || parent.getChildModulesCopy() == null) {
                 return;
             }
@@ -508,26 +503,47 @@ public class Moci_PlayerSkill1 {
                 if (module == null) {
                     continue;
                 }
-                alive.add(module);
-                Moci_TimeFlow.Handle handle = moduleTime.get(module);
-                if (handle != null && handle.active()) {
-                    handle.set(shipTimeMult);
-                } else {
-                    if (handle != null) {
-                        releaseHandle(handle, "模块句柄失效重建");
+                // 打爆的模块还挂在父舰的模块树里（残骸不立即脱树），必须先摘再跳过：
+                // 否则它会一直带着时缓，而没有任何一帧会再回头处理它。
+                if (dead(module)) {
+                    try {
+                        module.getMutableStats().getTimeMult().unmodify(id);
+                    } catch (RuntimeException | LinkageError ignored) {
+                        // 模块已被回收：没有可摘的东西
                     }
-                    moduleTime.put(module, Moci_TimeFlow.openShip(module, id, shipTimeMult));
+                    continue;
                 }
-                syncChildModuleTimeMult(module, shipTimeMult, visited, alive);
+                module.getMutableStats().getTimeMult().modifyMult(id, shipTimeMult);
+                touchedModules.add(module);
+                syncChildModuleTimeMult(module, shipTimeMult, visited);
             }
         }
 
-        /** 收回所有模块的时间申请（不再按「当前模块树」递归摘除——树可能已经变了）。 */
         private void clearChildModuleTimeMult() {
-            for (Moci_TimeFlow.Handle handle : moduleTime.values()) {
-                releaseHandle(handle, "unapply");
+            // 按记账清，而不是只按当前模块树清：掉出树的老模块也必须摘
+            for (ShipAPI module : touchedModules) {
+                try {
+                    module.getMutableStats().getTimeMult().unmodify(id);
+                } catch (RuntimeException | LinkageError ignored) {
+                    // 模块已被回收：没有可摘的东西
+                }
             }
-            moduleTime.clear();
+            touchedModules.clear();
+            clearChildModuleTimeMult(ship, new HashSet<>());
+        }
+
+        private void clearChildModuleTimeMult(ShipAPI parent, Set<ShipAPI> visited) {
+            if (parent == null || !visited.add(parent) || parent.getChildModulesCopy() == null) {
+                return;
+            }
+
+            for (ShipAPI module : parent.getChildModulesCopy()) {
+                if (module == null) {
+                    continue;
+                }
+                module.getMutableStats().getTimeMult().unmodify(id);
+                clearChildModuleTimeMult(module, visited);
+            }
         }
     }
 }

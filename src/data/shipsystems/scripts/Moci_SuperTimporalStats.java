@@ -4,55 +4,62 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.combat.ShipAPI.HullSize;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
-import data.scripts.combat.Moci_TimeFlow;
 import java.awt.Color;
 import org.apache.log4j.Logger;
 
+/**
+ * 时空加速场：船侧给本舰加速、玩家驾驶时再给世界一条 1/timeMult 的配平。
+ *
+ * <p>时间修饰符由本类自己写、自己摘（原生写法，和原版 TemporalShellStats 一个路子）：
+ * 船侧键 = 系统框架传进来的 {@code id}，世界侧键 = {@code getIdWithShip(ship)}（含舰 ID）。
+ * 写入点只有 {@link #applyTimeManipulation}，摘除点有四个，全部在本类内部、全部可 grep：
+ * {@link #applyTimeManipulation} 的 else 分支（本舰已不是玩家座舰）、
+ * {@link #handleSystemDeactivation}（OUT）、{@link #unapply}、以及 {@link #apply} 里 validateShip 失败的分支。
+ * 每一处摘除都各自独立兜底：任何一项抛错都不能连累其余项，尤其是「世界侧必须被摘掉」这一条。
+ *
+ * <p>历史 bug（已修）：原版只用 {@code if (isPlayerShip)} 写世界侧、没有 else，
+ * 玩家换舰之后那条 {@code 1/timeMult} 就永远留在引擎上（世界一直停在加速状态）；
+ * OUT 分支也只摘了 maxSpeed，世界侧同样漏掉。
+ */
 public class Moci_SuperTimporalStats extends BaseShipSystemScript {
 
-	// ===== 时间泄漏排查开关（常驻，不绑 devMode）=====
+	/** 常驻排查日志开关（禁止挂到 devMode 上）。 */
 	public static final boolean TRACE = true;
+
 	private static final String LOG_PREFIX = "[MOCI-TIME] ";
 	private static final Logger LOG = Global.getLogger(Moci_SuperTimporalStats.class);
 
-	// ===== 推进系统参数 =====
-	private static final float SPEED_BOOST = 600f; // 最大速度加成基数
-	private static final float TURN_SPEED = 600f; // 最大转向速度加成基数
-	private static final float ACCEL_BOOST = 1200f; // 加速度加成基数
-	// ===== 武器系统参数 =====
-	private static final float WEAPON_BOOST = 2f; // 武器冷却基数
-	private static final float WEAPON_REDUCE = 0.5f; // 武器耗能降低
+	private static final float SPEED_BOOST = 600f;
+	private static final float TURN_SPEED = 600f;
+	private static final float ACCEL_BOOST = 1200f;
 
-	// ===== 时间操控参数 =====
-	private static final float MAX_TIME_MULT = 3.33f; // 最大时间加速倍率
-	private static final float MIN_TIME_MULT = 0.5f; // 最小时间减速倍率
-	private static final float REPAIR_RATE_MULT = 10f; // 维修速度倍率
-	private static final Color JITTER_COLOR = new Color(90, 165, 255, 55); // 外层抖动光效
-	private static final Color JITTER_UNDER_COLOR = new Color(90, 165, 255, 155); // 内层抖动光效
+	private static final float WEAPON_BOOST = 2f;
+	private static final float WEAPON_REDUCE = 0.5f;
+
+	private static final float MAX_TIME_MULT = 3.33f;
+	private static final float MIN_TIME_MULT = 0.5f;
+	private static final float REPAIR_RATE_MULT = 10f;
+
+	private static final Color JITTER_COLOR = new Color(90, 165, 255, 55);
+	private static final Color JITTER_UNDER_COLOR = new Color(90, 165, 255, 155);
 
 	// ===== 系统状态跟踪 =====
-	/** 时间申请的名字：迁移到 Moci_TimeFlow 之后只作 Handle 名，不再作属性表里的键。 */
-	private static final String TIME_HANDLE_ID = "Moci_SuperTimporalStats";
+	private String uniqueId; // 实例唯一标识
 	private boolean isPlayerShip = false;
 	private boolean soundPlayed = false; // 音效播放状态跟踪
-	/** 本场生效中的时间申请；null = 当前没有申请。释放点统一走 releaseTimeFlow。 */
-	private Moci_TimeFlow.Handle timeHandle;
-	/**
-	 * 当前申请是否为「子弹时间」形态（玩家舰 = 船 ×倍率 且 世界 ×1/倍率；非玩家舰 = 只有船侧）。
-	 * 形态由 isPlayerShip 决定，而 isPlayerShip 会在换乘时变化，所以形态变了必须重开申请，
-	 * 不能只 set()：异形句柄的 set() 只会改已存在的两半，不会补上/摘掉世界那一半。
-	 */
-	private boolean timeHandleIsBullet;
+
+	/** 世界侧那条 1/timeMult 当前是否由本实例持有 —— 只用来决定要不要打日志（unmodify 本身随便调）。 */
+	private boolean worldTimeApplied = false;
 
 	@Override
 	public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
 		// 获取舰船实体与标识
 		ShipAPI ship = validateShip(stats);
 		if (ship == null) {
-			// 实体不可识别（脚本被复用、stats 已换实体）时也不能把时间申请留在场上
-			releaseTimeFlow("entity is not a ship");
+			// 拿不到舰（属性挂在非舰船实体上、或引擎已经结束）时，也要把可能残留的世界侧修饰摘掉，
+			// 否则这条修饰符会随着本类失去上下文而永远留在引擎上。
+			releaseWorldTime("属性实体不是舰船或引擎已结束");
 			return;
 		}
 
@@ -67,29 +74,30 @@ public class Moci_SuperTimporalStats extends BaseShipSystemScript {
 			}
 
 			applyMovementBoost(stats, id, effectLevel);
-			applyTimeManipulation(ship, effectLevel);
+			applyTimeManipulation(ship, id, effectLevel);
 			applyVisualEffects(ship, state, effectLevel);
 		}
 	}
 
 	@Override
 	public void unapply(MutableShipStatsAPI stats, String id) {
-		// 移除所有效果修饰器。
-		// 逐项释放：原实现是一条直链，任一项抛错（例如 :64 的 Global.getCombatEngine() 为 null）
-		// 都会跳过后续所有 unmodify，把时间修饰永久留在船和引擎上。
-		// 时间倍率已不在这里摘：它由 Moci_TimeFlow 的申请独占，releaseTimeFlow 一次成对收回
-		// （船侧 + 世界侧同属一个句柄），不可能出现「只摘了一半」的中间态。
-		releaseQuietly(() -> stats.getMaxSpeed().unmodify(id), "max speed");
-		releaseQuietly(() -> stats.getTurnAcceleration().unmodify(id), "turn accel");
-		releaseQuietly(() -> stats.getAcceleration().unmodify(id), "accel");
-		releaseQuietly(() -> stats.getCombatEngineRepairTimeMult().unmodify(id), "engine repair mult");
-		releaseQuietly(() -> stats.getCombatWeaponRepairTimeMult().unmodify(id), "weapon repair mult");
+		// 移除所有效果修饰器：六项逐条独立兜底。这里不能写成一条直线，
+		// 因为 reservoir 里任何一项抛错都会把后面（含时间倍率）全部跳过，而时间倍率才是会拖死战斗的那条。
+		releaseQuietly(() -> stats.getMaxSpeed().unmodify(id), "unapply maxSpeed");
+		releaseQuietly(() -> stats.getTurnAcceleration().unmodify(id), "unapply turnAcceleration");
+		releaseQuietly(() -> stats.getAcceleration().unmodify(id), "unapply acceleration");
+		releaseQuietly(() -> stats.getTimeMult().unmodify(id), "unapply shipTimeMult");
+		releaseQuietly(() -> stats.getCombatEngineRepairTimeMult().unmodify(id), "unapply engineRepairTimeMult");
+		releaseQuietly(() -> stats.getCombatWeaponRepairTimeMult().unmodify(id), "unapply weaponRepairTimeMult");
 
-		releaseTimeFlow("unapply");
+		// 世界侧两种形态都摘：实例字段（写过就一定在）与按舰 ID 重算的键（实例字段丢失时的兜底）。
+		// unmodify 幂等，重复调用没有副作用。
+		releaseWorldTime("unapply");
+		releaseEngineTime(uniqueId, "unapply(uniqueId)");
+		releaseEngineTime(getIdWithShip(stats), "unapply(getIdWithShip)");
 
 		// 重置音效播放状态，准备下次激活
 		soundPlayed = false;
-		isPlayerShip = false;
 	}
 
 	@Override
@@ -111,11 +119,14 @@ public class Moci_SuperTimporalStats extends BaseShipSystemScript {
 	 * 舰船实体验证与初始化
 	 */
 	private ShipAPI validateShip(MutableShipStatsAPI stats) {
-		ShipAPI ship = shipOf(stats);
-		if (ship == null)
+		if (stats == null || !(stats.getEntity() instanceof ShipAPI))
 			return null;
+		ShipAPI ship = (ShipAPI) stats.getEntity();
 		CombatEngineAPI engine = Global.getCombatEngine();
-		isPlayerShip = engine != null && ship == engine.getPlayerShip();
+		if (engine == null)
+			return null;
+		isPlayerShip = (ship == engine.getPlayerShip());
+		uniqueId = getIdWithShip(ship); // 生成唯一ID
 		return ship;
 	}
 
@@ -140,34 +151,34 @@ public class Moci_SuperTimporalStats extends BaseShipSystemScript {
 	}
 
 	/**
-	 * 应用时间操控效果。
+	 * 应用时间操控效果 —— 本类的唯一时间写入点。
 	 *
-	 * <p>数值与原实现一字不差：船侧 {@code timeMult = 1 + (MAX_TIME_MULT - 1) * effectLevel²}，
-	 * 玩家舰另加世界侧 {@code 1/timeMult}。区别只在于这两半现在由 {@link Moci_TimeFlow}
-	 * 成对持有：玩家舰用 {@code openBulletTime}（船 ×倍率、世界 ×1/倍率，原子出现、原子消失），
-	 * 非玩家舰用 {@code openShip}（只压船侧，绝不触碰世界）。换乘导致的「玩家 ↔ 非玩家」
-	 * 形态切换会被识别并重开申请，所以不再需要手写的 worldTimeApplied 记账 ——
-	 * 也就不存在「记账与引擎实际状态不一致 → 永久留场」的窗口。</p>
+	 * <p>船侧恒写；世界侧只在「这艘舰此刻就是玩家座舰」时写。
+	 * 关键就是那个 else：玩家换舰/换乘之后 isPlayerShip 变 false，必须当场把上一次写下的
+	 * {@code 1/timeMult} 摘掉，否则引擎上会留一条没人再碰的修饰符，世界永久加速。
+	 * 摘除每帧都尝试是安全的 —— {@code unmodify} 幂等，且只在真的持有过的时候才打一行日志。
 	 */
-	private void applyTimeManipulation(ShipAPI ship, float effectLevel) {
-		// 计算时间倍率（二次曲线平滑）—— 与原实现完全相同的公式
+	private void applyTimeManipulation(ShipAPI ship, String id, float effectLevel) {
+		// 计算时间倍率（二次曲线平滑）
 		float timeMult = 1f + (MAX_TIME_MULT - 1f) * effectLevel * effectLevel;
+		ship.getMutableStats().getTimeMult().modifyMult(id, timeMult);
 
-		boolean bullet = isPlayerShip;
-		if (timeHandle == null || !timeHandle.active() || timeHandleIsBullet != bullet) {
-			// 缺失/已失效/形态变更：先收旧申请再开新申请（release 幂等，重复调用无副作用）
-			releaseTimeFlow("重建时间申请 形态=" + (bullet ? "bullet" : "ship"));
-			timeHandle = bullet
-					? Moci_TimeFlow.openBulletTime(ship, TIME_HANDLE_ID, timeMult)
-					: Moci_TimeFlow.openShip(ship, TIME_HANDLE_ID, timeMult);
-			timeHandleIsBullet = bullet;
-			if (TRACE && timeHandle != null && timeHandle.active()) {
-				LOG.info(LOG_PREFIX + "时空加速场申请时间 形态="
-						+ (bullet ? "bullet(船×" + timeMult + " 世界×" + (1f / timeMult) + ")" : "ship(船×" + timeMult + ")"));
+		CombatEngineAPI engine = Global.getCombatEngine();
+		if (engine == null) {
+			return;
+		}
+
+		// 玩家舰船需要补偿全局时间流速
+		if (isPlayerShip) {
+			try {
+				engine.getTimeMult().modifyMult(uniqueId, 1f / timeMult);
+				worldTimeApplied = true;
+			} catch (RuntimeException | LinkageError failure) {
+				LOG.warn(LOG_PREFIX + "写入世界时间修饰失败 id=" + uniqueId + " 异常=" + failure);
 			}
 		} else {
-			// 每帧把最新 effectLevel 写进同一个申请：倍率随升/降级连续变化，不必重建句柄
-			timeHandle.set(timeMult);
+			// 本舰不再是玩家座舰：世界侧那条补偿必须当场摘掉，不能等 unapply（换舰时它可能永远不来）
+			releaseWorldTime("本舰已不再是被玩家驾驶的座舰");
 		}
 	}
 
@@ -190,15 +201,15 @@ public class Moci_SuperTimporalStats extends BaseShipSystemScript {
 	}
 
 	/**
-	 * 系统关闭时的过渡处理（OUT 过渡期 = 系统正在离开 ACTIVE）
+	 * 系统关闭时的过渡处理（State.OUT）：世界侧时间补偿与船侧时间倍率都在这里释放。
+	 *
+	 * <p>原版这里只摘了 maxSpeed，等于把 {@code 1/timeMult} 与船侧 timeMult 的摘除全押在后面的
+	 * {@link #unapply} 上；一旦玩家在 OUT 期间换舰/舰体被击毁导致 unapply 没走到，世界就卡住。
 	 */
 	private void handleSystemDeactivation(MutableShipStatsAPI stats, String id) {
-		// 时间申请必须在这里就收回，不能留给 unapply：unapply 只要被框架跳过一次，
-		// 申请就会永久留场（原实现正是这样把 1/timeMult 留在引擎上）。
-		// 句柄是成对的，所以这一次 release 同时收走船侧加速与世界侧减速，
-		// 不会出现「世界已恢复正常、本舰仍按 3.33 倍主观时间跑」的错位。
-		releaseTimeFlow("system leaving ACTIVE");
-		releaseQuietly(() -> stats.getMaxSpeed().unmodify(id), "max speed (OUT)"); // 平滑减速至正常速度
+		releaseWorldTime("系统离开 ACTIVE");
+		releaseQuietly(() -> stats.getTimeMult().unmodify(id), "OUT shipTimeMult");
+		releaseQuietly(() -> stats.getMaxSpeed().unmodify(id), "OUT maxSpeed"); // 平滑减速至正常速度
 	}
 
 	/**
@@ -210,46 +221,57 @@ public class Moci_SuperTimporalStats extends BaseShipSystemScript {
 				ship.getLocation(), ship.getVelocity());
 	}
 
-	/**
-	 * 收回本类唯一的时间申请。
-	 *
-	 * <p>句柄自带「船侧 + 世界侧」两半，所以这一次调用等价于原来的
-	 * {@code stats.getTimeMult().unmodify(...)} + {@code engine.getTimeMult().unmodify(...)} 两条直写，
-	 * 但不可能只成功一半。原来分别是 releaseWorldTime / releaseEngineTime 的职责（各自还要记账
-	 * worldTimeApplied、还要补摘复合 id），现在两个方法已删除：同一件事不再有两套机制。</p>
-	 */
-	private void releaseTimeFlow(String why) {
-		Moci_TimeFlow.Handle handle = timeHandle;
-		if (handle == null) {
+	// ===== 时间修饰的兜底工具 =====
+
+	/** 世界侧释放：只关心「本实例确实写过」的那条，日志只在这里打一次。 */
+	private void releaseWorldTime(String why) {
+		if (!worldTimeApplied) {
 			return;
 		}
-		timeHandle = null;
-		boolean wasActive = handle.active();
+		worldTimeApplied = false;
+		releaseEngineTime(uniqueId, why);
+	}
+
+	/** 摘引擎上的时间修饰；引擎不在、键为空都直接跳过。unmodify 幂等，可重复调用。 */
+	private void releaseEngineTime(String timeId, String why) {
+		if (timeId == null) {
+			return;
+		}
+		CombatEngineAPI engine = Global.getCombatEngine();
+		if (engine == null) {
+			return;
+		}
 		try {
-			handle.release(); // 幂等；句柄已失效时是空操作
+			engine.getTimeMult().unmodify(timeId);
+			if (TRACE) {
+				LOG.info(LOG_PREFIX + "摘除世界时间修饰 id=" + timeId + " 原因=" + why);
+			}
 		} catch (RuntimeException | LinkageError failure) {
-			LOG.warn(LOG_PREFIX + "收回时间申请失败 id=" + TIME_HANDLE_ID + " -> " + failure);
-		}
-		if (TRACE && wasActive) {
-			LOG.info(LOG_PREFIX + "时空加速场收回时间申请 id=" + TIME_HANDLE_ID + " 原因=" + why);
+			LOG.warn(LOG_PREFIX + "摘除世界时间修饰失败 id=" + timeId + " 原因=" + why + " 异常=" + failure);
 		}
 	}
 
-	// ===== 幂等释放工具（本类私有，不依赖任何全局注册表） =====
-
-	private static ShipAPI shipOf(MutableShipStatsAPI stats) {
-		if (stats == null)
-			return null;
-		Object entity = stats.getEntity();
-		return entity instanceof ShipAPI ? (ShipAPI) entity : null;
-	}
-
-	/** 单步释放：一步失败只记一条日志，不影响后续步骤 */
+	/** 单项解除的兜底：一项失败只记一行，继续摘下一项。 */
 	private void releaseQuietly(Runnable step, String what) {
 		try {
 			step.run();
 		} catch (RuntimeException | LinkageError failure) {
-			LOG.warn(LOG_PREFIX + "释放失败 " + what + " -> " + failure);
+			LOG.warn(LOG_PREFIX + "解除修饰失败 步骤=" + what + " 异常=" + failure);
 		}
+	}
+
+	/**
+	 * 生成带舰船ID的唯一标识
+	 */
+	private String getIdWithShip(ShipAPI ship) {
+		if (ship == null)
+			return null;
+		return this.getClass().getSimpleName() + "_" + ship.getId();
+	}
+
+	private String getIdWithShip(MutableShipStatsAPI stats) {
+		if (stats == null || !(stats.getEntity() instanceof ShipAPI))
+			return null;
+		return getIdWithShip((ShipAPI) stats.getEntity());
 	}
 }

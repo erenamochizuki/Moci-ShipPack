@@ -20,13 +20,16 @@ import com.fs.starfarer.api.impl.combat.dweller.RiftLightningEffect;
 import com.fs.starfarer.api.loading.ProjectileSpawnType;
 import com.fs.starfarer.api.util.Misc;
 
-import data.scripts.combat.Moci_TimeFlow;
 import data.scripts.util.Moci_Util;
 import data.scripts.util.Moci_MathPersonal;
 
+import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
 public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
+
+	private static final Logger LOG = Global.getLogger(Moci_ShroudedTemporalShellStats_new.class);
+	private static final String LOG_PREFIX = "[MOCI-TIME] ";
 	
 	public static final float MAX_TIME_MULT = 2f;
 	public static final Color JITTER_COLOR_RED = new Color(255, 0, 0, 55);
@@ -86,9 +89,12 @@ public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
 	private float overloadArcTimer = 0f;
 	private float particleTimer = 0f;
 
-	// 时间流的句柄（申请名沿用原来的「系统 id_舰船 id」，只作名字用，不再当属性键）
-	private Moci_TimeFlow.Handle timeHandle;
-	private boolean timeHandleIsBullet;
+	/** 当前时缓挂在哪艘船上；死船自检要用（系统脚本没有 advance，只能在每帧的 apply 里看）。 */
+	private ShipAPI timeShip;
+	/** 与 {@link #timeShip} 对应的时缓修饰符 id（系统 id + 舰船 id），摘除时用它而不是重算参数。 */
+	private String timeId;
+	/** 本次挂载是否已经为「船没了」打过日志；只为避免每帧刷屏，重新挂载时复位。 */
+	private boolean releaseLogged;
 
 	public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
 		ShipAPI ship = null;
@@ -97,6 +103,13 @@ public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
 			ship = (ShipAPI) stats.getEntity();
 			id = id + "_" + ship.getId();
 		} else {
+			return;
+		}
+
+		// 这是本类唯一的每帧入口：引擎的 F.advance 只要 eff>0 就调 apply，死船的 apply 照样会跑，
+		// 但引擎既不会 deactivate 系统、也不会回头调 unapply ——「船没了就摘」只能在这里自己发现。
+		if (dead(ship)) {
+			releaseForDead(ship);
 			return;
 		}
 
@@ -124,11 +137,9 @@ public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
 		ship.setJitterUnder(this, JITTER_UNDER_COLOR_RED, jitterLevel, 25, 0f, 7f + jitterRangeBonus);
 
 		// 时间加速
-		// 原来自己往船属性表与引擎各挂一个 id、unapply 时自己摘；系统被换乘或舰船离场打断时
-		// 世界倍率 1/shipTimeMult 会永久留场（「进时缓出不来」）。现在只申请句柄，
-		// 作用域失效由 Moci_TimeFlow 统一回收，本类只负责还在驱动时每帧刷新。
+		// 自己写、自己摘：世界那一半只在「本舰是玩家舰且还活着」时存在，摘除路径全部在 applyTime/unmodifyTime 里。
 		float shipTimeMult = 1f + (MAX_TIME_MULT - 1f) * effectLevel;
-		applyTimeFlow(ship, id, shipTimeMult);
+		applyTime(ship, stats, id, shipTimeMult);
 
 		// 红色引擎效果 + 火焰延长
 		ship.getEngineController().fadeToOtherColor(this, ENGINE_COLOR_RED, new Color(0, 0, 0, 0), effectLevel, 0.5f);
@@ -184,41 +195,79 @@ public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
 	}
 
 	/**
-	 * 申请/刷新本系统的时间流。
+	 * 写本舰时间倍率（以及玩家舰的世界 1/f）。
 	 *
-	 * <p>形态照原语义：玩家舰「船 ×shipTimeMult + 世界 ×1/shipTimeMult」成对（子弹时间），
-	 * 非玩家舰只要船侧。世界半的有无是结构性的，换乘一翻转就必须重建句柄，不能只 {@code set()}。</p>
+	 * <p>船属性表与引擎是两个载体、两个作用域，分开写才能分开摘；世界那一半只在玩家舰上存在，
+	 * 非玩家舰必须显式 {@code unmodify}，否则换乘后旧 id 会永久留场。</p>
 	 */
-	private void applyTimeFlow(ShipAPI ship, String handleId, float shipTimeMult) {
+	private void applyTime(ShipAPI ship, MutableShipStatsAPI stats, String id, float timeMult) {
+		if (timeId != null && !timeId.equals(id)) {
+			// 同一脚本实例被复用到另一艘船上：先摘掉旧的，绝不留下跨船残留
+			unmodifyTime(timeShip, timeId);
+		}
+		timeShip = ship;
+		timeId = id;
+		releaseLogged = false;
+		stats.getTimeMult().modifyMult(id, timeMult);
 		CombatEngineAPI engine = Global.getCombatEngine();
-		if (engine == null || ship == null) {
-			releaseTimeFlow("没有可申请的作用域");
-			return;
+		if (engine != null) {
+			if (ship == engine.getPlayerShip() && ship.isAlive() && !ship.wasRemoved()) {
+				engine.getTimeMult().modifyMult(id, 1f / timeMult);
+			} else {
+				engine.getTimeMult().unmodify(id);
+			}
 		}
-		boolean bullet = ship == engine.getPlayerShip();
-		if (timeHandle != null && timeHandle.active() && timeHandleIsBullet == bullet) {
-			timeHandle.set(shipTimeMult);
-			return;
-		}
-		releaseTimeFlow("时间申请形态变化");
-		timeHandle = bullet
-				? Moci_TimeFlow.openBulletTime(ship, handleId, shipTimeMult)
-				: Moci_TimeFlow.openShip(ship, handleId, shipTimeMult);
-		timeHandleIsBullet = bullet;
 	}
 
-	/** 收回时间申请；幂等。 */
-	private void releaseTimeFlow(String why) {
-		Moci_TimeFlow.Handle handle = timeHandle;
-		timeHandle = null;
-		if (handle == null) {
-			return;
+	/**
+	 * 这艘船的时缓还该不该存在：判「船没了」。
+	 *
+	 * <p>为什么判这四条：被打爆（{@code isHulk}）与自然消失（{@code wasRemoved}）都要摘；
+	 * 换场后 {@code Global.getCombatEngine()} 会换人或为 null，旧战场的属性表已经没意义；
+	 * {@code isEntityInPlay} 覆盖「还活着但已被移出场」这种中间态。</p>
+	 */
+	private static boolean dead(ShipAPI ship) {
+		if (ship == null) return true;
+		if (!ship.isAlive() || ship.isHulk() || ship.wasRemoved()) return true;
+		CombatEngineAPI engine = Global.getCombatEngine();
+		return engine == null || !engine.isEntityInPlay(ship);
+	}
+
+	/** 船没了：把本条时缓摘干净并留一条日志。摘除本身幂等，重复调用无害。 */
+	private void releaseForDead(ShipAPI ship) {
+		boolean had = timeId != null;
+		releaseTime();
+		if (had && !releaseLogged) {
+			releaseLogged = true;
+			LOG.warn(LOG_PREFIX + "SHROUDED-TEMPORAL 宿主舰已死亡或离场，摘掉时缓（ship="
+					+ (ship == null ? "-" : ship.getId()) + "）");
 		}
-		if (Moci_TimeFlow.TRACE) {
-			Global.getLogger(Moci_ShroudedTemporalShellStats_new.class)
-					.info("[MOCI-TIME] Moci_ShroudedTemporalShell 收回时间申请 原因=" + why);
+	}
+
+	/** 摘掉本地记录的时缓；幂等、绝不抛。 */
+	private void releaseTime() {
+		ShipAPI ship = timeShip;
+		String currentId = timeId;
+		timeShip = null;
+		timeId = null;
+		if (currentId != null) unmodifyTime(ship, currentId);
+	}
+
+	/** 真正的摘除动作，不依赖字段，所以「脚本实例被换掉」时 unapply 也能直接摘掉旧 id。 */
+	private static void unmodifyTime(ShipAPI ship, String id) {
+		if (id == null) return;
+		if (ship != null) {
+			try {
+				ship.getMutableStats().getTimeMult().unmodify(id);
+			} catch (RuntimeException | LinkageError ignored) {
+				// 舰船已被回收：这条属性表不存在了，没有可摘的东西
+			}
 		}
-		handle.release();
+		try {
+			CombatEngineAPI engine = Global.getCombatEngine();
+			if (engine != null) engine.getTimeMult().unmodify(id);
+		} catch (RuntimeException | LinkageError ignored) {
+		}
 	}
 
 	public void unapply(MutableShipStatsAPI stats, String id) {
@@ -231,8 +280,11 @@ public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
 			return;
 		}
 
-		// 时间倍率只经句柄收回，不再直接触碰 time mult 属性表
-		releaseTimeFlow("unapply");
+		// 时缓自己管：即便本实例没走过 apply（脚本实例被换掉），也能用 ship 作用域的 id 摘得掉。
+		String staleId = timeId != null ? timeId : id;
+		releaseTime();
+		unmodifyTime(ship, staleId);
+		stats.getTimeMult().unmodify(id);
 		stats.getMaxSpeed().unmodify(id);
 		stats.getAcceleration().unmodify(id);
 		stats.getDeceleration().unmodify(id);

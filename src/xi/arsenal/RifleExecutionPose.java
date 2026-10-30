@@ -77,6 +77,10 @@ public final class RifleExecutionPose implements AutoCloseable {
         Objects.requireNonNull(wanted, "Execution pose stage");
         if (!Float.isFinite(dt) || dt < 0) throw new IllegalArgumentException("Invalid execution pose step");
         if (closed || recovered) return;
+        /* 收势是终态：骨架被外力抢占、租约被替换时绝不允许抛异常。
+           调用方只在 recovered() 为真或捕获到异常时才释放姿态；
+           这里每抛一次，就等于让控制器的 executionPose 永远非空。 */
+        if (wanted == Stage.RECOVER) { advanceRecovery(dt); return; }
         requireOwnership();
         if (stage == Stage.RECOVER && wanted != Stage.RECOVER)
             throw new IllegalStateException("Recovering execution pose cannot restart");
@@ -95,17 +99,29 @@ public final class RifleExecutionPose implements AutoCloseable {
                 firingElapsed += dt;
                 RifleFiringPose.advance(ship, RifleFiringPose.Stage.FIRING, dt);
             }
-            case RECOVER -> {
-                recoveryElapsed = Math.min(RECOVER_SECONDS, recoveryElapsed + dt);
-                // Published DSK closing captures current body/raise/blend on entry.
-                // It works for early cancellation as well as completed native firing.
-                RifleFiringPose.advance(ship, RifleFiringPose.Stage.CLOSING, dt);
-            }
+            case RECOVER -> advanceRecovery(dt);
         }
         requireNoForeignPose();
         if (!ownPosePresent()) {
             if (wanted == Stage.RECOVER) recovered = true;
             else markInterrupted();
+        }
+    }
+
+    /** 收势专用通道：任何所有权/骨架异常都收敛为「已中止」，绝不向控制器抛。 */
+    private void advanceRecovery(float dt) {
+        stage = Stage.RECOVER;
+        recoveryElapsed = Math.min(RECOVER_SECONDS, recoveryElapsed + dt);
+        try {
+            if (!ownPosePresent()) { markInterrupted(); return; }
+            requireNoForeignPose();
+            // Published DSK closing captures current body/raise/blend on entry.
+            // It works for early cancellation as well as completed native firing.
+            RifleFiringPose.advance(ship, RifleFiringPose.Stage.CLOSING, dt);
+            if (!ownPosePresent()) { markInterrupted(); return; }
+            requireNoForeignPose();
+        } catch (RuntimeException | LinkageError lost) {
+            markInterrupted();
         }
     }
 

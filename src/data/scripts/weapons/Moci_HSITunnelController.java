@@ -7,7 +7,7 @@ package data.scripts.weapons;
  * 本轮已把 fork 完整收编回本类（生成、动画、索敌、传送、母舰时流、回归、船坞冷却等
  * 原逻辑一字未改），同时保留合并版在 fork 里加的四项改进：
  *   1) 精神感应框架加成真正生效：movementMult / turnMult 参与位移与转向计算；
- *   2) 射击冷却门 ShotGate：回收惩罚被保留，不再靠"母舰冷却归零"刷攻击节奏；
+ *   2) 攻击节奏：与 2.3.0 一致（每轮结束把武器冷却直接清零，不再保留 xi 的 ShotGate 惩罚）；
  *   3) 出生来源实体级记账 registerProvenance（替代 native null-ID 共享 AI flags）；
  *   4) 自有适配标记 ADAPTER_KEY（供 PsychoframeEnhancement 识别脚本化移动的浮游炮）。
  * 另加非战斗上下文守卫：改装界面等会推进武器脚本，这里不生成实体。
@@ -47,6 +47,7 @@ import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.loading.WeaponGroupSpec;
 import com.fs.starfarer.api.loading.WeaponGroupType;
 import com.fs.starfarer.api.util.Misc;
+import data.scripts.visual.Moci_PsycommuDroneGlow;
 
 /**
  * 核心代码来自光环的中帮手
@@ -121,24 +122,18 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
         if (ship.getShipAI() != null && ship.getAIFlags().hasFlag(ShipwideAIFlags.AIFlags.TARGET_FOR_SHIP_SYSTEM)) {
             target = (ShipAPI) ship.getAIFlags().getCustom(ShipwideAIFlags.AIFlags.TARGET_FOR_SHIP_SYSTEM);
         }
+        // 浮游炮是独立机动的无人机，母舰这门口径武器只当触发器用。原实现拿 weapon.getRange() 过滤
+        // 锁定目标：目标一旦超出这把装饰武器的射程就被清空，于是"锁定后按住开火"毫无反应；而鼠标
+        // 目标走的是硬指定分支、没有这道射程门，所以同一位置用鼠标反而能出击。
+        // 现在明确锁定/指定的目标一律接受，只有最后"就近找战机"的兜底仍按 range 收敛。
         if (target != null && target.getOwner() != ship.getOwner()) {
-            float dist = Misc.getDistance(ship.getLocation(), target.getLocation());
-            float radSum = ship.getCollisionRadius() + target.getCollisionRadius();
-            if (dist > range + radSum)
-                target = null;
+            targetLoc = target.getLocation();
+        } else if (player) {
+            targetLoc = ship.getMouseTarget();
         } else {
-            if (player) {
-                targetLoc = ship.getMouseTarget();// Misc.findClosestShipEnemyOf(ship, ship.getMouseTarget(),
-                                                  // ShipAPI.HullSize.FIGHTER, range, true);
-            } else {
-                Object test = ship.getAIFlags().getCustom(ShipwideAIFlags.AIFlags.MANEUVER_TARGET);
-                if (test instanceof ShipAPI) {
-                    target = (ShipAPI) test;
-                    float dist = Misc.getDistance(ship.getLocation(), target.getLocation());
-                    float radSum = ship.getCollisionRadius() + target.getCollisionRadius();
-                    if (dist > range + radSum)
-                        target = null;
-                }
+            Object test = ship.getAIFlags().getCustom(ShipwideAIFlags.AIFlags.MANEUVER_TARGET);
+            if (test instanceof ShipAPI) {
+                target = (ShipAPI) test;
             }
         }
         if (target == null && targetLoc == null) {
@@ -295,6 +290,7 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
                 }
             } else {
                 if (!drones.get(i).drone.isAlive()) {
+                    Moci_PsycommuDroneGlow.detach(drones.get(i).drone);
                     drones.remove(i);
                     i--;
                 } else {
@@ -436,6 +432,7 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
 
         // 创建无人机脚本时传入装饰武器
         drones.add(new HSITunnelScript(w, weapon, point, droneDecoWeapon));
+        Moci_PsycommuDroneGlow.attach(w, weapon.getShip());
         w.setCustomData(PsychoframeHiNuSupport.ADAPTER_KEY, PsychoframeHiNuSupport.adapterMarker(getClass().getName()));
     }
 
@@ -496,11 +493,10 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
         private int point = 0; // 无人机编号 (0,1,2)
 
         private boolean fired = false;
-        private final PsychoframeHiNuSupport.ShotGate psychoframeShotGate = new PsychoframeHiNuSupport.ShotGate();
         private final PsychoframeHiNuSupport.Probe psychoframeProbe = new PsychoframeHiNuSupport.Probe();
         public Map<String,Object> psychoframeStatus() { return psychoframeProbe.status(); }
         private void recordPsychoframe() {
-            psychoframeProbe.record(drone, source, mainWeapon, stage.name(), point, attackCount, CD, psychoframeShotGate);
+            psychoframeProbe.record(drone, source, mainWeapon, stage.name(), point, attackCount, CD);
         }
 
 
@@ -572,6 +568,9 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
             if (ended)
                 return;
 
+            boolean droneDeployed = stage != AIStage.WAITING_ORDER && stage != AIStage.IN_CD;
+            Moci_PsycommuDroneGlow.update(drone, source == null ? null : source.getShip(), droneDeployed);
+
             // 更新装饰武器动画
             updateDecoWeaponAnimation();
 
@@ -635,8 +634,6 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
             float toFace = drone.getFacing();
             Vector2f speed = new Vector2f();
             float mult = 1f;
-            // Preserve the original clock, including its original return-time arithmetic.
-            psychoframeShotGate.advance(amount * timeMult);
             float effectiveMaxSpeed = maxSpeed * PsychoframeHiNuSupport.movementMult(source.getShip());
             float effectiveTurnRate = turnRate * PsychoframeHiNuSupport.turnMult(source.getShip());
 
@@ -763,8 +760,9 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
                     // 计算攻击位置，加入随机角度偏移
                     if (shipTarget == null || !shipTarget.isAlive()) {
                         shipTarget = AIUtils.getNearestEnemy(drone);
-                        if (shipTarget != null && Misc.getDistance(drone.getLocation(),
-                                shipTarget.getLocation()) > mainWeapon.getRange()) {
+                        if (shipTarget != null
+                                && Misc.getDistance(drone.getLocation(), shipTarget.getLocation())
+                                        - shipTarget.getCollisionRadius() > mainWeapon.getRange()) {
                             shipTarget = null;
                         }
                     }
@@ -776,22 +774,27 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
                         fired = false;
                         return;
                     }
-                    // 使用动态攻击距离而不是硬编码的300f
-                    float dynamicAttackRange = mainWeapon != null ? mainWeapon.getRange() * 0.6f : 240f; // 使用80%射程作为攻击位置
+                    float attackRange = mainWeapon != null ? mainWeapon.getRange() : 300f;
+                    // 使用动态攻击距离而不是硬编码的300f；站位半径必须封顶在射程 92% 以内，
+                    // 否则大碰撞半径目标会让“R + 0.6*射程”越过射程，浮游炮卡在边缘永远不开火。
+                    float dynamicAttackRange = mainWeapon != null ? mainWeapon.getRange() * 0.6f : 240f;
+                    float attackStandoff = Math.min(shipTarget.getCollisionRadius() + dynamicAttackRange,
+                            attackRange * 0.92f);
                     expectedLocation = Vector2f.add(shipTarget.getLocation(),
                             (Vector2f) Misc.getUnitVectorAtDegreeAngle(
                                     MathUtils.clampAngle(shipTarget.getFacing() + point * 60f + attackAngleOffset)
                                             + 120f)
-                                    .scale(shipTarget.getCollisionRadius() + dynamicAttackRange),
+                                    .scale(attackStandoff),
                             null);
 
                     // 如果朝向正确且距离足够近，开火（加入武器范围判断）
-                    float attackRange = mainWeapon != null ? mainWeapon.getRange() : 300f;
                     float rotationDiff = Math.abs(MathUtils.getShortestRotation(drone.getFacing(),
                             VectorUtils.getAngle(drone.getLocation(), shipTarget.getLocation())));
                     float distanceToTarget = MathUtils.getDistance(drone.getLocation(), shipTarget.getLocation());
 
-                    if (rotationDiff <= 1f && distanceToTarget <= attackRange && psychoframeShotGate.allowsFire(mainWeapon)) {
+                    // 光束按命中目标外缘结算，射程判定要把目标碰撞半径算进去；
+                    // 否则贴着大舰边缘停住时中心距永远 > 射程，浮游炮就会一直不开火。
+                    if (rotationDiff <= 1f && distanceToTarget <= attackRange + shipTarget.getCollisionRadius()) {
                         drone.giveCommand(ShipCommand.FIRE, shipTarget.getLocation(), 0);
                         psychoframeProbe.fireRequested();
                         fired = true;
@@ -801,8 +804,8 @@ public class Moci_HSITunnelController implements EveryFrameWeaponEffectPlugin {
 
                         attackCount++;
                         if (attackCount < maxAttackCount) {
-                            // 重置武器冷却
-                            psychoframeShotGate.retainPenaltyAndResetNative(mainWeapon, source.getShip());
+                            // 重置武器冷却：回到 2.3.0 行为，直接清零（xi 的 ShotGate 连发惩罚已移除）
+                            mainWeapon.setRemainingCooldownTo(0f);
                         // 选择相对当前角度+0°+(±45°偏移)的位置
                         attackAngleOffset += 0f + (Math.random() > 0.5 ? 45f : -45f);
                             fired = false;

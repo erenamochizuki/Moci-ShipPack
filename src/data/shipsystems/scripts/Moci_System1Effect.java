@@ -9,7 +9,7 @@ import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
-import data.scripts.combat.Moci_TimeFlow;
+import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 import org.magiclib.util.MagicRender;
 import com.fs.starfarer.api.combat.CombatEngineLayers;
@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Moci_System1Effect extends BaseShipSystemScript {
+    private static final Logger LOG = Global.getLogger(Moci_System1Effect.class);
+    private static final String LOG_PREFIX = "[MOCI-TIME] ";
+
     private boolean effected = true;
     String p = null;
 
@@ -40,10 +43,19 @@ public class Moci_System1Effect extends BaseShipSystemScript {
 
     protected Object STATUSKEY1 = new Object();
 
-    // 时间流的申请名字（只作 Handle 名；属性键由 Moci_TimeFlow 统一持有，全模组只有一个 id）
-    private static final String TIME_HANDLE_ID = "Moci_System1";
-    private Moci_TimeFlow.Handle timeHandle;
-    private boolean timeHandleIsBullet;
+    /**
+     * 时缓修饰符 id 前缀。带舰船 id 而不是直接用系统 id：本系统可作 phase cloak 用
+     * （{@link #getSystem}），同一 id 若被两艘舰共用，后一辆车的 unmodify 会把前一辆车的时缓一起摘掉。
+     */
+    private static final String TIME_ID_PREFIX = "moci.system1.time.";
+
+    /** 当前时缓挂在哪艘船上；死船自检要用（系统脚本没有 advance，只能在每帧的 apply 里看）。 */
+    private ShipAPI timeShip;
+    /** 与 {@link #timeShip} 对应的修饰符 id；摘除时用它，不重算，避免 id 参数变化导致摘不掉。 */
+    private String timeId;
+    /** 本次挂载是否已经为「船没了」打过日志；只为避免每帧刷屏，重新挂载时复位。 */
+    private boolean releaseLogged;
+
     @Override
     public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
         // 1. 首先初始化ship和player变量
@@ -53,15 +65,25 @@ public class Moci_System1Effect extends BaseShipSystemScript {
         // 2. 从stats获取ship实例，确保后续操作有有效的ship对象
         if (stats.getEntity() instanceof ShipAPI) {
             ship = (ShipAPI) stats.getEntity();
-            player = ship == Global.getCombatEngine().getPlayerShip();
+            CombatEngineAPI engine = Global.getCombatEngine();
+            // engine 可能为 null（换场/收场瞬间），先判空再解引用，避免在时缓路径上抛 NPE
+            player = engine != null && ship == engine.getPlayerShip();
+        }
+
+        // 这是本类唯一的每帧入口：引擎的 F.advance 只要 eff>0 就调 apply，死船的 apply 照样会跑，
+        // 但引擎既不会 deactivate 系统、也不会回头调 unapply ——「船没了就摘」只能在这里自己发现。
+        if (ship != null && dead(ship)) {
+            releaseForDead(ship);
+            return;
         }
 
         // 4. 时间流速控制
-        // 原实现自己往引擎/船属性表挂 id、unapply 时自己摘；系统被换乘或舰船离场打断时
-        // 世界倍率 1/timeMult 会永久留场（「进了时缓出不来」）。现在只向 Moci_TimeFlow 申请句柄，
-        // 失效由权威统一回收，本类只负责「还在驱动时每帧刷新倍率」。
+        // 自己写、自己摘：id 带舰船 id，世界那一半只在「本舰是玩家舰且还活着」时存在。
+        // ship 为 null（属性表不属于任何舰船）时无处可挂，直接跳过，绝不留无主修饰符。
         float timeMult = 1f + (TIME_MULT - 1f) * effectLevel;
-        applyTimeFlow(ship, timeMult);
+        if (ship != null) {
+            applyTime(ship, stats, timeMult);
+        }
 
         // 5. 伤害减免效果
         stats.getHullDamageTakenMult().modifyMult(id, 1f - (1f - INCOMING_DAMAGE_MULT) * effectLevel);
@@ -113,48 +135,6 @@ public class Moci_System1Effect extends BaseShipSystemScript {
                         (int) Math.round(percent) + "% 伤害降低", false);
             }
         }
-    }
-
-    /**
-     * 申请/刷新本系统的时间流。
-     *
-     * <p>形态与原语义一致：玩家舰拿到「船 ×timeMult + 世界 ×1/timeMult」的成对子弹时间，
-     * 非玩家舰只有船侧。世界半的有无是结构性的（换乘会在两种形态间翻转），所以形态一变
-     * 就必须重建句柄——只 {@code set()} 不会凭空多出或少掉世界那一半。</p>
-     *
-     * <p>原实现在 {@code ship == null}（stats 不属于任何舰船）时仍会直接写 {@code stats.getTimeMult()}；
-     * 那种输入对船用系统脚本不可达，这里退化为「没有可申请的作用域就收回申请」，
-     * 不会留下无主的修饰符。</p>
-     */
-    private void applyTimeFlow(ShipAPI ship, float timeMult) {
-        CombatEngineAPI engine = Global.getCombatEngine();
-        if (engine == null || ship == null) {
-            releaseTimeFlow("没有可申请的作用域");
-            return;
-        }
-        boolean bullet = ship == engine.getPlayerShip();
-        if (timeHandle != null && timeHandle.active() && timeHandleIsBullet == bullet) {
-            timeHandle.set(timeMult);
-            return;
-        }
-        releaseTimeFlow("时间申请形态变化");
-        timeHandle = bullet
-                ? Moci_TimeFlow.openBulletTime(ship, TIME_HANDLE_ID, timeMult)
-                : Moci_TimeFlow.openShip(ship, TIME_HANDLE_ID, timeMult);
-        timeHandleIsBullet = bullet;
-    }
-
-    /** 收回时间申请；幂等。 */
-    private void releaseTimeFlow(String why) {
-        Moci_TimeFlow.Handle handle = timeHandle;
-        timeHandle = null;
-        if (handle == null) {
-            return;
-        }
-        if (Moci_TimeFlow.TRACE) {
-            Global.getLogger(Moci_System1Effect.class).info("[MOCI-TIME] Moci_System1 收回时间申请 原因=" + why);
-        }
-        handle.release();
     }
 
     // 新的残影创建方法
@@ -253,6 +233,82 @@ public class Moci_System1Effect extends BaseShipSystemScript {
         }
     }
     /**
+     * 写本舰时间倍率（以及玩家舰的世界 1/f）。
+     *
+     * <p>船属性表与引擎是两个载体、两个作用域，分开写才能分开摘；世界那一半只在玩家舰上存在，
+     * 非玩家舰必须显式 {@code unmodify}，否则换乘时旧 id 会永久留场。</p>
+     */
+    private void applyTime(ShipAPI ship, MutableShipStatsAPI stats, float timeMult) {
+        String currentId = TIME_ID_PREFIX + ship.getId();
+        if (timeId != null && !timeId.equals(currentId)) {
+            // 同一实例被复用到另一艘船上：先摘掉旧的，绝不留下跨船残留
+            unmodifyTime(timeShip, timeId);
+        }
+        timeShip = ship;
+        timeId = currentId;
+        releaseLogged = false;
+        stats.getTimeMult().modifyMult(currentId, timeMult);
+        CombatEngineAPI engine = Global.getCombatEngine();
+        if (engine != null) {
+            if (ship == engine.getPlayerShip() && ship.isAlive() && !ship.wasRemoved()) {
+                engine.getTimeMult().modifyMult(currentId, 1f / timeMult);
+            } else {
+                engine.getTimeMult().unmodify(currentId);
+            }
+        }
+    }
+
+    /**
+     * 这艘船的时缓还该不该存在：判「船没了」。
+     *
+     * <p>为什么判这四条：被打爆（{@code isHulk}）与自然消失（{@code wasRemoved}）都要摘；
+     * 换场后 {@code Global.getCombatEngine()} 会换人或为 null，旧战场的属性表已经没意义；
+     * {@code isEntityInPlay} 覆盖「还活着但已被移出场」这种中间态。</p>
+     */
+    private static boolean dead(ShipAPI ship) {
+        if (ship == null) return true;
+        if (!ship.isAlive() || ship.isHulk() || ship.wasRemoved()) return true;
+        CombatEngineAPI engine = Global.getCombatEngine();
+        return engine == null || !engine.isEntityInPlay(ship);
+    }
+
+    /** 船没了：把本条时缓摘干净并留一条日志。摘除本身幂等，重复调用无害。 */
+    private void releaseForDead(ShipAPI ship) {
+        boolean had = timeId != null;
+        releaseTime();
+        if (had && !releaseLogged) {
+            releaseLogged = true;
+            LOG.warn(LOG_PREFIX + "SYSTEM1 宿主舰已死亡或离场，摘掉时缓（ship="
+                    + (ship == null ? "-" : ship.getId()) + "）");
+        }
+    }
+
+    /** 摘掉本地记录的时缓；幂等、绝不抛。 */
+    private void releaseTime() {
+        ShipAPI ship = timeShip;
+        String currentId = timeId;
+        timeShip = null;
+        timeId = null;
+        if (currentId != null) unmodifyTime(ship, currentId);
+    }
+
+    /** 真正的摘除动作。不依赖字段，所以「脚本实例被换掉」时 unapply 也能直接摘掉旧 id。 */
+    private static void unmodifyTime(ShipAPI ship, String id) {
+        if (ship != null) {
+            try {
+                ship.getMutableStats().getTimeMult().unmodify(id);
+            } catch (RuntimeException | LinkageError ignored) {
+                // 舰船已被回收：这条属性表不存在了，没有可摘的东西
+            }
+        }
+        try {
+            CombatEngineAPI engine = Global.getCombatEngine();
+            if (engine != null) engine.getTimeMult().unmodify(id);
+        } catch (RuntimeException | LinkageError ignored) {
+        }
+    }
+
+    /**
      * 获取对应系统  把系统id填入检索条件
      * @param ship
      * @return
@@ -266,8 +322,13 @@ public class Moci_System1Effect extends BaseShipSystemScript {
     @Override
     public void unapply(MutableShipStatsAPI stats, String id) {
         effected = false;
-        // 移除所有状态修饰器；时间倍率只经句柄收回，不再直接触碰 time mult 属性表
-        releaseTimeFlow("unapply");
+        // 移除所有状态修饰器
+        // 时缓按「本船 id」摘：即使本实例没走过 apply（脚本实例被换掉）也摘得掉；
+        // 世界那一半同理，否则换乘后引擎会永久压在 1/3 倍速上。
+        ShipAPI entity = stats.getEntity() instanceof ShipAPI ? (ShipAPI) stats.getEntity() : null;
+        String staleId = timeId != null ? timeId : entity != null ? TIME_ID_PREFIX + entity.getId() : null;
+        releaseTime();
+        if (staleId != null) unmodifyTime(entity, staleId);
 
         stats.getMaxSpeed().unmodify(id);
         stats.getAcceleration().unmodify(id);

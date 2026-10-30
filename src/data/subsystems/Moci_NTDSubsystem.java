@@ -25,7 +25,6 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.util.Misc;
 
 import data.hullmods.Moci_MobileSuitRepairTracker;
-import data.scripts.combat.Moci_TimeFlow;
 import data.scripts.util.Moci_TextLoader;
 
 /**
@@ -41,7 +40,7 @@ public class Moci_NTDSubsystem extends MagicSubsystem {
     private static final Logger log = Global.getLogger(Moci_NTDSubsystem.class);
     private static final String TEXT_ID = "Moci_NTDSubsystem";
 
-    /** 时间泄漏排查开关：常驻日志前缀，由项目内常量控制，不绑 devMode。 */
+    /** 常驻排查日志开关（禁止挂到 devMode 上）。 */
     public static final boolean TRACE = true;
     private static final String LOG_PREFIX = "[MOCI-TIME] ";
     
@@ -82,13 +81,8 @@ public class Moci_NTDSubsystem extends MagicSubsystem {
     
     // ========== 内部状态 ==========
     private String effectId = "moci_ntd_subsystem";
-    /**
-     * 本子系统的唯一时间申请。迁移到 Moci_TimeFlow 后，船侧倍率与世界侧补偿由这一个句柄成对持有，
-     * 不再手写 getTimeMult().modifyMult/unmodify（那是「进时缓出不来」的结构性来源之一）。
-     */
-    private Moci_TimeFlow.Handle timeHandle;
-    /** 当前申请是否带世界侧（= 本舰正被玩家驾驶）。玩家换乘会让形态翻转，必须重开申请而不是只 set()。 */
-    private boolean timeHandleIsBullet;
+    // 世界侧那条 1/timeMult 当前是否由本实例持有（只用来决定摘除时要不要打日志）
+    private boolean worldTimeApplied = false;
     private boolean isAwakened = false; // 是否已觉醒（用于控制腿部动画切换）
     
     // 武器发光效果参数
@@ -355,6 +349,7 @@ public class Moci_NTDSubsystem extends MagicSubsystem {
             ship.getMutableStats().getTurnAcceleration().modifyPercent(effectId, currentTurnAccelBonus);
             ship.getMutableStats().getMaxTurnRate().modifyFlat(effectId, currentMaxTurnRateFlatBonus);
             ship.getMutableStats().getMaxTurnRate().modifyPercent(effectId, currentMaxTurnRatePercentBonus);
+            ship.getMutableStats().getTimeMult().modifyMult(effectId, currentTimeMult);
             ship.getMutableStats().getHardFluxDissipationFraction().modifyFlat(effectId, currentHardFluxDissipationFraction);
 
             applyTimeFlow(currentTimeMult);
@@ -370,27 +365,27 @@ public class Moci_NTDSubsystem extends MagicSubsystem {
     private void applyTimeFlow(float shipTimeMult) {
         CombatEngineAPI engine = Global.getCombatEngine();
         if (engine == null) {
-            // 引擎不在时什么都不做：既不新建申请，也不在这里释放——
-            // 释放交给 removeAllEffects/onFinished/onShipDeath 那条明确的生命周期路径。
             return;
         }
 
-        // 玩家舰：船 ×shipTimeMult、世界 ×1/shipTimeMult（原实现的两半，成对原子）。
-        // 非玩家舰：只压船侧，世界侧一帧都不碰（原实现的 else 分支是 unmodify，等价于「没有世界申请」）。
-        boolean bullet = ship == engine.getPlayerShip();
-        if (timeHandle == null || !timeHandle.active() || timeHandleIsBullet != bullet) {
-            releaseTimeFlow("重建时间申请 形态=" + (bullet ? "bullet" : "ship"));
-            timeHandle = bullet
-                    ? Moci_TimeFlow.openBulletTime(ship, getTimeMultId(), shipTimeMult)
-                    : Moci_TimeFlow.openShip(ship, getTimeMultId(), shipTimeMult);
-            timeHandleIsBullet = bullet;
-        } else {
-            timeHandle.set(shipTimeMult); // 每帧把最新 effectLevel 写进同一份申请，倍率连续变化
+        String timeMultId = getTimeMultId();
+        if (ship == engine.getPlayerShip()) {
+            try {
+                engine.getTimeMult().modifyMult(timeMultId, 1f / shipTimeMult);
+                worldTimeApplied = true;
+            } catch (RuntimeException | LinkageError failure) {
+                log.warn(LOG_PREFIX + "写入世界时间修饰失败 id=" + timeMultId + " 异常=" + failure);
+            }
+        } else if (worldTimeApplied) {
+            // 本舰不再是被玩家驾驶的座舰：世界侧那条补偿必须当场摘掉，否则世界会一直半速
+            releaseTimeFlow(timeMultId, "本舰已不再是被玩家驾驶的座舰");
         }
     }
 
-    /** 迁移后它只作申请的**名字**，不再参与任何属性键（属性键统一由 Moci_TimeFlow.MODIFIER_ID 承担）。 */
     private String getTimeMultId() {
+        if (ship == null) {
+            return effectId;
+        }
         return effectId + "_" + ship.getId();
     }
     
@@ -718,59 +713,30 @@ public class Moci_NTDSubsystem extends MagicSubsystem {
     }
     
     /**
-     * 移除所有效果（也是「主动释放时间申请」的唯一入口）。
-     * ★ 原实现是一条直落的 unmodify 链：只要其中任意一项抛错（属性对象失效、引擎刚被换掉等），
-     * 后面的项就被整体跳过——包括最后那一条 {@code engine.getTimeMult().unmodify(...)}，
-     * 于是玩家的世界时流被永久压在 0.5×。现在逐项兜底，单项失败不影响后续；
-     * 时间那一半改走句柄：一次 release 同时收回船侧与世界侧，不可能只成功一半。
+     * 移除所有效果
      */
     private void removeAllEffects() {
-        releaseQuietly(() -> ship.getMutableStats().getMaxSpeed().unmodify(effectId), "maxSpeed");
-        releaseQuietly(() -> ship.getMutableStats().getAcceleration().unmodify(effectId), "acceleration");
-        releaseQuietly(() -> ship.getMutableStats().getDeceleration().unmodify(effectId), "deceleration");
-        releaseQuietly(() -> ship.getMutableStats().getTurnAcceleration().unmodify(effectId), "turnAcceleration");
-        releaseQuietly(() -> ship.getMutableStats().getMaxTurnRate().unmodify(effectId), "maxTurnRate");
-        releaseQuietly(() -> ship.getMutableStats().getHardFluxDissipationFraction().unmodify(effectId), "hardFluxDissipation");
-        releaseTimeFlow("removeAllEffects");
+        // 八项逐条独立兜底：任何一项抛错都不能挡住其余项 —— 尤其是时间倍率那两条，
+        // 它们才是会把整场战斗拖成慢速/半速的那两条。
+        ShipAPI local = ship;
+        if (local != null) {
+            releaseQuietly(() -> local.getMutableStats().getMaxSpeed().unmodify(effectId), "removeAllEffects maxSpeed");
+            releaseQuietly(() -> local.getMutableStats().getAcceleration().unmodify(effectId), "removeAllEffects acceleration");
+            releaseQuietly(() -> local.getMutableStats().getDeceleration().unmodify(effectId), "removeAllEffects deceleration");
+            releaseQuietly(() -> local.getMutableStats().getTurnAcceleration().unmodify(effectId), "removeAllEffects turnAcceleration");
+            releaseQuietly(() -> local.getMutableStats().getMaxTurnRate().unmodify(effectId), "removeAllEffects maxTurnRate");
+            releaseQuietly(() -> local.getMutableStats().getTimeMult().unmodify(effectId), "removeAllEffects shipTimeMult");
+            releaseQuietly(() -> local.getMutableStats().getHardFluxDissipationFraction().unmodify(effectId), "removeAllEffects hardFluxDissipation");
+        }
 
-        // 清理BoxUtil渲染实体
-        releaseQuietly(this::cleanupGlowSpriteEntities, "glow sprites");
-    }
+        // 世界侧两种形态都摘：带舰 ID 的（本类当前写法）与裸 effectId 的（历史写法），两者都幂等。
+        if (worldTimeApplied) {
+            releaseTimeFlow(getTimeMultId(), "removeAllEffects(带舰 ID)");
+        }
+        releaseTimeFlowSilently(effectId);
 
-    /**
-     * 收回本子系统唯一的时间申请（幂等）。
-     *
-     * <p>句柄自带「船侧 + 世界侧」两半，所以这一次调用等价于原来的
-     * {@code ship.getTimeMult().unmodify(...)} + {@code engine.getTimeMult().unmodify(...)}，
-     * 但不可能只成功一半。原实现要在引擎上补摘「带舰 ID 后缀的真实 id」和「基 id」两份
-     * （safeTimeMultId 就是为这个补丁而生），现在申请名不再当属性键使用，那套补摘逻辑连同
-     * safeTimeMultId 一并删除 —— 同一件事不再有两套机制。</p>
-     */
-    private void releaseTimeFlow(String why) {
-        Moci_TimeFlow.Handle handle = timeHandle;
-        if (handle == null) {
-            return;
-        }
-        timeHandle = null;
-        boolean wasActive = handle.active();
-        try {
-            handle.release(); // 幂等；句柄已随舰船离场失效时是空操作
-        } catch (RuntimeException | LinkageError failure) {
-            log.warn(LOG_PREFIX + "NTD 时间申请释放失败 原因=" + why + " -> " + failure);
-        }
-        if (TRACE && wasActive) {
-            // 舰对象在死亡/离场回调里可能已经不可用：日志不能成为新的抛点（原来 safeTimeMultId 就是为这个写的）
-            log.info(LOG_PREFIX + "NTD 收回时间申请 id=" + (ship == null ? effectId : getTimeMultId()) + " 原因=" + why);
-        }
-    }
-
-    /** 单项释放：一步失败只记一条日志，不影响后续步骤，绝不向外抛。 */
-    private void releaseQuietly(Runnable step, String what) {
-        try {
-            step.run();
-        } catch (RuntimeException | LinkageError failure) {
-            log.warn(LOG_PREFIX + "NTD 效果释放失败 " + what + " -> " + failure);
-        }
+        // 清理BoxUtil渲染实体：放在最后且单独兜底，清理失败不能反过来挡住时间修饰的摘除
+        releaseQuietly(this::cleanupGlowSpriteEntities, "removeAllEffects cleanupGlowSpriteEntities");
     }
 
     private boolean isBlockedDuringRepair() {
@@ -985,5 +951,51 @@ public class Moci_NTDSubsystem extends MagicSubsystem {
     
     public void setSystemStatsEffectMult(float systemStatsEffectMult) {
     }
+    // ===== 时间修饰的兜底工具 =====
+
+    /** 摘引擎上的时间修饰并记一行；引擎不在、键为空都直接跳过。unmodify 幂等，可重复调用。 */
+    private void releaseTimeFlow(String timeId, String why) {
+        worldTimeApplied = false;
+        if (timeId == null) {
+            return;
+        }
+        CombatEngineAPI engine = Global.getCombatEngine();
+        if (engine == null) {
+            return;
+        }
+        try {
+            engine.getTimeMult().unmodify(timeId);
+            if (TRACE) {
+                log.info(LOG_PREFIX + "摘除世界时间修饰 id=" + timeId + " 原因=" + why);
+            }
+        } catch (RuntimeException | LinkageError failure) {
+            log.warn(LOG_PREFIX + "摘除世界时间修饰失败 id=" + timeId + " 原因=" + why + " 异常=" + failure);
+        }
+    }
+
+    /** 防御性摘除：不刷日志（用于历史写法留下的键），失败只记 warn。 */
+    private void releaseTimeFlowSilently(String timeId) {
+        if (timeId == null) {
+            return;
+        }
+        CombatEngineAPI engine = Global.getCombatEngine();
+        if (engine == null) {
+            return;
+        }
+        try {
+            engine.getTimeMult().unmodify(timeId);
+        } catch (RuntimeException | LinkageError failure) {
+            log.warn(LOG_PREFIX + "防御性摘除失败 id=" + timeId + " 异常=" + failure);
+        }
+    }
+
+    private void releaseQuietly(Runnable step, String what) {
+        try {
+            step.run();
+        } catch (RuntimeException | LinkageError failure) {
+            log.warn(LOG_PREFIX + "解除修饰失败 步骤=" + what + " 异常=" + failure);
+        }
+    }
+
 }
 

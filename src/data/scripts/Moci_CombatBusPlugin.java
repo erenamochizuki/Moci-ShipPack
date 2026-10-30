@@ -6,6 +6,7 @@ import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import data.scripts.combat.Moci_CombatBus;
+import data.scripts.combat.Moci_TimeScaleHud;
 import data.scripts.weapons.blade.Moci_BladeMotionRegistry;
 import org.apache.log4j.Logger;
 
@@ -53,6 +54,8 @@ public final class Moci_CombatBusPlugin extends BaseEveryFrameCombatPlugin imple
         this.engine = engine;
         closed = false;
         Moci_CombatBus.begin(engine);
+        // 时间倍率读数行：只读展示，不参与任何时间修饰的写入或清理（那些在各功能自己的类里）。
+        Moci_TimeScaleHud.ensure(engine);
         LOG.info(PREFIX + "战斗插件接管 engine=" + idOf(engine));
     }
 

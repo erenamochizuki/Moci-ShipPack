@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.List;
 
 import org.lwjgl.util.vector.Vector2f;
+import org.apache.log4j.Logger;
 import org.magiclib.subsystems.MagicSubsystem;
 import org.magiclib.subsystems.MagicSubsystemsManager;
 
@@ -20,7 +21,6 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 
 import data.scripts.Moci_CollisionStateManager;
-import data.scripts.combat.Moci_TimeFlow;
 import data.scripts.util.Moci_TextLoader;
 import data.scripts.visual.Moci_PsycommuGlowVisual;
 import data.subsystems.Moci_NTDSubsystem;
@@ -46,6 +46,9 @@ import data.subsystems.Moci_NTDSubsystem;
  * 使用碰撞状态管理器避免与其他功能的碰撞冲突
  */
 public class Moci_PsycommuSystem extends BaseHullMod {
+    private static final Logger LOG = Global.getLogger(Moci_PsycommuSystem.class);
+    private static final String LOG_PREFIX = "[MOCI-TIME] ";
+
     private static final String TEXT_ID = "Moci_PsycommuSystem";
     
     // 碰撞状态管理
@@ -62,7 +65,6 @@ public class Moci_PsycommuSystem extends BaseHullMod {
     private static final Color NTD_SYSTEM_COLOR = new Color(255, 0, 0, 255); // NTD固定红色
     private static final float PARTICLE_INTERVAL = 0.1f; // 粒子生成间隔时间（秒）
     private static final String PARTICLE_TIMER_KEY = "moci_psycommu_particle_timer"; // 粒子计时器存储键
-    private static final String TIME_FLOW_KEY = "moci_psycommu_timeflow"; // 每船时间流句柄的存储键
     private static final float HALO_SIZE_MULT = 1.9f;
     private static final float HALO_INTENSITY_MULT = 3.4f;
     private static final float HALO_ALPHA_MULT = 3.2f;
@@ -70,6 +72,8 @@ public class Moci_PsycommuSystem extends BaseHullMod {
     private static final float HALO_SHIFT_MULT = 1.6f;
     private static final float HALO_COLOR_SHIFT = 0.85f;
     private static final float NEWTYPE_TIME_MULT = 1.2f;
+    /** 本舰时缓状态在 {@code ship.getCustomData()} 里的键：模组效果是单例，状态只能挂舰上。 */
+    private static final String TIME_STATE_KEY = "moci_psycommu_time_state";
     
     // 主力舰机动性加成参数
     private static final float CAPITAL_SPEED_BONUS = 50f; // 主力舰速度加成
@@ -86,7 +90,18 @@ public class Moci_PsycommuSystem extends BaseHullMod {
 
     @Override
     public void advanceInCombat(ShipAPI ship, float amount) {
-        if (ship == null || ship.getSystem() == null) return;
+        if (ship == null) return;
+
+        // 这是本船插唯一的每帧入口（Ship.advance 里遍历船插无条件调用，对残骸也照调）。
+        // 引擎不会在舰船被打爆时回头摘掉修饰符，所以「船没了就摘」只能在这里自己发现；
+        // 先于 getSystem() 判，是因为残骸上系统已不可用，但仍可能挂着上一帧的时缓。
+        NewtypeTimeState state = timeStateOf(ship);
+        if (state != null && dead(ship)) {
+            releaseForDead(ship, state);
+            return;
+        }
+
+        if (ship.getSystem() == null) return;
 
         CombatEngineAPI engine = Global.getCombatEngine();
         if (engine == null) return;
@@ -137,7 +152,7 @@ public class Moci_PsycommuSystem extends BaseHullMod {
                 }
             }
 
-            applyNewtypeTimeMult(ship, engine);
+            applyNewtypeTimeMult(ship, stats, engine);
 
             // 处理粒子效果生成 - 每个舰船独立的计时器
             if (shouldSpawnParticles()) {
@@ -168,7 +183,7 @@ public class Moci_PsycommuSystem extends BaseHullMod {
             stats.getDeceleration().unmodify(getHullModId()); // 移除减速度修改
             stats.getTurnAcceleration().unmodify(getHullModId()); // 移除转向加速度修改
             stats.getMaxTurnRate().unmodify(getHullModId()); // 移除最大转向速度修改
-            releaseNewtypeTimeMult(ship, "系统关闭");
+            unapplyNewtypeTimeMult(ship, stats, engine);
         }
     }
 
@@ -327,77 +342,134 @@ public class Moci_PsycommuSystem extends BaseHullMod {
         return 1f + 0.5f * getEffectMult();
     }
 
+    private void applyNewtypeTimeMult(ShipAPI ship, MutableShipStatsAPI stats, CombatEngineAPI engine) {
+        if (!hasNewtypePilot(ship)) {
+            unapplyNewtypeTimeMult(ship, stats, engine);
+            return;
+        }
+
+        String timeId = getTimeModifierId(ship);
+        stats.getTimeMult().modifyMult(timeId, NEWTYPE_TIME_MULT);
+        // 世界那一半只给玩家舰，且必须还活着：舰船被打爆后引擎不会再回调本船改回 1 倍速，
+        // 于是「开着系统被打死」会把全局拖慢一辈子 —— 这就是「进了时缓出不来」。
+        if (engine != null && ship == engine.getPlayerShip() && ship.isAlive() && !ship.wasRemoved()) {
+            engine.getTimeMult().modifyMult(timeId, 1f / NEWTYPE_TIME_MULT);
+        } else if (engine != null) {
+            engine.getTimeMult().unmodify(timeId);
+        }
+        NewtypeTimeState state = timeState(ship, timeId);
+        // 重新挂上就是新的一次挂载，允许「船没了」再报一次
+        state.releaseLogged = false;
+    }
+
     /**
-     * 申请/刷新精神感应系统的时间流。
+     * 取（或建）本舰的时缓状态。
      *
-     * <p>原实现自己往船属性表与引擎上挂 {@code HULLMOD_ID_TimeMult_<shipId>}、系统关闭时再自己摘；
-     * 只要有一条退出路径没走到（换乘、舰船离场、异常），世界倍率 1/1.2 就永久留在引擎上，
-     * 症状正是「进了时缓出不来」。现在只向 Moci_TimeFlow 申请句柄：申请的有效期由权威按「舰船是否还在场」
-     * 判定，本类只负责「我还在驱动时每帧刷新倍率」。</p>
-     *
-     * <p>为什么状态挂在 {@code ship.getCustomData()} 而不是字段：船插 effect 实例是全模组共享的
-     * （{@code HullModSpec.getEffect()} 返回单例），字段会被多舰互相覆盖；这也是本类粒子计时器
-     * 一直放 customData 的原因。</p>
+     * <p>{@code HullModSpec.getEffect()} 是全模组单例、所有船共用一个实例，
+     * 状态必须挂在 {@code ship.getCustomData()} 上，否则两艘船会互相覆盖对方记的 id。</p>
      */
-    private void applyNewtypeTimeMult(ShipAPI ship, CombatEngineAPI engine) {
-        if (ship == null) {
-            return;
+    private NewtypeTimeState timeState(ShipAPI ship, String timeId) {
+        Object raw = ship.getCustomData().get(TIME_STATE_KEY);
+        if (raw instanceof NewtypeTimeState && timeId.equals(((NewtypeTimeState) raw).id)) {
+            return (NewtypeTimeState) raw;
         }
-        TimeFlowState state = timeFlowState(ship);
-        if (engine == null || !hasNewtypePilot(ship)) {
-            releaseNewtypeTimeMult(ship, engine == null ? "没有战斗引擎" : "没有新人类飞行员");
-            return;
+        if (raw instanceof NewtypeTimeState) {
+            // id 变了（换船/换模组实例）：旧状态先摘干净再换
+            ((NewtypeTimeState) raw).release();
+            ship.setCustomData(TIME_STATE_KEY, null);
         }
-        // 世界半的有无是结构性的：玩家舰才是「船 ×1.2 + 世界 ×1/1.2」，换乘一翻转就得重建句柄
-        boolean bullet = ship == engine.getPlayerShip();
-        if (state.handle != null && state.handle.active() && state.bullet == bullet) {
-            state.handle.set(NEWTYPE_TIME_MULT);
-            return;
-        }
-        releaseNewtypeTimeMult(ship, "时间申请形态变化");
-        state.handle = bullet
-                ? Moci_TimeFlow.openBulletTime(ship, getTimeModifierId(ship), NEWTYPE_TIME_MULT)
-                : Moci_TimeFlow.openShip(ship, getTimeModifierId(ship), NEWTYPE_TIME_MULT);
-        state.bullet = bullet;
+        NewtypeTimeState state = new NewtypeTimeState(ship, timeId);
+        ship.setCustomData(TIME_STATE_KEY, state);
+        return state;
     }
 
-    /** 收回时间申请；幂等。 */
-    private void releaseNewtypeTimeMult(ShipAPI ship, String why) {
-        if (ship == null) {
-            return;
-        }
-        TimeFlowState state = timeFlowState(ship);
-        Moci_TimeFlow.Handle handle = state.handle;
-        state.handle = null;
-        if (handle == null) {
-            return;
-        }
-        if (Moci_TimeFlow.TRACE) {
-            Global.getLogger(Moci_PsycommuSystem.class)
-                    .info("[MOCI-TIME] Moci_PsycommuSystem 收回时间申请 ship=" + ship.getId() + " 原因=" + why);
-        }
-        handle.release();
+    /**
+     * 这艘船的时缓还该不该存在：判「船没了」。
+     *
+     * <p>为什么判这四条：被打爆（{@code isHulk}）与自然消失（{@code wasRemoved}）都要摘；
+     * 换场后 {@code Global.getCombatEngine()} 会换人或为 null，旧战场的属性表已经没意义；
+     * {@code isEntityInPlay} 覆盖「还活着但已被移出场」这种中间态。</p>
+     */
+    private static boolean dead(ShipAPI ship) {
+        if (ship == null) return true;
+        if (!ship.isAlive() || ship.isHulk() || ship.wasRemoved()) return true;
+        CombatEngineAPI engine = Global.getCombatEngine();
+        return engine == null || !engine.isEntityInPlay(ship);
     }
 
-    private TimeFlowState timeFlowState(ShipAPI ship) {
-        Object existing = ship.getCustomData().get(TIME_FLOW_KEY);
-        if (existing instanceof TimeFlowState) {
-            return (TimeFlowState) existing;
+    /** 只取本舰已有的时缓状态，不建新的：判断「要不要摘」时不该顺手造状态。 */
+    private NewtypeTimeState timeStateOf(ShipAPI ship) {
+        if (ship == null) return null;
+        Object raw = ship.getCustomData() == null ? null : ship.getCustomData().get(TIME_STATE_KEY);
+        return raw instanceof NewtypeTimeState ? (NewtypeTimeState) raw : null;
+    }
+
+    /** 船没了：把本条时缓摘干净并留一条日志。摘除本身幂等，重复调用无害。 */
+    private void releaseForDead(ShipAPI ship, NewtypeTimeState state) {
+        state.release();
+        ship.setCustomData(TIME_STATE_KEY, null);
+        if (!state.releaseLogged) {
+            state.releaseLogged = true;
+            LOG.warn(LOG_PREFIX + "PSYCOMMU 宿主舰已死亡或离场，摘掉时缓（ship="
+                    + (ship == null ? "-" : ship.getId()) + "）");
         }
-        TimeFlowState created = new TimeFlowState();
-        ship.setCustomData(TIME_FLOW_KEY, created);
-        return created;
     }
 
-    /** 每条船自己的时间流句柄（船插 effect 实例共享，所以状态必须挂在船上）。 */
-    private static final class TimeFlowState {
-        private Moci_TimeFlow.Handle handle;
-        private boolean bullet;
+    private void unapplyNewtypeTimeMult(ShipAPI ship, MutableShipStatsAPI stats, CombatEngineAPI engine) {
+        String timeId = getTimeModifierId(ship);
+        Object raw = ship.getCustomData() == null ? null : ship.getCustomData().get(TIME_STATE_KEY);
+        if (raw instanceof NewtypeTimeState) {
+            // 状态里记的才是真正挂上去的 id：参数变过也摘得掉
+            timeId = ((NewtypeTimeState) raw).id;
+            ((NewtypeTimeState) raw).release();
+            ship.setCustomData(TIME_STATE_KEY, null);
+        }
+        stats.getTimeMult().unmodify(timeId);
+        if (engine != null) {
+            engine.getTimeMult().unmodify(timeId);
+        }
     }
 
-    /** 申请名：沿用原来的「船插 id_TimeMult_舰船 id」，只作句柄名，不再当属性键。 */
     private String getTimeModifierId(ShipAPI ship) {
         return getHullModId() + "_TimeMult_" + ship.getId();
+    }
+
+    /**
+     * 单舰的时缓状态。
+     *
+     * <p>为什么状态要挂在舰上而不是模组实例上：{@code HullModSpec.getEffect()} 是全模组单例，
+     * 所有船共用一个实例；状态放实例字段会让两艘船互相覆盖对方的 id。</p>
+     *
+     * <p>摘除的时机有两条，缺一不可：①{@code advanceInCombat} 里发现船已死（见 {@link #dead}）；
+     * ②系统关闭那一帧的 {@code unapplyNewtypeTimeMult}。世界 1/f 必须两条路都能摘掉，
+     * 否则「开着系统被打死」就会把全局永久拖慢。</p>
+     */
+    private final class NewtypeTimeState {
+        final ShipAPI ship;
+        final String id;
+        /** 本次挂载是否已经为「船没了」打过日志；只为避免每帧刷屏，重新挂载时复位。 */
+        boolean releaseLogged;
+
+        NewtypeTimeState(ShipAPI ship, String id) {
+            this.ship = ship;
+            this.id = id;
+        }
+
+        /** 幂等、绝不抛；摘除都在这里收口。 */
+        void release() {
+            if (ship != null) {
+                try {
+                    ship.getMutableStats().getTimeMult().unmodify(id);
+                } catch (RuntimeException | LinkageError ignored) {
+                    // 舰船已被回收：这条属性表不存在了，没有可摘的东西
+                }
+            }
+            try {
+                CombatEngineAPI engine = Global.getCombatEngine();
+                if (engine != null) engine.getTimeMult().unmodify(id);
+            } catch (RuntimeException | LinkageError ignored) {
+            }
+        }
     }
 
     private boolean hasNewtypePilot(ShipAPI ship) {

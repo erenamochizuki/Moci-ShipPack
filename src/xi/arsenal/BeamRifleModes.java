@@ -19,13 +19,22 @@ public final class BeamRifleModes implements AutoCloseable {
     static final boolean TRACE_OWNERSHIP=false;
     /** AI 意图排查开关（常驻、可审计、与 devMode 无关）：每船 2 秒最多一条 [MOCI-RIFLE-AI] 行。 */
     public static final boolean TRACE_AI=true;
-    /** AI 蓄力保持时长：约 1.0 秒，使 estimate(hold) 落在 ~1.5x 伤害档。 */
-    static final float AI_HOLD=1f;
-    /** AI 点射臂炮的触发条件：目标进入射程占比 AI_POINT_RANGE，或结构占比降到 AI_POINT_HULL。 */
-    static final float AI_POINT_RANGE=.45f,AI_POINT_HULL=.35f,AI_LOG_INTERVAL=2f;
     /** MAX_HOLD is the legacy normal-full visual alias, never a held-time cap. */
     public static final float MIN_HOLD=.2f,MAX_HOLD=3f,MIN_DURATION=.45f,MAX_DURATION=2.4f,MAX_DAMAGE_SCALE=2.5f,COOLDOWN=2.4f;
     public static final float NORMAL_FULL_HOLD=MAX_HOLD,OVERLIMIT_HOLD=10f,OVERLIMIT_FULL_HOLD=15f,MAX_ACTUAL_DAMAGE_SCALE=4f,OVERLIMIT_LOCKOUT_SECONDS=5f;
+    /** AI 固定蓄力档位（m01502 裁决）：AI 必须蓄满 1.5 秒才允许发射，
+     *  蓄力时长与伤害倍率都取这一档 —— 不再按「已照时长」实时插值。 */
+    public static final float AI_CHARGE_SECONDS=1.5f;
+    /** AI 满档伤害倍率 = 玩家按住 1.5 秒时的倍率（{@code estimate(AI_CHARGE_SECONDS).damageScale()}）。
+     *  刻意不借 {@link #MAX_ACTUAL_DAMAGE_SCALE}（4.0× 是玩家破限 >10s 才有的量级），AI 白拿不合适。 */
+    public static final float AI_MAX_DAMAGE_SCALE=estimate(AI_CHARGE_SECONDS).damageScale();
+    /** 处决那一发额外 ×2（m01502 裁决）：直接乘进光束伤害倍率本身，HUD 显示的就是这个合成值。
+     *  刻意不再使用独立 modifier id —— 那样 HUD 显示与实际伤害是两套数，且容易漏摘。 */
+    public static final float EXECUTION_DAMAGE_MULT=2f;
+    /** 收势最长时限：姿态正常约 RECOVER_SECONDS 收完；超过这个值无论姿态怎么说都强制释放。 */
+    private static final float RECOVERY_DEADLINE=RifleExecutionPose.RECOVER_SECONDS+1f;
+    /** 最终伤害倍率上限：处决 ×2 叠加之后仍允许到 4.0× 的原始上限，故为 4.0×2。 */
+    public static final float MAX_FINAL_DAMAGE_SCALE=MAX_ACTUAL_DAMAGE_SCALE*EXECUTION_DAMAGE_MULT;
     public enum Mode{PULSE,CHARGE}
     public enum Phase{IDLE,HOLDING,PRESENTING,RELEASING,FIRING,COOLDOWN,CLOSED}
     public record Request(boolean accepted,String reason){}
@@ -39,16 +48,26 @@ public final class BeamRifleModes implements AutoCloseable {
     private final WeaponRangeModifier rangeModifier;
     /** AI 语义标记：false = 本地驾驶机体（xi 语义）；true = AI 载机（只做禁火/放行的原生语义）。 */
     private final boolean aiMode;
-    private final BeamRifleAiIntent intent;
-    private boolean aiPointFire;
-    private String aiReason="AI 就绪";
-    private double aiLastLog=-AI_LOG_INTERVAL;
+    /** AI 的期望模式：true = 照射（蓄力光束 + 举盾），false = 点射（臂炮）。
+     *  默认 true 保持改造前的语义；由 {@link #requestAiMode} 每帧按战术态势改写。玩家侧永不读取。 */
+    private boolean aiChargeWanted=true;
+    /* AI 侧的蓄力读数：由 BeamRifleAutofireAI 的节奏机经 noteAiCharge/noteAiFiring 写入。
+       刻意与玩家侧的 hold/phase 分开——那两个被玩家状态机独占，AI 路径写它们会污染
+       nativeBeamHoldBlocked() 等判据；这里只服务于「让 AI 的蓄力过程看得见」。 */
+    private float aiChargeSeconds,aiChargeRatio;
+    private boolean aiChargeFiring;
+    private boolean aiBraceLogged;private String aiBraceNote="";private String aiBraceFailure;
     private Mode mode=Mode.PULSE;
     private Phase phase=Phase.IDLE;
     private boolean fireDown,confirmed,closed,wasLocal,mappedInput;
     private float hold,duration,scale=1,fired,cooldown,wait,presenting;
     private double localElapsed,firstLightLocal=-1;
     private String reason="就绪",authorityOwner="";
+    /** 抬枪阶段最后卡在哪道闸门上；只用于 HUD 与日志，不参与任何判定。 */
+    private String gateNote="";
+    /** 处决门（锁定 + 超载/残血/无防护之一）的只读判定结论，只写进 HUD/status，不参与任何判定。 */
+    private String executionNote="";
+    private float previewHold=-1f;
     private long authorityEpoch,shots,cancellations;
     private BooleanSupplier authority;
     private float activeRangeMult=1,shotWidth=42,overlimitPower,lockoutRemaining,lockoutAge=-1;
@@ -85,12 +104,11 @@ public final class BeamRifleModes implements AutoCloseable {
         if(ship.getCustomData().containsKey(KEY+".owner"))throw new IllegalStateException("Rifle mode owner already installed");
         executionProfile=DskRifleCurveV2.isDsk(ship);
         aiMode=!controlOwned(ship,engine);
-        intent=aiMode?new BeamRifleAiIntent():null;
         /* AI 模式不接管弹仓与原生武器组：两张弹仓的容量强耦合、以及 giveCommand(SELECT_GROUP)
            都会改写 AI 舰的原生装配语义。AI 继续用原生弹仓（beam.getAmmo()）与原生武器组打仗。 */
         ammo=aiMode?null:new UnicornMagnumAmmo(pulse,beam);
         groups=aiMode?null:groupAccess==null?new UnicornMagnumGroups(ship,pulse,beam):new UnicornMagnumGroups(ship,pulse,beam,groupAccess);
-        if(aiMode)mode=Mode.CHARGE; // AI 的语义就是「蓄力照射」，顺带跳过点射冷却判据。
+        if(aiMode)mode=aiChargeWanted?Mode.CHARGE:Mode.PULSE; // AI 的期望模式由战术态势写入，默认照射。
         rangeModifier=new WeaponRangeModifier(){
             public float getWeaponRangePercentMod(ShipAPI s,WeaponAPI w){return 0;}
             public float getWeaponRangeFlatMod(ShipAPI s,WeaponAPI w){return 0;}
@@ -102,14 +120,16 @@ public final class BeamRifleModes implements AutoCloseable {
         prime();
         publish();
     }
-    /** xi 语义的显式所有权契约：只有本地驾驶机体（或显式远程接管者）拥有蓄力状态机、
-     *  姿态接管与禁火接管。其余载机（AI）走「AI 语义」：控制器只提供禁火/放行，
-     *  姿态、fireOffsets、武器组、弹仓、HUD 全部留给原生 —— 否则 AI 会被永久哑火。 */
+    /** xi 语义的显式所有权契约：只有「玩家亲手操作」的舰拥有蓄力状态机、姿态接管与禁火接管。
+     *  其余载机（含玩家按 U 之后）走「AI 语义」：控制器只保留否决权，
+     *  姿态、fireOffsets、武器组、弹仓、HUD 全部留给原生。 */
     public static boolean controlOwned(ShipAPI ship,CombatEngineAPI engine){
         if(ship==null)return false;
-        CombatEngineAPI actual=engine==null?Global.getCombatEngine():engine;
-        if(actual!=null&&actual.getPlayerShip()==ship)return true;
-        return Boolean.TRUE.equals(ship.getCustomData().get(REMOTE_CONTROL));
+        /* 判据是 ShipAI，不是 getPlayerShip()：玩家亲手驾驶的舰没有 ShipAI；
+           一旦按 U 进入 UI 自动驾驶，引擎立刻给它挂上 ShipAI，从此与非玩家舰完全同构，
+           开火本就该走 AI 逻辑。显式远程接管（REMOTE_CONTROL）仍按玩家语义处理。 */
+        if(Boolean.TRUE.equals(ship.getCustomData().get(REMOTE_CONTROL)))return true;
+        return ship.getShipAI()==null;
     }
     public static boolean controlOwned(ShipAPI ship){return controlOwned(ship,Global.getCombatEngine());}
     /** 结构装配判据：与所有权无关，只看这条船体有没有装齐「可见步枪 + 蓄力枪」。 */
@@ -213,7 +233,7 @@ public final class BeamRifleModes implements AutoCloseable {
         if(mode==Mode.PULSE&&pulse.getCooldownRemaining()>.0001f)return no("点射冷却未完成");
         if(ammo!=null){ammo.observe();if(ammo.reserve()<1)return no("步枪弹仓为空");}
         else if(!aiCanPay())return no("步枪弹仓为空");
-        fireDown=true;hold=0;confirmed=false;overlimit=false;overlimitPower=0;lockoutApplied=false;activeRangeMult=1;shotWidth=42;firstLightLocal=-1;phase=Phase.HOLDING;reason="按住蓄力，松手照射";
+        fireDown=true;hold=0;confirmed=false;overlimit=false;overlimitPower=0;lockoutApplied=false;activeRangeMult=1;shotWidth=42;firstLightLocal=-1;phase=Phase.HOLDING;reason="按住蓄力，松手照射";executionNote="";previewHold=-1f;
         prime();
         publish();
         return new Request(true,reason);
@@ -230,10 +250,18 @@ public final class BeamRifleModes implements AutoCloseable {
             ShipAPI target=ship.getShipTarget();
             RifleExecutionGate.Snapshot candidate=RifleExecutionGate.evaluate(engine,ship,target);
             executionEntry=candidate.status();
+            executionNote=executionVerdict(candidate,target);
             if(candidate.allowed()&&engine.getPlayerShip()==ship&&ContentTargetLocks.inRange(ship,target,beam.getRange())){
-                if(bracePose!=null)pendingExecutionTarget=target;
-                else if(!beginExecution(target))return no(reason);
-                reason="处决窗口："+candidate.reason()+" · 同一发锁定射击";
+                if(bracePose!=null){
+                    pendingExecutionTarget=target;
+                    reason="处决窗口："+candidate.reason()+" · 同一发锁定射击";
+                }else if(beginExecution(target)){
+                    reason="处决窗口："+candidate.reason()+" · 同一发锁定射击";
+                }else{
+                    /* 处决动作起不来（骨架被别的动作占用、租约冲突、曲线不可用）时，
+                       绝不允许吞掉这一发：降级为普通照射，并把原因写进 reason。 */
+                    reason="处决动作不可用，改为普通照射："+reason;
+                }
             }else reason="蓄力释放 · 普通照射";
         }else reason="端枪对准后照射";
         prime();
@@ -246,6 +274,9 @@ public final class BeamRifleModes implements AutoCloseable {
     public void processInput(List<InputEventAPI> events){
         check();
         if(aiMode||engine.getPlayerShip()!=ship||authority!=null)return;
+        /* 暂停中不处理扳机：否则一次「暂停 + 松手」会把已经蓄好的这一发 cancel 掉。
+           恢复后重新松手即可正常释放。 */
+        if(engine.isPaused())return;
         for(var event:events){
             if(event.isConsumed()||event.isRepeat())continue;
             if(ship.getSelectedGroupAPI()!=groups.chargeGroup&&!fireDown)continue;
@@ -261,9 +292,14 @@ public final class BeamRifleModes implements AutoCloseable {
             tickLockout(localStep);
             if(ammo!=null)ammo.observe();
             reconcileExecutionOwnership();
-            if(aiMode){aiTick(localStep);return;}
+            /* AI 舰的开火权已交还引擎：由 Moci_bounty_plugin.pickWeaponAutofireAI
+               为这三把枪挂上的 BeamRifleAutofireAI 决定「何时扣扳机」，原生武器逻辑负责
+               蓄力与发射。本控制器在 AI 语义下只做两件事：跟随期望模式、维持举盾姿态 ——
+               姿态接管仅限护盾模块位移，绝不写 fireOffsets / 瞄准角 / 武器组 / barrel。 */
+            if(aiMode){advanceAi(localStep);return;}
             confirm();
             selection();
+            if(phase==Phase.HOLDING)previewExecution();
             if(groups.chargeGroup.isAutofiring())groups.chargeGroup.toggleOff();
             trackLocalOwnership();
             enforceActionBlock();
@@ -293,40 +329,69 @@ public final class BeamRifleModes implements AutoCloseable {
        不写姿态、不碰武器组、不碰弹仓、不写 HUD —— 那些是本地驾驶机体的专属语义。
        ------------------------------------------------------------------ */
 
-    private void aiTick(float dt){
-        String why=blockAi();
-        if(!why.isEmpty()){
-            if(phase==Phase.HOLDING||phase==Phase.PRESENTING||phase==Phase.RELEASING||phase==Phase.FIRING)cancel(why);
-            else aiReason=why;
-            primeAi();
+    /** AI 语义的主循环：只做「跟随期望模式」与「维持举盾姿态」两件事。
+     *  刻意不调用 prime/align/armAfterPresenting/settleShot/selection/publish/hud ——
+     *  那些会写 fireOffsets、瞄准角、武器组与 HUD，全部是本地驾驶机体的专属语义。 */
+    private void advanceAi(float dt){
+        syncAiMode();
+        advanceAiBrace(dt);
+    }
+    /** 期望模式 → 实际 mode：由 {@link #requestAiMode} 写入的 aiChargeWanted 决定。 */
+    private void syncAiMode(){
+        Mode wanted=aiChargeWanted?Mode.CHARGE:Mode.PULSE;
+        if(mode!=wanted){
+            reason=aiChargeWanted?"态势：照射（举盾）":"态势：点射";
+            mode=wanted;
+        }
+    }
+    /** AI 举盾：复用玩家那条 RifleBracedPose 正道，但只让 RifleBracedPose 搬护盾模块；
+     *  这里不做 reconcileNativePose（那会把可见枪口写进原生 fireOffsets，污染 AI 弹道起点）。 */
+    private void advanceAiBrace(float dt){
+        if(!aiChargeWanted){
+            if(bracePose!=null){closeAiBrace("态势转为点射");}
             return;
         }
-        ShipAPI target=intent.target(ship,beam,engine);
-        aiPointFire=pointFireWanted(target);
-        if(phase==Phase.IDLE){
-            if(target!=null&&!aiPointFire){
-                Request started=beginCharge();
-                aiReason=started.accepted()?"AI 开始蓄力":started.reason();
-            }else aiReason=target==null?"AI 无目标":"AI 点射臂炮";
-        }else if(phase==Phase.HOLDING){
-            if(target==null)cancel("AI 目标丢失");else if(hold>=AI_HOLD&&!releaseCharge().accepted())aiReason=reason;
+        if(bracePose!=null&&FullSalvoPose.isBlockingRifle(ship)){closeAiBrace("导弹齐射姿势接管双臂");return;}
+        if(bracePose==null&&braceWanted()){
+            boolean free=!ship.getCustomData().containsKey(RifleFiringPose.KEY)&&!ship.getCustomData().containsKey(RifleFiringPose.KEY+".releaseRig");
+            if(free){
+                try{bracePose=new RifleBracedPose(ship,pulse);aiBraceFailure=null;}
+                catch(RuntimeException|LinkageError blocked){aiBraceFailure=String.valueOf(blocked.getMessage());}
+            }
         }
-        advancePhase(dt);
-        armAfterPresenting();
-        confirm();
-        settleShot();
-        primeAi();
-        aiLog(target);
+        if(bracePose!=null){
+            bracePose.advance(dt,true,pulse.getCurrAngle());
+            if(bracePose.finished())closeAiBrace("姿态已收回");
+        }
+        logAiBrace();
     }
-    /** 近距/残血走原生点射臂炮；其余交给蓄力照射。 */
-    private boolean pointFireWanted(ShipAPI target){
-        if(target==null)return false;
-        float range=Math.max(1f,beam.getRange());
-        float distance=(float)Math.sqrt(BeamRifleAiIntent.squaredDistance(ship.getLocation(),target.getLocation()));
-        /* 蓄力光束整场只有一仓弹（ammoPerSecond=0）。打空后不要再空转蓄力，
-           改由 2.25 发/秒自回弹的臂炮接战；臂炮够不着就老实等目标进射程。 */
-        if(!aiCanPay())return distance<=Math.max(1f,pulse.getRange());
-        return distance<=range*AI_POINT_RANGE&&(target.getHullLevel()<=AI_POINT_HULL||distance<=range*.25f);
+    private void closeAiBrace(String why){
+        if(bracePose==null)return;
+        try{bracePose.close();}catch(RuntimeException|LinkageError ignored){}
+        bracePose=null;
+        aiBraceNote=why;
+    }
+    /** AI 举盾日志：每台控制器只打一条开始 + 一条结束（以及首次失败原因），不刷屏。 */
+    private void logAiBrace(){
+        if(!TRACE_AI)return;
+        boolean holding=bracePose!=null;
+        if(holding&&aiBraceLogged)return;
+        if(!holding&&!aiBraceLogged&&aiBraceFailure==null&&aiBraceNote.isEmpty())return;
+        if(holding)aiBraceLogged=true;
+        String state=holding?"hold":aiBraceFailure!=null&&aiBraceNote.isEmpty()?"unavailable":"release";
+        Global.getLogger(BeamRifleModes.class).info("[MOCI-RIFLE-AI] brace "+state
+                +" ship="+ship.getHullSpec().getHullId()
+                +" shieldModules="+aiShieldModuleCount()
+                +(aiBraceFailure!=null?" reason="+aiBraceFailure:aiBraceNote.isEmpty()?"":" reason="+aiBraceNote));
+        aiBraceNote="";
+        if(!holding)aiBraceFailure=null;
+        aiBraceLogged=holding; // 松开后必须清零，否则第二次举盾会被上面的幂等判据吞掉。
+    }
+    private int aiShieldModuleCount(){
+        int count=0;
+        for(ShipAPI module:ship.getChildModulesCopy())
+            if(module.getParentStation()==ship&&module.getStationSlot()!=null&&"SHIELD_L".equals(module.getStationSlot().getId())&&module.isAlive())count++;
+        return count;
     }
     /** AI 版阻断器：玩家专属判据（本地驾驶权、映射输入、UI 占用、窗口焦点、选中武器组）在这里全不适用；
      *  照搬会让人 enforceActionBlock 每帧取消动作，那正是 P1 哑火的第二层原因。 */
@@ -342,20 +407,11 @@ public final class BeamRifleModes implements AutoCloseable {
     private boolean rifleDisabled(){
         return pulse.isDisabled()||beam.isDisabled()||pulse.isForceDisabled()||beam.isForceDisabled();
     }
-    /** AI 版禁火闸门：光束只在 RELEASING/FIRING 放行，臂炮只在点射意图成立时放行。 */
-    private void primeAi(){
-        if(rightArmLocked())for(WeaponAPI attack:rightArmAttacks())attack.setForceNoFireOneFrame(true);
-        if(nativeBeamHoldBlocked())beam.setForceNoFireOneFrame(true);
-        else if(!beam.isForceNoFireOneFrame())beam.setForceFireOneFrame(true);
-        if(aiPointFire&&phase==Phase.IDLE&&blockAi().isEmpty()){if(!pulse.isForceNoFireOneFrame())pulse.setForceFireOneFrame(true);}
-        else pulse.setForceNoFireOneFrame(true);
-    }
     private void beforeWeaponAi(WeaponAPI weapon){
         suppressRightArmAttacks(weapon);
-        if(weapon==pulse){
-            if(aiPointFire&&phase==Phase.IDLE&&blockAi().isEmpty()){if(!weapon.isForceNoFireOneFrame())weapon.setForceFireOneFrame(true);}
-            else weapon.setForceNoFireOneFrame(true);
-        }else if(weapon==beam)suppressOrReleaseBeam(weapon);
+        /* AI 语义只剩否决权：没资格开火时静音，其余一律放手给引擎的武器 AI。
+           这里一旦再 setForceFireOneFrame，就会和 AutofireAIPlugin 抢扳机。 */
+        if(!blockAi().isEmpty())weapon.setForceNoFireOneFrame(true);
     }
     private void afterWeaponAi(WeaponAPI weapon){
         armAfterPresenting();
@@ -371,19 +427,8 @@ public final class BeamRifleModes implements AutoCloseable {
         phase=Phase.RELEASING;
         wait=0;
         reason="AI 释放蓄力，等待原生首亮";
-        primeAi();
     }
     private boolean aiCanPay(){return beam.getAmmo()>0||beam.getMaxAmmo()<=0;}
-    private void aiLog(ShipAPI target){
-        if(!TRACE_AI)return;
-        if(localElapsed-aiLastLog<AI_LOG_INTERVAL)return;
-        aiLastLog=localElapsed;
-        Global.getLogger(BeamRifleModes.class).info("[MOCI-RIFLE-AI] "+ship.getHullSpec().getHullId()
-                +" phase="+phase.name()+" mode="+mode.name()
-                +String.format(Locale.ROOT," hold=%.2f scale=%.2f ammo=%d",hold,scale,ammo==null?beam.getAmmo():ammo.reserve())
-                +" target="+(target==null?"none":target.getHullSpec().getHullId())
-                +" point="+aiPointFire+" note="+aiReason);
-    }
     /** 蓄力/抬枪/释放/照射期间任何阻断条件都立刻取消。 */
     private void enforceActionBlock(){
         if(phase==Phase.HOLDING||phase==Phase.PRESENTING||phase==Phase.RELEASING||phase==Phase.FIRING){String why=block();if(!why.isEmpty())cancel(why);}
@@ -415,6 +460,10 @@ public final class BeamRifleModes implements AutoCloseable {
     private void fail(String why){
         try{cancel(why);}catch(RuntimeException|LinkageError ignored){}
         try{phase=Phase.COOLDOWN;cooldown=Math.max(cooldown,COOLDOWN);beam.stopFiring();beam.setForceNoFireOneFrame(true);pulse.setForceNoFireOneFrame(true);closeExecutionTime();}catch(RuntimeException|LinkageError ignored){}
+        /* 控制器级异常必须连处决姿态一起收掉。姿态租约一旦泄漏，任何「舰船死亡/换乘/解锁」
+           判据都救不回来：braceWanted() 恒 false、releaseCharge() 恒 beginExecution() 失败，
+           表现就是「卡在处决里、蓄力不发射」。closeExecution() 幂等且逐项独立兜底。 */
+        try{if(executionPose!=null)closeExecution();}catch(RuntimeException|LinkageError ignored){}
         Global.getLogger(BeamRifleModes.class).warn("Beam rifle controller recovered: "+why);
     }
     private void selection(){
@@ -476,7 +525,7 @@ public final class BeamRifleModes implements AutoCloseable {
     private Request no(String why){reason=why;publish();return new Request(false,why);}
     /** 原生禁火闸门：没有 xi 所有者的载机一律不碰（AI 走原生语义）。 */
     private void prime(){
-        if(aiMode){primeAi();return;}
+        if(aiMode)return; // AI 的禁火/放行闸门在 beforeWeaponAi（每帧、每武器各一次），这里不参与。
         if(rightArmLocked())for(WeaponAPI attack:rightArmAttacks())attack.setForceNoFireOneFrame(true);
         if(nativeBeamHoldBlocked())beam.setForceNoFireOneFrame(true);
         if(nativePulseHoldBlocked())pulse.setForceNoFireOneFrame(true);
@@ -555,12 +604,27 @@ public final class BeamRifleModes implements AutoCloseable {
     private void armAfterPresenting(){
         if(aiMode){armAfterPresentingAi();return;}
         if(phase!=Phase.PRESENTING||pendingExecutionTarget!=null)return;
-        if(executionPose!=null){if(!executionPose.readyForBeam())return;}else if(bracePose==null||!bracePose.canRelease())return;
+        if(executionPose!=null){
+            if(!executionPose.readyForBeam()){
+                gateNote="处决姿态未就绪["+(executionPose.blockedReason().isEmpty()?"":executionPose.blockedReason()+" · ")
+                        +"poseReady="+RifleFiringPose.readyForBeam(ship)+" · blocked="
+                        +(RifleFiringPose.blockedReason(ship).isEmpty()?"无":RifleFiringPose.blockedReason(ship))+"]";
+                return;
+            }
+        }else if(bracePose==null){
+            gateNote="托握姿态尚未建立";
+            return;
+        }else if(!bracePose.canRelease()){
+            gateNote=String.format(Locale.ROOT,"托握姿态未就绪[右差 %.2f/允许 %.2f 左差 %.2f 权重 %.2f]",
+                    bracePose.rightError(),bracePose.rightTolerance(),bracePose.leftError(),bracePose.weight());
+            return;
+        }
         float difference=shortest(pulse.getCurrAngle()-beam.getCurrAngle());
-        if(Math.abs(difference)>.05f)return;
+        if(Math.abs(difference)>.05f){gateNote=String.format(Locale.ROOT,"枪口未对齐 %.2f°",difference);return;}
         String why=block();
         if(!why.isEmpty()){cancel(why);return;}
         if(!ammo.reserveBeam()){cancel("步枪弹仓为空");return;}
+        gateNote="";
         phase=Phase.RELEASING;
         wait=0;
         reason=executionPose!=null?"处决瞄准完成，等待这一发原生首亮":bracePose.ready()?"双手托握完成，等待原生首亮":"极限角度使用原生单手，等待原生首亮";
@@ -605,8 +669,13 @@ public final class BeamRifleModes implements AutoCloseable {
     }
     /** 双手托握是否该存在：蓄力组被选中、无处决动作、机体可用且拥有 xi 语义。 */
     private boolean braceWanted(){
-        if(groups==null)return false; // AI 不建托握姿态
-        return mode==Mode.CHARGE&&ship.getSelectedGroupAPI()==groups.chargeGroup&&executionPose==null&&pendingExecutionTarget==null&&live()&&!ship.getFluxTracker().isOverloadedOrVenting()&&!rightArmLocked()&&!FullSalvoPose.isBlockingRifle(ship)&&!ship.controlsLocked()&&(engine.getPlayerShip()==ship||authority!=null);
+        /* 举盾开关的两条正道：
+           玩家 —— 选中蓄力武器组（原有语义，逐帧不变）；
+           AI   —— 由 Moci_bounty_plugin 挂上的 BeamRifleAutofireAI 通过 requestAiMode 表达的「期望照射」。
+           AI 没有武器组（groups 恒 null），旧判据在首行就 return false，举盾永远不会发生。 */
+        boolean owner=(engine.getPlayerShip()==ship&&groups!=null&&ship.getSelectedGroupAPI()==groups.chargeGroup)||(aiMode&&aiChargeWanted);
+        if(!owner||mode!=Mode.CHARGE)return false;
+        return executionPose==null&&pendingExecutionTarget==null&&live()&&!ship.getFluxTracker().isOverloadedOrVenting()&&!rightArmLocked()&&!FullSalvoPose.isBlockingRifle(ship)&&!ship.controlsLocked()&&(aiMode||authority!=null||engine.getPlayerShip()==ship);
     }
     private boolean beginExecution(ShipAPI target){
         RifleExecutionTimeLease temporal=null;RifleExecutionPose pose=null;
@@ -624,6 +693,13 @@ public final class BeamRifleModes implements AutoCloseable {
     /** Ownership checks also run while paused; no animation clock is consumed. */
     public void reconcileExecutionOwnership(){
         if(pendingExecutionTarget!=null&&!RifleExecutionGate.stillLocked(engine,ship,pendingExecutionTarget)){cancel("处决目标已解锁，撤销动作");return;}
+        /* 失去座舰（换乘、被击毁、按 U 交给 AI）时，姿态与时间租约都不再有人驱动：
+           在这里无条件收掉，不依赖异常路径。 */
+        if(!closed&&(!live()||!controlOwned(ship,engine))){
+            pendingExecutionTarget=null;
+            if(executionPose!=null)closeExecution();
+            return;
+        }
         if(closed||executionPose==null||executionRecovering)return;
         // A killing first tick can precede this actor's frame callback. Pay and
         // count the already emitted native shot before treating a dead target as loss.
@@ -645,18 +721,42 @@ public final class BeamRifleModes implements AutoCloseable {
         if(executionRecovering){
             executionRecovery+=dt;
             if(executionTime!=null){executionFactor=1+(executionRecoveryFactor-1)*(1-smoother(executionRecovery/.2f));if(!executionTime.setFactor(executionFactor))closeExecutionTime();else if(executionRecovery>=.2f)closeExecutionTime();}
-            executionPose.advance(dt,RifleExecutionPose.Stage.RECOVER);
-            if(executionPose.recovered())closeExecution();
-        }else{
-            /* 时缓窗口：只在 phase==FIRING（原生已首亮）内生效，进入 0.10 秒从 1 平滑拉到 3。
-               PRESENTING/RELEASING 的抬枪对准阶段因子恒为 1 —— 不再让玩家在瞄准阶段变慢。 */
-            executionElapsed+=dt;
-            if(phase==Phase.FIRING)executionStrike+=dt;
-            executionFactor=phase==Phase.FIRING?1+2*smoother(executionStrike/.1f):1;
-            executionMaxFactor=Math.max(executionMaxFactor,executionFactor);
-            if(executionFactor>1.0001f&&(executionTime==null||!executionTime.setFactor(executionFactor))){cancel("处决时间控制已失效");return;}
+            /* 收势必须有界：正常靠 recovered()，异常或超时靠这里的硬截止。
+               没有这条截止，只要姿态在收势里抛一次，就会每帧重抛、姿态永不释放。 */
+            boolean done=executionRecovery>=RECOVERY_DEADLINE;
+            if(!done){
+                try{executionPose.advance(dt,RifleExecutionPose.Stage.RECOVER);done=executionPose.recovered();}
+                catch(RuntimeException|LinkageError failure){done=true;}
+            }
+            if(done)closeExecution();
+            return;
+        }
+        executionElapsed+=dt;
+        if(phase==Phase.FIRING)executionStrike+=dt;
+        /* m01502 裁决：时缓从「进入处决动作、开始摆姿势」那一刻就拉起，不再等原生首亮。
+           PRESENTING/RELEASING/FIRING 全程减速，结束时由收势曲线对称回落到 1。 */
+        executionFactor=1+2*smoother(executionElapsed/.25f);
+        executionMaxFactor=Math.max(executionMaxFactor,executionFactor);
+        if(executionFactor>1.0001f&&(executionTime==null||!executionTime.setFactor(executionFactor))){cancel("处决时间控制已失效");return;}
+        try{
             executionPose.advance(dt,phase==Phase.FIRING?RifleExecutionPose.Stage.FIRING:RifleExecutionPose.Stage.PRESENTING);
+            /* 处决骨架只要被瞬时占用一帧就会被 markInterrupted()，此后 readyForBeam() 永久 false：
+               以前这里不查 recovered()，只能一路白等到抬枪超时，而且玩家蓄好的这一发会被吞掉。
+               现在当场退出处决分支、复位抬枪窗口，退回普通托握释放，让这一发照样打得出去；
+               打断原因照样写进 reason，HUD 与日志都看得到。FIRING 中途不降级，仍走下面的 cancel。 */
+            if(phase!=Phase.FIRING&&executionPose.recovered()){
+                closeExecution();pendingExecutionTarget=null;presenting=0;
+                reason="处决姿态被打断，改为普通托握照射";
+                armAfterPresenting();
+                return;
+            }
             String block=executionPose.blockedReason();if(!block.isEmpty())cancel(block);
+        }catch(RuntimeException|LinkageError failure){
+            /* 姿态所有权被外力改写（骨架被别的动作抢占、租约被替换）时 advance() 会抛。
+               以前它穿透到 fail()，而 fail() 不关姿态 ⇒ 每帧重抛、永久卡死。
+               这里就地转入有界收势，下一帧由 RECOVERY_DEADLINE 保证收干净。 */
+            reason="处决姿态异常，转入收势："+failure.getMessage();
+            beginExecutionRecovery();
         }
     }
     private static float smoother(float value){float t=Math.max(0,Math.min(1,value));return t*t*t*(t*(t*6-15)+10);}
@@ -666,30 +766,89 @@ public final class BeamRifleModes implements AutoCloseable {
         /* 取快照本身可能抛（executionTime/executionPose 的状态查询），绝不能让它挡住收尾：
            租约必须无条件释放，否则 game 会停在时缓里出不来。 */
         try{lastExecution=executionStatus();}catch(RuntimeException|LinkageError ignored){}
-        try{executionPose.close();}finally{closeExecutionTime();}
-        executionPose=null;executionTarget=null;executionRecovering=false;
+        /* 先摘字段、再关姿态。姿态的 close() 在骨架被外力替换时会抛
+           「Execution cleanup refused to clear a foreign skeleton」；
+           若把置空写在 close() 之后，抛一次就永久留下一枚非空的 executionPose。 */
+        RifleExecutionPose pose=executionPose;
+        executionPose=null;executionTarget=null;executionRecovering=false;executionRecovery=0;
+        try{pose.close();}
+        catch(RuntimeException|LinkageError failure){Global.getLogger(BeamRifleModes.class).warn("Execution pose cleanup skipped: "+failure);}
+        finally{closeExecutionTime();}
     }
     public Map<String,Object> executionStatus(){
         Map<String,Object> result=new LinkedHashMap<>();
         result.put("enabled",executionProfile);result.put("active",executionPose!=null||pendingExecutionTarget!=null);
         result.put("ordinaryChargePose","BIMANUAL_BRACE");result.put("state",executionPose==null?(pendingExecutionTarget==null?"IDLE":"UNBRACE"):executionRecovering?"RECOVER":phase.name());
-        result.put("targetId",executionTarget==null?"":executionTarget.getId());result.put("entry",executionEntry);result.put("attempts",executionAttempts);result.put("shots",executionShots);result.put("cancelled",executionCancelled);
+        result.put("targetId",executionTarget==null?"":executionTarget.getId());result.put("entry",executionEntry);result.put("note",executionNote);result.put("attempts",executionAttempts);result.put("shots",executionShots);result.put("cancelled",executionCancelled);
         result.put("factor",executionFactor);result.put("maxFactor",executionMaxFactor);result.put("time",executionTime==null?Map.of("closed",true):executionTime.status());result.put("pose",executionPose==null?Map.of():executionPose.status());
-        result.put("triggerPolicy","LOCKED_TARGET_AND_ANY_OF_OVERLOAD_HULL_LE_25_PERCENT_NO_ACTIVE_DEFENSE");result.put("shotPolicy","SAME_NATIVE_CHARGE_SHOT_ONE_AMMO_NO_ADDITIONAL_SHOT");
+        result.put("triggerPolicy","LOCKED_TARGET_AND_(OVERLOAD_OR_(HULL_LE_ARMOR_SCALED_THRESHOLD_AND_NO_ACTIVE_DEFENSE))");result.put("shotPolicy","SAME_NATIVE_CHARGE_SHOT_ONE_AMMO_NO_ADDITIONAL_SHOT");
         return Collections.unmodifiableMap(result);
     }
     public static float heldRatio(WeaponAPI weapon){BeamRifleModes own=instance(weapon.getShip());return own!=null&&own.phase==Phase.HOLDING?own.hold/MAX_HOLD:0;}
-    public static float firingScale(WeaponAPI weapon){BeamRifleModes own=instance(weapon.getShip());return own==null?1:own.scale;}
+    /** 光束最终伤害倍率 = 蓄力倍率 × 处决窗口的 ×2。
+     *  HUD 显示的、{@code BeamRifleChargeEffect} 写进 DamageAPI 的，都是这一个合成值。 */
+    public static float firingScale(WeaponAPI weapon){
+        BeamRifleModes own=instance(weapon.getShip());
+        return own==null?1:own.scale*(executionStrikeActive(weapon)?EXECUTION_DAMAGE_MULT:1f);
+    }
+    /** HUD 用的显示倍率：与真正写进光束的 {@link #firingScale} 同源，处决期间含 ×2。 */
+    private float displayScale(){return scale*(executionStrikeActive(pulse)?EXECUTION_DAMAGE_MULT:1f);}
     public static float firingWidth(WeaponAPI weapon){BeamRifleModes own=instance(weapon.getShip());return own==null?42:own.shotWidth;}
     public static float firingElapsed(WeaponAPI weapon){BeamRifleModes own=instance(weapon.getShip());return own==null||!own.confirmed?-1:own.fired;}
     public static float chargeRatio(WeaponAPI weapon){BeamRifleModes own=instance(weapon.getShip());return own==null||!(own.phase==Phase.HOLDING||own.phase==Phase.PRESENTING||own.phase==Phase.RELEASING||own.phase==Phase.FIRING)?0:Math.max(0,Math.min(1,own.hold/MAX_HOLD));}
+    /* ---------------- AI 语义的对外写入口（BeamRifleAutofireAI 专用，玩家路径永不调用） ----------------
+       这两把枪在 weapon_data.csv 里带 SYSTEM hint，引擎不会给 AI 自发扣扳机；AutofireAIPlugin 只回答
+       「何时扣」，蓄力倍率与处决加成这类语义仍必须由本控制器持有，否则 AI 永远拿不到玩家同款的伤害曲线。 */
+
+    /** AI 蓄力进度 → 伤害倍率：1 = 没蓄力，{@link #AI_MAX_DAMAGE_SCALE}=满蓄。
+     *  <p><b>这是给 AI 用的降级曲线，不是玩家蓄力曲线。</b>玩家侧仍由 {@code estimate()/applyCharge()}
+     *  决定：1.0s 蓄力 ≈1.43×、满蓄 3.0s =2.5×、破限（>10s）才到 4.0×；AI 只在自己的 WINDUP 段插值到 2.2×，
+     *  既吃到蓄力收益，又不会白拿破限量级。</p>
+     *  <p>只写 {@code aiMode} 实例：玩家侧的 {@code scale} 始终由 {@code estimate()/applyCharge()} 产出，
+     *  两条路径不会互相覆盖。控制器不存在（非步枪舰 / 没装齐两把枪）时静默返回，调用方不必判空。</p> */
+    public static void noteAiCharge(ShipAPI ship,float ratio){
+        BeamRifleModes own=instance(ship);
+        if(own==null||!own.aiMode)return;
+        float q=clamp01(ratio);
+        own.scale=1f+(AI_MAX_DAMAGE_SCALE-1f)*q;
+        own.aiChargeRatio=q;
+        own.aiChargeSeconds=q*AI_CHARGE_SECONDS;
+    }
+    /** AI 节奏机的「是否处于开火窗口」发布口：只有这一帧之后的光学层才会把蓄力读数当成
+     *  「已首亮」来画。与 {@link #noteAiCharge} 一样只写 {@code aiMode} 实例。
+     *  <p>存在的理由：AI 不走玩家状态机，{@code phase} 永远是 {@code IDLE}；没有这条读数，
+     *  光学层就无法区分「还在蓄力」与「已经在照射」。</p> */
+    public static void noteAiFiring(ShipAPI ship,boolean firing){
+        BeamRifleModes own=instance(ship);
+        if(own==null||!own.aiMode)return;
+        own.aiChargeFiring=firing;
+    }
+    /** 处决那一发：本地驾驶机体正处于处决姿态、原生首亮已确认、且仍在 FIRING 窗口内。
+     *  AI 没有处决语义（{@code executionPose} 恒 null），因此对 AI 恒 false。 */
+    public static boolean executionStrikeActive(WeaponAPI weapon){
+        if(weapon==null)return false;
+        BeamRifleModes own=instance(weapon.getShip());
+        return own!=null&&own.executionPose!=null&&own.confirmed&&own.phase==Phase.FIRING;
+    }
+    /** AI 期望模式下发口：{@code true} = 照射（蓄力光束 + 举盾），{@code false} = 点射（臂炮）。
+     *  <p>唯一的调用方是 {@code BeamRifleAutofireAI}（{@code Moci_bounty_plugin.pickWeaponAutofireAI}
+     *  为这三把枪挂上的武器 AI）。玩家路径永不调用，因此本方法对玩家侧是纯惰性的。</p>
+     *  <p>控制器不存在（非步枪舰 / 两把枪没装齐 / 已 close）时<b>静默丢弃</b>：不建实例、不抛异常、
+     *  不打日志 —— 这条路径在战场上被每帧调用，任何副作用都会被放大成噪音。</p> */
+    public static void requestAiMode(ShipAPI ship,boolean chargeWanted){
+        BeamRifleModes own=instance(ship);
+        if(own==null||!own.aiMode)return;
+        own.aiChargeWanted=chargeWanted;
+    }
+    private static float clamp01(float value){return value<0f?0f:value>1f?1f:value;}
     public Map<String,Object> status(){
         Map<String,Object> r=new LinkedHashMap<>();
         r.put("brace",bracePose==null?Map.of("active",false):bracePose.status());r.put("execution",executionStatus());r.put("lastExecution",lastExecution);
         r.put("mode",mode.name());r.put("phase",phase.name());r.put("heldLocal",hold);r.put("maximumHold",-1);r.put("normalFullHold",NORMAL_FULL_HOLD);
         r.put("overlimitThreshold",OVERLIMIT_HOLD);r.put("overlimitFullHold",OVERLIMIT_FULL_HOLD);r.put("holdHasHardCap",false);
-        r.put("duration",duration);r.put("damageScale",scale);r.put("firedLocal",fired);r.put("presentingLocal",presenting);r.put("presentSeconds",presentationSeconds());
+        r.put("duration",duration);r.put("damageScale",scale);r.put("finalDamageScale",displayScale());r.put("firedLocal",fired);r.put("presentingLocal",presenting);r.put("presentSeconds",presentationSeconds());
         r.put("chargeRatio",chargeRatio(beam));r.put("firstLightLocal",firstLightLocal);r.put("localElapsed",localElapsed);
+        r.put("aiMode",aiMode);r.put("aiChargeSeconds",aiChargeSeconds);r.put("aiChargeRatio",aiChargeRatio);r.put("aiChargeFiring",aiChargeFiring);
         r.put("overlimit",overlimit);r.put("overlimitPower",overlimitPower);r.put("lockoutRemaining",lockoutRemaining);r.put("lockoutAge",lockoutAge);r.put("lockoutEpoch",lockoutEpoch);
         r.put("rightArmLocked",lockoutPending||lockoutRemaining>0);r.put("armLockoutRemaining",lockoutPending?OVERLIMIT_LOCKOUT_SECONDS:lockoutRemaining);r.put("armLockoutAge",lockoutAge);r.put("armLockoutEpoch",lockoutEpoch);
         r.put("rightArmAttackSlots",rightArmAttacks().stream().map(w->w.getSlot().getId()).sorted().toList());
@@ -703,16 +862,42 @@ public final class BeamRifleModes implements AutoCloseable {
     private void publish(){ship.setCustomData(KEY,status());}
     private void hud(){
         if(engine.getPlayerShip()!=ship)return;
-        engine.maintainStatusForPlayerShip(KEY,"graphics/icons/hullsys/temporal_shell.png","光束步枪 · "+(mode==Mode.PULSE?"点射":"蓄力照射")+" · "+ammo.reserve()+"发",hudText(),false);
+        engine.maintainStatusForPlayerShip(KEY,"graphics/icons/hullsys/temporal_shell.png","光束步枪 · "+(mode==Mode.PULSE?"点射":"蓄力照射")+" · "+ammoCount()+"发",hudText(),false);
+    }
+    /** 玩家 HUD 的弹药读数：手动驾驶走镜像弹仓，交给引擎驾驶（ammo 为 null）时退回原生弹仓，语义一致且不会 NPE。 */
+    private int ammoCount(){return ammo==null?beam.getAmmo():ammo.reserve();}
+    /** 蓄力期间的处决门预览：只读判定，不改任何战斗状态；10Hz 节流避免每帧拷贝模块表。 */
+    private void previewExecution(){
+        if(!executionProfile||aiMode||engine.getPlayerShip()!=ship)return;
+        if(previewHold>=0f&&hold-previewHold<0.1f)return;
+        previewHold=hold;
+        ShipAPI target=ship.getShipTarget();
+        executionNote=executionVerdict(RifleExecutionGate.evaluate(engine,ship,target),target);
+    }
+    /** 把处决门的只读判定翻成一句人话，写进 HUD 与 status；不改判定本身。 */
+    private String executionVerdict(RifleExecutionGate.Snapshot snapshot,ShipAPI target){
+        if(!snapshot.allowed())return "处决不可触发 · "+snapshot.reason()+hullPercentText(snapshot);
+        if(engine.getPlayerShip()!=ship)return "处决不可触发 · 非本地驾驶机体"+hullPercentText(snapshot);
+        if(target==null||!ContentTargetLocks.inRange(ship,target,beam.getRange()))return "处决不可触发 · 目标超出蓄力枪射程"+hullPercentText(snapshot);
+        return "处决可触发 · "+snapshot.reason()+hullPercentText(snapshot);
+    }
+    private String hullPercentText(RifleExecutionGate.Snapshot snapshot){
+        float fraction=snapshot.hullFraction(),threshold=snapshot.hullThreshold();
+        if(fraction<0f)return "";
+        return threshold<0f
+                ?String.format(Locale.ROOT,"（结构 %.0f%%）",fraction*100f)
+                :String.format(Locale.ROOT,"（结构 %.0f%%/处决线 %.0f%%）",fraction*100f,threshold*100f);
     }
     private String hudText(){
         return lockoutPending||lockoutRemaining>0
                 ?String.format(Locale.ROOT,"破限后右臂武装宕机 %.1f秒",lockoutPending?OVERLIMIT_LOCKOUT_SECONDS:lockoutRemaining)
                 :phase==Phase.HOLDING
-                        ?String.format(Locale.ROOT,(overlimit?"破限蓄力 %.1f秒 · 威力×%.2f":"蓄力 %.1f秒 · 松手照射"),hold,scale)
+                        ?String.format(Locale.ROOT,(overlimit?"破限蓄力 %.1f秒 · 威力×%.2f":"蓄力 %.1f秒 · 松手照射"),hold,displayScale())
+                                +(executionNote.isEmpty()?"":" · "+executionNote)
                         :phase==Phase.PRESENTING
                                 ?String.format(Locale.ROOT,"抬枪对准 %.0f%%",Math.min(1,presenting/presentationSeconds())*100)
-                                :phase==Phase.FIRING?String.format(Locale.ROOT,"照射 %.1f/%.1f秒 · 伤害×%.2f",fired,duration,scale)
+                                        +(gateNote.isEmpty()?"":" · "+gateNote)
+                                :phase==Phase.FIRING?String.format(Locale.ROOT,"照射 %.1f/%.1f秒 · 伤害×%.2f",fired,duration,displayScale())
                                         :phase==Phase.COOLDOWN?String.format(Locale.ROOT,"冷却 %.1f秒",cooldown):reason;
     }
     private void check(){

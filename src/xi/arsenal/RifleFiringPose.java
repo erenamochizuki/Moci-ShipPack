@@ -212,7 +212,11 @@ public final class RifleFiringPose {
             writtenX = sprite.getCenterX(); writtenY = sprite.getCenterY(); written = true;
         }
         void restore() {
-            if (written && Math.abs(sprite.getCenterX() - writtenX) < .01 && Math.abs(sprite.getCenterY() - writtenY) < .01) sprite.setCenter(x, y);
+            // 归还必须无条件：原先「中心仍等于我写入的值才归还」的守卫，在姿态关闭与
+            // BeamRifleMount.synchronize() 同帧并行写入时会失败，于是这一帧谁都不写，
+            // 步枪就停在握持位置闪一下。最终位置由 mount 的 synchronize()/align() 兜底，
+            // 它们在本帧更晚执行、且按「当前是否还有姿态位移」重算，所以这里先写回是真值。
+            if (written) sprite.setCenter(x, y);
         }
     }
     private static final class Part {
@@ -246,9 +250,11 @@ public final class RifleFiringPose {
             if(backpackAnchors!=null)backpackAnchors.apply(world);
         }
         void restore(ShipAPI ship) {
-            if (wroteAngle && Math.abs(shortest(weapon.getCurrAngle() - writtenAngle)) < .01) weapon.setCurrAngle(ship.getFacing() + relativeAngle);
-            if (frameSafeOffset && weapon.getRenderOffsetForDecorativeBeamWeaponsOnly() == writtenRenderOffset && writtenRenderOffset != null
-                    && Math.abs(writtenRenderOffset.x - writtenOffsetX) < .0001 && Math.abs(writtenRenderOffset.y - writtenOffsetY) < .0001)
+            // 同上：归还一律无条件写回。姿态关闭时本帧后续的 align()/synchronize()
+            // 会按最新角度与位移重新写入，所以这里不存在「覆盖他人成果」的风险，
+            // 只存在「守卫失败导致空窗」的风险。
+            if (wroteAngle) weapon.setCurrAngle(ship.getFacing() + relativeAngle);
+            if (frameSafeOffset && writtenRenderOffset != null)
                 weapon.setRenderOffsetForDecorativeBeamWeaponsOnly(originalRenderOffset);
             for (Layer layer : layers) layer.restore();
             if(backpackAnchors!=null)backpackAnchors.restore();

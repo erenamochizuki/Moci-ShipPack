@@ -15,7 +15,7 @@ public final class PsychoframeEnhancement implements AutoCloseable {
     public static final String MODIFIER=KEY+".stats", ORIGINAL_PSYCOMMU="Moci_PsycommuSystem";
     public static final float SPEED=1.2f, ACCEL=1.8f, BRAKE=1.8f, TURN=1.65f, TURN_ACCEL=2.1f,
             GUN_TURN=1.8f, COOLDOWN_MULT=1.25f, DRONE_SPEED=1.35f, DRONE_ACCEL=1.5f,
-            DRONE_TURN=1.4f, DRONE_AIM=1.7f, SPREAD=.65f;
+            DRONE_TURN=1.4f, DRONE_AIM=1.7f, DRONE_ENERGY_DAMAGE=1.5f, SPREAD=.65f;
     private static final int MAX_SCAN=8192, MAX_ACTORS=256, MAX_DRONES=2048, MAX_WEAPONS=256;
     private static final float EPS=.0001f;
     private final CombatEngineAPI engine;
@@ -120,6 +120,10 @@ public final class PsychoframeEnhancement implements AutoCloseable {
             stats.getEnergyRoFMult().modifyMult(MODIFIER,rate/originalEnergy);
             stats.getBallisticRoFMult().modifyMult(MODIFIER,rate/originalBallistic);
             stats.getMissileRoFMult().modifyMult(MODIFIER,rate);
+            /* 赛克缪（F）开启时，浮游炮额外获得 +50% 能量武器伤害。
+               只作用于有真实母舰来源的无人机（source!=null）；母舰本体不吃这条，
+               那条线仍归 Moci_PsycommuSystem 原生域，避免双重叠加。 */
+            if(source!=null)stats.getEnergyWeaponDamageMult().modifyMult(MODIFIER,blend(DRONE_ENERGY_DAMAGE,value));
             updateWeapons(value);
         }
         void updateWeapons(float value){
@@ -137,7 +141,8 @@ public final class PsychoframeEnhancement implements AutoCloseable {
         }
         void reset(){
             effect=0f;for(MutableStat stat:new MutableStat[]{stats.getMaxSpeed(),stats.getAcceleration(),stats.getDeceleration(),stats.getMaxTurnRate(),stats.getTurnAcceleration(),
-                    stats.getAutofireAimAccuracy(),stats.getEnergyRoFMult(),stats.getBallisticRoFMult(),stats.getMissileRoFMult()})stat.unmodify(MODIFIER);
+                    stats.getAutofireAimAccuracy(),stats.getEnergyRoFMult(),stats.getBallisticRoFMult(),stats.getMissileRoFMult(),
+                    stats.getEnergyWeaponDamageMult()})stat.unmodify(MODIFIER);
             stats.getWeaponTurnRateBonus().unmodify(MODIFIER);stats.getBeamWeaponTurnRateBonus().unmodify(MODIFIER);
             for(SpreadChange change:spread.values())change.restore();spread.clear();
         }
@@ -152,6 +157,7 @@ public final class PsychoframeEnhancement implements AutoCloseable {
             row.put("movementMode",adapter?"Owned Hi-Nu callback port: real scripted speed/turn and native shot cooldown gate":privateMovement?"Unadapted original Hi-Nu private controller; movement boost unavailable through public stats":"Native movement stats");
             if(cannon!=null)row.put("handCannon",cannon.status());
             row.put("clonedSpreadWeapons",spread.size());row.put("originalEnergyRoFMult",originalEnergy);row.put("originalBallisticRoFMult",originalBallistic);
+            if(source!=null)row.put("droneEnergyDamageMult",blend(DRONE_ENERGY_DAMAGE,effect));
             row.put("weaponCooldownMult",blend(COOLDOWN_MULT,effect));return Collections.unmodifiableMap(row);}
     }
     private static float knownOriginal(MutableStat stat){MutableStat.StatMod original=stat.getMultStatMod(ORIGINAL_PSYCOMMU);

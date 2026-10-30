@@ -6,23 +6,32 @@ import org.lwjgl.util.vector.Vector2f;
 
 /** Read-only entry gate for the DSK execution presentation.
  * Scope and native firing/range remain the calling rifle controller's responsibility.
- * The user-defined weak-state OR is an execution trigger, never a damage forecast.
+ * Trigger policy: overloaded alone is enough; otherwise the armor-scaled hull threshold AND
+ * "no active defense" must both hold (thick armor resists the hull line; thin shieldless hulls
+ * fall in once their guard is down). This is a trigger, never a damage forecast.
  */
 public final class RifleExecutionGate {
+    /** 装甲数据不可读时的兜底处决线（沿用旧值 25%）。 */
     public static final float LOW_HULL_FRACTION=.25f;
+    /** 目标装甲低于自机：结构不高于 75% 即可处决。 */
+    public static final float LOW_HULL_BELOW_ARMOR=.75f;
+    /** 目标装甲与自机相等：结构不高于 50% 即可处决。 */
+    public static final float LOW_HULL_EQUAL_ARMOR=.50f;
+    /** 目标装甲达到自机两倍及以上：线压到此下限（10%）。 */
+    public static final float LOW_HULL_HEAVY_ARMOR=.10f;
     private static final int MAX_MODULES=128;
     private static final String SHIELD_SLOT="SHIELD_L";
     private RifleExecutionGate() { }
 
     public record Snapshot(boolean allowed,String reason,boolean overloaded,boolean lowHull,
-                           boolean undefended,float hullFraction,String lockEvidence) {
+                           boolean undefended,float hullFraction,float hullThreshold,String lockEvidence) {
         public Map<String,Object> status() {
             Map<String,Object> result=new LinkedHashMap<>();
             result.put("allowed",allowed);result.put("reason",reason);
             result.put("overloaded",overloaded);result.put("lowHull",lowHull);
             result.put("undefended",undefended);result.put("hullFraction",hullFraction);
-            result.put("lowHullThreshold",LOW_HULL_FRACTION);result.put("lockEvidence",lockEvidence);
-            result.put("policy","USER_WEAK_STATE_OR; not a lethal-damage prediction");
+            result.put("hullThreshold",hullThreshold);result.put("lockEvidence",lockEvidence);
+            result.put("policy","OVERLOAD_OR_(HULL_THRESHOLD_AND_NO_ACTIVE_DEFENSE); not a lethal-damage prediction");
             return Collections.unmodifiableMap(result);
         }
     }
@@ -31,18 +40,23 @@ public final class RifleExecutionGate {
 
     public static Snapshot evaluate(CombatEngineAPI engine,ShipAPI source,ShipAPI target) {
         Entry entry=entry(engine,source,target);
-        if(!entry.allowed)return new Snapshot(false,entry.reason,false,false,false,-1f,entry.evidence);
+        if(!entry.allowed)return new Snapshot(false,entry.reason,false,false,false,-1f,-1f,entry.evidence);
         float hp=target.getHitpoints(),max=target.getMaxHitpoints();
         if(!Float.isFinite(hp)||!Float.isFinite(max)||hp<=0||max<=0)
-            return new Snapshot(false,"目标结构数据不可用",false,false,false,-1f,entry.evidence);
+            return new Snapshot(false,"目标结构数据不可用",false,false,false,-1f,-1f,entry.evidence);
         float fraction=Math.max(0,Math.min(1,hp/max));
         boolean overloaded=target.getFluxTracker()!=null&&target.getFluxTracker().isOverloaded();
-        boolean low=fraction<=LOW_HULL_FRACTION;
+        float threshold=hullThreshold(source,target);
+        boolean low=fraction<=threshold;
         boolean undefended=!nativeShieldCovers(source,target)&&!physicalShieldPresent(engine,target);
-        boolean allowed=overloaded||low||undefended;
-        String reason=overloaded?"锁定目标超载，可处决":low?"锁定目标结构不高于25%，可处决":
-                undefended?"锁定目标当前无有效防护，可处决":"目标未满足超载、低结构或无防护条件";
-        return new Snapshot(allowed,reason,overloaded,low,undefended,fraction,entry.evidence);
+        /* 超载单独成立；否则必须"结构达到处决线"与"无有效防护"同时成立。 */
+        boolean allowed=overloaded||(low&&undefended);
+        String reason=overloaded?"锁定目标超载，可处决"
+                :low&&undefended?String.format(Locale.ROOT,"锁定目标结构不高于%.0f%%（装甲比%.2f倍）且无有效防护，可处决",threshold*100f,armorRatio(source,target))
+                :low?String.format(Locale.ROOT,"锁定目标结构已低于%.0f%%处决线，但仍有有效防护",threshold*100f)
+                :undefended?String.format(Locale.ROOT,"锁定目标无有效防护，但结构仍高于%.0f%%处决线",threshold*100f)
+                :String.format(Locale.ROOT,"目标未超载，且结构高于%.0f%%处决线、仍有有效防护",threshold*100f);
+        return new Snapshot(allowed,reason,overloaded,low,undefended,fraction,threshold,entry.evidence);
     }
 
     /** Once committed, retain only target identity and legality. A recovered weak state
@@ -76,6 +90,28 @@ public final class RifleExecutionGate {
         return new Entry(false,"当前焦点已不在本机共享锁定池","managed-target-missing");
     }
 
+    /** 处决结构线：目标装甲相对自机越低线越高 —— 低于 75%、相等 50%、两倍及以上线性压到 10%。
+     *  只读装甲评级（含统计修正），装甲数据不可用时退回旧常量，绝不放宽到不可验证。 */
+    public static float hullThreshold(ShipAPI source,ShipAPI target){
+        float own=armorRating(source),enemy=armorRating(target);
+        if(!(own>0f)||!Float.isFinite(own)||!(enemy>0f)||!Float.isFinite(enemy))return LOW_HULL_FRACTION;
+        float ratio=enemy/own;
+        if(ratio<1f)return LOW_HULL_BELOW_ARMOR;
+        if(ratio>=2f)return LOW_HULL_HEAVY_ARMOR;
+        return LOW_HULL_EQUAL_ARMOR+(LOW_HULL_HEAVY_ARMOR-LOW_HULL_EQUAL_ARMOR)*(ratio-1f);
+    }
+    /** 目标装甲 / 自机装甲，仅用于提示文案；取不到时给 -1。 */
+    public static float armorRatio(ShipAPI source,ShipAPI target){
+        float own=armorRating(source),enemy=armorRating(target);
+        return own>0f&&Float.isFinite(own)&&enemy>0f&&Float.isFinite(enemy)?enemy/own:-1f;
+    }
+    /** 装甲评级（原生伤害结算同源口径：hullSpec.getArmorRating() 经 getArmorBonus 修正）。 */
+    private static float armorRating(ShipAPI ship){
+        if(ship==null||ship.getMutableStats()==null||ship.getHullSpec()==null)return -1f;
+        try{float rating=ship.getMutableStats().getArmorBonus().computeEffective(ship.getHullSpec().getArmorRating());
+            return Float.isFinite(rating)?rating:-1f;}
+        catch(RuntimeException failure){return -1f;}
+    }
     private static boolean nativeShieldCovers(ShipAPI source,ShipAPI target) {
         ShieldAPI shield=target.getShield();
         if(shield==null||!shield.isOn()||shield.getType()==ShieldAPI.ShieldType.NONE

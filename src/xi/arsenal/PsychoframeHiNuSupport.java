@@ -67,28 +67,6 @@ public final class PsychoframeHiNuSupport {
         return actual==null||engine.getCustomData().get("nonAI_SAIF_"+String.valueOf(id))!=actual;
     }
 
-    /** Retains only the added cooldown portion when the original attack cycle intentionally clears
-     * its normal cooldown. Its clock is exactly the existing controller's amount * mother time. */
-    public static final class ShotGate {
-        private float remaining,lastNativeRemaining,lastAdded,lastMultiplier=1;
-        private long penalties;
-        public void advance(float originalLocalAmount){
-            if(!Float.isFinite(originalLocalAmount)||originalLocalAmount<0)throw new IllegalArgumentException("Invalid Hi-Nu controller clock");
-            remaining=Math.max(0,remaining-originalLocalAmount);
-        }
-        public void retainPenaltyAndResetNative(WeaponAPI weapon,ShipAPI mother){
-            float raw=weapon.getCooldownRemaining();lastNativeRemaining=Float.isFinite(raw)?Math.max(0,raw):0;
-            lastMultiplier=cooldownMult(mother);
-            lastAdded=lastNativeRemaining*(1-1/lastMultiplier);
-            remaining=Math.max(remaining,lastAdded);if(lastAdded>EPS)penalties++;
-            weapon.setRemainingCooldownTo(remaining);
-        }
-        public boolean allowsFire(WeaponAPI weapon){return remaining<=EPS&&weapon!=null&&weapon.getCooldownRemaining()<=EPS;}
-        public float remaining(){return remaining;}
-        public Map<String,Object> status(){return Map.of("remaining",remaining,"lastNativeRemaining",lastNativeRemaining,
-                "lastAdded",lastAdded,"lastMultiplier",lastMultiplier,"penalties",penalties);}
-    }
-
     /** A bounded read-only business probe. Counts actual native bright-beam edges separately from
      * the original controller's FIRE requests; it never fires, advances or modifies a weapon. */
     public static final class Probe {
@@ -98,7 +76,7 @@ public final class PsychoframeHiNuSupport {
         private boolean wasBright;private String previousStage="";private long advances,beamPulses,fireRequests;
         public void fireRequested(){fireRequests++;}
         public void record(ShipAPI drone,WeaponAPI source,WeaponAPI gun,String stage,int point,int attackCount,
-                           float returnCooldown,ShotGate gate){
+                           float returnCooldown){
             boolean bright=gun!=null&&gun.getBeams().stream().anyMatch(beam->beam.getBrightness()>EPS);
             if(bright&&!wasBright){beamPulses++;event("native-beam-bright-edge",stage,drone);}wasBright=bright;
             if(!Objects.equals(stage,previousStage)){event("stage",stage,drone);previousStage=stage;}
@@ -112,7 +90,7 @@ public final class PsychoframeHiNuSupport {
             facts.put("effectiveScriptSpeed",600*movementMult(mother));facts.put("effectiveScriptTurn",720*turnMult(mother));
             facts.put("clock","original amount * mother.timeMult.getMult; no owned time multiplier");
             facts.put("motherTimeMult",mother.getMutableStats().getTimeMult().getMult());facts.put("originalReturnCooldown",returnCooldown);
-            facts.put("originalAttackCount",attackCount);facts.put("shotGate",gate.status());facts.put("nativeBeamPulseCount",beamPulses);
+            facts.put("originalAttackCount",attackCount);facts.put("nativeBeamPulseCount",beamPulses);
             facts.put("fireCommandCount",fireRequests);facts.put("nativeBeamBright",bright);facts.put("callbackObservations",advances);
             facts.put("nativeWeapon",gun==null?"":gun.getId());facts.put("nativeCooldown",gun==null?0:gun.getCooldownRemaining());
             facts.put("events",List.copyOf(events));drone.setCustomData(KEY,view);
