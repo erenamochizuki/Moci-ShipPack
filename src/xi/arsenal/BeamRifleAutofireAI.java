@@ -78,7 +78,9 @@ public final class BeamRifleAutofireAI implements AutofireAIPlugin {
     /** SKIRMISH 最短驻留：点射档位同样要稳。 */
     private static final float SKIRMISH_MIN_SECONDS = 0.6f;
 
-    /** DUEL 单轮照射上限：蓄力枪整场只有 36 发且不回复，一次别烧穿。 */
+    /** DUEL 单轮预算：蓄力枪整场只有 36 发且不回复，一次别烧穿。
+     *  一轮完整射击是 1.5 秒蓄力 + 约 1.355 秒照射，本身就超过 2.5 秒；
+     *  预算真正截断的是迟迟等不到射击窗口的蓄力，已经开火的照射由 refreshStance 放行到照完。 */
     private static final float DUEL_BURST_SECONDS = 2.5f;
 
     /** 一轮照射之后的强制休息：这段时间只打点射，给弹仓和节奏都留口气。 */
@@ -237,8 +239,10 @@ public final class BeamRifleAutofireAI implements AutofireAIPlugin {
      *  WINDUP 段绝不扣扳机，蓄满才允许发射，照射时长与伤害倍率同取这一档。 */
     private boolean shouldFireCharge(WeaponAPI held, ShipAPI ship, AiMode stance) {
         if (stance != AiMode.DUEL) {
-            // 退出照射档：把扳机时钟压回冷却起点，下次进档必须重新蓄满 1.5 秒。
-            cadence = Cadence.COOLDOWN;
+            /* 退出照射档：把扳机时钟压回蓄力起点，下次进档立刻开始重新蓄满 1.5 秒。
+               不能压回 COOLDOWN：冷却 1.0 + 蓄力 1.5 恰好等于 DUEL_BURST_SECONDS，
+               整轮预算会在 FIRE 之前耗尽，AI 只举枪蓄力、永远打不出蓄力照射。 */
+            cadence = Cadence.WINDUP;
             cadenceSince = Double.NaN;
             BeamRifleModes.noteAiCharge(ship, 0f);
             BeamRifleModes.noteAiFiring(ship, false);
@@ -347,6 +351,14 @@ public final class BeamRifleAutofireAI implements AutofireAIPlugin {
         }
         sampleHull(ship, state, now);
         state.chargeEmpty = held.usesAmmo() && held.getAmmo() <= 0;
+
+        /* 蓄满后已经扣下扳机的这一发必须照完：FIRE 期间不做整轮收手、也不切档，
+           只由 tick() 的照射时长或目标失效收束（两者必然发生，不会卡死在 FIRE）。
+           否则 1.5 秒蓄力 + 约 1.355 秒照射超出 DUEL_BURST_SECONDS，照射会被腰斩。 */
+        if (state.mode == AiMode.DUEL && cadence == Cadence.FIRE) {
+            publishStance(ship, state);
+            return;
+        }
 
         boolean resting = now < state.duelRestUntil;
         String reason = "";

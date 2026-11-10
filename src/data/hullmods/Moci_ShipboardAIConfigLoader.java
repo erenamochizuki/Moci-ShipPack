@@ -183,6 +183,364 @@ public class Moci_ShipboardAIConfigLoader {
         return resolveAiTypeForMember(member) != null;
     }
 
+    // ---------------- 可选立绘配置 Moci_ShipboardAI_Illustrations.json（作战小队弹窗 AI 页用） ----------------
+    private static final String ILLUSTRATIONS_PATH = "data/config/Moci_ShipboardAI/Moci_ShipboardAI_Illustrations.json";
+    private static final String ILLUSTRATIONS_MOD_ID = "moci_shippack";
+    private static final Object ILLUSTRATION_LOCK = new Object();
+    /** ai_id → 配置里写的图片路径。第一次调用 getIllustration 时读一次文件，之后不再读。 */
+    private static final Map<String, String> ILLUSTRATION_PATHS = new LinkedHashMap<>();
+    /** ai_id → 结果：贴图已加载的路径，或 null（没配置 / 加载失败）。同一个 AI 不会重复加载贴图、重复打日志。 */
+    private static final Map<String, String> ILLUSTRATION_CACHE = new LinkedHashMap<>();
+    private static boolean illustrationsLoaded = false;
+
+    /**
+     * 读可选的 Moci_ShipboardAI_Illustrations.json，返回该 AI 的立绘路径（贴图已确保加载）；
+     * 没配置、文件不存在或贴图加载失败都返回 null，调用方改用头像。aiId 先按原样查，查不到再按规范 ID（旧 ID 映射）查。
+     */
+    public static String getIllustration(String aiId) {
+        if (aiId == null) {
+            return null;
+        }
+        String key = aiId.trim();
+        if (key.isEmpty()) {
+            return null;
+        }
+        synchronized (ILLUSTRATION_LOCK) {
+            if (ILLUSTRATION_CACHE.containsKey(key)) {
+                return ILLUSTRATION_CACHE.get(key);
+            }
+            ensureIllustrationsLoaded();
+            String path = ILLUSTRATION_PATHS.get(key);
+            if (path == null) {
+                String canonical = Moci_ShipboardAISystemRegistry.getCanonicalAiTypeId(key);
+                if (canonical != null && !canonical.equals(key)) {
+                    path = ILLUSTRATION_PATHS.get(canonical);
+                }
+            }
+            String result = path == null ? null : ensureIllustrationTexture(key, path);
+            ILLUSTRATION_CACHE.put(key, result);
+            return result;
+        }
+    }
+
+    private static void ensureIllustrationsLoaded() {
+        if (illustrationsLoaded) {
+            return;
+        }
+        illustrationsLoaded = true;
+        ILLUSTRATION_PATHS.clear();
+        ILLUSTRATION_SPECS.clear();
+        ILLUSTRATION_STAGES.clear();
+        JSONObject root = loadIllustrationsJson();
+        if (root == null) {
+            return;
+        }
+        JSONObject table = root.optJSONObject("illustrations");
+        if (table == null) {
+            LOG.warn("[Moci_ShipboardAI] 立绘配置缺少 illustrations 对象，按空表处理: " + ILLUSTRATIONS_PATH);
+            return;
+        }
+        java.util.Iterator<?> it = table.keys();
+        while (it.hasNext()) {
+            Object rawKey = it.next();
+            if (rawKey == null) {
+                continue;
+            }
+            String jsonKey = String.valueOf(rawKey);
+            String id = jsonKey.trim();
+            if (id.isEmpty() || id.startsWith("_") || id.startsWith("#") || table.isNull(jsonKey)) {
+                continue;
+            }
+            JSONObject obj = table.optJSONObject(jsonKey);
+            if (obj != null) {
+                List<IllustrationStage> stages = parseIllustrationStages(id, obj);
+                // 只写 stages、顶层没写 image 时，不分等级的那一条就用第一个阶段
+                IllustrationSpec spec = cleanIllustrationPath(obj.optString("image", "")) == null && !stages.isEmpty()
+                        ? stages.get(0).spec : parseIllustrationSpec(id, obj, null);
+                if (spec != null) {
+                    ILLUSTRATION_PATHS.put(id, spec.image);
+                    ILLUSTRATION_SPECS.put(id, spec);
+                    if (!stages.isEmpty()) {
+                        ILLUSTRATION_STAGES.put(id, stages);
+                    }
+                }
+                continue;
+            }
+            String path = cleanIllustrationPath(table.optString(jsonKey, ""));
+            if (path != null) {
+                ILLUSTRATION_PATHS.put(id, path);
+            }
+        }
+        LOG.info("[Moci_ShipboardAI] 立绘配置加载完成: " + ILLUSTRATION_PATHS.size() + " 条（其中带动画/背景 "
+                + ILLUSTRATION_SPECS.size() + " 条，按等级分阶段 " + ILLUSTRATION_STAGES.size() + " 条）");
+    }
+
+    private static String cleanIllustrationPath(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String path = raw.trim().replace('\\', '/');
+        return path.isEmpty() ? null : path;
+    }
+
+    /**
+     * 对象写法：image 必填；sheet + cols/rows/frames/fps 是序列帧；backdrop + backdropSpin/backdropAlpha 是背景旋转图。
+     * defaults 不为 null 时（stages 里的一个阶段）：没写的 cols/rows/frames/fps/backdrop/backdropSpin/backdropAlpha 沿用顶层；
+     * sheet 不沿用（序列帧和静态图是一套，阶段没写 sheet 就只显示它自己的静态图）；backdrop 写空字符串表示这个阶段不要背景。
+     */
+    private static IllustrationSpec parseIllustrationSpec(String id, JSONObject o, JSONObject defaults) {
+        String image = cleanIllustrationPath(o.optString("image", ""));
+        if (image == null) {
+            LOG.warn("[Moci_ShipboardAI] 立绘配置 " + id + " 缺少 image，已忽略");
+            return null;
+        }
+        String sheet = cleanIllustrationPath(o.optString("sheet", ""));
+        int cols = inheritInt(o, defaults, "cols", 0);
+        int rows = inheritInt(o, defaults, "rows", 0);
+        int frames = inheritInt(o, defaults, "frames", cols * rows);
+        float fps = (float) inheritDouble(o, defaults, "fps", 3.0);
+        if (sheet != null && (cols <= 0 || rows <= 0 || frames <= 1 || frames > cols * rows || fps <= 0f)) {
+            LOG.warn("[Moci_ShipboardAI] 立绘配置 " + id + " 的序列帧参数无效（cols=" + cols + ", rows=" + rows
+                    + ", frames=" + frames + ", fps=" + fps + "），只显示静态图");
+            sheet = null;
+        }
+        JSONObject backdropSource = o.has("backdrop") || defaults == null ? o : defaults;
+        String backdrop = cleanIllustrationPath(backdropSource.optString("backdrop", ""));
+        float spin = (float) inheritDouble(o, defaults, "backdropSpin", 4.0);
+        float alpha = (float) Math.max(0.0, Math.min(1.0, inheritDouble(o, defaults, "backdropAlpha", 1.0)));
+        return new IllustrationSpec(image, sheet, cols, rows, frames, Math.min(30f, fps), backdrop, spin, alpha);
+    }
+
+    private static int inheritInt(JSONObject o, JSONObject defaults, String key, int fallback) {
+        if (o.has(key) || defaults == null) {
+            return o.optInt(key, fallback);
+        }
+        return defaults.optInt(key, fallback);
+    }
+
+    private static double inheritDouble(JSONObject o, JSONObject defaults, String key, double fallback) {
+        if (o.has(key) || defaults == null) {
+            return o.optDouble(key, fallback);
+        }
+        return defaults.optDouble(key, fallback);
+    }
+
+    /**
+     * 可选的 "stages": [{ "minLevel": 7, "image": …, "sheet": … }, …]：AI 等级 ≥ minLevel 的最后一个阶段生效，
+     * 等级低于所有阶段时用第一个阶段。按 minLevel 从小到大排序；minLevel 缺失、重复或 image 缺失的阶段记 warn 后跳过。
+     */
+    private static List<IllustrationStage> parseIllustrationStages(String id, JSONObject o) {
+        List<IllustrationStage> out = new ArrayList<>();
+        JSONArray arr = o.optJSONArray("stages");
+        if (arr == null) {
+            return out;
+        }
+        Set<Integer> seen = new LinkedHashSet<>();
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject s = arr.optJSONObject(i);
+            if (s == null || !s.has("minLevel")) {
+                LOG.warn("[Moci_ShipboardAI] 立绘配置 " + id + " 的第 " + (i + 1) + " 个阶段缺少 minLevel，已忽略");
+                continue;
+            }
+            int minLevel = s.optInt("minLevel", 0);
+            if (!seen.add(minLevel)) {
+                LOG.warn("[Moci_ShipboardAI] 立绘配置 " + id + " 有两个阶段的 minLevel 都是 " + minLevel + "，后一个已忽略");
+                continue;
+            }
+            IllustrationSpec spec = parseIllustrationSpec(id + "#" + minLevel, s, o);
+            if (spec != null) {
+                out.add(new IllustrationStage(minLevel, spec));
+            }
+        }
+        out.sort((a, b) -> Integer.compare(a.minLevel, b.minLevel));
+        return out;
+    }
+
+    /** 按 AI 等级分的一个立绘阶段（贴图未加载）。 */
+    private static final class IllustrationStage {
+        final int minLevel;
+        final IllustrationSpec spec;
+
+        IllustrationStage(int minLevel, IllustrationSpec spec) {
+            this.minLevel = minLevel;
+            this.spec = spec;
+        }
+    }
+
+    /** 立绘配置（对象写法的完整内容；字符串写法只有 image）。sheet / backdrop 为 null 表示没有或贴图加载失败。 */
+    public static final class IllustrationSpec {
+        public final String image;
+        public final String sheet;
+        public final int cols;
+        public final int rows;
+        public final int frames;
+        public final float fps;
+        public final String backdrop;
+        public final float backdropSpin;
+        public final float backdropAlpha;
+
+        IllustrationSpec(String image, String sheet, int cols, int rows, int frames, float fps,
+                         String backdrop, float backdropSpin, float backdropAlpha) {
+            this.image = image;
+            this.sheet = sheet;
+            this.cols = cols;
+            this.rows = rows;
+            this.frames = frames;
+            this.fps = fps;
+            this.backdrop = backdrop;
+            this.backdropSpin = backdropSpin;
+            this.backdropAlpha = backdropAlpha;
+        }
+
+        public boolean hasSheet() {
+            return sheet != null;
+        }
+
+        public boolean hasBackdrop() {
+            return backdrop != null;
+        }
+
+        IllustrationSpec withTextures(String loadedSheet, String loadedBackdrop) {
+            return new IllustrationSpec(image, loadedSheet, cols, rows, frames, fps, loadedBackdrop, backdropSpin, backdropAlpha);
+        }
+    }
+
+    /** ai_id → 对象写法的配置（未加载贴图）。 */
+    private static final Map<String, IllustrationSpec> ILLUSTRATION_SPECS = new LinkedHashMap<>();
+    /** ai_id → 结果：静态图、序列帧、背景都已确认加载；null = 没配置或静态图加载失败。 */
+    private static final Map<String, IllustrationSpec> ILLUSTRATION_SPEC_CACHE = new LinkedHashMap<>();
+
+    /**
+     * 立绘完整配置：静态图（同 {@link #getIllustration}）+ 可选序列帧 + 可选背景旋转图，贴图都已加载。
+     * 字符串写法只有静态图；序列帧或背景贴图加载失败时对应字段为 null（记一条 warn），静态图照常可用。
+     * 没配置或静态图加载失败返回 null，调用方改用头像。
+     */
+    public static IllustrationSpec getIllustrationSpec(String aiId) {
+        String image = getIllustration(aiId);
+        if (image == null) {
+            return null;
+        }
+        String key = aiId.trim();
+        synchronized (ILLUSTRATION_LOCK) {
+            if (ILLUSTRATION_SPEC_CACHE.containsKey(key)) {
+                return ILLUSTRATION_SPEC_CACHE.get(key);
+            }
+            IllustrationSpec raw = ILLUSTRATION_SPECS.get(key);
+            if (raw == null) {
+                String canonical = Moci_ShipboardAISystemRegistry.getCanonicalAiTypeId(key);
+                if (canonical != null && !canonical.equals(key)) {
+                    raw = ILLUSTRATION_SPECS.get(canonical);
+                }
+            }
+            IllustrationSpec result;
+            if (raw == null) {
+                result = new IllustrationSpec(image, null, 0, 0, 0, 0f, null, 0f, 0f);
+            } else {
+                String sheet = raw.sheet == null ? null : ensureIllustrationTexture(key + "(序列帧)", raw.sheet);
+                String backdrop = raw.backdrop == null ? null : ensureIllustrationTexture(key + "(背景)", raw.backdrop);
+                result = raw.withTextures(sheet, backdrop);
+            }
+            ILLUSTRATION_SPEC_CACHE.put(key, result);
+            return result;
+        }
+    }
+
+    /** ai_id → 按等级分的阶段（未加载贴图）；没写 stages 的 AI 不在表里。 */
+    private static final Map<String, List<IllustrationStage>> ILLUSTRATION_STAGES = new LinkedHashMap<>();
+    /** "ai_id#阶段序号" → 该阶段贴图已加载的配置；null = 这个阶段的静态图加载失败（调用方退回不分等级的那一条）。 */
+    private static final Map<String, IllustrationSpec> ILLUSTRATION_STAGE_CACHE = new LinkedHashMap<>();
+    /** 已经成功 loadTexture 的路径：换阶段、不同 AI 共用同一张图时不重复加载。 */
+    private static final Set<String> LOADED_ILLUSTRATION_TEXTURES = new LinkedHashSet<>();
+
+    /**
+     * 按 AI 等级取立绘：配置里写了 stages 的，取 minLevel ≤ level 的最后一个阶段（等级低于所有阶段时取第一个），
+     * 只加载这个阶段的贴图；没写 stages 的和 {@link #getIllustrationSpec(String)} 一样。
+     * 阶段的静态图加载失败时退回不分等级的那一条（再失败就返回 null，调用方改用头像）。
+     */
+    public static IllustrationSpec getIllustrationSpec(String aiId, int level) {
+        if (aiId == null || aiId.trim().isEmpty()) {
+            return null;
+        }
+        String key = aiId.trim();
+        synchronized (ILLUSTRATION_LOCK) {
+            ensureIllustrationsLoaded();
+            List<IllustrationStage> stages = ILLUSTRATION_STAGES.get(key);
+            if (stages == null) {
+                String canonical = Moci_ShipboardAISystemRegistry.getCanonicalAiTypeId(key);
+                if (canonical != null && !canonical.equals(key)) {
+                    stages = ILLUSTRATION_STAGES.get(canonical);
+                }
+            }
+            if (stages != null && !stages.isEmpty()) {
+                int index = 0;
+                for (int i = 0; i < stages.size(); i++) {
+                    if (stages.get(i).minLevel <= level) {
+                        index = i;
+                    }
+                }
+                String cacheKey = key + "#" + index;
+                IllustrationSpec loaded;
+                if (ILLUSTRATION_STAGE_CACHE.containsKey(cacheKey)) {
+                    loaded = ILLUSTRATION_STAGE_CACHE.get(cacheKey);
+                } else {
+                    IllustrationSpec raw = stages.get(index).spec;
+                    String label = key + "(阶段 " + (index + 1) + ")";
+                    loaded = null;
+                    if (ensureIllustrationTexture(label, raw.image) != null) {
+                        String sheet = raw.sheet == null ? null : ensureIllustrationTexture(label + "(序列帧)", raw.sheet);
+                        String backdrop = raw.backdrop == null ? null : ensureIllustrationTexture(label + "(背景)", raw.backdrop);
+                        loaded = raw.withTextures(sheet, backdrop);
+                    }
+                    ILLUSTRATION_STAGE_CACHE.put(cacheKey, loaded);
+                }
+                if (loaded != null) {
+                    return loaded;
+                }
+            }
+        }
+        return getIllustrationSpec(aiId);
+    }
+
+    /** 先按本 mod 读，失败再退回全局路径。文件不存在当作空表，只记一条 info；文件存在但解析失败记一条 warn。 */
+    private static JSONObject loadIllustrationsJson() {
+        Exception first;
+        try {
+            return Global.getSettings().loadJSON(ILLUSTRATIONS_PATH, ILLUSTRATIONS_MOD_ID);
+        } catch (Exception ex) {
+            first = ex;
+        }
+        try {
+            return Global.getSettings().loadJSON(ILLUSTRATIONS_PATH);
+        } catch (Exception ex) {
+            Exception parse = first instanceof org.json.JSONException ? first
+                    : (ex instanceof org.json.JSONException ? ex : null);
+            if (parse != null) {
+                LOG.warn("[Moci_ShipboardAI] 立绘配置解析失败，按空表处理: " + ILLUSTRATIONS_PATH
+                        + ", error=" + parse.getMessage());
+            } else {
+                LOG.info("[Moci_ShipboardAI] 没有立绘配置，按空表处理（所有 AI 用头像）: " + ILLUSTRATIONS_PATH
+                        + ", reason=" + ex.getMessage());
+            }
+            return null;
+        }
+    }
+
+    /** 确保立绘贴图已加载；失败记一条 warn 并返回 null（调用方改用头像）。 */
+    private static String ensureIllustrationTexture(String aiId, String path) {
+        if (LOADED_ILLUSTRATION_TEXTURES.contains(path)) {
+            return path;
+        }
+        try {
+            Global.getSettings().loadTexture(path);
+            LOADED_ILLUSTRATION_TEXTURES.add(path);
+            return path;
+        } catch (Exception ex) {
+            LOG.warn("[Moci_ShipboardAI] 立绘贴图加载失败，改用头像: aiId=" + aiId + ", path=" + path
+                    + ", error=" + ex.getMessage());
+            return null;
+        }
+    }
+
     private static void ensureLoaded() {
         if (!loaded) {
             loadAllConfigs();
@@ -326,14 +684,14 @@ public class Moci_ShipboardAIConfigLoader {
         );
 
         AITypeDefinition nine = new AITypeDefinition(
-                "Moci_Nine", "ai奈因", "graphics/portraits/ai_pilot/Moci_Nine.png", false, 10,
+                "Moci_Nine", "奈因", "graphics/portraits/ai_pilot/Moci_Nine.png", false, 11,
                 Personalities.AGGRESSIVE, DEFAULT_AI_RANK_ID,
                 getDefaultSkillPool(),
                 Arrays.asList(com.fs.starfarer.api.impl.campaign.ids.Skills.TARGET_ANALYSIS),
                 7,
                 Arrays.asList(Moci_ShipboardAIAuxEffectRegistry.AUX_DAMAGE_CONTROL),
                 getDefaultAuxPool(),
-                true, false, 10, true, true, true, new ArrayList<String>()
+                true, false, 11, true, true, true, new ArrayList<String>()
         );
 
         AITypeDefinition haro = new AITypeDefinition(

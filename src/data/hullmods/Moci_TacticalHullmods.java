@@ -14,12 +14,12 @@ import java.util.List;
  * 战术改装由 hull_mods.csv 的 tags 列中的 {@code moci_tactical} 标记识别；内置项包括：
  * <ul>
  *     <li>{@link #HARDENED_SHIELD} 强化护盾</li>
- *     <li>{@link #EXPANDED_MAGAZINES} 弹匣扩容</li>
- *     <li>{@link #EXPANDED_MISSILE_RACKS} 导弹挂架</li>
+ *     <li>{@link #EXPANDED_MAGAZINES} 扩展弹仓</li>
+ *     <li>{@link #EXPANDED_MISSILE_RACKS} 扩展发射架</li>
  *     <li>{@link #ADVANCED_OPTICS} 先进光学器件</li>
  *     <li>{@link #HEAVY_ARMOR} 重型装甲</li>
  * </ul>
- * 防御与输出各选一项；切换一组不影响另一组。
+ * 战术改装分防御组和火力组，每组最多一项；按 tags 判组（见 {@link #group}）。切换一组不影响另一组。
  * 本类只做纯工具调用，不持有状态、不读存档、不依赖 devMode。
  * </p>
  */
@@ -33,9 +33,9 @@ public final class Moci_TacticalHullmods {
 
     /** 战术改装：强化护盾。 */
     public static final String HARDENED_SHIELD = "moci_tactical_hardened_shield";
-    /** 战术改装：弹匣扩容。 */
+    /** 战术改装：扩展弹仓。 */
     public static final String EXPANDED_MAGAZINES = "moci_tactical_expanded_magazines";
-    /** 战术改装：导弹挂架。 */
+    /** 战术改装：扩展发射架。 */
     public static final String EXPANDED_MISSILE_RACKS = "moci_tactical_expanded_missile_racks";
     public static final String ADVANCED_OPTICS = "moci_tactical_advanced_optics";
     public static final String HEAVY_ARMOR = "moci_tactical_heavy_armor";
@@ -45,10 +45,10 @@ public final class Moci_TacticalHullmods {
     private static final String FALLBACK_SPRITE_EXPANDED_MAGAZINES = "graphics/hullmods/expanded_magazines2.png";
     private static final String FALLBACK_SPRITE_EXPANDED_MISSILE_RACKS = "graphics/hullmods/expanded_missile_racks.png";
 
-    /** 战术改装的兜底显示名，仅在 CSV/运行时规格缺失时使用。 */
+    /** 战术改装的兜底显示名，与原版对应船插的名字一致，仅在 CSV/运行时规格缺失时使用。 */
     private static final String FALLBACK_NAME_HARDENED_SHIELD = "强化护盾";
-    private static final String FALLBACK_NAME_EXPANDED_MAGAZINES = "弹匣扩容";
-    private static final String FALLBACK_NAME_EXPANDED_MISSILE_RACKS = "导弹挂架";
+    private static final String FALLBACK_NAME_EXPANDED_MAGAZINES = "扩展弹仓";
+    private static final String FALLBACK_NAME_EXPANDED_MISSILE_RACKS = "扩展发射架";
 
     private Moci_TacticalHullmods() {
     }
@@ -68,34 +68,26 @@ public final class Moci_TacticalHullmods {
      * 读取船插的运行时规格。
      *
      * @param hullmodId 船插 id，可为 null
-     * @return 已注册的规格；未注册或读取失败返回 null
+     * @return 已注册的规格；id 为空、settings 尚未注入（加载前或测试环境）或 id 未注册时返回 null
      */
     public static HullModSpecAPI spec(String hullmodId) {
-        try {
-            if (hullmodId == null || hullmodId.isEmpty()) return null;
-            if (Global.getSettings() == null) return null;
-            return Global.getSettings().getHullModSpec(hullmodId);
-        } catch (Throwable t) {
-            // 规格表未加载完成、id 未注册或混淆接口变动时都不应打断 UI/服务层
-            return null;
-        }
+        if (hullmodId == null || hullmodId.isEmpty()) return null;
+        if (Global.getSettings() == null) return null;
+        // 0.98 引擎的 getHullModSpec 对未注册的 id 返回 null、不抛异常（已用 javap 核对 SpecStore），所以这里不需要 try/catch。
+        return Global.getSettings().getHullModSpec(hullmodId);
     }
 
     /**
      * 取战术改装的图标 sprite 路径，供 UI 直接绘制。
      *
      * @param hullmodId 船插 id，可为 null
-     * @return sprite 路径；未知 id 返回 null
+     * @return 规格里的 sprite 路径；规格缺失或未配置贴图时退回内置路径；未知 id 返回 null
      */
     public static String sprite(String hullmodId) {
-        try {
-            HullModSpecAPI hullModSpec = spec(hullmodId);
-            if (hullModSpec != null) {
-                String sprite = hullModSpec.getSpriteName();
-                if (sprite != null && !sprite.isEmpty()) return sprite;
-            }
-        } catch (Throwable t) {
-            // 忽略规格读取异常，退回内置兜底路径
+        HullModSpecAPI hullModSpec = spec(hullmodId);
+        if (hullModSpec != null) {
+            String sprite = hullModSpec.getSpriteName();
+            if (sprite != null && !sprite.isEmpty()) return sprite;
         }
         return fallbackSprite(hullmodId);
     }
@@ -104,36 +96,21 @@ public final class Moci_TacticalHullmods {
      * 取战术改装的显示名，供 UI 在规格缺失时仍能显示条目。
      *
      * @param hullmodId 船插 id，可为 null
-     * @return 显示名；未知 id 返回 null
+     * @return 规格里的显示名；规格缺失或名字为空时退回内置名字；未知 id 返回 null
      */
     public static String displayName(String hullmodId) {
-        try {
-            HullModSpecAPI hullModSpec = spec(hullmodId);
-            if (hullModSpec != null) {
-                String name = hullModSpec.getDisplayName();
-                if (name != null && !name.isEmpty()) return name;
-            }
-        } catch (Throwable t) {
-            // 忽略规格读取异常，退回内置兜底名称
+        HullModSpecAPI hullModSpec = spec(hullmodId);
+        if (hullModSpec != null) {
+            String name = hullModSpec.getDisplayName();
+            if (name != null && !name.isEmpty()) return name;
         }
         return fallbackName(hullmodId);
     }
 
     /**
-     * 把 variant 上的战术改装切换为指定项。
-     * <p>
-     * 空选（null 或非战术改装 id）表示移除全部战术改装，即「不选」。写入前会先移除所有带标记的战术插，
-     * 因此同一 variant 上最多只会存在一个战术改装。
-     * </p>
-     *
-     * @param variant         战舰/战机联队 variant，可为 null
-     * @param selectedIdOrNull 选中的战术改装 id，null 表示清空
+     * 按 tags 判组：带 {@link #DEFENSE_TAG} 的是防御组，内置的强化护盾和重型装甲即使规格缺失也算防御组；
+     * 其余战术改装（包括没有组 tag 的扩展项）都归火力组。
      */
-    public static void applyToVariant(ShipVariantAPI variant, String selectedIdOrNull) {
-        applySelections(variant, selectedIdOrNull == null ? List.of() : List.of(selectedIdOrNull));
-    }
-
-    /** Tagged extensions without a group retain an output slot by default. */
     public static Group group(String id) {
         HullModSpecAPI spec = spec(id);
         return HARDENED_SHIELD.equals(id) || HEAVY_ARMOR.equals(id)
@@ -181,33 +158,6 @@ public final class Moci_TacticalHullmods {
         return List.copyOf(ids);
     }
 
-    /**
-     * 读取 variant 当前的战术改装。
-     *
-     * @param variant 战舰/战机联队 variant，可为 null
-     * @return variant 上第一个带战术改装标记的船插 id，没有则 null
-     */
-    public static String selected(ShipVariantAPI variant) {
-        if (variant == null) return null;
-        try {
-            for (String id : variant.getHullMods()) {
-                if (isTactical(id)) return id;
-            }
-        } catch (Throwable t) {
-            return null;
-        }
-        return null;
-    }
-
-    /**
-     * 取 variant 上是否已安装任意战术改装。
-     *
-     * @param variant 战舰/战机联队 variant，可为 null
-     * @return 已安装任一战术改装返回 true
-     */
-    public static boolean hasAny(ShipVariantAPI variant) {
-        return selected(variant) != null;
-    }
 
     /**
      * 取全部战术改装 id 的只读副本，便于 UI 遍历时避免直接暴露内部列表。

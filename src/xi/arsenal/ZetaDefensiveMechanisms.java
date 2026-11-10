@@ -5,6 +5,7 @@ import com.fs.starfarer.api.combat.listeners.*;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.loading.*;
 import com.fs.starfarer.combat.entities.MovingRay;
+import data.subsystems.Moci_HotkeySubsystem;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.function.BooleanSupplier;
@@ -26,32 +27,33 @@ public final class ZetaDefensiveMechanisms implements AutoCloseable,DamageTakenM
         /** True only when this exact native damage has actually been intercepted by the owner. */
         boolean intercept(Object source,CombatEntityAPI target,DamageAPI damage,Vector2f point,boolean shieldHit);
     }
-    @FunctionalInterface interface BindingPicker {OwnNewtypeBindings.Result choose(CombatEngineAPI e,ShipAPI s,int current);}
     private final Thread owner=Thread.currentThread();private final CombatEngineAPI engine;private final ShipAPI ship;
-    private final Supplier<ZetaRifleModes.ReloadResult> refill;private final BindingPicker bindingPicker;
-    private final String reservationTag=KEY+"@"+Integer.toUnsignedString(System.identityHashCode(this));
+    private final Supplier<ZetaRifleModes.ReloadResult> refill;
+    /** 换弹键的 MagicLib 子系统；挂载失败时为 null，按「没有键」处理。 */
+    private final Hotkey hotkey;
     private final Map<WeaponAPI,FluxLease> fluxLeases=new IdentityHashMap<>();
     private final Map<DamageAPI,DamageLease> damageLeases=new IdentityHashMap<>();
     private static final class DamageLease {final Set<CombatEntityAPI> absorbedTargets=Collections.newSetFromMap(new IdentityHashMap<>());}
     private final Set<DamagingProjectileAPI> seenShots=Collections.newSetFromMap(new IdentityHashMap<>());private final ArrayDeque<DamagingProjectileAPI> shotOrder=new ArrayDeque<>();
     private final Set<WeaponAPI> counterPending=Collections.newSetFromMap(new IdentityHashMap<>());private final Map<MissileAPI,ShipAPI> guidancePending=new IdentityHashMap<>();
     private OpticalDeflectionGuard deflection=(source,target,damage,point,shield)->false;
-    private OwnNewtypeBindings.Result binding=new OwnNewtypeBindings.Result(false,List.of(),"等待驾驶机体");
+    private Moci_HotkeySubsystem.Binding binding=Moci_HotkeySubsystem.Binding.none("等待驾驶机体");
     private ShipAPI shield,counterTarget;private List<WeaponAPI> launchers=List.of();
     private boolean launchersGrouped;private BooleanSupplier reloadAuthority;
     private boolean closed,bio,waveRider,reloadHeld,reloadLatched,autoPending,autoUsed,autoAwaiting;
     private float wrDamageMultiplier=WR_DAMAGE_MULT;
     private int ecaps=DEFAULT_ECAPS,heldKey=Keyboard.KEY_NONE;private float hold,bindingDelay,counterCooldown,counterPendingTime,autoConfirmTime,autoRetry,previousHp=1,lastNativeStep=.016f;
-    private String reloadReason="长按空闲字母键更换E-cap",counterReason="等待实体盾受伤",autoReason="首次低于50%结构时自动启动";
+    private String reloadReason="长按换弹键更换E-cap",counterReason="等待实体盾受伤",autoReason="首次低于50%结构时自动启动";
     private double absorbedFlux,removedFlux;private long reloads,reloadRefusals,counterTriggers,counterShots,autoAttempts,autoActivations,autoSatisfiedByExisting,leaseConflicts,budgetSkips,absorbEvents,deflectionYields;
 
     public ZetaDefensiveMechanisms(CombatEngineAPI engine,ShipAPI ship,ZetaRifleModes rifle){
-        this(engine,ship,Objects.requireNonNull(rifle)::refillMagazine,(e,s,k)->OwnNewtypeBindings.select(e,s,k,Map.of(Keyboard.KEY_X,"Z变形",Keyboard.KEY_N,"Moci 子系统信息显示")));
+        this(engine,ship,Objects.requireNonNull(rifle)::refillMagazine);
     }
-    ZetaDefensiveMechanisms(CombatEngineAPI engine,ShipAPI ship,Supplier<ZetaRifleModes.ReloadResult> refill,BindingPicker bindings){
-        this.engine=Objects.requireNonNull(engine);this.ship=Objects.requireNonNull(ship);this.refill=Objects.requireNonNull(refill);this.bindingPicker=Objects.requireNonNull(bindings);
+    ZetaDefensiveMechanisms(CombatEngineAPI engine,ShipAPI ship,Supplier<ZetaRifleModes.ReloadResult> refill){
+        this.engine=Objects.requireNonNull(engine);this.ship=Objects.requireNonNull(ship);this.refill=Objects.requireNonNull(refill);
         if(!ZetaOverdriveStats.supports(ship))throw new IllegalArgumentException("Complete Zeta required");
         if(ship.getCustomData().containsKey(KEY+".owner"))throw new IllegalStateException("Zeta defenses already owned");
+        hotkey=Moci_HotkeySubsystem.attach(ship,Hotkey.class,Hotkey::new);
         ship.setCustomData(KEY+".owner",this);ship.addListener(this);refreshShield();publish();
     }
     public void setWaveRiderDamageReduction(float fraction){check();if(!Float.isFinite(fraction)||fraction<0||fraction>1)throw new IllegalArgumentException("WR damage reduction must be0..1");wrDamageMultiplier=1-fraction;}
@@ -68,9 +70,9 @@ public final class ZetaDefensiveMechanisms implements AutoCloseable,DamageTakenM
         counterCooldown=Math.max(0,counterCooldown-localSeconds);counterPendingTime=Math.max(0,counterPendingTime-localSeconds);
         if(counterPendingTime<=0&&!counterPending.isEmpty()){counterPending.clear();counterReason="反制发射未确认，已取消本次排队";}
         updateGuidance();autoLowHp(localSeconds);
-        if(engine.getPlayerShip()!=ship&&(reloadAuthority==null||!reloadAuthority.getAsBoolean())){releaseReservation();releaseReload();}
+        if(engine.getPlayerShip()!=ship&&(reloadAuthority==null||!reloadAuthority.getAsBoolean()))releaseReload();
         else{
-            if(engine.getPlayerShip()==ship){bindingDelay-=localSeconds;if(bindingDelay<=0){refreshBinding();bindingDelay=.5f;}}else releaseReservation();
+            if(engine.getPlayerShip()==ship){bindingDelay-=localSeconds;if(bindingDelay<=0){refreshBinding();bindingDelay=.5f;}}
             if(reloadHeld&&!reloadLatched){if(!inputAllowed()){releaseReload();reloadReason="操作界面或机体状态阻止换弹";}else{hold+=localSeconds;if(hold>=RELOAD_HOLD_SECONDS){reloadLatched=true;tryRefill();}}}
             hud();
         }publish();
@@ -229,16 +231,24 @@ public final class ZetaDefensiveMechanisms implements AutoCloseable,DamageTakenM
         ZetaRifleModes.ReloadResult result=refill.get();if(result.accepted()&&result.added()>0){ecaps--;reloads++;reloadReason="已补满步枪弹匣，剩余E-cap "+ecaps;}else{reloadRefusals++;reloadReason=result.reason();}
     }
     private boolean inputAllowed(){return !closed&&!engine.isPaused()&&live(ship)&&!ship.controlsLocked()&&(engine.getPlayerShip()!=ship||!engine.isUIShowingDialog()&&(engine.getCombatUI()==null||!engine.getCombatUI().isShowingCommandUI()&&!engine.getCombatUI().isShowingDeploymentDialog()));}
-    private void refreshBinding(){int previousKey=binding.keyCode();releaseReservation();binding=bindingPicker.choose(engine,ship,previousKey);if(!binding.available()||binding.keyCode()!=previousKey)releaseReload();
-        if(binding.available()){Object previous=engine.getCustomData().get(OwnNewtypeBindings.RESERVATIONS_KEY);if(previous!=null&&!(previous instanceof Map<?,?>)){binding=new OwnNewtypeBindings.Result(false,List.of(),"扩展键位表类型冲突");return;}
-            Map<Object,Object> copy=new LinkedHashMap<>();if(previous instanceof Map<?,?> map){if(map.size()>2048){binding=new OwnNewtypeBindings.Result(false,List.of(),"扩展键位表超过上限");return;}copy.putAll(map);}
-            if(copy.containsKey(binding.keyCode())){binding=new OwnNewtypeBindings.Result(false,List.of(),"换弹字母已被其他机制占用");return;}
-            copy.put(binding.keyCode(),reservationTag);engine.getCustomData().put(OwnNewtypeBindings.RESERVATIONS_KEY,copy);
-        }
+    private void refreshBinding(){int previousKey=binding.keyCode();
+        binding=hotkey==null?Moci_HotkeySubsystem.Binding.none("换弹按键子系统挂载失败"):hotkey.binding();
+        if(!binding.available()||binding.keyCode()!=previousKey)releaseReload();
     }
-    private void releaseReservation(){Object value=engine.getCustomData().get(OwnNewtypeBindings.RESERVATIONS_KEY);if(value instanceof Map<?,?> map){Map<Object,Object> copy=new LinkedHashMap<>(map);boolean changed=copy.entrySet().removeIf(e->e.getValue()==reservationTag);if(changed){if(copy.isEmpty())engine.getCustomData().remove(OwnNewtypeBindings.RESERVATIONS_KEY);else engine.getCustomData().put(OwnNewtypeBindings.RESERVATIONS_KEY,copy);}}}
-    private void hud(){if(engine.getPlayerShip()!=ship||!engine.isUIShowingHUD())return;String key=binding.available()?binding.keyName():"无空闲键";
-        engine.maintainStatusForPlayerShip(KEY,"graphics/icons/hullsys/ammo_feeder.png","Z防御 / E-cap "+ecaps+"/"+DEFAULT_ECAPS,key+" 长按0.6秒 · "+reloadReason,false);
+    /** 子系统栏「E-cap 换弹 [键]」：MagicLib 子系统热键，LunaLib「E-cap 换弹键（Z高达）」可改。 */
+    public static final class Hotkey extends Moci_HotkeySubsystem {
+        public Hotkey(ShipAPI ship){super(ship);}
+        @Override protected String keySettingId(){return "Moci_ZetaReloadKey";}
+        @Override protected String hintText(){return "长按0.6秒更换E-cap";}
+        @Override public String getDisplayText(){return "E-cap 换弹";}
+        // 排在喷射背包(9)之后、生物传感器压制(6)之前。
+        @Override public int getOrder(){return ORDER_SHIP_MODULAR-1;}
+    }
+    private void hud(){if(engine.getPlayerShip()!=ship)return;
+        boolean holding=reloadHeld&&!reloadLatched;
+        if(hotkey!=null)hotkey.setStatus(holding?"换弹中":"E-cap "+ecaps+"/"+DEFAULT_ECAPS,holding?hold/RELOAD_HOLD_SECONDS:(float)ecaps/DEFAULT_ECAPS);
+        if(!engine.isUIShowingHUD())return;String key=binding.available()?binding.keyName():"未分配键";
+        engine.maintainStatusForPlayerShip(KEY,"graphics/icons/hullsys/ammo_feeder.png","Z防御 / E-cap "+ecaps+"/"+DEFAULT_ECAPS,key+" 长按0.6秒 · "+(binding.available()?reloadReason:binding.error()),false);
         if(bio)engine.maintainStatusForPlayerShip(KEY+".bio","graphics/icons/hullsys/high_energy_focus.png","生物传感器 · 光束吸收 / 原生EMP免疫",String.format(Locale.ROOT,"幅能光束伤害 ×%.2f · 实际开火降低幅能",fluxDamageMultiplier(ship.getFluxTracker().getFluxLevel())),false);
     }
     private boolean live(ShipAPI part){return part!=null&&part.isAlive()&&!part.isHulk()&&!part.wasRemoved()&&engine.isEntityInPlay(part);}
@@ -252,7 +262,7 @@ public final class ZetaDefensiveMechanisms implements AutoCloseable,DamageTakenM
     private void checkThread(){if(Thread.currentThread()!=owner)throw new IllegalStateException("Zeta defenses require battle owner thread");}
     private void check(){checkThread();if(closed)throw new IllegalStateException("Zeta defenses closed");}
     private void clearStats(ShipAPI part){MutableShipStatsAPI stats=part.getMutableStats();for(MutableStat s:new MutableStat[]{stats.getHullDamageTakenMult(),stats.getArmorDamageTakenMult(),stats.getShieldDamageTakenMult()})s.unmodify(WR_MOD);for(MutableStat s:new MutableStat[]{stats.getEmpDamageTakenMult(),stats.getWeaponDamageTakenMult(),stats.getEngineDamageTakenMult()})s.unmodify(EMP_MOD);if(part==ship)stats.getEnergyRoFMult().unmodify(ROF_MOD);}
-    @Override public void close(){checkThread();if(closed)return;closed=true;restoreDamageLeases();releaseReservation();releaseReload();ship.removeListener(this);clearStats(ship);if(shield!=null){shield.removeListener(this);clearStats(shield);}for(FluxLease lease:fluxLeases.values())lease.restore();fluxLeases.clear();seenShots.clear();shotOrder.clear();guidancePending.clear();counterPending.clear();
+    @Override public void close(){checkThread();if(closed)return;closed=true;restoreDamageLeases();releaseReload();ship.removeListener(this);clearStats(ship);if(shield!=null){shield.removeListener(this);clearStats(shield);}for(FluxLease lease:fluxLeases.values())lease.restore();fluxLeases.clear();seenShots.clear();shotOrder.clear();guidancePending.clear();counterPending.clear();
         if(ship.getCustomData().get(KEY+".owner")==this)ship.removeCustomData(KEY+".owner");publish();
     }
 }

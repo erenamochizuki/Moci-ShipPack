@@ -12,6 +12,8 @@ import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TextFieldAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import data.campaign.intel.ui.Moci_CombatSquadDialog;
+import data.campaign.intel.ui.Moci_UIHoverFrame;
 import data.hullmods.Moci_ShipboardAIAuxEffectRegistry;
 import data.hullmods.Moci_ShipboardAIConfigLoader;
 import data.hullmods.Moci_ShipboardAIManager;
@@ -96,7 +98,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
     private void createListView(CustomPanelAPI panel, TooltipMakerAPI info, float width) {
         List<FleetMemberAPI> members = Moci_ShipboardAIManager.getPlayerFleetMembersWithAI();
         if (members.isEmpty()) {
-            info.addPara(uiText("intel_no_ships", "当前没有安装舰载AI系统的舰船。"), 8f, Misc.getGrayColor());
+            info.addPara(uiText("intel_no_ships", "当前没有安装舰载AI系统的舰船。"), Misc.getGrayColor(), 8f);
             return;
         }
 
@@ -162,6 +164,8 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
                     (int) PORTRAIT_SIZE,
                     0f);
             listPanel.addUIElement(btn).inTL(aiPortraitX, y + 8f);
+            // 悬停高亮：在头像与点击区之后添加才能画在上面，不吃事件；+5 是 tooltip 首个流式元素的引擎偏移，框按图片实际位置对齐
+            Moci_UIHoverFrame.attach(listPanel, aiPortraitX + 5f, y + 8f, PORTRAIT_SIZE, PORTRAIT_SIZE);
 
             TooltipMakerAPI aiText = listPanel.createUIElement(aiTextWidth, ENTRY_HEIGHT, true);
             aiText.addPara(formatUi("intel_ai_name_label", "AI名称: {value}", "value", safeDisplayName),
@@ -192,7 +196,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
             if (member == null) {
                 selectedMemberId = null;
                 logAIDetailWarn("render_missing_ship", memberId, null, null, null);
-                info.addPara(uiText("intel_missing_ship", "目标舰船不存在，可能已离开舰队。"), 8f, Misc.getNegativeHighlightColor());
+                info.addPara(uiText("intel_missing_ship", "目标舰船不存在，可能已离开舰队。"), Misc.getNegativeHighlightColor(), 8f);
                 info.addButton(uiText("intel_button_back", "返回"), "back_to_list", 120, 24, 10f);
                 return;
             }
@@ -202,7 +206,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
                 selectedMemberId = null;
                 logAIDetailWarn("render_missing_data", memberId, member, null,
                         "hasShipboardAISystem=" + Moci_ShipboardAIConfigLoader.hasShipboardAISystem(member));
-                info.addPara(uiText("intel_missing_data", "该舰船未初始化舰载AI数据。"), 8f, Misc.getNegativeHighlightColor());
+                info.addPara(uiText("intel_missing_data", "该舰船未初始化舰载AI数据。"), Misc.getNegativeHighlightColor(), 8f);
                 info.addButton(uiText("intel_button_back", "返回"), "back_to_list", 120, 24, 10f);
                 return;
             }
@@ -211,7 +215,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
             if (type == null) {
                 selectedMemberId = null;
                 logAIDetailWarn("render_missing_type", memberId, member, data, null);
-                info.addPara(uiText("intel_missing_type", "舰载AI类型配置缺失。"), 8f, Misc.getNegativeHighlightColor());
+                info.addPara(uiText("intel_missing_type", "舰载AI类型配置缺失。"), Misc.getNegativeHighlightColor(), 8f);
                 info.addButton(uiText("intel_button_back", "返回"), "back_to_list", 120, 24, 10f);
                 return;
             }
@@ -287,11 +291,11 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
                 leftColumn.addButton(uiText("intel_button_rename", "修改名称"), renameParams, 120, 22, 4f);
             }
 
-            leftColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+            leftColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
             leftColumn.addPara(uiText("intel_section_skills", "技能"), sectionHeaderPad, Misc.getHighlightColor(),
                     uiText("intel_section_skills", "技能"));
             if (data.learnedSkills.isEmpty()) {
-                leftColumn.addPara(uiText("intel_none", "无"), sectionContentPad, Misc.getGrayColor());
+                leftColumn.addPara(uiText("intel_none", "无"), Misc.getGrayColor(), sectionContentPad);
             } else {
                 for (String skillId : data.learnedSkills) {
                     String name = getSkillName(skillId);
@@ -303,11 +307,11 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
                 }
             }
 
-            leftColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+            leftColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
             leftColumn.addPara(uiText("intel_section_aux", "辅助效果"), sectionHeaderPad, Misc.getHighlightColor(),
                     uiText("intel_section_aux", "辅助效果"));
             if (data.learnedAuxSkills.isEmpty()) {
-                leftColumn.addPara(uiText("intel_none", "无"), sectionContentPad, Misc.getGrayColor());
+                leftColumn.addPara(uiText("intel_none", "无"), Misc.getGrayColor(), sectionContentPad);
             } else {
                 for (String auxId : data.learnedAuxSkills) {
                     String auxName = getAuxEffectDisplayName(auxId);
@@ -326,51 +330,51 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
             boolean hasActionSection = false;
             if (DEBUG_MODE) {
                 rightColumn.addPara(uiText("intel_debug_button_hint", "学习/精英化/辅助按钮仅在有剩余次数且有可选项时显示。"),
-                        4f, Misc.getGrayColor());
+                        Misc.getGrayColor(), 4f);
             }
 
             if (DEBUG_MODE || (normalPick > 0 && !normalOptions.isEmpty())) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 rightColumn.addPara(formatUi("intel_available_skill_heading", "可学习技能（剩余 {count} 次）",
                         "count", String.valueOf(normalPick)), sectionHeaderPad, Misc.getHighlightColor(), "" + normalPick);
                 if (normalPick > 0 && !normalOptions.isEmpty()) {
                     addSkillButtons(rightColumn, "learn", member.getId(), normalOptions);
                 } else if (DEBUG_MODE) {
                     rightColumn.addPara(uiText("intel_available_skill_empty", "当前暂无可学习技能。"),
-                            sectionContentPad, Misc.getGrayColor());
+                            Misc.getGrayColor(), sectionContentPad);
                 }
             }
 
             if (DEBUG_MODE || (elitePick > 0 && !eliteOptions.isEmpty())) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 rightColumn.addPara(formatUi("intel_available_elite_heading", "可精英化技能（剩余 {count} 次）",
                         "count", String.valueOf(elitePick)), sectionHeaderPad, Misc.getHighlightColor(), "" + elitePick);
                 if (elitePick > 0 && !eliteOptions.isEmpty()) {
                     addSkillButtons(rightColumn, "elite", member.getId(), eliteOptions);
                 } else if (DEBUG_MODE) {
                     rightColumn.addPara(uiText("intel_available_elite_empty", "当前暂无可精英化技能。"),
-                            sectionContentPad, Misc.getGrayColor());
+                            Misc.getGrayColor(), sectionContentPad);
                 }
             }
 
             if (DEBUG_MODE || (auxPick > 0 && !auxOptions.isEmpty())) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 rightColumn.addPara(formatUi("intel_available_aux_heading", "可学习辅助效果（剩余 {count} 次）",
                         "count", String.valueOf(auxPick)), sectionHeaderPad, Misc.getHighlightColor(), "" + auxPick);
                 if (auxPick > 0 && !auxOptions.isEmpty()) {
                     addSkillButtons(rightColumn, "aux", member.getId(), auxOptions);
                 } else if (DEBUG_MODE) {
                     rightColumn.addPara(uiText("intel_available_aux_empty", "当前暂无可学习辅助效果。"),
-                            sectionContentPad, Misc.getGrayColor());
+                            Misc.getGrayColor(), sectionContentPad);
                 }
             }
 
             if (DEBUG_MODE) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 List<Object> debugParams = new ArrayList<>();
                 debugParams.add("debug_add_exp");
                 debugParams.add(member.getId());
@@ -380,7 +384,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
 
             if (!evolutionOptions.isEmpty()) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 rightColumn.addPara(uiText("intel_evolution_options", "可选进化路线"), 4f, Misc.getHighlightColor(),
                         uiText("intel_evolution_options", "可选进化路线"));
                 for (String targetId : evolutionOptions) {
@@ -398,13 +402,13 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
                 }
             } else if (type.hasEvolutionRoute) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 rightColumn.addPara(formatUi("intel_evolution_requirement", "进化条件：达到等级 {level}",
-                        "level", String.valueOf(type.evolutionLevel)), 4f, Misc.getGrayColor());
+                        "level", String.valueOf(type.evolutionLevel)), Misc.getGrayColor(), 4f);
             }
 
             if (!hasActionSection) {
-                rightColumn.addPara(uiText("intel_no_actions", "当前暂无可执行操作。"), sectionPad, Misc.getGrayColor());
+                rightColumn.addPara(uiText("intel_no_actions", "当前暂无可执行操作。"), Misc.getGrayColor(), sectionPad);
             }
 
             rightColumn.addButton(uiText("intel_button_back", "返回"), "back_to_list", 120, 24, sectionPad);
@@ -439,9 +443,10 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
             String displayName = "aux".equals(action) ? getAuxEffectDisplayName(skillId) : getSkillName(skillId);
             column.addButton(escapeTooltipFormat(displayName), params, 220, 20, 2f);
             if ("aux".equals(action)) {
-                String safeDesc = escapeTooltipFormat(Moci_ShipboardAIAuxEffectRegistry.getEffectDescription(skillId, 1f));
-                column.addPara(safeDesc,
-                        2f, Misc.getGrayColor());
+                // addPara(String, Color, float) 不经过 String.format，描述里的 % 会原样显示，不需要再转义成 %%
+                String desc = Moci_ShipboardAIAuxEffectRegistry.getEffectDescription(skillId, 1f);
+                column.addPara(desc == null ? "" : desc,
+                        Misc.getGrayColor(), 2f);
             }
             count++;
         }
@@ -457,7 +462,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
 
     private void addDetailRenderError(TooltipMakerAPI info, float pad) {
         info.addPara(uiText("intel_render_error", "舰载AI详情页渲染失败，请查看日志。"),
-                pad, Misc.getNegativeHighlightColor());
+                Misc.getNegativeHighlightColor(), pad);
         info.addButton(uiText("intel_button_back", "返回"), "back_to_list", 120, 24, 10f);
     }
 
@@ -595,7 +600,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
         return value == null ? "<null>" : value;
     }
 
-    private FleetMemberAPI findMemberById(String memberId) {
+    public static FleetMemberAPI findMemberById(String memberId) {
         if (memberId == null || Global.getSector() == null || Global.getSector().getPlayerFleet() == null) {
             return null;
         }
@@ -607,7 +612,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
         return null;
     }
 
-    private String getSkillName(String skillId) {
+    public static String getSkillName(String skillId) {
         try {
             return Global.getSettings().getSkillSpec(skillId).getName();
         } catch (Exception ex) {
@@ -615,12 +620,36 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
         }
     }
 
-    private String getAuxEffectDisplayName(String skillId) {
+    public static String getAuxEffectDisplayName(String skillId) {
         return Moci_ShipboardAIAuxEffectRegistry.getDisplayName(skillId);
     }
 
-    private String escapeTooltipFormat(String text) {
+    public static String escapeTooltipFormat(String text) {
         return text == null ? "" : text.replace("%", "%%");
+    }
+
+    /** 回放同一次点击走旧内嵌页时置位，只生效一次。 */
+    private transient boolean suppressDialogOnce;
+
+    /**
+     * 优先打开独立弹窗（Moci_CombatSquadDialog，舰载 AI 页）；打开失败打 [Moci_CombatSquadDialog] 错误日志并返回 false，
+     * 调用方继续走旧内嵌页。弹窗异步初始化失败时同样回放这次点击走旧页面。
+     */
+    private boolean tryOpenDialog(String memberId, final Object buttonId, final IntelUIAPI ui) {
+        if (suppressDialogOnce) {
+            suppressDialogOnce = false;
+            return false;
+        }
+        try {
+            Moci_CombatSquadDialog.open(ui, this, memberId, Moci_CombatSquadDialog.Tab.AI, () -> {
+                suppressDialogOnce = true;
+                buttonPressConfirmed(buttonId, ui);
+            });
+            return true;
+        } catch (RuntimeException ex) {
+            LOG.error("[Moci_CombatSquadDialog] 打开弹窗失败，退回旧页面 member=" + memberId + " tab=AI", ex);
+            return false;
+        }
     }
 
     @Override
@@ -674,6 +703,9 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
                 ui.updateUIForItem(this);
                 return;
             }
+            if (tryOpenDialog(targetMemberId, buttonId, ui)) {
+                return;
+            }
             selectedMemberId = targetMemberId;
             ui.updateUIForItem(this);
             return;
@@ -700,25 +732,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
                 && params.size() >= 3
                 && params.get(1) instanceof String
                 && params.get(2) instanceof String) {
-            FleetMemberAPI member = findMemberById((String) params.get(1));
-            String skillId = (String) params.get(2);
-            boolean success = false;
-            if ("learn".equals(action)) {
-                success = Moci_ShipboardAIManager.learnSkill(member, skillId);
-            } else if ("elite".equals(action)) {
-                success = Moci_ShipboardAIManager.eliteSkill(member, skillId);
-            } else if ("aux".equals(action)) {
-                success = Moci_ShipboardAIManager.learnAuxEffect(member, skillId);
-            }
-            if (success) {
-                String displayName = "aux".equals(action) ? getAuxEffectDisplayName(skillId) : getSkillName(skillId);
-                Global.getSector().getCampaignUI().addMessage(
-                        formatUi("intel_msg_action_success", "舰载AI操作成功: {value}", "value", displayName),
-                        Misc.getPositiveHighlightColor());
-            } else {
-                Global.getSector().getCampaignUI().addMessage(
-                        uiText("intel_msg_action_fail", "舰载AI操作失败"), Misc.getNegativeHighlightColor());
-            }
+            performAIAction(action, findMemberById((String) params.get(1)), (String) params.get(2));
             ui.updateUIForItem(this);
             return;
         }
@@ -726,9 +740,52 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
         if ("rename".equals(action) && params.size() >= 3
                 && params.get(1) instanceof String
                 && params.get(2) instanceof TextFieldAPI) {
-            FleetMemberAPI member = findMemberById((String) params.get(1));
             TextFieldAPI textField = (TextFieldAPI) params.get(2);
-            boolean success = Moci_ShipboardAIManager.renameAI(member, textField.getText());
+            performAIAction(action, findMemberById((String) params.get(1)), textField.getText());
+            ui.updateUIForItem(this);
+            return;
+        }
+
+        if ("evolve".equals(action) && params.size() >= 2 && params.get(1) instanceof String) {
+            String targetAiId = params.size() >= 3 && params.get(2) instanceof String ? (String) params.get(2) : null;
+            performAIAction(action, findMemberById((String) params.get(1)), targetAiId);
+            ui.updateUIForItem(this);
+        }
+    }
+
+    /**
+     * 舰载 AI 操作（学习 / 精英 / 辅助 / 改名 / 进化）的共用入口：调用 Moci_ShipboardAIManager 并发与旧页面一致的提示条。
+     * 本情报的旧详情页和 Moci_CombatSquadDialog 的「舰载 AI」页共用，不在别处复制规则。
+     *
+     * @param action learn | elite | aux | rename | evolve
+     * @param value  技能/辅助效果 ID；改名时为新名称；进化时为目标 AI ID（null = 默认路线）
+     * @return 是否成功
+     */
+    public static boolean performAIAction(String action, FleetMemberAPI member, String value) {
+        if ("learn".equals(action) || "elite".equals(action) || "aux".equals(action)) {
+            boolean success = false;
+            if (value != null) {
+                if ("learn".equals(action)) {
+                    success = Moci_ShipboardAIManager.learnSkill(member, value);
+                } else if ("elite".equals(action)) {
+                    success = Moci_ShipboardAIManager.eliteSkill(member, value);
+                } else {
+                    success = Moci_ShipboardAIManager.learnAuxEffect(member, value);
+                }
+            }
+            if (success) {
+                String displayName = "aux".equals(action) ? getAuxEffectDisplayName(value) : getSkillName(value);
+                Global.getSector().getCampaignUI().addMessage(
+                        formatUi("intel_msg_action_success", "舰载AI操作成功: {value}", "value", displayName),
+                        Misc.getPositiveHighlightColor());
+            } else {
+                Global.getSector().getCampaignUI().addMessage(
+                        uiText("intel_msg_action_fail", "舰载AI操作失败"), Misc.getNegativeHighlightColor());
+            }
+            return success;
+        }
+        if ("rename".equals(action)) {
+            boolean success = Moci_ShipboardAIManager.renameAI(member, value);
             if (success) {
                 Global.getSector().getCampaignUI().addMessage(
                         uiText("intel_msg_rename_success", "舰载AI名称已更新"), Misc.getPositiveHighlightColor());
@@ -736,16 +793,12 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
                 Global.getSector().getCampaignUI().addMessage(
                         uiText("intel_msg_rename_fail", "舰载AI名称更新失败"), Misc.getNegativeHighlightColor());
             }
-            ui.updateUIForItem(this);
-            return;
+            return success;
         }
-
-        if ("evolve".equals(action) && params.size() >= 2 && params.get(1) instanceof String) {
-            FleetMemberAPI member = findMemberById((String) params.get(1));
-            String targetAiId = params.size() >= 3 && params.get(2) instanceof String ? (String) params.get(2) : null;
-            boolean success = targetAiId == null
+        if ("evolve".equals(action)) {
+            boolean success = value == null
                     ? Moci_ShipboardAIManager.evolveAI(member)
-                    : Moci_ShipboardAIManager.evolveAI(member, targetAiId);
+                    : Moci_ShipboardAIManager.evolveAI(member, value);
             if (success) {
                 Global.getSector().getCampaignUI().addMessage(
                         uiText("intel_msg_evolve_success", "舰载AI进化完成"), Misc.getHighlightColor());
@@ -753,8 +806,9 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
                 Global.getSector().getCampaignUI().addMessage(
                         uiText("intel_msg_evolve_fail", "舰载AI进化失败"), Misc.getNegativeHighlightColor());
             }
-            ui.updateUIForItem(this);
+            return success;
         }
+        return false;
     }
 
     @Override
@@ -774,11 +828,11 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
         return true;
     }
 
-    private String uiText(String key, String fallback) {
+    public static String uiText(String key, String fallback) {
         return Moci_ShipboardAITextRegistry.getUiText(key, fallback);
     }
 
-    private String formatUi(String key, String fallback, String... replacements) {
+    public static String formatUi(String key, String fallback, String... replacements) {
         return Moci_ShipboardAITextRegistry.formatTemplate(uiText(key, fallback),
                 Moci_ShipboardAITextRegistry.mapOf(replacements));
     }

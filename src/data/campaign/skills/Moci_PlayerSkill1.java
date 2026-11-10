@@ -197,6 +197,8 @@ public class Moci_PlayerSkill1 {
         private final Set<ShipAPI> touchedModules = Collections.newSetFromMap(new IdentityHashMap<>());
         /** 本次挂载是否已经为「船/模块没了」打过日志；只为避免每帧刷屏，重新挂载时复位。 */
         private boolean releaseLogged;
+        /** 新人类手动子系统是否已尝试挂到本舰（成功失败都只试一次，避免每帧重试刷日志）。 */
+        private boolean newtypeAttached;
 
         public static listener getInstance(ShipAPI ship) {
             if (ship.getCustomData().containsKey(LISTENER_DATA_KEY)) {
@@ -272,10 +274,15 @@ public class Moci_PlayerSkill1 {
                 return;
             }
 
-            // 新人类主动能力（叠加层）只在这名飞行员拥有本技能时安装，不再是全局战斗插件。
-            if (Global.getCombatEngine().getPlayerShip() == ship) {
-                try { xi.arsenal.OwnNewtypeController.ensure(Global.getCombatEngine()); }
-                catch (RuntimeException | LinkageError ignored) { }
+            // 新人类手动主动能力：MagicLib 子系统，挂在玩家当前座舰上。
+            // 按键默认由 MagicLib 分配，玩家可在 LunaLib「新人类主动键」里改。
+            if (!newtypeAttached && Global.getCombatEngine().getPlayerShip() == ship) {
+                newtypeAttached = true;
+                try {
+                    data.subsystems.Moci_NewtypeSubsystem.attach(ship);
+                } catch (RuntimeException | LinkageError e) {
+                    LOG.warn(LOG_PREFIX + "新人类子系统挂载失败 ship=" + ship.getId(), e);
+                }
             }
 
             if (isChildModule(ship)) {

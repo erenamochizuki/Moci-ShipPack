@@ -31,6 +31,7 @@ import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.loading.WeaponGroupSpec;
 import com.fs.starfarer.api.loading.WeaponGroupType;
 import com.fs.starfarer.api.util.Misc;
+import data.scripts.visual.Moci_PsycommuDroneGlow;
 
 /**
  * 核心代码来自光环的中帮手
@@ -201,6 +202,7 @@ public class Moci_HSITunnelController_v2 implements EveryFrameWeaponEffectPlugin
                 }
             } else {
                 if (!drones.get(i).drone.isAlive()) {
+                    Moci_PsycommuDroneGlow.detach(drones.get(i).drone);
                     drones.remove(i);
                     i--;
                 } else {
@@ -388,6 +390,7 @@ public class Moci_HSITunnelController_v2 implements EveryFrameWeaponEffectPlugin
         w.setShipAI(null);
 
         drones.add(new HSITunnelScript(w, weapon, point, droneDecoWeapon));
+        Moci_PsycommuDroneGlow.attach(w, weapon.getShip());
     }
 
     /**
@@ -495,6 +498,9 @@ public class Moci_HSITunnelController_v2 implements EveryFrameWeaponEffectPlugin
         public void advance(float amount) {
             if (ended)
                 return;
+
+            boolean droneDeployed = stage != AIStage.WAITING_ORDER && stage != AIStage.IN_CD;
+            Moci_PsycommuDroneGlow.update(drone, source == null ? null : source.getShip(), droneDeployed);
 
             updateDecoWeaponAnimation();
 
@@ -662,8 +668,10 @@ public class Moci_HSITunnelController_v2 implements EveryFrameWeaponEffectPlugin
                 case ATTACK:
                     if (shipTarget == null || !shipTarget.isAlive()) {
                         shipTarget = AIUtils.getNearestEnemy(drone);
-                        if (shipTarget != null && Misc.getDistance(drone.getLocation(),
-                                shipTarget.getLocation()) > mainWeapon.getRange()) {
+                        // 与开火判定一致按目标外缘算距离，避免击杀后把射程内的大舰当成超距目标丢掉。
+                        if (shipTarget != null
+                                && Misc.getDistance(drone.getLocation(), shipTarget.getLocation())
+                                        - shipTarget.getCollisionRadius() > mainWeapon.getRange()) {
                             shipTarget = null;
                         }
                     }
@@ -682,18 +690,23 @@ public class Moci_HSITunnelController_v2 implements EveryFrameWeaponEffectPlugin
                     float distanceToTarget = MathUtils.getDistance(drone.getLocation(), shipTarget.getLocation());
 
                     // 优先开火：只要朝向正确且在射程内就立即开火
-                    if (rotationDiff <= 1f && distanceToTarget <= attackRange) {
+                    // 光束按命中目标外缘结算，射程判定要把目标碰撞半径算进去；
+                    // 否则贴着大舰边缘停住时中心距永远 > 射程，浮游炮就会一直不开火。
+                    if (rotationDiff <= 1f && distanceToTarget <= attackRange + shipTarget.getCollisionRadius()) {
                         drone.giveCommand(ShipCommand.FIRE, shipTarget.getLocation(), 0);
                         fired = true;
                     }
 
-                    // 同时移动到更好的攻击位置（动态调整）
+                    // 同时移动到更好的攻击位置（动态调整）；站位半径必须封顶在射程 92% 以内，
+                    // 否则大碰撞半径目标会让“R + 0.8*射程”越过射程，浮游炮卡在边缘永远不开火。
                     float dynamicAttackRange = mainWeapon != null ? mainWeapon.getRange() * 0.8f : 240f;
+                    float attackStandoff = Math.min(shipTarget.getCollisionRadius() + dynamicAttackRange,
+                            attackRange * 0.92f);
                     expectedLocation = Vector2f.add(shipTarget.getLocation(),
                             (Vector2f) Misc.getUnitVectorAtDegreeAngle(
                                     MathUtils.clampAngle(shipTarget.getFacing() + point * 60f + attackAngleOffset)
                                             + 120f)
-                                    .scale(shipTarget.getCollisionRadius() + dynamicAttackRange),
+                                    .scale(attackStandoff),
                             null);
 
                     // 攻击完成后的处理

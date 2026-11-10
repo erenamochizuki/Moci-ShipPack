@@ -5,7 +5,7 @@ import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.input.InputEventAPI;
 import java.awt.Color;
 import java.util.*;
-import org.lwjgl.input.Keyboard;
+import data.subsystems.Moci_HotkeySubsystem;
 
 /** Four target-local seconds of control shutdown. No EMP, component HP damage or repair is used. */
 public final class ZetaBiosensorJam implements AutoCloseable {
@@ -21,8 +21,7 @@ public final class ZetaBiosensorJam implements AutoCloseable {
     private final Map<ShipAPI,Jam> jams=new IdentityHashMap<>();
     private final Map<String,Object> facts=new LinkedHashMap<>();
     private final List<Map<String,Object>> releases=new ArrayList<>();
-    private final String reservation="Zeta 生物传感器压制#"+UUID.randomUUID();
-    private OwnNewtypeBindings.Result binding=new OwnNewtypeBindings.Result(false,List.of(),"需要生物传感器过载");
+    private Moci_HotkeySubsystem.Binding binding=Moci_HotkeySubsystem.Binding.none("需要生物传感器过载");
     private float keyClock;
     private long casts,affected;
     private boolean closed;
@@ -59,7 +58,7 @@ public final class ZetaBiosensorJam implements AutoCloseable {
         if(Global.getCombatEngine()!=engine||engine.isCombatOver()){close();return;}
         active.clear();if(realOverdriveSources!=null)active.addAll(realOverdriveSources);
         ShipAPI player=engine.getPlayerShip();
-        if(!active.contains(player)){clearReservation();binding=new OwnNewtypeBindings.Result(false,List.of(),"需要生物传感器过载");}
+        if(!active.contains(player))binding=Moci_HotkeySubsystem.Binding.none("需要生物传感器过载");
         if(!engine.isPaused()){
             keyClock-=dt;if(active.contains(player)&&keyClock<=0)refreshBinding(player);
             for(Iterator<Map.Entry<ShipAPI,Float>> it=cooldowns.entrySet().iterator();it.hasNext();){var entry=it.next();
@@ -76,22 +75,18 @@ public final class ZetaBiosensorJam implements AutoCloseable {
         }
         hud();publish();
     }
-    private void refreshBinding(ShipAPI player){
-        // The actual Zeta subsystem panel advertises N for information display.
-        // Its content hook is not consistently present in MagicLib's registry.
-        clearReservation();binding=OwnNewtypeBindings.select(engine,player,binding.available()?binding.keyCode():Keyboard.KEY_H,
-                Map.of(Keyboard.KEY_N,"Moci 子系统信息显示",Keyboard.KEY_X,"Z变形"));keyClock=.5f;
-        if(!binding.available())return;
-        Object value=engine.getCustomData().get(OwnNewtypeBindings.RESERVATIONS_KEY);if(value!=null&&!(value instanceof Map<?,?>)){binding=new OwnNewtypeBindings.Result(false,List.of(),"扩展键位表类型冲突，未接管字母键");return;}Map<Integer,String> copy=new LinkedHashMap<>();
-        if(value instanceof Map<?,?> previous)for(var item:previous.entrySet()){
-            if(!(item.getKey() instanceof Integer key)||!(item.getValue() instanceof String text))throw new IllegalStateException("Invalid combat input reservation");copy.put(key,text);}
-        if(copy.containsKey(binding.keyCode())){binding=new OwnNewtypeBindings.Result(false,List.of(),"字母键刚被其他机制占用");return;}
-        copy.put(binding.keyCode(),reservation);engine.getCustomData().put(OwnNewtypeBindings.RESERVATIONS_KEY,copy);
+    private void refreshBinding(ShipAPI player){binding=Moci_HotkeySubsystem.binding(player,Hotkey.class);keyClock=.5f;}
+    /** 由 Zeta actor 给每台 Zeta 挂上按键子系统；压制本身仍是全场一个实例。 */
+    static void attachHotkey(ShipAPI ship){Moci_HotkeySubsystem.attach(ship,Hotkey.class,Hotkey::new);}
+    /** 生物传感器压制的按键：MagicLib 子系统热键，LunaLib「生物传感器压制键（Z高达）」可改。 */
+    public static final class Hotkey extends Moci_HotkeySubsystem {
+        public Hotkey(ShipAPI ship){super(ship);}
+        @Override protected String keySettingId(){return "Moci_ZetaBiosensorJamKey";}
+        @Override protected String hintText(){return "过载时点按：压制锁定目标4秒";}
+        @Override public String getDisplayText(){return "生物传感器压制";}
+        // 排在 E-cap 换弹(7) 之后、武器停火(5) 之前。
+        @Override public int getOrder(){return ORDER_SHIP_MODULAR-2;}
     }
-    private void clearReservation(){Object value=engine.getCustomData().get(OwnNewtypeBindings.RESERVATIONS_KEY);
-        if(value instanceof Map<?,?> previous&&previous.containsValue(reservation)){
-            Map<Object,Object> copy=new LinkedHashMap<>(previous);copy.entrySet().removeIf(e->reservation.equals(e.getValue()));
-            if(copy.isEmpty())engine.getCustomData().remove(OwnNewtypeBindings.RESERVATIONS_KEY);else engine.getCustomData().put(OwnNewtypeBindings.RESERVATIONS_KEY,copy);}}
     private final class Jam {
         final ShipAPI target;final int owner;final String modifier=KEY+"."+UUID.randomUUID();
         final Set<ShipAPI> parts=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -123,14 +118,18 @@ public final class ZetaBiosensorJam implements AutoCloseable {
     private static float local(ShipAPI ship,float dt){float value=ship.getMutableStats().getTimeMult().getModifiedValue();
         if(!Float.isFinite(value)||value<0)throw new IllegalStateException("Invalid Zeta local time");return dt*value;}
     private boolean live(ShipAPI ship){return ship!=null&&ship.isAlive()&&!ship.isHulk()&&!ship.wasRemoved()&&engine.isEntityInPlay(ship);}
-    private void hud(){ShipAPI player=engine.getPlayerShip();if(!active.contains(player)||!engine.isUIShowingHUD())return;
-        float cd=cooldowns.getOrDefault(player,0f);engine.maintainStatusForPlayerShip(KEY,"graphics/icons/hullsys/targeting_feed.png",
-                "生物传感器压制 ["+binding.keyName()+"]",cd>0?String.format(Locale.ROOT,"冷却 %.1f秒",cd):"锁定后压制4秒 · 450软幅能 · 无EMP",false);}
+    private void hud(){ShipAPI player=engine.getPlayerShip();float cd=player==null?0f:cooldowns.getOrDefault(player,0f);
+        // 子系统栏「生物传感器压制 [键]」的状态：冷却进度 / 就绪 / 需要过载。
+        Hotkey hotkey=Moci_HotkeySubsystem.find(player,Hotkey.class);
+        if(hotkey!=null)hotkey.setStatus(cd>0?String.format(Locale.ROOT,"冷却 %.1f秒",cd):active.contains(player)?"就绪":"需要过载",cd>0?1f-cd/COOLDOWN:1f);
+        if(!active.contains(player)||!engine.isUIShowingHUD())return;
+        engine.maintainStatusForPlayerShip(KEY,"graphics/icons/hullsys/targeting_feed.png",
+                "生物传感器压制 ["+binding.keyName()+"]",cd>0?String.format(Locale.ROOT,"冷却 %.1f秒",cd):binding.available()?"锁定后压制4秒 · 450软幅能 · 无EMP":binding.error(),false);}
     private void publish(){facts.put("schema",1);facts.put("closed",closed);facts.put("casts",casts);facts.put("affected",affected);facts.put("message",message);
         facts.put("keyCode",binding.keyCode());facts.put("keyName",binding.keyName());facts.put("keyAvailable",binding.available());facts.put("jams",jams.values().stream().map(Jam::state).toList());
         facts.put("cooldown",cooldowns.getOrDefault(engine.getPlayerShip(),0f));facts.put("releases",List.copyOf(releases));
         facts.put("scope","4 target-local seconds of engine/weapon control shutdown; no EMP, overload, HP modification, damage or component repair; existing momentum drifts naturally");}
     public Map<String,Object> status(){publish();return Collections.unmodifiableMap(new LinkedHashMap<>(facts));}
-    @Override public void close(){if(closed)return;closed=true;for(Jam jam:jams.values())jam.release("battle-close");jams.clear();cooldowns.clear();active.clear();clearReservation();publish();
+    @Override public void close(){if(closed)return;closed=true;for(Jam jam:jams.values())jam.release("battle-close");jams.clear();cooldowns.clear();active.clear();publish();
         if(engine.getCustomData().get(KEY+".owner")==this)engine.getCustomData().remove(KEY+".owner");}
 }

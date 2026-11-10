@@ -35,6 +35,7 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.IntelUIAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
+import com.fs.starfarer.api.ui.ScrollPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -123,6 +124,8 @@ public final class Moci_AirSquadronDialog {
 
     private record Action(String kind, Object value) {}
     private record WeaponChoice(String slotId, String weaponId) {}
+    /** M2：某栏在 rebuild 前的滚动状态——偏移，以及记下它时所在的母舰/选择上下文。 */
+    private record SavedScroll(float offset, String context) {}
 
     private static final class Workbench extends BaseCustomUIPanelPlugin implements CustomVisualDialogDelegate {
         private final Wrapper wrapper;
@@ -142,6 +145,21 @@ public final class Moci_AirSquadronDialog {
         private final Moci_AirSquadronInput<Action> controls = new Moci_AirSquadronInput<>();
         private final Moci_AirSquadronInput<Action> weaponControls = new Moci_AirSquadronInput<>();
         private final Map<CustomPanelAPI, TooltipMakerAPI> columnViewports = new LinkedHashMap<>();
+        // 调整位置 M2：每一栏在 rebuild 后都会重建，原生滚动条的偏移随之丢失，玩家点一下就被弹回顶部。
+        // 下面按「栏位名 -> 该栏当前生效的滚动视口」登记，rebuild 前读偏移、重建后写回。
+        // 左栏（母舰信息）、中栏（机库联队列表）、右栏（装配工作台）各一个键；
+        // 右栏内部还有两处独立滚动（顶部预览+部位+战术改装、底部候选武器网格），也一并登记。
+        private static final String SCROLL_CARRIER = "carrier";
+        private static final String SCROLL_BAYS = "bays";
+        private static final String SCROLL_EDITOR = "editor";
+        private static final String SCROLL_WORKBENCH = "workbench";
+        private static final String SCROLL_WEAPONS = "weapons";
+        /** 栏位名 -> 该栏当前生效的滚动视口（TooltipMakerAPI 是滚动面板的宿主）。 */
+        private final Map<String, TooltipMakerAPI> columnScrollers = new LinkedHashMap<>();
+        /** rebuild 前记下的偏移与当时的选择上下文；上下文不一致的栏不恢复。 */
+        private final Map<String, SavedScroll> savedScrolls = new LinkedHashMap<>();
+        /** 上一次构建完成时各栏所处的上下文，用来判断这次 rebuild 是不是同一个上下文。 */
+        private final Map<String, String> builtScrollContexts = new LinkedHashMap<>();
         private final Map<String, ButtonAPI> slotButtons = new LinkedHashMap<>();
         private final Map<String, List<WeaponAvailability>> fittingWeapons = new LinkedHashMap<>();
         private Moci_AirSquadronCanvas fighterCanvas;
@@ -158,12 +176,16 @@ public final class Moci_AirSquadronDialog {
         private String selectedSlot;
         private String hoveredSlot;
         private String displayedWeaponSlot;
+        /** M2：重建前候选武器栏实际显示的槽位（悬停会在 rebuild 之外换掉这一栏）。 */
+        private String savedWeaponSlot;
         private boolean hoverFailed;
         /** 当前联队（源）已安装的战术改装，空列表 = 未安装。只读，来自服务层。 */
         private List<String> tacticalInstalled = List.of();
         /** 「战术改装」分组草稿，空列表 = 不装。应用装配时随新联队定义一起写入。 */
         private List<String> tacticalDraft = List.of();
         private String notice = "";
+        /** 选中机库时服务层报告的「已自动拆除的战术改装」提示；没有则为 null。切换机库时重算。 */
+        private String removedTacticalNotice;
         private Action pending;
         private final Moci_AirSquadronInput.Confirmation<Action> confirmation = new Moci_AirSquadronInput.Confirmation<>();
         private boolean closing;
@@ -184,8 +206,7 @@ public final class Moci_AirSquadronDialog {
             width = panel.getPosition().getWidth();
             height = panel.getPosition().getHeight();
             callbacks.getPanelFader().setDurationOut(0.12f);
-            refreshCarrier(-1);
-            rebuild();
+            guarded("航空中队管理界面打开失败", null, () -> { refreshCarrier(-1); rebuild(); });
         }
 
         @Override public CustomUIPanelPlugin getCustomPanelPlugin() { return this; }
@@ -214,27 +235,50 @@ public final class Moci_AirSquadronDialog {
             if (pending == null) {
                 if (!hoverFailed && fighterCanvas != null && slotInteractionEnabled()) {
                     // SettingsAPI already returns virtual UI coordinates, including screen scaling.
-                    try {
-                        updateHoveredSlot(Global.getSettings().getMouseX(), Global.getSettings().getMouseY());
-                    } catch (RuntimeException ex) {
-                        // Disable automatic retry until the next explicit action: never log a
-                        // broken preview or repeat an expensive failed refresh every frame.
-                        hoverFailed = true;
-                        notice = "悬停预览暂不可用，请点击部位重试。";
-                        Global.getLogger(Moci_AirSquadronDialog.class).warn("航空中队悬停预览失败", ex);
-                    }
+                    // A failed preview disables automatic retry until the next explicit action: never log a
+                    // broken preview or repeat an expensive failed refresh every frame.
+                    hoverFailed = !guarded("航空中队悬停预览失败", "悬停预览暂不可用，请点击部位重试。",
+                            () -> updateHoveredSlot(Global.getSettings().getMouseX(), Global.getSettings().getMouseY()));
                 }
                 return;
             }
             Action action = pending;
             pending = null;
+            hoverFailed = false;
+            guarded("航空中队管理界面操作失败", null, () -> handle(action));
+        }
+
+        /**
+         * 界面事件的最外层保护：init 和 advance 由引擎直接调用，异常穿出去会让整个游戏崩溃，
+         * 而引擎 UI 对象的失败无法逐一事先验证。这是本窗口唯一的界面级 catch（见 attempt）；
+         * 内层的数据访问都改为事先校验。失败后记日志、写提示并重建一次；重建仍失败就关闭窗口。
+         * @return true 表示 step 正常完成
+         */
+        private boolean guarded(String log, String failureNotice, Runnable step) {
+            RuntimeException failure = attempt(step);
+            if (failure == null) return true;
+            Global.getLogger(Moci_AirSquadronDialog.class).error(log, failure);
+            notice = failureNotice != null ? failureNotice
+                    : "操作未完成：" + Objects.toString(failure.getMessage(), "请关闭窗口后重新打开");
+            RuntimeException rebuildFailure = attempt(this::rebuild);
+            if (rebuildFailure != null) {
+                Global.getLogger(Moci_AirSquadronDialog.class).error("航空中队管理界面无法恢复，关闭窗口", rebuildFailure);
+                closing = true;
+                callbacks.getPanelFader().fadeOut();
+            }
+            return false;
+        }
+
+        /**
+         * 只接 RuntimeException：脚本类加载器拒绝的类（反射、文件访问）抛的是 LinkageError，
+         * 那是打包错误，必须照常暴露，不在这里吞掉。
+         */
+        private static RuntimeException attempt(Runnable step) {
             try {
-                hoverFailed = false;
-                handle(action);
+                step.run();
+                return null;
             } catch (RuntimeException ex) {
-                Global.getLogger(Moci_AirSquadronDialog.class).error("航空中队管理界面操作失败", ex);
-                notice = "操作未完成：" + Objects.toString(ex.getMessage(), "请关闭窗口后重新打开");
-                rebuild();
+                return ex;
             }
         }
 
@@ -263,7 +307,7 @@ public final class Moci_AirSquadronDialog {
 
         private void refreshCarrier(int preferredBay) {
             carrier = Moci_FighterLoadoutService.findMember(memberId);
-            carrierPreview = carrier == null ? null : art.build(carrier.getVariant());
+            carrierPreview = carrier == null ? null : art.buildShipPreview(carrier.getVariant());
             bays = carrier == null ? List.of() : Moci_FighterLoadoutService.collectBays(carrier);
             bayPreviews.keySet().removeIf(id -> bays.stream().noneMatch(bay -> Objects.equals(id, bay.wingId())));
             BayEntry next = null;
@@ -287,6 +331,7 @@ public final class Moci_AirSquadronDialog {
             tacticalInstalled = bay == null || bay.wing() == null ? List.of()
                     : Moci_FighterLoadoutService.getTacticalHullmods(bay.wingId());
             tacticalDraft = tacticalInstalled;
+            removedTacticalNotice = bay == null || bay.wing() == null ? null : removedTacticalNotice(bay.wingId());
             plan = null;
         }
 
@@ -333,8 +378,9 @@ public final class Moci_AirSquadronDialog {
                     // 每组独立单选；再次点击取消该组。
                     if (!tacticalInteractionEnabled()) return;
                     String choice = (String) action.value();
+                    // 已在草稿里的项总能取消（哪怕它后来变得不可用）；只有新选的项才需要按联队原型校验。
                     if (!tacticalDraft.contains(choice) && Moci_FighterLoadoutService.tacticalUnavailableReason(
-                            choice, selected.wing().getVariant()) != null) return;
+                            choice, selected.wingId()) != null) return;
                     tacticalDraft = Moci_TacticalHullmods.toggle(tacticalDraft, choice);
                     notice = "草稿尚未应用。";
                     rebuild();
@@ -450,7 +496,7 @@ public final class Moci_AirSquadronDialog {
             parent.addUIElement(text).inTL(x, y);
         }
 
-        private CustomPanelAPI column(float x, float y, float w, float viewportHeight, float minimumHeight, boolean scanning) {
+        private CustomPanelAPI column(String key, float x, float y, float w, float viewportHeight, float minimumHeight, boolean scanning) {
             float actualHeight = Math.max(viewportHeight, minimumHeight);
             float actualWidth = actualHeight > viewportHeight ? Math.max(30f, w - 18f) : w;
             CustomPanelAPI result = content.createCustomPanel(actualWidth, actualHeight, new Moci_AirSquadronScanPanel(scanning));
@@ -459,18 +505,25 @@ public final class Moci_AirSquadronDialog {
                 viewport.addCustom(result, 0);
                 add(content, viewport, x, y);
                 columnViewports.put(result, viewport);
+                // M2：登记本栏的外层滚动视口，rebuild 后用它恢复滚动位置。
+                columnScrollers.put(key, viewport);
             } else content.addComponent(result).inTL(x, y);
             return result;
         }
 
         private void rebuild() {
             if (panel == null || closing) return;
+            // M2：整窗重建会把每栏的滚动条一起重建，玩家点过槽位/选项后视图会跳回顶部。
+            // 重建前记下各栏偏移，重建后按新内容高度钳位写回；换母舰或换选择上下文时从 0 开始。
+            // 记录和恢复只读写本窗口建出来、已判空的原生滚动条，不需要另外兜底。
+            captureColumnScrolls();
             if (content != null) panel.removeComponent(content);
             content = panel.createCustomPanel(width, height, new Moci_AirSquadronScanPanel(false));
             panel.addComponent(content).inTL(0, 0);
             controls.clear();
             weaponControls.clear();
             columnViewports.clear();
+            columnScrollers.clear();
             slotButtons.clear();
             fittingWeapons.clear();
             fighterCanvas = null;
@@ -493,6 +546,84 @@ public final class Moci_AirSquadronDialog {
             buildBays(10f + left + gap, bodyY, middle, bodyHeight);
             buildEditor(10f + left + middle + 2f * gap, bodyY, right, bodyHeight);
             buildFooter(height - 48f);
+            restoreColumnScrolls();
+        }
+
+        /**
+         * M2：重建前读一遍各栏滚动偏移。滚动由原生 ScrollPanelAPI 负责（TooltipMakerAPI 用
+         * addUIElement 加进来时引擎会给它套一个 ScrollPanelAPI），所以这里存的是「哪一栏 + 偏移
+         * + 当时的上下文」；上下文不一致的栏重建后不恢复。
+         */
+        private void captureColumnScrolls() {
+            savedScrolls.clear();
+            savedWeaponSlot = displayedWeaponSlot;
+            for (Map.Entry<String, TooltipMakerAPI> entry : columnScrollers.entrySet()) {
+                TooltipMakerAPI viewport = entry.getValue();
+                ScrollPanelAPI scroller = viewport == null ? null : viewport.getExternalScroller();
+                if (scroller == null) continue;
+                savedScrolls.put(entry.getKey(),
+                        new SavedScroll(scroller.getYOffset(), scrollContextFor(entry.getKey())));
+            }
+        }
+
+        /**
+         * M2：重建后把偏移写回新视口。新内容高度与视口高度都从新对象上取，超界就钳到
+         * [0, contentHeight - viewHeight]，内容比视口矮则回到 0（旧偏移不再合法）。
+         */
+        private void restoreColumnScrolls() {
+            try {
+                for (Map.Entry<String, TooltipMakerAPI> entry : columnScrollers.entrySet()) {
+                    SavedScroll saved = savedScrolls.get(entry.getKey());
+                    TooltipMakerAPI viewport = entry.getValue();
+                    if (saved == null || viewport == null) continue;
+                    ScrollPanelAPI scroller = viewport.getExternalScroller();
+                    if (scroller == null) continue;
+                    boolean sameContext = Objects.equals(saved.context(), builtScrollContexts.get(entry.getKey()));
+                    // 候选武器栏：悬停槽位只刷新这一栏、不经过 rebuild，重建前后显示的可能是不同槽位，
+                    // 不能把 A 槽列表的偏移套到 B 槽列表上。
+                    if (SCROLL_WEAPONS.equals(entry.getKey())) {
+                        sameContext = sameContext && Objects.equals(savedWeaponSlot, displayedWeaponSlot);
+                    }
+                    float offset = Moci_AirSquadronLayout.restoredScroll(sameContext, saved.offset(),
+                            scrollContentHeight(viewport), scroller.getPosition().getHeight());
+                    if (offset > 0f) scroller.setYOffset(offset);
+                }
+            } finally {
+                savedScrolls.clear();
+                // 记下本次构建后各栏的上下文，供下一次 rebuild 判断是否同一上下文；
+                // 这次没建出来的栏（例如空机库时的右栏）从表里剔除，免得下次误判。
+                builtScrollContexts.keySet().retainAll(columnScrollers.keySet());
+                for (String key : columnScrollers.keySet()) builtScrollContexts.put(key, scrollContextFor(key));
+            }
+        }
+
+        /**
+         * M2：一栏滚动位置的上下文签名。左栏（母舰信息）与中栏（机库联队列表）只跟母舰有关，
+         * 点机库换联队时列表内容不变，不该跳回顶部；右栏（装配工作台、候选武器）还跟当前机库和它的
+         * 原型联队有关，换机库就从 0 开始。这里用原型而不是当前联队 ID：应用草稿后联队 ID 会变，
+         * 但槽位没变，不该跳回顶部。换母舰、空机库、首次构建都会让签名不相等。候选武器栏另外比较
+         * 重建前后显示的槽位，见 restoreColumnScrolls。
+         */
+        private String scrollContextFor(String key) {
+            String base = memberId + "|" + (carrier == null ? "-" : Objects.toString(carrier.getId(), "-"));
+            if (SCROLL_CARRIER.equals(key) || SCROLL_BAYS.equals(key)) return base;
+            return base + "|" + (selected == null ? "-" : selected.index() + ":" + prototypeOf(selected.wingId()));
+        }
+
+        private static String prototypeOf(String wingId) {
+            // getBaseWingId 不抛异常：非自定义 ID（含 null）原样返回，自定义 ID 查本地存档，
+            // 存档读取失败只记在 Moci_FighterLoadoutStore 的 failure 里。
+            String prototype = Moci_FighterLoadoutService.getBaseWingId(wingId);
+            return Objects.toString(prototype == null ? wingId : prototype, "-");
+        }
+
+        /**
+         * M2：滚动面板的内容高度。引擎在 addUIElement 时按 tooltip 自身高度 setContentSize，
+         * 所以取视口组件的高度；取不到（0/非有限）时退回累计内容高度。
+         */
+        private static float scrollContentHeight(TooltipMakerAPI viewport) {
+            float height = viewport.getPosition().getHeight();
+            return height > 0f && Float.isFinite(height) ? height : viewport.getHeightSoFar();
         }
 
         /** Display the selected wing's current draft; merely inspecting it never changes live OP. */
@@ -505,7 +636,15 @@ public final class Moci_AirSquadronDialog {
             String caption = "改造值：请选择联队";
             String op = ""; // 未选中有效联队时不显示 OP 行。
             if (selected != null && selected.wing() != null) {
-                try {
+                // refitBudgetForTacticals 在原型规格或装配缺失时抛 IllegalArgumentException，这里先用同一组
+                // 公开查询确认（自定义联队的本地存档损坏时原型会查不到）。草稿里的武器 ID 都来自引擎已解析的
+                // variant 或候选列表，服务层的「武器尺寸不可用」分支在真实规格下走不到。
+                FighterWingSpecAPI prototype = Moci_FighterLoadoutService.getWingSpec(
+                        Moci_FighterLoadoutService.getBaseWingId(selected.wingId()));
+                if (prototype == null || prototype.getVariant() == null) {
+                    caption = "改造值暂不可用";
+                    op = "原型联队规格缺失";
+                } else {
                     refitBudget = Moci_FighterLoadoutService.refitBudgetForTacticals(selected.wingId(), draft, tacticalDraft);
                     String percent = refitBudget.baseOp() > 0f ? number(refitBudget.usageRatio() * 100f) + "%" : "无基础容量";
                     caption = "改造值 " + refitBudget.usedPoints() + " / " + number(refitBudget.baseOp()) + " · " + percent;
@@ -513,10 +652,6 @@ public final class Moci_AirSquadronDialog {
                     if (width < 540f) {
                         caption = refitBudget.usedPoints() + " / " + number(refitBudget.baseOp()) + " · " + percent;
                     }
-                } catch (RuntimeException ex) {
-                    caption = "改造值暂不可用";
-                    op = "请检查原型与武器规格";
-                    Global.getLogger(Moci_AirSquadronDialog.class).warn("航空中队能量计算失败", ex);
                 }
             }
             Moci_AirSquadronEnergyBar bar = new Moci_AirSquadronEnergyBar(refitBudget);
@@ -552,7 +687,7 @@ public final class Moci_AirSquadronDialog {
         }
 
         private void buildCarrier(float x, float y, float w, float h) {
-            CustomPanelAPI column = column(x, y, w, h, 280f, true);
+            CustomPanelAPI column = column(SCROLL_CARRIER, x, y, w, h, 280f, true);
             w = column.getPosition().getWidth();
             Moci_AirSquadronLayout.Carrier layout = Moci_AirSquadronLayout.carrier(h, w);
             h = layout.height();
@@ -570,7 +705,8 @@ public final class Moci_AirSquadronDialog {
             if (carrierPreview != null) {
                 // Keep the carrier on the scan grid without adding a second
                 // rectangle around the sprite itself.
-                Moci_AirSquadronCanvas preview = new Moci_AirSquadronCanvas(carrierPreview, false, false, 4f, 0, null, false);
+                Moci_AirSquadronCanvas preview = new Moci_AirSquadronCanvas(carrierPreview, false, false, 0, 0, null, false)
+                        .contentFraction(0.8f);
                 CustomPanelAPI image = column.createCustomPanel(w - 16f, icon + 12f, preview);
                 column.addComponent(image).inTL(8, layout.imageTop());
             }
@@ -607,13 +743,15 @@ public final class Moci_AirSquadronDialog {
                 label.addSectionHeading(chosen ? "已选中联队" : "点击选择联队", chosen ? ACCENT : DIM, DARK, Alignment.MID, 0);
                 label.addPara("机库 " + (bay.index() + 1) + " " + name, chosen ? ACCENT : Color.LIGHT_GRAY, 6f);
                 if (bay.wing() != null) {
-                    try {
-                        Moci_AirSquadronArt.Model icon = bayPreviews.computeIfAbsent(bay.wingId(), id -> art.build(bay.wing().getVariant()));
+                    // 已加载的联队规格在启动时校验过 variant；Art 对缺失的贴图和武器规格返回空图层，不会抛异常。
+                    ShipVariantAPI bayVariant = bay.wing().getVariant();
+                    if (bayVariant != null) {
+                        Moci_AirSquadronArt.Model icon = bayPreviews.computeIfAbsent(bay.wingId(), id -> art.build(bayVariant));
                         Moci_AirSquadronCanvas iconPlugin = new Moci_AirSquadronCanvas(icon, false, chosen,
                                 5, chosen ? 10f : 0, null);
                         CustomPanelAPI image = card.createCustomPanel(iconWidth, 75f, iconPlugin);
                         card.addComponent(image).inTL(8, 14);
-                    } catch (RuntimeException ex) {
+                    } else {
                         label.addPara("预览不可用", DIM, 4f);
                     }
                 }
@@ -627,16 +765,19 @@ public final class Moci_AirSquadronDialog {
                     label.addPara("数量 " + bay.wing().getNumFighters() + suffix, DIM, 4f);
                 }
                 if (bay.builtIn() || !bay.eligible()) {
-                    label.addPara(bay.builtIn() ? "内置联队 只读" : Objects.toString(bay.lockReason(), "不可装配"), WARNING, 4f);
+                    // 内置机库照常列出、可以点选查看，但锁定不可编辑：显示服务层给出的锁定理由。
+                    label.addPara(Objects.toString(bay.lockReason(), bay.builtIn() ? "内置联队 只读" : "不可装配"), WARNING, 4f);
                 }
                 add(card, label, iconWidth + 12f, 6f);
                 list.addCustom(card, 8f);
             }
             add(column, list, 8, 8);
+            // M2：登记中栏（机库联队列表）的滚动视口，rebuild 后用它恢复滚动位置。
+            columnScrollers.put(SCROLL_BAYS, list);
         }
 
         private void buildEditor(float x, float y, float w, float h) {
-            CustomPanelAPI column = column(x, y, w, h, Moci_AirSquadronLayout.MIN_EDITOR_HEIGHT, false);
+            CustomPanelAPI column = column(SCROLL_EDITOR, x, y, w, h, Moci_AirSquadronLayout.MIN_EDITOR_HEIGHT, false);
             w = column.getPosition().getWidth();
             Moci_AirSquadronLayout.Editor layout = Moci_AirSquadronLayout.editor(h);
             h = layout.height();
@@ -679,9 +820,16 @@ public final class Moci_AirSquadronDialog {
             Moci_AirSquadronLayout.TopWorkbench top = Moci_AirSquadronLayout.topWorkbench(workWidth);
             float previewWidth = top.previewWidth();
             float namesWidth = top.weaponWidth();
-            try {
+            // 草稿里的武器 ID 只来自引擎已解析的 variant、getAllWeaponSpecs 候选列表和原型装配，
+            // addWeapon 不会遇到未知 ID；槽位来自 getEditableSlots（船体自己的槽位）。唯一需要先查的是 variant 本身。
+            ShipVariantAPI baseVariant = selected.wing().getVariant();
+            if (baseVariant == null) {
+                TooltipMakerAPI failure = text(work, workWidth, workHeight, true);
+                failure.addPara("预览不可用；请重新选择联队。", WARNING, 4f);
+                add(work, failure, 0, 0);
+            } else {
                 if (draftPreview == null || !selected.wingId().equals(previewWingId) || !draft.equals(previewLoadout)) {
-                    ShipVariantAPI variant = selected.wing().getVariant().clone();
+                    ShipVariantAPI variant = baseVariant.clone();
                     for (WeaponSlotAPI slot : slots) {
                         variant.clearSlot(slot.getId());
                         String id = draft.get(slot.getId());
@@ -691,7 +839,8 @@ public final class Moci_AirSquadronDialog {
                     previewWingId = selected.wingId();
                     previewLoadout = new LinkedHashMap<>(draft);
                 }
-                Moci_AirSquadronCanvas preview = new Moci_AirSquadronCanvas(draftPreview, true, false, 12f, 0, null);
+                Moci_AirSquadronCanvas preview = new Moci_AirSquadronCanvas(draftPreview, true, false, 0, 0, null)
+                        .contentFraction(0.8f);
                 fighterCanvas = preview;
                 preview.focus(selectedSlot, hoveredSlot);
                 preview.clipViewport(() -> viewport.getExternalScroller() == null ? parent.getPosition()
@@ -719,18 +868,17 @@ public final class Moci_AirSquadronDialog {
                             () -> { if (slotInteractionEnabled()) request(new Action("slot", slot.getId())); });
                 }
                 // getEditableSlots() already filters fixed, system, and decorative slots.
-                if (!weaponEditable()) boxes.addPara(selected.builtIn() ? "内置联队只能查看。"
+                // 内置机库可见、可点选，但锁定只读；其他不能换武器的联队显示服务层给出的理由。
+                if (!weaponEditable()) boxes.addPara(selected.builtIn()
+                        ? "已锁定，只能查看（" + Objects.toString(selected.lockReason(), "内置联队不可改装") + "）。"
                         : Objects.toString(selected.lockReason(), "该联队不支持武器换装。"), WARNING, 4f);
                 add(work, boxes, previewWidth + Moci_AirSquadronLayout.WORKBENCH_GAP, 0);
                 buildTactical(work, top, workHeight, tacticalOptions, viewport, parent);
-            } catch (RuntimeException ex) {
-                TooltipMakerAPI failure = text(work, workWidth, workHeight, true);
-                failure.addPara("预览不可用；请重新选择联队。", WARNING, 4f);
-                add(work, failure, 0, 0);
-                Global.getLogger(Moci_AirSquadronDialog.class).warn("航空中队预览生成失败", ex);
             }
             viewport.addCustom(work, 0);
             add(parent, viewport, 4, 4);
+            // M2：登记右栏顶部（预览 + 部位按钮 + 战术改装）的滚动视口，rebuild 后恢复其位置。
+            columnScrollers.put(SCROLL_WORKBENCH, viewport);
         }
 
         /** 按 tag 动态列出战术改装；图标直接处理点击，单选结果只写入草稿。 */
@@ -758,22 +906,26 @@ public final class Moci_AirSquadronDialog {
                 for (String id : options) {
                     if (Moci_TacticalHullmods.group(id) != group) continue;
                     boolean chosen = tacticalDraft.contains(id);
+                    // 适用条件按当前机库联队的原型判断，同一联队的结论不随草稿武器变化。
                     String unavailableReason = Moci_FighterLoadoutService.tacticalUnavailableReason(id,
-                            selected == null || selected.wing() == null ? null : selected.wing().getVariant());
+                            selected == null ? null : selected.wingId());
                     boolean available = unavailableReason == null;
                     Moci_AirSquadronArt.Model icon = tacticalIcons.computeIfAbsent(id,
                             key -> art.spriteModel(Moci_TacticalHullmods.sprite(key)));
                     CustomPanelAPI row = work.createCustomPanel(rowWidth, slot, null);
                     Action action = new Action("tactical", id);
+                    // 已在草稿里的项即使后来变得不可用也要能点掉，所以「已选」同样启用图标。
                     Moci_AirSquadronWeaponTile tile = new Moci_AirSquadronWeaponTile(icon, null, chosen, 2f * TACTICAL_ICON_SCALE,
-                            () -> available && tacticalInteractionEnabled(), () -> request(action), groupColor);
+                            () -> (available || chosen) && tacticalInteractionEnabled(), () -> request(action), groupColor);
                     clipIcon(tile, viewport, parent);
                     CustomPanelAPI iconPanel = row.createCustomPanel(slot, slot, tile);
                     // Direct child: the native tooltip attaches to this same icon, with no overlay or extra inset.
                     row.addComponent(iconPanel).inTL(0, 0);
                     column.addTooltipTo(new TacticalTooltip(id, unavailableReason), iconPanel, TooltipMakerAPI.TooltipLocation.LEFT, false);
                     TooltipMakerAPI name = text(row, nameWidth, slot, false);
-                    name.addPara(Moci_TacticalHullmods.displayName(id), !available ? Color.GRAY : chosen ? groupColor : DIM, 0f);
+                    // 已选但不再适用的项用警告色，提示玩家点击图标取消（悬停说明里有原因）。
+                    name.addPara(Moci_TacticalHullmods.displayName(id), chosen && !available ? WARNING
+                            : !available ? Color.GRAY : chosen ? groupColor : DIM, 0f);
                     row.addUIElement(name).inTL(slot + 6f, Math.max(0f, (slot - 16f) / 2f));
                     // 战术改装图标行之间的间距（UI 像素），与左侧部位按钮间距独立。
                     column.addCustom(row, 10f);
@@ -857,6 +1009,9 @@ public final class Moci_AirSquadronDialog {
             weaponsParent.addComponent(parent).inTL(weaponsX, weaponsY);
             weaponsList = list;
             displayedWeaponSlot = slotId;
+            // M2：登记右栏底部候选武器网格的滚动视口。refreshWeapons 也会在 rebuild 内被调用，
+            // 这里登记的始终是当前生效的视口，rebuild 前读到的偏移才是玩家看到的那一个。
+            columnScrollers.put(SCROLL_WEAPONS, list);
         }
 
         private void clipIcon(Moci_AirSquadronWeaponTile tile, TooltipMakerAPI viewport, CustomPanelAPI column) {
@@ -881,6 +1036,8 @@ public final class Moci_AirSquadronDialog {
             List<String> targetTactical = plan.tacticalHullmods;
             if (!targetTactical.isEmpty()) summary.addPara("战术改装：" + tacticalNames(targetTactical), ACCENT, 4f);
             else summary.addPara("战术改装：未选择", DIM, 4f);
+            // 选中机库时服务层报告的自动拆除结果：与下方操作提示同一警告样式，一直显示到切换机库。
+            if (removedTacticalNotice != null) summary.addPara(removedTacticalNotice, WARNING, 4f);
             if (plan.consume.isEmpty() && plan.returns.isEmpty()) summary.addPara("无武器增减。原型自带武器额度免费。", DIM, 4f);
             for (Map.Entry<String, Integer> item : plan.consume.entrySet()) {
                 summary.addPara("消耗：" + weaponName(item.getKey()) + " × " + item.getValue(), WARNING, 4f);
@@ -957,10 +1114,30 @@ public final class Moci_AirSquadronDialog {
         return name == null || name.isEmpty() ? id : name;
     }
 
+    /**
+     * 服务层在保存定义里发现、但因不可用已自动拆除的战术改装，拼成一句提示：
+     * 「已自动拆除不可用的战术改装：名字（原因）、名字（原因）」；没有则返回 null。
+     */
+    private static String removedTacticalNotice(String wingId) {
+        if (wingId == null || wingId.isEmpty()) return null;
+        Map<String, String> removed = Moci_FighterLoadoutService.getRemovedTacticalHullmods(wingId);
+        if (removed == null || removed.isEmpty()) return null;
+        List<String> parts = new ArrayList<>();
+        for (Map.Entry<String, String> entry : removed.entrySet()) {
+            String reason = entry.getValue() == null ? "" : entry.getValue().trim();
+            // 服务层的原因多以「。」结尾，放进括号前去掉，避免「（……。）」。
+            if (reason.endsWith("。")) reason = reason.substring(0, reason.length() - 1);
+            parts.add(tacticalName(entry.getKey()) + (reason.isEmpty() ? "" : "（" + reason + "）"));
+        }
+        return "已自动拆除不可用的战术改装：" + String.join("、", parts);
+    }
+
     private static String weaponName(String id) {
         if (id == null || id.isEmpty()) return "空槽";
-        try { return Global.getSettings().getWeaponSpec(id).getWeaponName(); }
-        catch (RuntimeException ex) { return id; }
+        // 这里的 ID 只来自引擎已解析的装配（addWeapon 会拒绝未知 ID）、getAllWeaponSpecs 候选和服务层结算，
+        // 都是已注册的武器，不需要兜底；查不到规格时按原样显示 ID。
+        WeaponSpecAPI spec = Global.getSettings().getWeaponSpec(id);
+        return spec == null ? id : spec.getWeaponName();
     }
 
     private static Color weaponTileFill(WeaponAvailability availability) {
@@ -989,9 +1166,32 @@ public final class Moci_AirSquadronDialog {
                 if (!value.isEmpty() && !params.contains(value)) params.add(value);
             }
         } catch (RuntimeException ex) {
+            // 保留：参数来自船插效果类自己的代码，没有 API 能事先确认它不会抛；
+            // 悬停提示由引擎直接调用，不经过窗口的 guarded 保护，失败时只放弃高亮。
             params.clear();
         }
         return params;
+    }
+
+    /** 船插说明：优先取引擎展开参数后的文本，失败或为空时退回 hull_mods.csv 里的原始格式文本。 */
+    private static String tacticalDescription(HullModSpecAPI spec) {
+        if (spec == null) return null;
+        String expanded = hullmodText(() -> spec.getDescription(ShipAPI.HullSize.FIGHTER));
+        return expanded != null ? expanded : hullmodText(spec::getDescriptionFormat);
+    }
+
+    /**
+     * 保留 catch：getDescription 会执行船插效果代码并做 String.format（效果为 null 时 NPE，
+     * 文本里有裸 % 时 IllegalFormatException），没有 API 能事先判断；悬停提示由引擎直接调用，
+     * 不经过窗口的 guarded 保护，所以在这里降级为「不显示这段说明」。
+     */
+    private static String hullmodText(java.util.function.Supplier<String> source) {
+        try {
+            String text = source.get();
+            return text == null || text.isBlank() ? null : text;
+        } catch (RuntimeException ex) {
+            return null;
+        }
     }
 
     private static final class TacticalTooltip implements TooltipMakerAPI.TooltipCreator {
@@ -1007,15 +1207,7 @@ public final class Moci_AirSquadronDialog {
         @Override public void createTooltip(TooltipMakerAPI tip, boolean expanded, Object param) {
             tip.addTitle(tacticalName(id));
             HullModSpecAPI spec = Moci_TacticalHullmods.spec(id);
-            String description = null;
-            if (spec != null) {
-                try { description = spec.getDescription(ShipAPI.HullSize.FIGHTER); }
-                catch (RuntimeException ex) { description = null; }
-                if (description == null || description.isBlank()) {
-                    try { description = spec.getDescriptionFormat(); }
-                    catch (RuntimeException ex) { description = null; }
-                }
-            }
+            String description = tacticalDescription(spec);
             // 只展示船插本身的名称与说明（与原版改装页一致），不写任何实现细节或操作提示。
             // 说明里的数值参数按原版改装页的样式高亮成金色，避免玩家读到一串纯白文本。
             if (description != null && !description.isBlank()) {
@@ -1118,8 +1310,9 @@ public final class Moci_AirSquadronDialog {
                 tip.addPara("应用装配时自动购买。", DIM, 5f);
             }
             if (spec.getDerivedStats() != null) {
+                // 分隔符「 · 」由 number() 统一补在第二项之前，标签本身不能再带，否则会出现两个「·」。
                 para(tip, "每秒伤害 ", Math.round(spec.getDerivedStats().getDps()),
-                        " · 每秒幅能 ", Math.round(spec.getDerivedStats().getFluxPerSecond()));
+                        "每秒幅能 ", Math.round(spec.getDerivedStats().getFluxPerSecond()));
             }
             if (spec.usesAmmo()) para(tip, "弹药 ", spec.getMaxAmmo());
         }

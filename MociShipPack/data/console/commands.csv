@@ -1,0 +1,2 @@
+command,class,tags,syntax,help
+MociAI,data.console.commands.MociAI,"moci,cheat,campaign",MociAI levelup [数量] | evolve,"操作旗舰的舰载 AI。MociAI levelup 1 升一级，省略数量默认一级；MociAI levelup 4 升四级；MociAI evolve 进化。升级遵守当前形态的等级上限，不会自动进化。"

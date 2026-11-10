@@ -59,8 +59,10 @@ public class Moci_PhaseSubLaunch extends BaseHullMod {
                 Misc.getHighlightColor(),
                 Moci_TextLoader.getHighlights(TEXT_ID, "description.effect_1_highlights").toArray(new String[0])
         );
-        tooltip.addPara(Moci_TextLoader.getText(TEXT_ID, "description.launch_bonus"),
+        java.util.Map<String, String> bonusValues = Moci_TextLoader.mapOf(
+                "launch_bonus", String.valueOf(Math.round((SUB_LAUNCH_BONUS - 1f) * 100f)));
+        tooltip.addPara(Moci_TextLoader.getTextWithReplacements(TEXT_ID, "description.launch_bonus", bonusValues),
                 4f, Misc.getHighlightColor(),
-                Moci_TextLoader.getHighlights(TEXT_ID, "description.launch_bonus_highlights").toArray(new String[0]));
+                Moci_TextLoader.getHighlightsWithReplacements(TEXT_ID, "description.launch_bonus_highlights", bonusValues).toArray(new String[0]));
     }
 }

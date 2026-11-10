@@ -34,6 +34,7 @@ import data.campaign.intel.Moci_CombatSquadManagerIntel;
 import data.campaign.intel.Moci_ShipboardAIManagerIntel;
 import data.campaign.MociRecoverableShipCampaignPlugin;
 import data.campaign.Moci_AirSquadronCoordinator;
+import data.campaign.fighter.Moci_FighterLoadoutLifecycle;
 import data.campaign.fighter.Moci_FighterLoadoutService;
 import org.apache.log4j.Logger;
 import org.dark.shaders.light.LightData;
@@ -401,8 +402,17 @@ public class Moci_bounty_plugin extends BaseModPlugin {
     }
 
     @Override
+    public void beforeGameSave() {
+        // 自定义联队的定义必须跟着存档走：只写在 saves/common 的注册库里的话，换机器或清理
+        // common 目录后存档里的联队就找不到定义。这里把整份注册库写进 persistent data。
+        Moci_FighterLoadoutLifecycle.beforeGameSave();
+        super.beforeGameSave();
+    }
+
+    @Override
     public void onGameLoad(boolean newGame) {
-        Moci_FighterLoadoutService.registerAllFromStore();
+        // 读档顺序固定：内嵌副本回灌 → 注册定义 → 安装市场守卫。
+        Moci_FighterLoadoutLifecycle.onGameLoad(newGame);
         Moci_AirSquadronCoordinator.register();
         // 初始化Tulip殖民地（支持中途加入mod）
         Moci_TulipColonyManager.initializeTulipColony();

@@ -38,6 +38,8 @@ public final class ZetaEnhancement implements AutoCloseable, data.scripts.combat
                 // Tether can request the already-owned native saber for its optional close-range finish.
                 tether=ZetaTetherCombo.supports(ship)?track(created,new ZetaTetherCombo(engine,ship,rifle)):null;
                 ceaseFire=track(created,new ZetaCeaseFire(engine,ship,()->rifle.cancelCharge("玩家停火")));findTransform();
+                // 生物传感器压制是全场一个实例，按键子系统挂在每台 Zeta 上，换乘后键位也在。
+                ZetaBiosensorJam.attachHotkey(ship);
             }catch(RuntimeException|Error failure){Collections.reverse(created);for(AutoCloseable resource:created)try{resource.close();}catch(Exception cleanup){failure.addSuppressed(cleanup);}throw failure;}
         }
         void findTransform(){transform=null;for(WeaponAPI weapon:ship.getAllWeapons())if(weapon.getSlot()!=null&&"BACKPACK".equals(weapon.getSlot().getId())&&weapon.getEffectPlugin() instanceof Moci_MechTransformController own){transform=own;break;}}

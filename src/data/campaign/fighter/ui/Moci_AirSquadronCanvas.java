@@ -17,6 +17,7 @@ final class Moci_AirSquadronCanvas extends BaseCustomUIPanelPlugin {
     private final Moci_AirSquadronArt.Model model;
     private final List<Marker> markers = new ArrayList<>();
     private final float inset, offsetX;
+    private float contentFraction = 1f;
     private final boolean selected;
     private final Runnable click;
     private PositionAPI position;
@@ -37,6 +38,7 @@ final class Moci_AirSquadronCanvas extends BaseCustomUIPanelPlugin {
         this.scan = new Moci_AirSquadronScanPanel(scanning, frame, selected);
     }
 
+    Moci_AirSquadronCanvas contentFraction(float fraction) { contentFraction = fraction; return this; }
     void clipViewport(Supplier<PositionAPI> viewport) { viewports.add(viewport); }
     void marker(String slotId, float localX, float localY, PositionAPI target, Runnable action) {
         // A hull points right in API coordinates; the displayed sprite points up.
@@ -93,8 +95,11 @@ final class Moci_AirSquadronCanvas extends BaseCustomUIPanelPlugin {
     }
 
     private Moci_AirSquadronLayout.Transform transform() {
-        return model.fit(position.getX() + inset + offsetX, position.getY() + inset,
-                Math.max(1, position.getWidth() - 2 * inset - Math.abs(offsetX)), Math.max(1, position.getHeight() - 2 * inset));
+        float width = Math.max(1, position.getWidth() - 2 * inset - Math.abs(offsetX));
+        float height = Math.max(1, position.getHeight() - 2 * inset);
+        return model.fit(position.getX() + inset + offsetX + width * (1f - contentFraction) / 2f,
+                position.getY() + inset + height * (1f - contentFraction) / 2f,
+                width * contentFraction, height * contentFraction);
     }
 
     @Override public void render(float alpha) {

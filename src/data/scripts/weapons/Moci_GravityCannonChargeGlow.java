@@ -52,7 +52,8 @@ import org.boxutil.units.standard.attribute.NodeData;
  * 引力炮投射物的分层渲染与引力/潮汐/坍塌期行为。
  * 协同 {@link data.scripts.weapons.render.Moci_SingularityRenderer} 执行奇点视觉与半径/质量逻辑。
  */
-public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlugin {
+public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlugin
+        implements Moci_GravityProjectileMotion.Field {
     private static final String TEXT_ID = "Moci_GravityCannonChargeGlow";
     private static final Logger LOG = Global.getLogger(Moci_GravityCannonChargeGlow.class);
     
@@ -124,11 +125,10 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
     
     // 投射物速度上限
     public static final float PROJECTILE_MAX_SPEED = 800f; // 最大速度限制
-    
-    // === 导弹阻尼参数 ===
-    public static final float MISSILE_DAMPING_OUTER_RANGE = 50f; // 事件界限外预警范围
-    public static final float MISSILE_DAMPING_OUTER_MAX = 0.2f; // 外围最大阻尼（20%）
-    public static final float MISSILE_DAMPING_INNER_MAX = 0.95f; // 界限内最大阻尼（95%）
+
+    // 距离减速：引力范围边缘减速10%，事件视界处达到90%（进入视界后即被吞噬）
+    public static final float PROJECTILE_SLOWDOWN_EDGE = 0.1f;
+    public static final float PROJECTILE_SLOWDOWN_CORE = 0.9f;
     
     // === 投射物轨迹修正参数 ===
     // 偏转比例（按距离分段）
@@ -895,7 +895,6 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
 
         // 使用Grid遍历优化性能（只检查作用范围内的舰船）
         List<ShipAPI> ships = Moci_Util.getShipsInRange(center, R_world);
-        if (ships.isEmpty()) return;
 
         for (ShipAPI target : ships) {
             if (target == null) continue;
@@ -1058,7 +1057,10 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                 float deltaV = acceleration * DAMAGE_INTERVAL;
                 
                 // 计算并应用引力加速度向量
-                Vector2f v = new Vector2f(other.getVelocity());
+                // 引力速度单独累计，距离减速只作用于弹体自身的飞行分量。
+                Moci_GravityProjectileMotion motion = Moci_GravityProjectileMotion.get(engine);
+                Vector2f v = motion.beforeGravity(other, this);
+                if (v == null) continue;
                 v.x += dir.x * deltaV;
                 v.y += dir.y * deltaV;
                 
@@ -1072,41 +1074,11 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                     v.y = dir.y * vr + vt.y;
                 }
                 
-                // === 第三步：事件界限阻尼（只在接近/进入事件界限时触发）===
-                float outerDampingRange = MISSILE_DAMPING_OUTER_RANGE;
-                
-                if (d < rsWorld + outerDampingRange) {
-                    if (d > rsWorld) {
-                        // 在事件界限外预警范围内：所有投射物微弱阻尼
-                        float distanceFromHorizon = d - rsWorld;
-                        float proximity = 1.0f - (distanceFromHorizon / outerDampingRange);
-                        proximity = Math.max(0f, Math.min(1f, proximity));
-                        
-                        // 导弹阻尼更强
-                        float weakDamping = isMissile ? MISSILE_DAMPING_OUTER_MAX : (MISSILE_DAMPING_OUTER_MAX * 0.5f);
-                        float dampingMult = 1.0f - weakDamping * proximity;
-                        v.x *= dampingMult;
-                        v.y *= dampingMult;
-                    } else {
-                        // 在事件界限内：所有投射物强力阻尼，导弹更强
-                        float depthInHorizon = rsWorld - d;
-                        float penetration = Math.min(1f, depthInHorizon / rsWorld);
-                        
-                        // 三次方曲线让阻尼急剧增强
-                        float dampingFactor = penetration * penetration * penetration;
-                        
-                        // 导弹减速更强
-                        float maxDamping = isMissile ? MISSILE_DAMPING_INNER_MAX : (MISSILE_DAMPING_INNER_MAX - 0.15f);
-                        float dampingMult = 1.0f - maxDamping * dampingFactor;
-                        v.x *= dampingMult;
-                        v.y *= dampingMult;
-                    }
-                }
-                
-                // 速度上限：防止过快穿透
-                float finalSpeed = (float)Math.sqrt(v.x * v.x + v.y * v.y);
+                // 引力分量保留800的速度上限，不随距离减速；自身飞行速度另行合成。
+                double finalSpeed = Math.hypot(v.x, v.y);
+                if (!Double.isFinite(finalSpeed)) continue;
                 if (finalSpeed > PROJECTILE_MAX_SPEED) {
-                    float limitScale = PROJECTILE_MAX_SPEED / finalSpeed;
+                    float limitScale = (float) (PROJECTILE_MAX_SPEED / finalSpeed);
                     v.x *= limitScale;
                     v.y *= limitScale;
                 }
@@ -1121,7 +1093,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                     }
                 }
                 
-                other.getVelocity().set(v);
+                motion.afterGravity(other, v);
             }
             
             // 吞噬判定：严格判定，只吞噬真正进入事件界限的投射物
@@ -1147,6 +1119,35 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
         }
 
         // 之前的光束弯折/截断/吸收逻辑已移除，准备采用更合适的API方案
+    }
+
+    boolean isProjectileGravityActive() {
+        if (proj == null || isProjectileExpired(proj)) return false;
+        Moci_SingularityRenderer renderer = Moci_SingularityRenderer.getOrCreate();
+        return !collapseEffectsEnabled || (!renderer.isCollapsing(proj) && !renderer.isCollapsed(proj));
+    }
+
+    @Override
+    public float getProjectileSpeedMultiplier(DamagingProjectileAPI projectile) {
+        if (!isProjectileGravityActive()) return 1f;
+        Moci_SingularityRenderer renderer = Moci_SingularityRenderer.getOrCreate();
+        Vector2f center = renderer.getCenterWorld(proj);
+        if (center == null) center = proj.getLocation();
+        float mass = Math.max(0f, renderer.getMassValue(proj)) / 10000f;
+        float radius = GRAVITY_RANGE_BASE * (1f + GRAVITY_RANGE_MASS_MULT * (float) Math.sqrt(mass));
+        float core = renderer.getEventHorizonRadiusWorld(proj);
+        float distance = Misc.getDistance(center, projectile.getLocation());
+        return getProjectileSpeedMultiplier(distance, core, radius);
+    }
+
+    static float getProjectileSpeedMultiplier(float distance, float coreRadius, float gravityRadius) {
+        if (!Float.isFinite(distance) || !Float.isFinite(coreRadius)
+                || !Float.isFinite(gravityRadius) || distance > gravityRadius) return 1f;
+        float span = Math.max(1e-3f, gravityRadius - coreRadius);
+        float proximity = Math.max(0f, Math.min(1f, (gravityRadius - distance) / span));
+        float slowdown = PROJECTILE_SLOWDOWN_EDGE
+                + (PROJECTILE_SLOWDOWN_CORE - PROJECTILE_SLOWDOWN_EDGE) * proximity;
+        return 1f - slowdown;
     }
     
     /**

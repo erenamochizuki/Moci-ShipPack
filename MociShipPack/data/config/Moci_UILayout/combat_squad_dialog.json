@@ -1,0 +1,464 @@
+{
+  "_note": "作战小队管理弹窗（Moci_CombatSquadDialog）的布局。每次打开弹窗重读；文件缺失或损坏时用代码内置默认值并打一行 [Moci_UILayout] 警告。",
+  "layout": "combat_squad_dialog",
+  "version": 1,
+  "dialog": {
+    "w": 1216,
+    "h": 704
+  },
+  "slots": {
+    "_note": "坐标相对父槽位（in；没有 in = 弹窗根），y 向下，逻辑屏 1280×800。重复槽位：有 cols 时 x+(i%cols)×pitchX、y+⌊i/cols⌋×pitchY；没有 cols 时 x+i×pitchX、y+i×pitchY。缺失的槽位用代码默认值。",
+    "header": {
+      "_note": "顶栏：标题、提示、关闭按钮",
+      "x": 0,
+      "y": 0,
+      "w": 1216,
+      "h": 36
+    },
+    "title": {
+      "in": "header",
+      "x": 16,
+      "y": 8,
+      "w": 600,
+      "h": 22
+    },
+    "notice": {
+      "in": "header",
+      "x": 630,
+      "y": 10,
+      "w": 440,
+      "h": 20
+    },
+    "closeButton": {
+      "in": "header",
+      "x": 1100,
+      "y": 7,
+      "w": 100,
+      "h": 22
+    },
+    "tab": {
+      "_note": "页签（编队 / 舰载 AI）：按可见顺序占位，第 k 个 x = x + k × pitchX；只有 AI 页时 AI 排第一个",
+      "x": 16,
+      "y": 40,
+      "w": 160,
+      "h": 22,
+      "pitchX": 168
+    },
+    "body": {
+      "_note": "内容区：编队页 / 舰载 AI 页共用",
+      "x": 16,
+      "y": 70,
+      "w": 1184,
+      "h": 618
+    },
+    "squadBar": {
+      "_note": "编队页顶部横条：舰长头像、舰船/舰长/编队信息、编队改名、统计",
+      "in": "body",
+      "x": 0,
+      "y": 0,
+      "w": 1184,
+      "h": 104
+    },
+    "captainPortrait": {
+      "in": "squadBar",
+      "x": 12,
+      "y": 12,
+      "w": 80,
+      "h": 80
+    },
+    "squadInfo": {
+      "in": "squadBar",
+      "x": 104,
+      "y": 10,
+      "w": 420,
+      "h": 84
+    },
+    "squadNameField": {
+      "in": "squadBar",
+      "x": 540,
+      "y": 10,
+      "w": 300,
+      "h": 28
+    },
+    "squadRenameButton": {
+      "in": "squadBar",
+      "x": 850,
+      "y": 14,
+      "w": 90,
+      "h": 20
+    },
+    "squadStats": {
+      "in": "squadBar",
+      "x": 540,
+      "y": 44,
+      "w": 632,
+      "h": 52
+    },
+    "memberList": {
+      "_note": "成员卡片列表视口（可滚动）；内容宽 = w − 15（滚动条），卡片用 memberCard 重复槽位排列",
+      "in": "body",
+      "x": 0,
+      "y": 116,
+      "w": 1184,
+      "h": 502
+    },
+    "memberCard": {
+      "_note": "成员卡片：x + (i % cols) × pitchX，y + ⌊i / cols⌋ × pitchY；两列 577 + 15 + 577 = 1169 正好填满列表内宽",
+      "in": "memberList",
+      "x": 0,
+      "y": 0,
+      "w": 577,
+      "h": 490,
+      "pitchX": 592,
+      "pitchY": 502,
+      "cols": 2
+    },
+    "memberPortrait": {
+      "_note": "机师头像（可点击换头像），叠悬停框 + 扫描框",
+      "in": "memberCard",
+      "x": 16,
+      "y": 16,
+      "w": 180,
+      "h": 180
+    },
+    "memberShip": {
+      "_note": "与头像等高；船体、装饰武器、内置武器与模块按可见外缘等比居中，放入框中央 80% 的区域，四边各留至少 10% 空白",
+      "in": "memberCard",
+      "x": 212,
+      "y": 16,
+      "w": 349,
+      "h": 180
+    },
+    "memberShipName": {
+      "in": "memberCard",
+      "x": 212,
+      "y": 200,
+      "w": 349,
+      "h": 20
+    },
+    "memberInfo": {
+      "in": "memberCard",
+      "x": 16,
+      "y": 232,
+      "w": 264,
+      "h": 190
+    },
+    "memberSkills": {
+      "in": "memberCard",
+      "x": 297,
+      "y": 232,
+      "w": 264,
+      "h": 190
+    },
+    "memberActions": {
+      "in": "memberCard",
+      "x": 16,
+      "y": 438,
+      "w": 545,
+      "h": 36
+    },
+    "memberAction": {
+      "_note": "卡片底部按钮（改名/指派舰船/升级/精英化），第 k 个 x = x + k × pitchX",
+      "in": "memberActions",
+      "x": 0,
+      "y": 8,
+      "w": 125,
+      "h": 22,
+      "pitchX": 140
+    },
+    "aiCard": {
+      "in": "body",
+      "x": 0,
+      "y": 0,
+      "w": 760,
+      "h": 618
+    },
+    "aiStage": {
+      "_note": "TacP 风格舞台：脉冲圆环圆心 = aiFigure 中心",
+      "in": "aiCard",
+      "x": 0,
+      "y": 0,
+      "w": 760,
+      "h": 440
+    },
+    "aiBackdrop": {
+      "_note": "立绘背后的旋转背景（如奈因的 TacP 齿轮环），只有立绘配置里写了 backdrop 的 AI 才有；默认和 aiFigure 同中心",
+      "in": "aiStage",
+      "x": 230,
+      "y": 70,
+      "w": 300,
+      "h": 300
+    },
+    "aiFigure": {
+      "_note": "立绘：有插画按比例放进框里，没有就用 AI 头像（正方形，边长 min(w,h)，居中）；配了序列帧时在这里播放动画",
+      "in": "aiStage",
+      "x": 260,
+      "y": 40,
+      "w": 240,
+      "h": 360
+    },
+    "aiLines": {
+      "_note": "引线层：从 aiFigure 左右边缘连到四个信息签的内侧边，端点按槽位 rect 计算",
+      "in": "aiStage",
+      "x": 0,
+      "y": 0,
+      "w": 760,
+      "h": 440
+    },
+    "aiTagName": {
+      "_note": "信息签：上行灰色小字标签，下行亮色数值；在立绘左边的签右对齐",
+      "in": "aiStage",
+      "x": 16,
+      "y": 60,
+      "w": 220,
+      "h": 44
+    },
+    "aiTagLevel": {
+      "in": "aiStage",
+      "x": 16,
+      "y": 250,
+      "w": 220,
+      "h": 44
+    },
+    "aiTagExp": {
+      "in": "aiStage",
+      "x": 524,
+      "y": 60,
+      "w": 220,
+      "h": 44
+    },
+    "aiTagPersonality": {
+      "in": "aiStage",
+      "x": 524,
+      "y": 250,
+      "w": 220,
+      "h": 44
+    },
+    "aiNameField": {
+      "in": "aiCard",
+      "x": 16,
+      "y": 456,
+      "w": 300,
+      "h": 28
+    },
+    "aiRenameButton": {
+      "in": "aiCard",
+      "x": 326,
+      "y": 460,
+      "w": 90,
+      "h": 20
+    },
+    "aiPoints": {
+      "in": "aiCard",
+      "x": 440,
+      "y": 452,
+      "w": 304,
+      "h": 36
+    },
+    "aiEvolve": {
+      "in": "aiCard",
+      "x": 16,
+      "y": 500,
+      "w": 728,
+      "h": 102
+    },
+    "aiSkills": {
+      "in": "body",
+      "x": 776,
+      "y": 0,
+      "w": 200,
+      "h": 618
+    },
+    "aiAux": {
+      "in": "body",
+      "x": 984,
+      "y": 0,
+      "w": 200,
+      "h": 618
+    },
+    "popupBackdrop": {
+      "_note": "弹出菜单的半透明底板",
+      "x": 0,
+      "y": 0,
+      "w": 1216,
+      "h": 704
+    },
+    "popupPortrait": {
+      "x": 208,
+      "y": 92,
+      "w": 800,
+      "h": 520
+    },
+    "popupPortraitTitle": {
+      "in": "popupPortrait",
+      "x": 16,
+      "y": 12,
+      "w": 600,
+      "h": 24
+    },
+    "popupPortraitGrid": {
+      "in": "popupPortrait",
+      "x": 16,
+      "y": 44,
+      "w": 768,
+      "h": 432
+    },
+    "popupPortraitCell": {
+      "_note": "头像格：x + (i % cols) × pitchX，y + ⌊i / cols⌋ × pitchY",
+      "in": "popupPortraitGrid",
+      "x": 0,
+      "y": 0,
+      "w": 84,
+      "h": 84,
+      "pitchX": 92,
+      "pitchY": 92,
+      "cols": 8
+    },
+    "popupPortraitCancel": {
+      "in": "popupPortrait",
+      "x": 684,
+      "y": 486,
+      "w": 100,
+      "h": 22
+    },
+    "popupElite": {
+      "x": 308,
+      "y": 152,
+      "w": 600,
+      "h": 400
+    },
+    "popupEliteTitle": {
+      "in": "popupElite",
+      "x": 16,
+      "y": 12,
+      "w": 568,
+      "h": 24
+    },
+    "popupEliteList": {
+      "in": "popupElite",
+      "x": 16,
+      "y": 44,
+      "w": 568,
+      "h": 300
+    },
+    "popupEliteRow": {
+      "in": "popupEliteList",
+      "x": 0,
+      "y": 0,
+      "w": 552,
+      "h": 40,
+      "pitchY": 46
+    },
+    "popupEliteCancel": {
+      "in": "popupElite",
+      "x": 484,
+      "y": 366,
+      "w": 100,
+      "h": 22
+    },
+    "popupShip": {
+      "x": 208,
+      "y": 92,
+      "w": 800,
+      "h": 520
+    },
+    "popupShipTitle": {
+      "in": "popupShip",
+      "x": 16,
+      "y": 12,
+      "w": 600,
+      "h": 24
+    },
+    "popupShipGrid": {
+      "in": "popupShip",
+      "x": 16,
+      "y": 44,
+      "w": 768,
+      "h": 432
+    },
+    "popupShipCell": {
+      "_note": "舰船格：x + (i % cols) × pitchX，y + ⌊i / cols⌋ × pitchY",
+      "in": "popupShipGrid",
+      "x": 0,
+      "y": 0,
+      "w": 180,
+      "h": 120,
+      "pitchX": 188,
+      "pitchY": 128,
+      "cols": 4
+    },
+    "popupShipCellImage": {
+      "in": "popupShipCell",
+      "x": 8,
+      "y": 8,
+      "w": 64,
+      "h": 64
+    },
+    "popupShipCellInfo": {
+      "in": "popupShipCell",
+      "x": 80,
+      "y": 8,
+      "w": 92,
+      "h": 104
+    },
+    "popupShipRestore": {
+      "in": "popupShip",
+      "x": 16,
+      "y": 486,
+      "w": 140,
+      "h": 22
+    },
+    "popupShipCancel": {
+      "in": "popupShip",
+      "x": 684,
+      "y": 486,
+      "w": 100,
+      "h": 22
+    },
+    "popupRename": {
+      "x": 358,
+      "y": 232,
+      "w": 500,
+      "h": 240
+    },
+    "popupRenameTitle": {
+      "in": "popupRename",
+      "x": 16,
+      "y": 12,
+      "w": 468,
+      "h": 24
+    },
+    "popupRenameLabel": {
+      "_note": "姓 / 名 / 呼号 三行标签",
+      "in": "popupRename",
+      "x": 16,
+      "y": 48,
+      "w": 100,
+      "h": 20,
+      "pitchY": 40
+    },
+    "popupRenameField": {
+      "_note": "姓 / 名 / 呼号 三个输入框",
+      "in": "popupRename",
+      "x": 124,
+      "y": 44,
+      "w": 240,
+      "h": 28,
+      "pitchY": 40
+    },
+    "popupRenameOk": {
+      "in": "popupRename",
+      "x": 276,
+      "y": 206,
+      "w": 100,
+      "h": 22
+    },
+    "popupRenameCancel": {
+      "in": "popupRename",
+      "x": 384,
+      "y": 206,
+      "w": 100,
+      "h": 22
+    }
+  }
+}

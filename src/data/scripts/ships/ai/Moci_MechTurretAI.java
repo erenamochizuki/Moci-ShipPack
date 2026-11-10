@@ -147,10 +147,12 @@ public class Moci_MechTurretAI extends BasicShipAI {
     private Vector2f lastTargetPosition = null;
     private float approachFactor = 0f;
     private Vector2f targetVelocity = new Vector2f(0f, 0f);
+    private final Moci_GNShieldAI.Perception gnShieldPerception;
 
     public Moci_MechTurretAI(ShipAPI ship) {
         super((Ship) ship);
         this.ship = ship;
+        this.gnShieldPerception = new Moci_GNShieldAI.Perception(ship, "MechTurretAI");
         ensureLunaSettingsLoaded();
     }
 
@@ -577,7 +579,12 @@ public class Moci_MechTurretAI extends BasicShipAI {
     @Override
     public void advance(float amount) {
         if (useDefaultAI) {
-            super.advance(amount);
+            gnShieldPerception.open();
+            try {
+                super.advance(amount);
+            } finally {
+                gnShieldPerception.close();
+            }
         }
         useDefaultAI = false;
 

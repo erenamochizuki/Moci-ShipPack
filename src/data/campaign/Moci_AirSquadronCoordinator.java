@@ -10,6 +10,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.RefitScreenListener;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.util.Misc;
+import data.campaign.fighter.Moci_FighterLoadoutLifecycle;
 import data.campaign.fighter.Moci_FighterLoadoutService;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +50,13 @@ public class Moci_AirSquadronCoordinator implements EveryFrameScript, RefitScree
         // Market refit is nested inside an interaction dialog. The public API cannot inspect that
         // nested core tab, so wait for the dialog to close as well as checking the space refit tab.
         if (ui == null || ui.getCurrentCoreTab() == CoreUITabId.REFIT || ui.isShowingDialog()) return;
+        // 读档提示（例如从存档内嵌副本恢复了定义）在这里显示：读档瞬间 UI 还没准备好，
+        // 等玩家回到安全的战役界面时再一条一条弹出。
+        String notice = Moci_FighterLoadoutLifecycle.pollNotice();
+        if (notice != null) {
+            ui.addMessage(notice, Misc.getHighlightColor());
+            return;
+        }
         elapsed += Math.max(0f, amount);
         boolean audit = elapsed >= 1f;
         if (!audit && pending.isEmpty()) return;
@@ -71,7 +79,10 @@ public class Moci_AirSquadronCoordinator implements EveryFrameScript, RefitScree
                 String reason;
                 try {
                     reason = Moci_FighterLoadoutService.restoreWithoutHullmod(member);
-                } catch (RuntimeException ex) {
+                } catch (RuntimeException | LinkageError ex) {
+                    // 逐舰隔离：恢复会跑各 mod 船插的统计代码并搬动库存，首次触碰的类也可能在脚本类加载器里链接失败
+                    // （LinkageError 不是 RuntimeException），这些都无法事先验证。一艘船失败不能挡住其余待恢复的船，
+                    // 失败原因还要照常告诉玩家（下面按原因去重）。
                     reason = "装配恢复异常，已保留舰船及库存：" + ex.getClass().getSimpleName();
                     if (!reason.equals(reportedFailures.get(id))) {
                         Global.getLogger(Moci_AirSquadronCoordinator.class).warn(reason, ex);

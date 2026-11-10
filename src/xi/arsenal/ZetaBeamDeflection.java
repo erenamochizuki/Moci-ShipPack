@@ -7,7 +7,6 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.combat.entities.MovingRay;
 import java.awt.Color;
 import java.util.*;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector2f;
 
 /** Three local seconds of real optical interception. Ray geometry is redirected in place;
@@ -19,13 +18,13 @@ public final class ZetaBeamDeflection implements DamageTakenModifier,AutoCloseab
     private static final int MAX_RAYS=1024,MAX_PENDING=32,MAX_DAMAGE_LEASES=64,MAX_VISUALS=32,MAX_TARGETS=256,MAX_PARTS=8;
     private static final String RAY_MARK=KEY+".rayRedirected";
     private final Thread thread=Thread.currentThread();private final CombatEngineAPI engine;private final ShipAPI ship;
-    private final String modifier=KEY+"."+UUID.randomUUID(),reservation="Zeta 光束弹开#"+UUID.randomUUID();
+    private final String modifier=KEY+"."+UUID.randomUUID();
     private final Set<ShipAPI> parts=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<DamageAPI> damageLeases=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<Object> intercepted=Collections.newSetFromMap(new IdentityHashMap<>());
     private final ArrayDeque<Tick> pending=new ArrayDeque<>();private final List<Trace> traces=new ArrayList<>();
-    private final Map<WeaponAPI,Arm> arms=new IdentityHashMap<>();private OwnNewtypeBindings.Result binding=new OwnNewtypeBindings.Result(false,List.of(),"需要生物传感器过载");
-    private float remaining,blend,keyClock,partClock,lastStep=.0167f;private double clock;private boolean active,closed;private String reason="需要生物传感器过载";
+    private final Map<WeaponAPI,Arm> arms=new IdentityHashMap<>();
+    private float remaining,blend,partClock,lastStep=.0167f;private double clock;private boolean active,closed;private String reason="需要生物传感器过载";
     private long toggles,redirectedRays,cancelledTicks,reflectedHits,budgetSkips,serial;private int rayCursor;
     public record Request(boolean accepted,String reason){}
     /** Native applyDamage parameter. A receiver may absorb once; never reflect again or credit the original deflector twice. */
@@ -59,7 +58,6 @@ public final class ZetaBeamDeflection implements DamageTakenModifier,AutoCloseab
         float nativeStep=engine.getElapsedInLastFrame();lastStep=Math.min(.1f,Float.isFinite(nativeStep)&&nativeStep>0?nativeStep:localStep);clock+=localStep;releaseDamageLeases();drain();intercepted.clear();traces.removeIf(t->clock-t.born>.14);
         partClock-=localStep;if(partClock<=0){partClock=.1f;syncParts();}
         if(active){remaining=Math.max(0,remaining-localStep);if(remaining<=0||!overdrive()||ship.getCustomData().get(ARM_ACTION_KEY)!=this)deactivate("光束弹开已结束");}
-        clearReservation();binding=new OwnNewtypeBindings.Result(false,List.of(),"使用光束弹开武器组");
         processInput(events);
         blend=Math.max(0,Math.min(1,blend+(active?1:-1)*localStep/.15f));
         if(active){redirectRays();if(ZetaRifleModes.msForm(ship))for(WeaponAPI weapon:ship.getAllWeapons())apply(weapon);else restoreArms();}
@@ -140,12 +138,10 @@ public final class ZetaBeamDeflection implements DamageTakenModifier,AutoCloseab
     private final class Arm{final WeaponAPI weapon;final float relative;float written;boolean applied;Arm(WeaponAPI weapon){this.weapon=weapon;relative=weapon.getCurrAngle()-ship.getFacing();}void restore(){if(applied&&Math.abs(shortest(weapon.getCurrAngle()-written))<.01f)weapon.setCurrAngle(ship.getFacing()+relative);}}
     private static float shortest(float a){return ((a%360)+540)%360-180;}
     private void restoreArms(){for(Arm arm:arms.values())arm.restore();arms.clear();}
-    private void refreshBinding(){clearReservation();binding=OwnNewtypeBindings.select(engine,ship,binding.available()?binding.keyCode():Keyboard.KEY_K,Map.of(Keyboard.KEY_N,"Moci 子系统显示",Keyboard.KEY_X,"Z变形"));keyClock=.5f;if(!binding.available())return;Object old=engine.getCustomData().get(OwnNewtypeBindings.RESERVATIONS_KEY);if(old!=null&&!(old instanceof Map<?,?>)){binding=new OwnNewtypeBindings.Result(false,List.of(),"扩展键位表类型冲突，未接管字母键");return;}Map<Integer,String> copy=new LinkedHashMap<>();if(old instanceof Map<?,?> previous)for(var e:previous.entrySet()){if(!(e.getKey() instanceof Integer k)||!(e.getValue() instanceof String v)){binding=new OwnNewtypeBindings.Result(false,List.of(),"扩展键位登记格式错误，未接管字母键");return;}copy.put(k,v);}if(copy.containsKey(binding.keyCode())){binding=new OwnNewtypeBindings.Result(false,List.of(),"字母键已被占用");return;}copy.put(binding.keyCode(),reservation);engine.getCustomData().put(OwnNewtypeBindings.RESERVATIONS_KEY,copy);}
-    private void clearReservation(){Object old=engine.getCustomData().get(OwnNewtypeBindings.RESERVATIONS_KEY);if(old instanceof Map<?,?> previous&&previous.containsValue(reservation)){Map<Object,Object> copy=new LinkedHashMap<>(previous);copy.entrySet().removeIf(e->reservation.equals(e.getValue()));if(copy.isEmpty())engine.getCustomData().remove(OwnNewtypeBindings.RESERVATIONS_KEY);else engine.getCustomData().put(OwnNewtypeBindings.RESERVATIONS_KEY,copy);}}
     private void hud(){if(ship==engine.getPlayerShip()&&engine.isUIShowingHUD())engine.maintainStatusForPlayerShip(KEY,"graphics/icons/hullsys/fortress_shield.png","光束弹开","光束弹开武器组 · 点按切换 · "+(active?String.format(Locale.ROOT,"剩余 %.1f 秒",remaining):reason),!active);}
     public void renderWorld(ViewportAPI viewport){if(closed||traces.isEmpty())return;List<PsychoOpticalRenderer.Segment> draw=new ArrayList<>();for(Trace t:traces){float alpha=(float)Math.max(0,1-(clock-t.born)/.14);draw.add(new PsychoOpticalRenderer.Segment(t.from.x,t.from.y,t.to.x,t.to.y,t.width,alpha,(float)clock,t.fringe,t.core,true));}PsychoOpticalRenderer.render(draw,viewport);}
-    public Map<String,Object> status(){Map<String,Object> result=new LinkedHashMap<>();result.put("active",active);result.put("remaining",remaining);result.put("closed",closed);result.put("key",binding.keyName());result.put("reason",reason);result.put("armsDegrees",ARM_DEGREES);result.put("redirectedRays",redirectedRays);result.put("cancelledNativeBeamTicks",cancelledTicks);result.put("reflectedDamageHits",reflectedHits);result.put("pendingTicks",pending.size());result.put("visualSegments",traces.size());result.put("budgetSkips",budgetSkips);result.put("toggles",toggles);result.put("scope","MovingRay live path redirects; continuous native hit cancellation plus tagged collision-tested own segment; no original callback replay");return Collections.unmodifiableMap(result);}
+    public Map<String,Object> status(){Map<String,Object> result=new LinkedHashMap<>();result.put("active",active);result.put("remaining",remaining);result.put("closed",closed);result.put("key","光束弹开武器组");result.put("reason",reason);result.put("armsDegrees",ARM_DEGREES);result.put("redirectedRays",redirectedRays);result.put("cancelledNativeBeamTicks",cancelledTicks);result.put("reflectedDamageHits",reflectedHits);result.put("pendingTicks",pending.size());result.put("visualSegments",traces.size());result.put("budgetSkips",budgetSkips);result.put("toggles",toggles);result.put("scope","MovingRay live path redirects; continuous native hit cancellation plus tagged collision-tested own segment; no original callback replay");return Collections.unmodifiableMap(result);}
     private void publish(){ship.setCustomData(KEY,status());}
     private void requireThread(){if(Thread.currentThread()!=thread)throw new IllegalStateException("Zeta deflection belongs to its battle thread");}
-    @Override public void close(){requireThread();if(closed)return;deactivate("光束弹开已关闭");releaseDamageLeases();for(ShipAPI part:parts)part.removeListener(this);parts.clear();pending.clear();traces.clear();intercepted.clear();clearReservation();closed=true;if(ship.getCustomData().get(KEY+".owner")==this)ship.removeCustomData(KEY+".owner");publish();}
+    @Override public void close(){requireThread();if(closed)return;deactivate("光束弹开已关闭");releaseDamageLeases();for(ShipAPI part:parts)part.removeListener(this);parts.clear();pending.clear();traces.clear();intercepted.clear();closed=true;if(ship.getCustomData().get(KEY+".owner")==this)ship.removeCustomData(KEY+".owner");publish();}
 }

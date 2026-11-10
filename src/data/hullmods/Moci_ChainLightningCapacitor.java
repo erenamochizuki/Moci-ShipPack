@@ -36,7 +36,7 @@ public class Moci_ChainLightningCapacitor extends BaseHullMod {
     public static final String OVERLOAD_ID = "Moci_chain_lightning_overload";
     public static final String BRANCHING_ID = "Moci_chain_lightning_branching";
 
-    public static final float MAX_CHARGE = 100f;
+    public static final float MAX_CHARGE = 50f;
     public static final float BASE_CHARGE_PER_SECOND = 1f;
     public static final float MAX_DAMAGE_CHARGE_PER_SECOND = 25f;
     public static final float OVERLOAD_CHARGE_PER_SECOND_MULT = 1.5f;

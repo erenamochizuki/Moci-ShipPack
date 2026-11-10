@@ -7,7 +7,7 @@ import org.moci.filmshield.api.ShieldProfile;
 public final class Moci_FilmShieldIntegration {
     private static final ShieldProfile PROFILE=ShieldProfile.builder("moci_gnshield_v1")
         .hullmodId("Moci_GNShield")
-        .nativeShieldArc(1f)
+        .nativeShieldArc(0.01f)
         .fluxPerDamage(1f).fragmentationMultiplier(0.25f).followParent(true).showStatus(true)
         .modifierId("Moci_GNShield_Absorb").suppressSpecLessModuleProjectiles(true)
         .labels(data.scripts.util.Moci_TextLoader.getText("Moci_GNShieldStatus","status.main_title"),
@@ -18,6 +18,11 @@ public final class Moci_FilmShieldIntegration {
         .colors(new Color(55,145,255),new Color(255,20,45)).build();
     private Moci_FilmShieldIntegration() {}
     public static ShieldProfile profile() { return PROFILE; }
+    /**
+     * AI 全向盾感知（实验）总开关，对应 LunaSettings 的 Moci_gnShieldOmniPerceptionAI，缺省 false。
+     * 关闭时不会替换舰船 AI、也不会改写原生护盾弧度，GN 贴膜盾行为与未加该功能时完全一致。
+     */
+    public static boolean omniPerceptionAIEnabled() { return bool("Moci_gnShieldOmniPerceptionAI",false); }
     public static boolean shouldRender(ShipAPI ship,int fighters) {
         if(!ship.isFighter()) return true;
         boolean skip=bool("Moci_gnShieldSkipFighter",true),limit=bool("Moci_gnShieldEnableLimit",false);

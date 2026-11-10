@@ -1,0 +1,49 @@
+{
+  "_note": "可选配置：舰载 AI 立绘，作战小队弹窗的 AI 页用。ai_id 与 Moci_ShipboardAI_Types.csv 的 ai_id 列相同；路径相对 mod 根目录，用正斜杠。配置了的 AI 显示立绘（按比例放进 aiFigure 框），没配置或图片加载失败就显示头像。以 _ 或 # 开头的键会被忽略。第一次打开 AI 页时读取，改完要重启游戏才生效。",
+  "_format": "两种写法：1) \"<ai_id>\": \"graphics/....png\" 只有静态立绘；2) \"<ai_id>\": {\"image\": 静态立绘（序列帧加载失败时也显示它）, \"sheet\": 序列帧贴图, \"cols\": 列数, \"rows\": 行数, \"frames\": 帧数（从左到右、从上到下，不超过 cols×rows）, \"fps\": 每秒帧数（相邻帧交叉淡入淡出）, \"backdrop\": 立绘背后的旋转背景图（颜色和透明度直接画在图里，反馈页面和游戏里看到的一样）, \"backdropSpin\": 转速（度/秒，正数顺时针）, \"backdropAlpha\": 在图片本身透明度上再乘的系数 0~1，默认 1, \"stages\": 可选，按 AI 等级换立绘}。序列帧建议每行帧数相同。",
+  "_stages": "stages 是数组，每项 {\"minLevel\": 等级, \"image\": 必填, \"sheet\": 可选}：AI 等级 ≥ minLevel 的最后一项生效，等级比所有项都低时用第一项。每项没写的 cols/rows/frames/fps/backdrop/backdropSpin/backdropAlpha 沿用外层；sheet 不沿用（阶段没写 sheet 就只显示它自己的静态图）；backdrop 写空字符串表示这个阶段不要背景。外层不写 image 时，不分等级的地方用第一项。",
+  "illustrations": {
+    "Moci_Nine": {
+      "_note": "奈因（99系统 7 级进化而来，满级 11）：7 级对应 SRWV 整备网页 TAC 自订的初始形态（原始动画 265），8–11 级依次对应 GRADE 1–4（原始动画 266–269）。素材来自 H:/SRWV_Image_Extraction（web/nine-player.js 渲染的奈因、齿轮环 ID00260）；先跑 tools/uikit/projects/intel-layout/design/render-nine-stages.mjs 渲染逐帧，再跑同目录的 make-nine-assets.py 生成贴图。",
+      "cols": 10,
+      "rows": 3,
+      "frames": 30,
+      "fps": 3,
+      "backdrop": "graphics/illustrations/shipboard_ai/Moci_TacP_gear.png",
+      "backdropSpin": 4,
+      "backdropAlpha": 1,
+      "stages": [
+        {
+          "_note": "初始形态：7 级刚进化的奈因（原始动画 265）",
+          "minLevel": 7,
+          "image": "graphics/illustrations/shipboard_ai/Moci_Nine_stage0.png",
+          "sheet": "graphics/illustrations/shipboard_ai/Moci_Nine_stage0_sheet.png"
+        },
+        {
+          "_note": "阶段 1（GRADE 1）：8 级，半透明的轮廓",
+          "minLevel": 8,
+          "image": "graphics/illustrations/shipboard_ai/Moci_Nine_stage1.png",
+          "sheet": "graphics/illustrations/shipboard_ai/Moci_Nine_stage1_sheet.png"
+        },
+        {
+          "_note": "阶段 2（GRADE 2）：9 级",
+          "minLevel": 9,
+          "image": "graphics/illustrations/shipboard_ai/Moci_Nine_stage2.png",
+          "sheet": "graphics/illustrations/shipboard_ai/Moci_Nine_stage2_sheet.png"
+        },
+        {
+          "_note": "阶段 3（GRADE 3）：10 级",
+          "minLevel": 10,
+          "image": "graphics/illustrations/shipboard_ai/Moci_Nine_stage3.png",
+          "sheet": "graphics/illustrations/shipboard_ai/Moci_Nine_stage3_sheet.png"
+        },
+        {
+          "_note": "阶段 4（GRADE 4）：11 级，满级的完整形态",
+          "minLevel": 11,
+          "image": "graphics/illustrations/shipboard_ai/Moci_Nine_stage4.png",
+          "sheet": "graphics/illustrations/shipboard_ai/Moci_Nine_stage4_sheet.png"
+        }
+      ]
+    }
+  }
+}

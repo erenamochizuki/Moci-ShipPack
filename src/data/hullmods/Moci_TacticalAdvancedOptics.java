@@ -6,7 +6,7 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipAPI.HullSize;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
 
-/** 战术输出插件：沿用原版 advancedoptics 的普通效果及互斥规则。 */
+/** 战术改装（火力组）：先进光学器件；沿用原版 advancedoptics 的普通效果及与高散射增幅器的互斥规则。 */
 public class Moci_TacticalAdvancedOptics extends BaseHullMod {
     public static final float BEAM_RANGE_BONUS = 200f;
     public static final float BEAM_TURN_PENALTY = 30f;

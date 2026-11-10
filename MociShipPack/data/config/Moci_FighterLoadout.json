@@ -1,3 +1,5 @@
 {
-  "acceptedWingTags": ["moci_ms_fighter"]
+  "acceptedWingTags": ["moci_ms_fighter"],
+  "restrictWeaponRefitByTag": true,
+  "restrictTacticalRefitByTag": false
 }

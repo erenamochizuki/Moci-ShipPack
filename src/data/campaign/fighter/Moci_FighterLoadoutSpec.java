@@ -2,6 +2,7 @@ package data.campaign.fighter;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,12 +34,6 @@ public final class Moci_FighterLoadoutSpec {
     public Moci_FighterLoadoutSpec(String baseWingId, Map<String, String> baseline,
             Map<String, String> loadout) {
         this(baseWingId, baseline, loadout, List.of(), false);
-    }
-
-    /** 带战术改装的构造：仅接受 null 或已注册且带战术改装 tag 的船插，其它值按未选处理。 */
-    public Moci_FighterLoadoutSpec(String baseWingId, Map<String, String> baseline,
-            Map<String, String> loadout, String tacticalHullmod) {
-        this(baseWingId, baseline, loadout, tacticalHullmod == null || tacticalHullmod.isBlank() ? List.of() : List.of(tacticalHullmod), false);
     }
 
     /**
@@ -97,21 +92,24 @@ public final class Moci_FighterLoadoutSpec {
         }
     }
     private static String digest(String value) {
+        MessageDigest sha256;
         try {
-            byte[] bytes = MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
-            StringBuilder result = new StringBuilder(64);
-            for (byte b : bytes) result.append(Character.forDigit((b >>> 4) & 15, 16))
-                    .append(Character.forDigit(b & 15, 16));
-            return result.toString();
-        } catch (Exception ex) { throw new IllegalStateException("SHA-256 unavailable", ex); }
+            sha256 = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException ex) {
+            // getInstance 声明了受检异常，但 SHA-256 是每个 Java 运行时都必须提供的算法，这里实际不会走到。
+            throw new IllegalStateException("SHA-256 unavailable", ex);
+        }
+        byte[] bytes = sha256.digest(value.getBytes(StandardCharsets.UTF_8));
+        StringBuilder result = new StringBuilder(64);
+        for (byte b : bytes) result.append(Character.forDigit((b >>> 4) & 15, 16))
+                .append(Character.forDigit(b & 15, 16));
+        return result.toString();
     }
     public String getBaseWingId() { return baseWingId; }
     public String getWingId() { return wingId; }
     public String getVariantId() { return wingId + "_v"; }
     public Map<String, String> getBaseline() { return baseline; }
     public Map<String, String> getLoadout() { return loadout; }
-    /** 战术改装船插 ID；null 表示未选。 */
-    public String getTacticalHullmod() { return tacticalHullmods.isEmpty() ? null : tacticalHullmods.get(0); }
     public List<String> getTacticalHullmods() { return tacticalHullmods; }
     public boolean hasTacticalHullmod() { return !tacticalHullmods.isEmpty(); }
     public boolean sameDefinition(Moci_FighterLoadoutSpec other) {

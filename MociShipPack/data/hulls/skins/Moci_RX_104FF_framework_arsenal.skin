@@ -11,7 +11,8 @@
     "no_sell"
   ],
   "builtInMods": [
-    "Moci_fw_penelope_high_mobility"
+    "Moci_fw_penelope_high_mobility",
+    "moci_panoramic_cockpit"
   ],
   "builtInWeapons": {
     "ARM_L": "Moci_fw_penelope_salvo_arm_left",

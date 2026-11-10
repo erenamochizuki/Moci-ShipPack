@@ -4,7 +4,7 @@
   "fluxVents": 20,
   "goalVariant": true,
   "hullId": "Moci_RX_105_framework_arsenal",
-  "hullMods": ["moci_panoramic_cockpit"],
+  "hullMods": [],
   "variantId": "Moci_fw_xi_arsenal_Standard",
   "weaponGroups": [
     {"autofire": false, "mode": "LINKED", "weapons": {"WS0002": "Moci_fw_xi_mega_particle", "WS0003": "Moci_fw_xi_mega_particle"}},

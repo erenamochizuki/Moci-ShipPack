@@ -166,6 +166,29 @@ final class Moci_AirSquadronLayout {
         return new TopWorkbench(preview, weapon, tacticalX, tactical, slot);
     }
 
+    /**
+     * M2：把「重建前记下的滚动偏移」钳到新内容的合法区间 [0, max(0, contentHeight - viewHeight)]。
+     *
+     * <p>原生 ScrollPanelAPI 的 setYOffset 不做钳位，而 rebuild 后各栏内容高度可能变化（换联队、
+     * 内容变少）；直接写回旧偏移会露出空白，所以先钳位。偏移/高度不可用（NaN、无穷、负数、
+     * 内容比视口还矮）一律回到 0。纯函数，{@link #main(String[])} 里有断言。
+     */
+    static float clampScroll(float offset, float contentHeight, float viewHeight) {
+        if (!Float.isFinite(offset) || offset <= 0f) return 0f;
+        if (!Float.isFinite(contentHeight) || !Float.isFinite(viewHeight)) return 0f;
+        float max = contentHeight - viewHeight;
+        if (!Float.isFinite(max) || max <= 0f) return 0f;
+        return Math.min(offset, max);
+    }
+
+    /**
+     * M2：一次 rebuild 该把偏移恢复到多少——只有同一母舰、同一选择上下文才复用旧偏移，
+     * 换母舰 / 换联队 / 空机库 / 首次构建都从 0 开始。纯函数。
+     */
+    static float restoredScroll(boolean sameContext, float savedOffset, float contentHeight, float viewHeight) {
+        return sameContext ? clampScroll(savedOffset, contentHeight, viewHeight) : 0f;
+    }
+
     /** Run with JDK 17 source-file mode; does not initialize game assets or write a save. */
     public static void main(String[] args) {
         if (Math.abs(CARRIER_RATIO + MIDDLE_RATIO + EDITOR_RATIO - 1f) > 1e-4f) {
@@ -268,6 +291,18 @@ final class Moci_AirSquadronLayout {
             if (Math.abs((left + right) / 2f - (875 + 110)) > .01f) throw new AssertionError("Composite not centered");
             checks++;
         }
+        // ---- M2 滚动位置恢复：钳位与上下文判断是纯函数，这里锁死边界值 ----
+        if (clampScroll(0f, 900f, 400f) != 0f) throw new AssertionError("零偏移不该被恢复");
+        if (clampScroll(120f, 900f, 400f) != 120f) throw new AssertionError("合法偏移被改动");
+        if (clampScroll(800f, 900f, 400f) != 500f) throw new AssertionError("超界偏移未钳到 contentHeight - viewHeight");
+        if (clampScroll(-40f, 900f, 400f) != 0f) throw new AssertionError("负偏移未回到 0");
+        if (clampScroll(120f, 300f, 400f) != 0f) throw new AssertionError("内容比视口矮时未回到 0");
+        if (clampScroll(Float.NaN, 900f, 400f) != 0f) throw new AssertionError("NaN 偏移未回到 0");
+        if (clampScroll(120f, Float.POSITIVE_INFINITY, 400f) != 0f) throw new AssertionError("无穷内容高度未回到 0");
+        if (clampScroll(120f, 900f, 0f) != 120f) throw new AssertionError("视口高度为 0 时不该丢掉偏移");
+        if (restoredScroll(false, 300f, 900f, 400f) != 0f) throw new AssertionError("换了上下文仍恢复旧偏移");
+        if (restoredScroll(true, 300f, 900f, 400f) != 300f) throw new AssertionError("同一上下文未恢复偏移");
+        checks += 10;
         System.out.println("Aircraft editor geometry/click checks passed: " + checks + " checks; 6 virtual sizes, 4 UI scales.");
         System.out.println("三栏比例: CARRIER=" + CARRIER_RATIO + " MIDDLE=" + MIDDLE_RATIO + " EDITOR=" + EDITOR_RATIO);
         TopWorkbench sample = topWorkbench(700f);

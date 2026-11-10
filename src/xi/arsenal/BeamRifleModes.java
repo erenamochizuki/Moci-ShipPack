@@ -56,7 +56,7 @@ public final class BeamRifleModes implements AutoCloseable {
        nativeBeamHoldBlocked() 等判据；这里只服务于「让 AI 的蓄力过程看得见」。 */
     private float aiChargeSeconds,aiChargeRatio;
     private boolean aiChargeFiring;
-    private boolean aiBraceLogged;private String aiBraceNote="";private String aiBraceFailure;
+    private boolean aiBraceLogged;private String aiBraceNote="";private String aiBraceFailure;private String aiBraceFailureLogged;
     private Mode mode=Mode.PULSE;
     private Phase phase=Phase.IDLE;
     private boolean fireDown,confirmed,closed,wasLocal,mappedInput;
@@ -259,8 +259,8 @@ public final class BeamRifleModes implements AutoCloseable {
                     reason="处决窗口："+candidate.reason()+" · 同一发锁定射击";
                 }else{
                     /* 处决动作起不来（骨架被别的动作占用、租约冲突、曲线不可用）时，
-                       绝不允许吞掉这一发：降级为普通照射，并把原因写进 reason。 */
-                    reason="处决动作不可用，改为普通照射："+reason;
+                       绝不允许吞掉这一发：beginExecution() 保持 PRESENTING 并已写好降级 reason，
+                       下面 armAfterPresenting() 按普通托握照射继续。 */
                 }
             }else reason="蓄力释放 · 普通照射";
         }else reason="端枪对准后照射";
@@ -377,6 +377,9 @@ public final class BeamRifleModes implements AutoCloseable {
         boolean holding=bracePose!=null;
         if(holding&&aiBraceLogged)return;
         if(!holding&&!aiBraceLogged&&aiBraceFailure==null&&aiBraceNote.isEmpty())return;
+        /* 构造持续失败时 aiBraceFailure 每帧都会被重新写入；同一原因只记一次，
+           直到下一次成功举盾或原因变化，否则就是每帧一行 unavailable。 */
+        if(!holding&&aiBraceNote.isEmpty()&&aiBraceFailure!=null&&aiBraceFailure.equals(aiBraceFailureLogged))return;
         if(holding)aiBraceLogged=true;
         String state=holding?"hold":aiBraceFailure!=null&&aiBraceNote.isEmpty()?"unavailable":"release";
         Global.getLogger(BeamRifleModes.class).info("[MOCI-RIFLE-AI] brace "+state
@@ -384,6 +387,7 @@ public final class BeamRifleModes implements AutoCloseable {
                 +" shieldModules="+aiShieldModuleCount()
                 +(aiBraceFailure!=null?" reason="+aiBraceFailure:aiBraceNote.isEmpty()?"":" reason="+aiBraceNote));
         aiBraceNote="";
+        aiBraceFailureLogged=holding?null:aiBraceFailure!=null?aiBraceFailure:aiBraceFailureLogged;
         if(!holding)aiBraceFailure=null;
         aiBraceLogged=holding; // 松开后必须清零，否则第二次举盾会被上面的幂等判据吞掉。
     }
@@ -657,7 +661,8 @@ public final class BeamRifleModes implements AutoCloseable {
         if(bracePose==null&&pendingExecutionTarget!=null){
             ShipAPI target=pendingExecutionTarget;
             pendingExecutionTarget=null;
-            if(!beginExecution(target))cancel(reason);
+            /* 处决起不来就降级为普通托握照射：重置举枪计时，托握按普通蓄力重建后照常放这一发。 */
+            if(!beginExecution(target))presenting=0;
         }
     }
     /** 收掉托握姿态并把可见枪口写回原生武器（否则枪口停在动画中间帧）。 */
@@ -682,9 +687,14 @@ public final class BeamRifleModes implements AutoCloseable {
         try{
             temporal=new RifleExecutionTimeLease(engine,ship);
             pose=new RifleExecutionPose(ship,pulse,overlimit?overlimitPower:0);
-        }catch(IllegalStateException blocked){
-            try{if(pose!=null)pose.close();}finally{if(temporal!=null)temporal.close();}
-            phase=Phase.IDLE;reason="处决动作暂不可用："+blocked.getMessage();return false;
+        }catch(RuntimeException|LinkageError blocked){
+            /* 两项各自兜底释放：租约一旦泄漏，本场之后每次处决都会报 "Execution time already has a battle owner"。
+               相位保持 PRESENTING 不动：两个调用方都按普通托握照射继续，不能把这一发吞掉。 */
+            try{if(pose!=null)pose.close();}catch(RuntimeException|LinkageError ignored){}
+            try{if(temporal!=null)temporal.close();}catch(RuntimeException|LinkageError ignored){}
+            if(!(blocked instanceof IllegalStateException))Global.getLogger(BeamRifleModes.class).warn("Execution start failed, falling back to normal beam: "+blocked);
+            String detail=blocked.getMessage()!=null?blocked.getMessage():blocked.getClass().getSimpleName();
+            reason="处决动作不可用，改为普通照射："+detail;return false;
         }
         executionTime=temporal;executionPose=pose;executionTarget=target;
         executionElapsed=executionRecovery=0;executionFactor=executionRecoveryFactor=executionMaxFactor=1;executionRecovering=false;executionAttempts++;

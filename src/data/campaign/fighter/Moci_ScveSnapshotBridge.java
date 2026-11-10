@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 
 /**
@@ -27,9 +28,12 @@ import com.fs.starfarer.api.loading.FighterWingSpecAPI;
  *
  * <p>本类只做一件事：每注册成功一个联队，就把该联队补进 SCVE 的快照表（纯增量，不改动其它条目、不重算整份快照），
  * 这样 SCVE 的还原逻辑不会拿到 null。增量模式不可用时退回「重新调用一次 SCVE_FilterUtils.getOriginalData()」。
- * SCVE 未安装 / 类不可见 / 字段改名时全部静默降级为 no-op，绝不影响本功能自身。
+ * SCVE 未安装 / 类不可见时静默降级为 no-op；接口对不上，或运行期写快照 / 刷新失败时记一条日志后停用兼容桥，
+ * 绝不影响本功能自身。
  *
  * <p>约束：脚本类加载器不允许使用 {@code java.lang.reflect.*}，所以这里和 Registry 一样走 {@code java.lang.invoke}。
+ * 第三方的类和字段在不在，只能靠加载、查找来确认，这几处 catch 只接 API 声明的具体异常；
+ * 唯一的宽口径拦截在 {@link #noteWingRegistered}，因为 MethodHandle 调用在编译期就声明了 throws Throwable。
  * 排查日志统一前缀 {@code [Moci][航空中队管理][SCVE]}，常驻输出、不受 devMode 影响。
  */
 public final class Moci_ScveSnapshotBridge {
@@ -58,26 +62,21 @@ public final class Moci_ScveSnapshotBridge {
         if (wing == null || wing.getId() == null) {
             return;
         }
-        if (!resolve()) {
-            return;
-        }
         try {
+            if (!resolve()) {
+                return;
+            }
             if (mode == Mode.INCREMENTAL) {
                 addToSnapshot(wing);
             } else if (mode == Mode.FULL_REFRESH) {
                 refreshHandle.invokeWithArguments();
             }
         } catch (Throwable t) {
-            // 增量失败时再退回整份刷新一次；仍然失败就彻底停用，避免每次注册都刷错误日志。
+            // 兼容桥边界：MethodHandle 调用在编译期声明 throws Throwable，执行的又是 SCVE 自己的代码，无法事先验证。
+            // 失败后不再退回整份刷新，直接停用兼容桥（ABSENT），避免每次注册都刷同一条错误日志。
             logWarn("刷新 SCVE 快照失败（" + mode + "），停用兼容桥：" + t);
             mode = Mode.ABSENT;
         }
-    }
-
-    /** 供排查/自检读取当前生效的兼容模式。 */
-    public static synchronized String getActiveMode() {
-        resolve();
-        return mode.name();
     }
 
     private static boolean resolve() {
@@ -97,18 +96,19 @@ public final class Moci_ScveSnapshotBridge {
             wingOpGetter = findStaticGetter(publicLookup, privateLookup, FIELD_WING_OP, Map.class);
             mode = Mode.INCREMENTAL;
             return true;
-        } catch (Throwable t) {
-            // 字段签名变了或不允许访问：退回整份刷新。
-            logWarn("SCVE 快照表不可直接访问（" + t + "），退回 getOriginalData() 整份刷新。");
+        } catch (NoSuchFieldException | IllegalAccessException ex) {
+            // 字段改名、改类型或不允许访问：没有 java.lang.reflect 就不能预先检查，只能查找失败后退回整份刷新。
+            logWarn("SCVE 快照表不可直接访问（" + ex + "），退回 getOriginalData() 整份刷新。");
         }
 
         try {
             refreshHandle = findRefreshMethod(publicLookup, privateLookup);
             mode = Mode.FULL_REFRESH;
             return true;
-        } catch (Throwable t) {
+        } catch (NoSuchMethodException | IllegalAccessException ex) {
+            // 同上：刷新方法也对不上时只能停用。
             mode = Mode.ABSENT;
-            logWarn("SCVE 存在但接口不匹配，兼容桥停用：" + t);
+            logWarn("SCVE 存在但接口不匹配，兼容桥停用：" + ex);
             return false;
         }
     }
@@ -116,13 +116,19 @@ public final class Moci_ScveSnapshotBridge {
     private static Class<?> loadScveClass() {
         try {
             return Class.forName(SCVE_FILTER_UTILS);
-        } catch (Throwable ignored) {
-            // 继续尝试脚本类加载器。
+        } catch (ClassNotFoundException | LinkageError ignored) {
+            // 第三方类在不在只能靠加载来确认：没装 SCVE 是 ClassNotFoundException，
+            // 版本或依赖对不上是 LinkageError。继续尝试脚本类加载器。
+        }
+        SettingsAPI settings = Global.getSettings();
+        ClassLoader loader = settings == null ? null : settings.getScriptClassLoader();
+        if (loader == null) {
+            return null;
         }
         try {
-            ClassLoader loader = Global.getSettings().getScriptClassLoader();
-            return loader == null ? null : loader.loadClass(SCVE_FILTER_UTILS);
-        } catch (Throwable ignored) {
+            return loader.loadClass(SCVE_FILTER_UTILS);
+        } catch (ClassNotFoundException | LinkageError ignored) {
+            // 同上：没装 SCVE，或类与当前版本不兼容。
             return null;
         }
     }
@@ -130,46 +136,34 @@ public final class Moci_ScveSnapshotBridge {
     private static MethodHandles.Lookup privateLookup(Class<?> type) {
         try {
             return MethodHandles.privateLookupIn(type, MethodHandles.lookup());
-        } catch (Throwable ignored) {
+        } catch (IllegalAccessException ignored) {
+            // SCVE 的包是否向本 mod 开放，只有请求时才知道；拿不到就只用 publicLookup。
             return null;
         }
     }
 
     private static MethodHandle findStaticGetter(MethodHandles.Lookup publicLookup,
-            MethodHandles.Lookup privateLookup, String name, Class<?> type) throws Throwable {
-        // findStaticGetter 要求类型与字段声明类型（擦除后）完全一致，
-        // SCVE 声明的实际类型是 HashMap，而不是 Map，所以两种都试一遍。
-        Class<?>[] candidates = type == java.util.Map.class
-                ? new Class<?>[] {type, HashMap.class}
-                : new Class<?>[] {type};
-        Throwable last = null;
-        for (Class<?> candidate : candidates) {
-            try {
-                return publicLookup.findStaticGetter(scveClass, name, candidate);
-            } catch (Throwable first) {
-                last = first;
-                if (privateLookup != null) {
-                    try {
-                        return privateLookup.findStaticGetter(scveClass, name, candidate);
-                    } catch (Throwable second) {
-                        last = second;
-                    }
-                }
-            }
+            MethodHandles.Lookup privateLookup, String name, Class<?> type)
+            throws NoSuchFieldException, IllegalAccessException {
+        // privateLookup 能访问 SCVE 类的全部成员，覆盖 publicLookup 的访问范围，拿得到就只用它。
+        MethodHandles.Lookup lookup = privateLookup != null ? privateLookup : publicLookup;
+        if (type != Map.class) {
+            return lookup.findStaticGetter(scveClass, name, type);
         }
-        throw last == null ? new NoSuchFieldException(name) : last;
+        // findStaticGetter 要求类型与字段声明类型（擦除后）完全一致，SCVE 声明的实际类型是 HashMap，而不是 Map。
+        // 没有 java.lang.reflect 查不到声明类型，只能先按 HashMap 找，类型不符（NoSuchFieldException）再按 Map 找。
+        try {
+            return lookup.findStaticGetter(scveClass, name, HashMap.class);
+        } catch (NoSuchFieldException declaredAsMap) {
+            return lookup.findStaticGetter(scveClass, name, Map.class);
+        }
     }
 
     private static MethodHandle findRefreshMethod(MethodHandles.Lookup publicLookup,
-            MethodHandles.Lookup privateLookup) throws Throwable {
-        try {
-            return publicLookup.findStatic(scveClass, METHOD_REFRESH, MethodType.methodType(void.class));
-        } catch (Throwable first) {
-            if (privateLookup != null) {
-                return privateLookup.findStatic(scveClass, METHOD_REFRESH, MethodType.methodType(void.class));
-            }
-            throw first;
-        }
+            MethodHandles.Lookup privateLookup) throws NoSuchMethodException, IllegalAccessException {
+        // 同 findStaticGetter：privateLookup 的访问范围覆盖 publicLookup。
+        MethodHandles.Lookup lookup = privateLookup != null ? privateLookup : publicLookup;
+        return lookup.findStatic(scveClass, METHOD_REFRESH, MethodType.methodType(void.class));
     }
 
     @SuppressWarnings("unchecked")

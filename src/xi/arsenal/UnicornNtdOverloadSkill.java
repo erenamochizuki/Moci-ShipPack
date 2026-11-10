@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.loading.DamagingExplosionSpec;
+import data.subsystems.Moci_HotkeySubsystem;
 import data.subsystems.Moci_NTDSubsystem;
 import java.awt.Color;
 import java.util.*;
@@ -16,14 +17,12 @@ public final class UnicornNtdOverloadSkill implements AutoCloseable {
     public static final String KEY="xi.arsenal.ntd.electronicWarfare", LEASE_KEY=KEY+".targetLease";
     public static final float CHARGE_SECONDS=1f, COOLDOWN_SECONDS=10f, SOFT_FLUX_COST=750f, RANGE=1800f;
     public static final float ARM_ANGLE=18f;
-    private static final String RESERVATION="NTD：电子战", ICON="graphics/icons/hullsys/moci_skill1.png";
+    private static final String ICON="graphics/icons/hullsys/moci_skill1.png";
     private static final Color FRINGE=new Color(245,80,110,220), CORE=new Color(255,220,235,255);
     private static final int MAX_TARGETS=32, MAX_CAPTURED=32, MAX_WEAPONS=512;
     private static final String TARGET_LOCKS_KEY="host.combat.targetLocks";
     private final CombatEngineAPI engine;
-    private final BindingProbe bindingProbe;
     private final NtdProbe ntdProbe;
-    private final String reservationTag=RESERVATION+"#"+UUID.randomUUID();
     private final Set<ShipAPI> active=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<ShipAPI,Float> cooldowns=new IdentityHashMap<>();
     private final Map<ShipAPI,Capture> captures=new IdentityHashMap<>();
@@ -31,7 +30,7 @@ public final class UnicornNtdOverloadSkill implements AutoCloseable {
     private final List<Map<String,Object>> releaseHistory=new ArrayList<>();
     private final List<Map<String,String>> rejectedTargets=new ArrayList<>();
     private final List<String> castTargetIds=new ArrayList<>(),affectedTargetIds=new ArrayList<>();
-    private OwnNewtypeBindings.Result binding=new OwnNewtypeBindings.Result(false,List.of(),"等待真实NTD");
+    private Moci_HotkeySubsystem.Binding binding=Moci_HotkeySubsystem.Binding.none("等待真实NTD");
     private Charge charge;
     private float keyClock;
     private float feedbackRemaining;
@@ -42,20 +41,14 @@ public final class UnicornNtdOverloadSkill implements AutoCloseable {
     private long activations,cancellations,overloads,captureEntries,captureReturns,expirationBlasts,foreignOwnerChanges;
     private String message="等待NTD", lastTarget="", lastShape="";
 
-    @FunctionalInterface interface BindingProbe {
-        OwnNewtypeBindings.Result select(CombatEngineAPI engine,ShipAPI ship,int key);
-    }
     @FunctionalInterface interface NtdProbe { NativeNtd read(ShipAPI source); }
     record NativeNtd(String state,boolean awakened,float effectLevel) {
         boolean ready(){return awakened&&Float.isFinite(effectLevel)&&effectLevel>=.8f
                 &&Set.of("IN","ACTIVE","OUT").contains(state);}
     }
-    public UnicornNtdOverloadSkill(CombatEngineAPI engine) { this(engine,OwnNewtypeBindings::select,UnicornNtdOverloadSkill::readNativeNtd); }
-    UnicornNtdOverloadSkill(CombatEngineAPI engine,BindingProbe probe) {
-        this(engine,probe,UnicornNtdOverloadSkill::readNativeNtd);
-    }
-    UnicornNtdOverloadSkill(CombatEngineAPI engine,BindingProbe probe,NtdProbe ntdProbe) {
-        this.engine=Objects.requireNonNull(engine);bindingProbe=Objects.requireNonNull(probe);this.ntdProbe=Objects.requireNonNull(ntdProbe);
+    public UnicornNtdOverloadSkill(CombatEngineAPI engine) { this(engine,UnicornNtdOverloadSkill::readNativeNtd); }
+    UnicornNtdOverloadSkill(CombatEngineAPI engine,NtdProbe ntdProbe) {
+        this.engine=Objects.requireNonNull(engine);this.ntdProbe=Objects.requireNonNull(ntdProbe);
         if(engine.getCustomData().containsKey(KEY+".owner"))throw new IllegalStateException("NTD electronic warfare already has an owner");
         engine.getCustomData().put(KEY+".owner",this);engine.getCustomData().put(KEY,facts);
         // The owning UnicornNtdEnhancement registers and closes this child once.
@@ -106,9 +99,9 @@ public final class UnicornNtdOverloadSkill implements AutoCloseable {
         float cooldown=cooldowns.getOrDefault(source,0f),space=source==null||source.getFluxTracker()==null?0:source.getFluxTracker().getMaxFlux()-source.getFluxTracker().getCurrFlux();
         if(charge!=null)missing.add("电子战正在自动蓄力，无需继续按键");
         else if(cooldown>0)missing.add(String.format(Locale.ROOT,"电子战冷却还剩%.1f秒",cooldown));
-        boolean keyAvailable=binding.available()&&source==observedPlayer&&ownsReservation();
-        if(!keyAvailable)missing.add(binding.error().isEmpty()?"没有已核实的可用字母键":binding.error());
-        if(actualInputKey!=Keyboard.KEY_NONE&&actualInputKey!=binding.keyCode())missing.add("按键占用已改变，请使用 "+binding.keyName());
+        boolean keyAvailable=binding.available()&&source==observedPlayer;
+        if(!keyAvailable)missing.add(binding.error().isEmpty()?"没有可用的电子战按键":binding.error());
+        if(actualInputKey!=Keyboard.KEY_NONE&&actualInputKey!=binding.keyCode())missing.add("按键已改变，请使用 "+binding.keyName());
         LockedTargets locks=source==null?new LockedTargets(false,List.of(),0,""):lockedTargets(source);
         if(!locks.error.isEmpty())missing.add(locks.error);
         List<Candidate> accepted=new ArrayList<>();List<Map<String,String>> rejected=new ArrayList<>();int electronicCount=0;
@@ -156,7 +149,7 @@ public final class UnicornNtdOverloadSkill implements AutoCloseable {
         if(actualNtdShips!=null&&player!=null&&actualNtdShips.contains(player)&&live(player)
                 &&UnicornNtdInterference.isUnicornHull(player.getHullSpec()))active.add(player);
         facts.put("suppliedNtdSources",actualNtdShips==null?0:actualNtdShips.size());
-        if(!eligiblePilot(player)){clearReservation();binding=new OwnNewtypeBindings.Result(false,List.of(),"当前驾驶机体没有NTD电子战");}
+        if(!eligiblePilot(player))binding=Moci_HotkeySubsystem.Binding.none("当前驾驶机体没有NTD电子战");
         if(!engine.isPaused()) {
             keyClock-=dt;
             feedbackRemaining=Math.max(0,feedbackRemaining-dt);
@@ -201,7 +194,7 @@ public final class UnicornNtdOverloadSkill implements AutoCloseable {
     }
     private void observePlayer(){
         ShipAPI player=player();if(player==observedPlayer)return;
-        clearReservation();binding=new OwnNewtypeBindings.Result(false,List.of(),"等待当前驾驶机体键位检查");
+        binding=Moci_HotkeySubsystem.Binding.none("等待当前驾驶机体键位检查");
         keyClock=0;clearFeedback();observedPlayer=player;
     }
     /** 玩家舰船的安全取用：标题界面背景战斗在 init 阶段没有玩家舰船，
@@ -342,8 +335,13 @@ public final class UnicornNtdOverloadSkill implements AutoCloseable {
         if(source.getFluxTracker()==null||source.getFluxTracker().isOverloadedOrVenting())return "过载或排幅中不可激活";
         if(manual&&(source.controlsLocked()||engine.isUIShowingDialog()
                 ||engine.getCombatUI()!=null&&(engine.getCombatUI().isShowingCommandUI()||engine.getCombatUI().isShowingDeploymentDialog())))return "当前界面未接管电子战按键";
-        if(manual&&Boolean.TRUE.equals(OwnNewtypeController.actualAutopilotState(engine)))return "自动驾驶中不可接管电子战按键";
+        if(manual&&Boolean.TRUE.equals(actualAutopilotState(engine)))return "自动驾驶中不可接管电子战按键";
         return "";
+    }
+    /** CombatEngineAPI.isUIAutopilotOn() 的语义是反的；读原生 UI 的真实自动驾驶标志，读不到返回 null。 */
+    private static Boolean actualAutopilotState(CombatEngineAPI engine){
+        if(engine instanceof com.fs.starfarer.combat.CombatEngine nativeEngine&&nativeEngine.getCombatUI()!=null)return nativeEngine.getCombatUI().isAutopilotOn();
+        return null;
     }
     private String targetReason(ShipAPI source,ShipAPI target,int originalOwner) {
         if(ZetaOverdriveLifecycle.immune(target))return "目标生物传感器超载免疫电子战";
@@ -376,35 +374,27 @@ public final class UnicornNtdOverloadSkill implements AutoCloseable {
         if(feedbackRemaining>0&&feedbackSource==player()&&!feedbackCondition.isEmpty()&&!feedbackCondition.equals(view.reason()))clearFeedback();
     }
     private void clearFeedback(){feedbackRemaining=0;feedback="";feedbackSource=null;feedbackCondition="";feedbackError=false;feedbackCharging=false;}
-    private boolean ownsReservation(){Object table=engine.getCustomData().get(OwnNewtypeBindings.RESERVATIONS_KEY);
-        return table instanceof Map<?,?> map&&reservationTag.equals(map.get(binding.keyCode()));}
 
-    private void refreshBinding(ShipAPI source) {
-        clearReservation();binding=bindingProbe.select(engine,source,binding.available()?binding.keyCode():Keyboard.KEY_H);keyClock=.5f;
-        if(binding.available()){
-            Object existing=engine.getCustomData().get(OwnNewtypeBindings.RESERVATIONS_KEY);
-            if(existing!=null&&!(existing instanceof Map<?,?>))throw new IllegalStateException("Input reservation table has a foreign format");
-            Map<Integer,String> copy=new LinkedHashMap<>();
-            if(existing instanceof Map<?,?> map)for(var entry:map.entrySet()){
-                if(!(entry.getKey() instanceof Integer key)||!(entry.getValue() instanceof String value))throw new IllegalStateException("Invalid input reservation entry");
-                copy.put(key,value);
-            }
-            if(copy.containsKey(binding.keyCode())){binding=new OwnNewtypeBindings.Result(false,List.of(),"字母键已被其他机制保留");return;}
-            copy.put(binding.keyCode(),reservationTag);engine.getCustomData().put(OwnNewtypeBindings.RESERVATIONS_KEY,copy);
-        }
+    // 正常由 UnicornSharedNtdHullmod 在出生时挂上；这里补挂一次（幂等），保证当前驾驶的独角兽一定有键。
+    private void refreshBinding(ShipAPI source){Hotkey hotkey=Moci_HotkeySubsystem.attach(source,Hotkey.class,Hotkey::new);
+        binding=hotkey==null?Moci_HotkeySubsystem.Binding.none("电子战按键子系统挂载失败"):hotkey.binding();keyClock=.5f;}
+    /** 子系统栏「NTD 电子战 [键]」：MagicLib 子系统热键，LunaLib「NTD 电子战键（独角兽）」可改。由 UnicornSharedNtdHullmod 挂载。 */
+    public static final class Hotkey extends Moci_HotkeySubsystem {
+        public Hotkey(ShipAPI ship){super(ship);}
+        @Override protected String keySettingId(){return "Moci_UnicornEwKey";}
+        @Override protected String hintText(){return "点按一次：消耗750软幅能发动电子战";}
+        @Override public String getDisplayText(){return "NTD 电子战";}
+        // 排在喷射背包(9)、NTD(8)之后。
+        @Override public int getOrder(){return ORDER_SHIP_MODULAR-1;}
     }
-    private void clearReservation(){
-        Object existing=engine.getCustomData().get(OwnNewtypeBindings.RESERVATIONS_KEY);
-        if(existing instanceof Map<?,?> map&&map.containsValue(reservationTag)){
-            Map<Object,Object> copy=new LinkedHashMap<>(map);copy.entrySet().removeIf(entry->reservationTag.equals(entry.getValue()));
-            if(copy.isEmpty())engine.getCustomData().remove(OwnNewtypeBindings.RESERVATIONS_KEY);
-            else engine.getCustomData().put(OwnNewtypeBindings.RESERVATIONS_KEY,copy);
-        }
-    }
-    private void hud(){ShipAPI player=player();if(!eligiblePilot(player)||!engine.isUIShowingHUD())return;
+    private void hud(){ShipAPI player=player();if(!eligiblePilot(player))return;
         Availability view=availability(player);reconcileFeedback(view);
         String phase=view.charging()?String.format(Locale.ROOT,"蓄力%.0f%%",Math.min(1,view.chargeElapsed())*100)
                 :view.ready()?"就绪":view.cooldownRemaining()>0?String.format(Locale.ROOT,"冷却%.1fs",view.cooldownRemaining()):"未就绪";
+        Hotkey hotkey=Moci_HotkeySubsystem.find(player,Hotkey.class);
+        if(hotkey!=null)hotkey.setStatus(!view.charging()&&view.cooldownRemaining()<=0&&!view.ntdActive()?"需要NTD":phase,
+                view.charging()?Math.min(1,view.chargeElapsed()/CHARGE_SECONDS):view.cooldownRemaining()>0?1-view.cooldownRemaining()/COOLDOWN_SECONDS:1);
+        if(!engine.isUIShowingHUD())return;
         String text=view.charging()?String.format(Locale.ROOT,"自动蓄力 %.1f/1秒 · 松键继续 · 本机禁火 · %d目标",Math.min(1,view.chargeElapsed()),charge.targets.size())
                 :String.format(Locale.ROOT,"NTD%s · CD%.1fs · 锁定%d/%d · 幅能空间%.0f/750 · 自动蓄力1秒",
                     view.ntdActive()?"开":"未满足",view.cooldownRemaining(),view.validTargetCount(),view.lockedTargetCount(),Math.max(0,view.fluxSpace()));
@@ -449,7 +439,7 @@ public final class UnicornNtdOverloadSkill implements AutoCloseable {
         facts.put("feedbackCondition",feedbackSource==player()&&feedbackRemaining>0?feedbackCondition:"");
         facts.put("scope","Frozen native/shared target snapshot, at most32; explicit unlock only drops that target; no new target joins a charge. One750-flux cost/10-local-second cooldown per cast. No originalOwner writes or original callback advancement. Pose angles require native draw-stage verification.");}
     public Map<String,Object> status(){publish();return Collections.unmodifiableMap(new LinkedHashMap<>(facts));}
-    @Override public void close(){if(closed)return;cancelCharge("战场关闭");for(Capture capture:new ArrayList<>(captures.values()))release(capture,false,"战场关闭");captures.clear();active.clear();cooldowns.clear();clearReservation();closed=true;
+    @Override public void close(){if(closed)return;cancelCharge("战场关闭");for(Capture capture:new ArrayList<>(captures.values()))release(capture,false,"战场关闭");captures.clear();active.clear();cooldowns.clear();closed=true;
         if(engine.getCustomData().get(KEY+".owner")==this)engine.getCustomData().remove(KEY+".owner");publish();}
     private static final class Charge {
         final ShipAPI source;final int sourceOwner;final boolean sharedLocks;final List<TargetSnapshot> targets;

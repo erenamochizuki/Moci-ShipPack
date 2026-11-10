@@ -31,6 +31,8 @@ public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
 	// 效果常量
 	public static final float SENSOR_PROFILE_MULT = 0f; // 传感器信号乘数
 	public static final float CORONA_EFFECT = 0f;
+    private static final float PHASE_MOBILITY_MIN_PERCENT = 100f;
+    private static final float PHASE_MOBILITY_MAX_PERCENT = 200f;
 
 	// 免疫开关
 	public static final boolean ENABLE_COLLISION_IMMUNITY = true; // 碰撞伤害免疫开关
@@ -100,8 +102,9 @@ public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
             return;
         }
         float hardFlux = Math.max(0f, Math.min(1f, ship.getHardFluxLevel()));
-        float speedBonus = 100f + 100f * hardFlux;
-        float mobilityBonus = 100f + 100f * hardFlux;
+        float speedBonus = PHASE_MOBILITY_MIN_PERCENT
+                + (PHASE_MOBILITY_MAX_PERCENT - PHASE_MOBILITY_MIN_PERCENT) * hardFlux;
+        float mobilityBonus = speedBonus;
         stats.getMaxSpeed().modifyMult(id, 1f + speedBonus / 100f);
         stats.getAcceleration().modifyMult(id, 1f + mobilityBonus / 100f);
         stats.getDeceleration().modifyMult(id, 1f + mobilityBonus / 100f);
@@ -206,8 +209,11 @@ public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
 		Color good = Misc.getPositiveHighlightColor();
 
 		tooltip.addPara(Moci_TextLoader.getText(TEXT_ID, "description.intro"), pad);
-        tooltip.addPara(Moci_TextLoader.getText(TEXT_ID, "description.phase_mobility"), pad, h,
-                Moci_TextLoader.getHighlights(TEXT_ID, "description.phase_mobility_highlights").toArray(new String[0]));
+        java.util.Map<String, String> phaseValues = Moci_TextLoader.mapOf(
+                "phase_min", String.valueOf(Math.round(PHASE_MOBILITY_MIN_PERCENT)),
+                "phase_max", String.valueOf(Math.round(PHASE_MOBILITY_MAX_PERCENT)));
+        tooltip.addPara(Moci_TextLoader.getTextWithReplacements(TEXT_ID, "description.phase_mobility", phaseValues), pad, h,
+                Moci_TextLoader.getHighlightsWithReplacements(TEXT_ID, "description.phase_mobility_highlights", phaseValues).toArray(new String[0]));
         tooltip.addPara("与}%s}不兼容。", pad, Misc.getNegativeHighlightColor(), "自适应相位线圈");
 
 		tooltip.addPara(

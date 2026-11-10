@@ -301,7 +301,8 @@ public class Moci_ExcelsiorPhaseStats extends BaseShipSystemScript {
         return id.endsWith(suffix) ? id : id + suffix;
     }
 
-    /** 摘引擎上的时间修饰；引擎不在、键为空都直接跳过。unmodify 幂等，可重复调用。 */
+    /** 摘引擎上的时间修饰；引擎不在、键为空都直接跳过。unmodify 幂等，可重复调用。
+     *  空闲帧（runScriptWhileIdle）每帧都会走到这里，只有真摘掉了修饰才记日志。 */
     private void releaseEngineTime(String timeId, String why) {
         if (timeId == null) {
             return;
@@ -311,8 +312,9 @@ public class Moci_ExcelsiorPhaseStats extends BaseShipSystemScript {
             return;
         }
         try {
+            boolean present = engine.getTimeMult().getMultStatMod(timeId) != null;
             engine.getTimeMult().unmodify(timeId);
-            if (TRACE) {
+            if (TRACE && present) {
                 LOG.info(LOG_PREFIX + "摘除世界时间修饰 id=" + timeId + " 原因=" + why);
             }
         } catch (RuntimeException | LinkageError failure) {

@@ -37,6 +37,7 @@ import data.hullmods.Moci_ShipboardAIManager;
 import data.hullmods.Moci_ShipboardAITextRegistry;
 import data.campaign.fighter.Moci_FighterLoadoutService;
 import data.campaign.fighter.ui.Moci_AirSquadronDialog;
+import data.campaign.intel.ui.Moci_CombatSquadDialog;
 
 /**
  * CombatSquad机师编队管理界面
@@ -284,7 +285,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
         List<FleetMemberAPI> trackedShips = getTrackedShips(player);
         if (trackedShips.isEmpty()) {
-            info.addPara(csText("fleet_no_manageable", "当前没有可管理舰船。"), 8f, Misc.getGrayColor());
+            info.addPara(csText("fleet_no_manageable", "当前没有可管理舰船。"), Misc.getGrayColor(), 8f);
             info.addPara(csFormat("fleet_hint", "安装了 {mod1} 或 {mod2} 的舰船会出现在这里。",
                     "mod1", "CombatSquad船插", "mod2", "舰载AI系统"), pad, h, "CombatSquad船插", "舰载AI系统");
             member = null;
@@ -332,6 +333,9 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
             TooltipMakerAPI officerImage = createPersonImageForPanel(itemPanel, captainForPortrait, IMAGE_WIDTH, ENTRY_HEIGHT);
             itemPanel.addUIElement(officerImage).inTL(officerX, yPos);
+            // 悬停高亮框：必须在头像图片之后添加才能画在上面；不吃事件，底下的 areaCheckbox 照常收点击
+            // +5：图片是 tooltip 的第一个流式元素，引擎把它右移 5px，框按图片实际位置对齐
+            data.campaign.intel.ui.Moci_UIHoverFrame.attach(itemPanel, officerX + 5f, yPos, IMAGE_WIDTH, ENTRY_HEIGHT);
 
             float infoX = officerX + IMAGE_WIDTH + IMAGE_DESC_GAP;
             float infoWidth = Math.max(220f, width - infoX - AI_ENTRY_WIDTH - 20f);
@@ -339,7 +343,8 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             float aiX = infoX + infoWidth + INFO_TO_AI_GAP;
             float aiTextWidth = Math.max(120f, AI_ENTRY_WIDTH - AI_PORTRAIT_SIZE - 8f);
 
-            TooltipMakerAPI entry = itemPanel.createUIElement(infoWidth, ENTRY_HEIGHT, true);
+            // 不用滚动容器：名字较长换行时让这一行自动变高，而不是在 80px 的小框里出现滚动条
+            TooltipMakerAPI entry = itemPanel.createUIElement(infoWidth, ENTRY_HEIGHT, false);
             String commanderName = (captain != null && !captain.isDefault()) ? captain.getName().getFullName()
                     : csText("fleet_commander_unassigned", "未分配军官");
             String commanderRank = (captain != null && !captain.isDefault()) ? captain.getRank() : csText("fleet_none", "无");
@@ -353,7 +358,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 String safeSquadName = escapeTooltipFormat(squadName);
                 entry.addPara(csFormat("fleet_label_squad", "编队: {value}", "value", safeSquadName), pad, h, safeSquadName);
             } else {
-                entry.addPara(csText("fleet_squad_unformed", "编队: 未成立"), pad, Misc.getGrayColor());
+                entry.addPara(csText("fleet_squad_unformed", "编队: 未成立"), Misc.getGrayColor(), pad);
             }
 
             String hullName = ship.getHullSpec().getHullNameWithDashClass();
@@ -361,8 +366,8 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             entry.addPara(csFormat("fleet_label_ship", "舰船: {value}", "value", safeHullName),
                     pad, Misc.getGrayColor(), safeHullName);
             itemPanel.addUIElement(entry).inTL(infoX, yPos);
+            float rowHeight = Math.max(ENTRY_HEIGHT, entry.getHeightSoFar());
 
-            TooltipMakerAPI aiArea = itemPanel.createUIElement(aiTextWidth, ENTRY_HEIGHT, true);
             Moci_ShipboardAIManager.ShipboardAIData aiData = Moci_ShipboardAIManager.getOrCreateData(ship);
             Moci_ShipboardAIConfigLoader.AITypeDefinition aiType = aiData != null
                     ? Moci_ShipboardAIConfigLoader.getAiType(aiData.currentAiTypeId)
@@ -387,6 +392,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 TooltipMakerAPI aiPortrait = itemPanel.createUIElement(AI_PORTRAIT_SIZE, AI_PORTRAIT_SIZE, false);
                 aiPortrait.addImage(aiType.portrait, AI_PORTRAIT_SIZE, 0f);
                 itemPanel.addUIElement(aiPortrait).inTL(aiX, aiPortraitY);
+                data.campaign.intel.ui.Moci_UIHoverFrame.attach(itemPanel, aiX + 5f, aiPortraitY, AI_PORTRAIT_SIZE, AI_PORTRAIT_SIZE); // +5 同上
 
                 String displayName = aiData.customName != null && !aiData.customName.trim().isEmpty()
                         ? aiData.customName
@@ -397,6 +403,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 int currExp = (int) Moci_ShipboardAIManager.getCurrentExp(aiData);
                 int nextExp = (int) Moci_ShipboardAIManager.getNextLevelExp(aiData);
                 String safePersonality = escapeTooltipFormat(Moci_ShipboardAIManager.getPersonalityLabel(aiType.personality));
+                TooltipMakerAPI aiArea = itemPanel.createUIElement(aiTextWidth, ENTRY_HEIGHT, false);
                 aiArea.addPara(csFormat("fleet_ai_label", "AI: {value}", "value", safeDisplayName),
                         8f, Misc.getTextColor(), Misc.getHighlightColor(), safeDisplayName);
                 aiArea.addPara(csText("fleet_ai_level", "等级: %s/%s"), 4f,
@@ -407,12 +414,17 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                         String.valueOf(currExp), String.valueOf(nextExp));
                 aiArea.addPara(csFormat("fleet_ai_personality", "性格: {value}", "value", safePersonality), 4f,
                         Misc.getTextColor(), Misc.getHighlightColor(), safePersonality);
+                // 只在这艘船真的装了舰载 AI 时才挂文字区，避免每行多一个空的 0 高度组件；
+                // 同样不用滚动容器，AI 名字较长换行时把这一行撑高
+                itemPanel.addUIElement(aiArea).inTL(aiX + AI_PORTRAIT_SIZE + 8f, yPos + 2f);
+                rowHeight = Math.max(rowHeight, aiArea.getHeightSoFar() + 2f);
             }
-            itemPanel.addUIElement(aiArea).inTL(aiX + AI_PORTRAIT_SIZE + 8f, yPos + 2f);
 
-            yPos += ENTRY_HEIGHT + opad;
+            yPos += rowHeight + opad;
         }
 
+        // 行高可能因长名字换行而变高，按实际累计高度收口
+        itemPanel.getPosition().setSize(width - 8f, Math.max(yPos, itemPanelHeight));
         info.addCustom(itemPanel, 0);
         member = null;
     }
@@ -673,7 +685,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
     private void addAIDetailRenderError(TooltipMakerAPI info, float pad) {
         info.addPara(aiUiText("intel_render_error", "舰载AI详情页渲染失败，请查看日志。"),
-                pad, Misc.getNegativeHighlightColor());
+                Misc.getNegativeHighlightColor(), pad);
         info.addButton(aiUiText("intel_button_back", "返回"), "back_to_fleet", 120, TAB_BUTTON_HEIGHT, 10f);
     }
 
@@ -691,7 +703,8 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         // 编队名称修改区域
         List<Object> squadParams = new ArrayList<Object>();
         squadParams.add(squadLeader);
-        TextFieldAPI squadName = info.addTextField(200f, pad);
+        // 360px 约能放下 22 个汉字；原来 200px 时较长的编队名只能看到一半
+        TextFieldAPI squadName = info.addTextField(360f, pad);
         String currentSquadName = Moci_PilotManager.getSquadName(commanderId, true);
         if (currentSquadName != null && !currentSquadName.isEmpty()) {
             squadName.setText(currentSquadName);
@@ -702,7 +715,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         int numItems = Moci_PilotManager.getSquadSize(commanderId);
 
         if (numItems <= 0) {
-            info.addPara(csText("squad_empty", "此编队暂无机师成员。"), pad, Misc.getGrayColor());
+            info.addPara(csText("squad_empty", "此编队暂无机师成员。"), Misc.getGrayColor(), pad);
             return;
         }
 
@@ -776,7 +789,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
             infoColumn.addPara(csFormat("pilot_label_exp", "经验: {current} / {next}",
                     "current", String.format("%.0f", experience), "next", String.format("%.0f", nextLevelExp)),
-                    2f, expColor);
+                    expColor, 2f);
 
             itemPanel.addUIElement(infoColumn).inTL(currentX, yPos);
             currentX += infoWidth + colGap;
@@ -784,7 +797,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             // 第3列：技能显示
             TooltipMakerAPI skillColumn = itemPanel.createUIElement(skillWidth, ENTRY_HEIGHT + 40, true);
             skillColumn.setParaFontDefault();
-            skillColumn.addPara(csText("pilot_section_skills", "技能:"), 5f, h);
+            skillColumn.addPara(csText("pilot_section_skills", "技能:"), h, 5f);
 
             try {
                 com.fs.starfarer.api.characters.MutableCharacterStatsAPI stats = pilot.getStats();
@@ -814,7 +827,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                         if (isElite) {
                             skillColumn.addPara(skillText, 2f, skillColor, skillText);
                         } else {
-                            skillColumn.addPara(skillText, 2f, skillColor);
+                            skillColumn.addPara(skillText, skillColor, 2f);
                         }
                         displayedSkills++;
                     } catch (Exception skillEx) {
@@ -823,10 +836,10 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 }
 
                 if (displayedSkills == 0) {
-                    skillColumn.addPara(csText("pilot_no_skills", "无技能"), 2f, Misc.getGrayColor());
+                    skillColumn.addPara(csText("pilot_no_skills", "无技能"), Misc.getGrayColor(), 2f);
                 }
             } catch (Exception ex) {
-                skillColumn.addPara(csText("pilot_skill_error", "技能数据错误"), 2f, Misc.getGrayColor());
+                skillColumn.addPara(csText("pilot_skill_error", "技能数据错误"), Misc.getGrayColor(), 2f);
             }
 
             itemPanel.addUIElement(skillColumn).inTL(currentX, yPos);
@@ -835,15 +848,13 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             // 第4列：标签文字
             TooltipMakerAPI labelColumn = itemPanel.createUIElement(labelWidth, ENTRY_HEIGHT, true);
             labelColumn.setParaFontDefault();
-            labelColumn.addPara(csText("pilot_edit_name", "修改姓名:"), 20, h);
-            labelColumn.addPara(csText("pilot_edit_callsign", "修改呼号:"), 15, h);
+            labelColumn.addPara(csText("pilot_edit_name", "修改姓名:"), h, 20);
+            labelColumn.addPara(csText("pilot_edit_callsign", "修改呼号:"), h, 15);
 
             itemPanel.addUIElement(labelColumn).inTL(currentX, yPos);
             currentX += labelWidth + colGap;
 
-            // 第5列：输入框区域
-            TooltipMakerAPI inputColumn = itemPanel.createUIElement(inputWidth, ENTRY_HEIGHT, true);
-            inputColumn.setParaFontDefault();
+            // 第5列：输入框区域（姓、名、呼号三个输入框各自用独立容器定位）
 
             // 姓名输入 - 姓和名在同一行，但放在输入框列中
             TooltipMakerAPI nameInputHolder = itemPanel.createUIElement(inputWidth, 20, false);
@@ -936,7 +947,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         Color bright = fc.getBrightUIColor();
 
         if (selectingPortraitIdx != null) {
-            info.addPara(csText("portrait_select_prompt", "请选择新头像："), 10f, Misc.getHighlightColor());
+            info.addPara(csText("portrait_select_prompt", "请选择新头像："), Misc.getHighlightColor(), 10f);
 
             // Shipboard AI 指挥官使用独立头像池，普通指挥官保持原画像池
             List<String> portraits = getPortraitOptionsForCommander(squadLeader);
@@ -997,11 +1008,11 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 if (eliteOnlyMode) {
                     // 纯精英化模式：只显示可精英化的技能
                     info.addPara(csFormat("upgrade_prompt_elite", "机师 {name} 精英化！请选择要精英化的技能：",
-                            "name", upgradePilot.getName().getFullName()), 10f, Misc.getHighlightColor());
+                            "name", upgradePilot.getName().getFullName()), Misc.getHighlightColor(), 10f);
                 } else {
                     // 升级模式：显示学习新技能和精英化现有技能
                     info.addPara(csFormat("upgrade_prompt_learn", "机师 {name} 升级！请选择要学习的技能：",
-                            "name", upgradePilot.getName().getFullName()), 10f, Misc.getHighlightColor());
+                            "name", upgradePilot.getName().getFullName()), Misc.getHighlightColor(), 10f);
                 }
 
                 // 获取可用技能列表（只在非精英化模式显示）
@@ -1143,7 +1154,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                         info.addCustom(elitePanel, 10);
                     } else {
                         // 升级模式：作为额外选项显示，使用技能图标
-                        info.addPara(csText("upgrade_elite_alt", "或选择精英化现有技能："), 5f, Misc.getHighlightColor());
+                        info.addPara(csText("upgrade_elite_alt", "或选择精英化现有技能："), Misc.getHighlightColor(), 5f);
 
                         int eliteCols = 8; // 8列显示精英技能图标
                         int eliteRows = (int) Math.ceil(eliteableSkills.size() / (float) eliteCols);
@@ -1212,7 +1223,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                     }
                 } else if (eliteOnlyMode) {
                     // 精英化模式但没有可精英化技能
-                    info.addPara(csText("upgrade_no_elite", "该机师暂无可精英化的技能"), 5f, Misc.getGrayColor());
+                    info.addPara(csText("upgrade_no_elite", "该机师暂无可精英化的技能"), Misc.getGrayColor(), 5f);
                 }
 
                 String cancelText = eliteOnlyMode
@@ -1233,7 +1244,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
     private void createSelectedShipSquadView(CustomPanelAPI panel, TooltipMakerAPI info, float width, float opad, Color h) {
         FleetMemberAPI ship = findFleetMemberById(selectedSquadShipId);
         if (ship == null) {
-            info.addPara(csText("detail_missing_ship", "目标舰船不存在，可能已离开舰队。"), 8f, Misc.getNegativeHighlightColor());
+            info.addPara(csText("detail_missing_ship", "目标舰船不存在，可能已离开舰队。"), Misc.getNegativeHighlightColor(), 8f);
             info.addButton(csText("common_back", "返回"), "back_to_fleet", 120, TAB_BUTTON_HEIGHT, 10f);
             return;
         }
@@ -1248,7 +1259,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 && !squadLeader.isDefault()
                 && hasEstablishedSquad(squadLeader);
         if (!hasShipSquad) {
-            info.addPara(csText("detail_no_squad", "该舰船当前未成立小队。"), 8f, Misc.getGrayColor());
+            info.addPara(csText("detail_no_squad", "该舰船当前未成立小队。"), Misc.getGrayColor(), 8f);
             info.addPara(csFormat("detail_no_squad_hint", "请先安装 {mod} 并分配非默认军官，随后在战役中完成小队初始化。",
                     "mod", "CombatSquad 船插"), 4f, h, "CombatSquad 船插");
             info.addButton(csText("common_back", "返回"), "back_to_fleet", 120, TAB_BUTTON_HEIGHT, 10f);
@@ -1283,7 +1294,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             if (ship == null) {
                 logAIDetailWarn("render_missing_ship", memberId, null, null, null, null);
                 info.addPara(aiUiText("intel_missing_ship", "目标舰船不存在，可能已离开舰队。"),
-                        8f, Misc.getNegativeHighlightColor());
+                        Misc.getNegativeHighlightColor(), 8f);
                 info.addButton(aiUiText("intel_button_back", "返回"), "back_to_fleet", 120, TAB_BUTTON_HEIGHT, 10f);
                 return;
             }
@@ -1293,7 +1304,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 logAIDetailWarn("render_missing_data", memberId, null, null, ship,
                         "hasShipboardAISystem=" + Moci_ShipboardAIConfigLoader.hasShipboardAISystem(ship));
                 info.addPara(aiUiText("intel_missing_no_ai", "该舰船未安装舰载AI系统。"),
-                        8f, Misc.getNegativeHighlightColor());
+                        Misc.getNegativeHighlightColor(), 8f);
                 info.addButton(aiUiText("intel_button_back", "返回"), "back_to_fleet", 120, TAB_BUTTON_HEIGHT, 10f);
                 return;
             }
@@ -1302,7 +1313,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             if (type == null) {
                 logAIDetailWarn("render_missing_type", memberId, data, null, ship, null);
                 info.addPara(aiUiText("intel_missing_type", "舰载AI类型配置缺失。"),
-                        8f, Misc.getNegativeHighlightColor());
+                        Misc.getNegativeHighlightColor(), 8f);
                 info.addButton(aiUiText("intel_button_back", "返回"), "back_to_fleet", 120, TAB_BUTTON_HEIGHT, 10f);
                 return;
             }
@@ -1380,11 +1391,11 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 leftColumn.addButton(aiUiText("intel_button_rename", "修改名称"), renameParams, 120, 22, 4f);
             }
 
-            leftColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+            leftColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
             leftColumn.addPara(aiUiText("intel_section_skills", "技能"), sectionHeaderPad, Misc.getHighlightColor(),
                     aiUiText("intel_section_skills", "技能"));
             if (data.learnedSkills.isEmpty()) {
-                leftColumn.addPara(aiUiText("intel_none", "无"), sectionContentPad, Misc.getGrayColor());
+                leftColumn.addPara(aiUiText("intel_none", "无"), Misc.getGrayColor(), sectionContentPad);
             } else {
                 for (String skillId : data.learnedSkills) {
                     String skillName = getShipboardAISkillName(skillId);
@@ -1396,11 +1407,11 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 }
             }
 
-            leftColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+            leftColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
             leftColumn.addPara(aiUiText("intel_section_aux", "辅助效果"), sectionHeaderPad, Misc.getHighlightColor(),
                     aiUiText("intel_section_aux", "辅助效果"));
             if (data.learnedAuxSkills.isEmpty()) {
-                leftColumn.addPara(aiUiText("intel_none", "无"), sectionContentPad, Misc.getGrayColor());
+                leftColumn.addPara(aiUiText("intel_none", "无"), Misc.getGrayColor(), sectionContentPad);
             } else {
                 for (String auxId : data.learnedAuxSkills) {
                     String auxName = getShipboardAIAuxEffectDisplayName(auxId);
@@ -1419,51 +1430,51 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             boolean hasActionSection = false;
             if (AI_DEBUG_MODE) {
                 rightColumn.addPara(aiUiText("intel_debug_button_hint", "学习/精英化/辅助按钮仅在有剩余次数且有可选项时显示。"),
-                        4f, Misc.getGrayColor());
+                        Misc.getGrayColor(), 4f);
             }
 
             if (AI_DEBUG_MODE || (normalPick > 0 && !normalOptions.isEmpty())) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 rightColumn.addPara(aiFormat("intel_available_skill_heading", "可学习技能（剩余 {count} 次）",
                         "count", String.valueOf(normalPick)), sectionHeaderPad, Misc.getHighlightColor(), "" + normalPick);
                 if (normalPick > 0 && !normalOptions.isEmpty()) {
                     addAIDetailSkillButtons(rightColumn, "ai_learn", ship.getId(), normalOptions);
                 } else if (AI_DEBUG_MODE) {
                     rightColumn.addPara(aiUiText("intel_available_skill_empty", "当前暂无可学习技能。"),
-                            sectionContentPad, Misc.getGrayColor());
+                            Misc.getGrayColor(), sectionContentPad);
                 }
             }
 
             if (AI_DEBUG_MODE || (elitePick > 0 && !eliteOptions.isEmpty())) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 rightColumn.addPara(aiFormat("intel_available_elite_heading", "可精英化技能（剩余 {count} 次）",
                         "count", String.valueOf(elitePick)), sectionHeaderPad, Misc.getHighlightColor(), "" + elitePick);
                 if (elitePick > 0 && !eliteOptions.isEmpty()) {
                     addAIDetailSkillButtons(rightColumn, "ai_elite", ship.getId(), eliteOptions);
                 } else if (AI_DEBUG_MODE) {
                     rightColumn.addPara(aiUiText("intel_available_elite_empty", "当前暂无可精英化技能。"),
-                            sectionContentPad, Misc.getGrayColor());
+                            Misc.getGrayColor(), sectionContentPad);
                 }
             }
 
             if (AI_DEBUG_MODE || (auxPick > 0 && !auxOptions.isEmpty())) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 rightColumn.addPara(aiFormat("intel_available_aux_heading", "可学习辅助效果（剩余 {count} 次）",
                         "count", String.valueOf(auxPick)), sectionHeaderPad, Misc.getHighlightColor(), "" + auxPick);
                 if (auxPick > 0 && !auxOptions.isEmpty()) {
                     addAIDetailSkillButtons(rightColumn, "ai_aux", ship.getId(), auxOptions);
                 } else if (AI_DEBUG_MODE) {
                     rightColumn.addPara(aiUiText("intel_available_aux_empty", "当前暂无可学习辅助效果。"),
-                            sectionContentPad, Misc.getGrayColor());
+                            Misc.getGrayColor(), sectionContentPad);
                 }
             }
 
             if (!evolutionOptions.isEmpty()) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 rightColumn.addPara(aiUiText("intel_evolution_options", "可选进化路线"), 4f, Misc.getHighlightColor(),
                         aiUiText("intel_evolution_options", "可选进化路线"));
                 for (String targetId : evolutionOptions) {
@@ -1481,13 +1492,13 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 }
             } else if (type.hasEvolutionRoute) {
                 hasActionSection = true;
-                rightColumn.addPara("----------------------------------------", sectionPad, Misc.getGrayColor());
+                rightColumn.addPara("----------------------------------------", Misc.getGrayColor(), sectionPad);
                 rightColumn.addPara(aiFormat("intel_evolution_requirement", "进化条件：达到等级 {level}",
-                        "level", String.valueOf(type.evolutionLevel)), 4f, Misc.getGrayColor());
+                        "level", String.valueOf(type.evolutionLevel)), Misc.getGrayColor(), 4f);
             }
 
             if (!hasActionSection) {
-                rightColumn.addPara(aiUiText("intel_no_actions", "当前暂无可执行操作。"), sectionPad, Misc.getGrayColor());
+                rightColumn.addPara(aiUiText("intel_no_actions", "当前暂无可执行操作。"), Misc.getGrayColor(), sectionPad);
             }
 
             rightColumn.addButton(aiUiText("intel_button_back", "返回"), "back_to_fleet", 120, TAB_BUTTON_HEIGHT, sectionPad);
@@ -1526,9 +1537,10 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                     : getShipboardAISkillName(skillId);
             info.addButton(escapeTooltipFormat(displayName), params, 220, 20, 2f);
             if ("ai_aux".equals(action)) {
-                String safeDesc = escapeTooltipFormat(Moci_ShipboardAIAuxEffectRegistry.getEffectDescription(skillId, 1f));
-                info.addPara(safeDesc,
-                        2f, Misc.getGrayColor());
+                // addPara(String, Color, float) 不经过 String.format，描述里的 % 会原样显示，不需要再转义成 %%
+                String desc = Moci_ShipboardAIAuxEffectRegistry.getEffectDescription(skillId, 1f);
+                info.addPara(desc == null ? "" : desc,
+                        Misc.getGrayColor(), 2f);
             }
             count++;
         }
@@ -2155,7 +2167,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             }
         }
         if (carriers.isEmpty()) {
-            info.addPara("当前没有安装航空中队管理船插的母舰。该船插无需军官，零 OP，有机库即可安装。", 12f, Misc.getGrayColor());
+            info.addPara("当前没有安装航空中队管理船插的母舰。该船插无需军官，零 OP，有机库即可安装。", Misc.getGrayColor(), 12f);
             return;
         }
         float rowHeight = 116f;
@@ -2199,7 +2211,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 details.addPara("联队 " + installed + " · 可装配 " + editable + " · 已改装 " + modified, 4f);
                 details.addPara(summary.length() > 0 ? summary.toString() : "尚未安装联队", Misc.getGrayColor(), 3f);
             } else {
-                details.addPara("装配服务暂不可用，舰船及库存保持原状。", 4f, Misc.getGrayColor());
+                details.addPara("装配服务暂不可用，舰船及库存保持原状。", Misc.getGrayColor(), 4f);
             }
             rows.addUIElement(details).inTL(textX, y);
             TooltipMakerAPI button = rows.createUIElement(buttonWidth, 28f, false);
@@ -2260,10 +2272,53 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         panel.addUIElement(info).inTL(0f, contentY);
     }
 
+    /** 回放同一次点击走旧内嵌页时置位，只生效一次。 */
+    private transient boolean suppressDialogOnce;
+
+    /**
+     * 优先打开独立弹窗（Moci_CombatSquadDialog）；打开失败打 [Moci_CombatSquadDialog] 错误日志并返回 false，
+     * 调用方继续走旧内嵌页。弹窗异步初始化失败时同样回放这次点击走旧页面。
+     */
+    private boolean tryOpenDialog(String memberId, Moci_CombatSquadDialog.Tab tab, final Object buttonId, final IntelUIAPI ui) {
+        if (suppressDialogOnce) {
+            suppressDialogOnce = false;
+            return false;
+        }
+        try {
+            Moci_CombatSquadDialog.open(ui, this, memberId, tab, () -> {
+                suppressDialogOnce = true;
+                buttonPressConfirmed(buttonId, ui);
+            });
+            return true;
+        } catch (RuntimeException ex) {
+            Global.getLogger(Moci_CombatSquadManagerIntel.class).error(
+                    "[Moci_CombatSquadDialog] 打开弹窗失败，退回旧页面 member=" + memberId + " tab=" + tab, ex);
+            return false;
+        }
+    }
+
     @Override
     public void buttonPressConfirmed(Object buttonId, IntelUIAPI ui) {
         // 返回按钮
         if ("back_to_fleet".equals(buttonId)) {
+            currentTab = Tab.FLEET;
+            selectingPortraitIdx = null;
+            selectingSkillIdx = null;
+            selectingCommanderId = null;
+            selectingShipIdx = null;
+            selectingShipCommanderId = null;
+            eliteOnlyMode = false;
+            selectedSquadShipId = null;
+            selectedAiMemberId = null;
+            member = null;
+            ui.updateUIForItem(this);
+            return;
+        }
+        // 重置所有配置（使用说明页底部；游戏先弹确认框，玩家点了「重置」才会到这里）
+        if ("reset_config".equals(buttonId)) {
+            String result = resetAllSquadData();
+            Global.getSector().getCampaignUI().addMessage(result,
+                    result.startsWith("已") ? Misc.getHighlightColor() : Misc.getNegativeHighlightColor());
             currentTab = Tab.FLEET;
             selectingPortraitIdx = null;
             selectingSkillIdx = null;
@@ -2330,6 +2385,9 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                     return;
                 }
                 if ("open_squad".equals(action) && params.size() >= 2 && params.get(1) instanceof String) {
+                    if (tryOpenDialog((String) params.get(1), Moci_CombatSquadDialog.Tab.SQUAD, buttonId, ui)) {
+                        return;
+                    }
                     selectedSquadShipId = (String) params.get(1);
                     FleetMemberAPI ship = findFleetMemberById(selectedSquadShipId);
                     member = ship != null ? ship.getCaptain() : null;
@@ -2378,6 +2436,9 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                         Global.getSector().getCampaignUI().addMessage(
                                 aiUiText("intel_msg_open_detail_fail", "Cannot open shipboard AI detail."), AI_NEGATIVE_COLOR);
                         ui.updateUIForItem(this);
+                        return;
+                    }
+                    if (tryOpenDialog(targetMemberId, Moci_CombatSquadDialog.Tab.AI, buttonId, ui)) {
                         return;
                     }
                     selectedAiMemberId = targetMemberId;
@@ -2436,22 +2497,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 int pilotIndex = (Integer) params.get(1);
                 String skillId = (String) params.get(2);
 
-                // 执行升级并学习技能
-                PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
-                if (pilot != null) {
-                    boolean success = upgradeAndLearnSkill(commanderId, pilotIndex, skillId);
-                    if (success) {
-                        String skillName = Global.getSettings().getSkillSpec(skillId).getName();
-                        String callsign = Moci_PilotManager.getCallsign(commanderId, pilotIndex, true);
-                        Global.getSector().getCampaignUI().addMessage(
-                                csFormat("msg_learn_skill_success",
-                                        "机师 {pilot} (呼号: {callsign}) 升级并学习了技能: {skill}",
-                                        "pilot", pilot.getName().getFullName(),
-                                        "callsign", callsign,
-                                        "skill", skillName),
-                                com.fs.starfarer.api.util.Misc.getHighlightColor());
-                    }
-                }
+                applyLearnSkill(commanderId, pilotIndex, skillId);
 
                 // 退出技能选择模式
                 selectingSkillIdx = null;
@@ -2467,22 +2513,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 int pilotIndex = (Integer) params.get(1);
                 String skillId = (String) params.get(2);
 
-                // 执行升级并精英化技能
-                PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
-                if (pilot != null) {
-                    boolean success = upgradeAndEliteSkill(commanderId, pilotIndex, skillId);
-                    if (success) {
-                        String skillName = Global.getSettings().getSkillSpec(skillId).getName();
-                        String callsign = Moci_PilotManager.getCallsign(commanderId, pilotIndex, true);
-                        Global.getSector().getCampaignUI().addMessage(
-                                csFormat("msg_elite_skill_success",
-                                        "机师 {pilot} (呼号: {callsign}) 升级并精英化了技能: {skill}",
-                                        "pilot", pilot.getName().getFullName(),
-                                        "callsign", callsign,
-                                        "skill", skillName),
-                                com.fs.starfarer.api.util.Misc.getHighlightColor());
-                    }
-                }
+                applyUpgradeEliteSkill(commanderId, pilotIndex, skillId);
 
                 // 退出技能选择模式
                 selectingSkillIdx = null;
@@ -2498,22 +2529,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 int pilotIndex = (Integer) params.get(1);
                 String skillId = (String) params.get(2);
 
-                // 执行单独精英化（不升级等级）
-                PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
-                if (pilot != null) {
-                    boolean success = Moci_PilotTraining.elitePilotSkill(commanderId, pilotIndex, skillId, true);
-                    if (success) {
-                        String skillName = Global.getSettings().getSkillSpec(skillId).getName();
-                        String callsign = Moci_PilotManager.getCallsign(commanderId, pilotIndex, true);
-                        Global.getSector().getCampaignUI().addMessage(
-                                csFormat("msg_elite_only_success",
-                                        "机师 {pilot} (呼号: {callsign}) 精英化了技能: {skill}",
-                                        "pilot", pilot.getName().getFullName(),
-                                        "callsign", callsign,
-                                        "skill", skillName),
-                                com.fs.starfarer.api.util.Misc.getHighlightColor());
-                    }
-                }
+                applyEliteOnly(commanderId, pilotIndex, skillId);
 
                 // 退出技能选择模式
                 selectingSkillIdx = null;
@@ -2528,11 +2544,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 PersonAPI squadLeader = (PersonAPI) params.get(0);
                 int idx = (Integer) params.get(1);
                 String portrait = (String) params.get(2);
-                // 直接获取机师对象并设置头像
-                PersonAPI pilot = Moci_PilotManager.getPilot(squadLeader.getId(), idx, true);
-                if (pilot != null) {
-                    pilot.setPortraitSprite(portrait);
-                }
+                applyPilotPortrait(squadLeader.getId(), idx, portrait);
                 selectingPortraitIdx = null;
                 ui.updateUIForItem(this);
                 return;
@@ -2543,11 +2555,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 PersonAPI squadLeader = (PersonAPI) params.get(0);
                 int idx = (Integer) params.get(1);
                 TextFieldAPI text = (TextFieldAPI) params.get(2);
-                String newCallsign = text.getText();
-                if (newCallsign != null && !newCallsign.trim().isEmpty()) {
-                    Global.getSector().getPersistentData()
-                            .put("moci_combatSquad_callsign_" + idx + "_" + squadLeader.getId(), newCallsign.trim());
-                }
+                applyPilotCallsign(squadLeader, idx, text.getText());
                 ui.updateUIForItem(this);
                 return;
             }
@@ -2555,10 +2563,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             if (params.size() == 2 && params.get(0) instanceof PersonAPI && params.get(1) instanceof TextFieldAPI) {
                 PersonAPI squadLeader = (PersonAPI) params.get(0);
                 TextFieldAPI newName = (TextFieldAPI) params.get(1);
-                String newSquadName = newName.getText();
-                if (newSquadName != null && !newSquadName.trim().isEmpty()) {
-                    Moci_PilotManager.setSquadName(squadLeader.getId(), newSquadName.trim());
-                }
+                applySquadName(squadLeader, newName.getText());
                 ui.updateUIForItem(this);
                 return;
             }
@@ -2569,14 +2574,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 int idx = (Integer) params.get(1);
                 TextFieldAPI lastNameField = (TextFieldAPI) params.get(2);
                 TextFieldAPI firstNameField = (TextFieldAPI) params.get(3);
-                String last = lastNameField.getText();
-                String first = firstNameField.getText();
-                PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, idx, true);
-                if (pilot != null && last != null && first != null && !last.trim().isEmpty()
-                        && !first.trim().isEmpty()) {
-                    pilot.setName(
-                            new com.fs.starfarer.api.characters.FullName(first, last, pilot.getName().getGender()));
-                }
+                applyPilotName(commanderId, idx, lastNameField.getText(), firstNameField.getText());
                 ui.updateUIForItem(this);
                 return;
             }
@@ -2615,25 +2613,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 String commanderId = (String) params.get(0);
                 int pilotIndex = (Integer) params.get(1);
 
-                // 执行还原操作
-                try {
-                    Moci_CustomWingmanManager.resetToDefault(commanderId, pilotIndex);
-                    
-                    // 显示成功消息
-                    PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
-                    String pilotName = pilot != null ? pilot.getName().getFullName() : csText("pilot_generic", "机师");
-
-                    Global.getSector().getCampaignUI().addMessage(
-                            csFormat("msg_restore_success", "{pilot} 的舰船已还原为默认配置，自定义舰船已归还舰队",
-                                    "pilot", pilotName),
-                            Misc.getPositiveHighlightColor());
-                } catch (Exception e) {
-                    // 显示失败消息
-                    Global.getLogger(this.getClass()).error("舰船还原失败: " + e.getMessage(), e);
-                    Global.getSector().getCampaignUI().addMessage(
-                            csText("msg_restore_fail", "舰船还原失败"),
-                            Misc.getNegativeHighlightColor());
-                }
+                applyRestoreShip(commanderId, pilotIndex);
 
                 ui.updateUIForItem(this);
                 return;
@@ -2661,28 +2641,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 int pilotIndex = (Integer) params.get(1);
                 FleetMemberAPI ship = (FleetMemberAPI) params.get(2);
 
-                // 指派舰船
-                boolean success = Moci_CustomWingmanManager.assignCustomShip(commanderId, pilotIndex, ship);
-
-                if (success) {
-                    // 显示成功消息
-                    String shipName = ship.getHullSpec().getHullNameWithDashClass();
-                    PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
-                    String pilotName = pilot != null ? pilot.getName().getFullName() : csText("pilot_generic", "机师");
-
-                    Global.getSector().getCampaignUI().addMessage(
-                            csFormat("msg_assign_success", "已将{ship}指派给{pilot}",
-                                    "ship", shipName, "pilot", pilotName),
-                            Misc.getPositiveHighlightColor());
-                } else {
-                    // 显示失败消息
-                    Global.getLogger(this.getClass()).warn("舰船指派失败 - 指挥官ID: " + commanderId
-                            + ", 机师索引: " + pilotIndex
-                            + ", 舰船: " + ship.getHullSpec().getHullNameWithDashClass());
-                    Global.getSector().getCampaignUI().addMessage(
-                            csText("msg_assign_fail", "舰船指派失败，可能不符合条件"),
-                            Misc.getNegativeHighlightColor());
-                }
+                applyAssignShip(commanderId, pilotIndex, ship);
 
                 // 退出舰船选择模式
                 selectingShipIdx = null;
@@ -2697,6 +2656,186 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
 
 
+    // ===================== 共用操作与查询（旧情报页与 Moci_CombatSquadDialog 共用，规则只在这里） =====================
+
+    /** 升级并学习技能（升级按钮 → 学习）。成功时发与旧页面相同的提示条。 */
+    public boolean applyLearnSkill(String commanderId, int pilotIndex, String skillId) {
+        PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
+        if (pilot == null || skillId == null) return false;
+        boolean success = upgradeAndLearnSkill(commanderId, pilotIndex, skillId);
+        if (success) {
+            postPilotSkillMessage("msg_learn_skill_success", "机师 {pilot} (呼号: {callsign}) 升级并学习了技能: {skill}",
+                    pilot, commanderId, pilotIndex, skillId);
+        }
+        return success;
+    }
+
+    /** 升级并精英化技能（升级时选择精英化已有技能）。 */
+    public boolean applyUpgradeEliteSkill(String commanderId, int pilotIndex, String skillId) {
+        PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
+        if (pilot == null || skillId == null) return false;
+        boolean success = upgradeAndEliteSkill(commanderId, pilotIndex, skillId);
+        if (success) {
+            postPilotSkillMessage("msg_elite_skill_success", "机师 {pilot} (呼号: {callsign}) 升级并精英化了技能: {skill}",
+                    pilot, commanderId, pilotIndex, skillId);
+        }
+        return success;
+    }
+
+    /** 单独精英化（不升级等级），规则在 Moci_PilotTraining.elitePilotSkill。 */
+    public boolean applyEliteOnly(String commanderId, int pilotIndex, String skillId) {
+        PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
+        if (pilot == null || skillId == null) return false;
+        boolean success = Moci_PilotTraining.elitePilotSkill(commanderId, pilotIndex, skillId, true);
+        if (success) {
+            postPilotSkillMessage("msg_elite_only_success", "机师 {pilot} (呼号: {callsign}) 精英化了技能: {skill}",
+                    pilot, commanderId, pilotIndex, skillId);
+        }
+        return success;
+    }
+
+    private void postPilotSkillMessage(String key, String fallback, PersonAPI pilot, String commanderId,
+            int pilotIndex, String skillId) {
+        String skillName = Global.getSettings().getSkillSpec(skillId).getName();
+        String callsign = Moci_PilotManager.getCallsign(commanderId, pilotIndex, true);
+        Global.getSector().getCampaignUI().addMessage(
+                csFormat(key, fallback,
+                        "pilot", pilot.getName().getFullName(),
+                        "callsign", callsign,
+                        "skill", skillName),
+                Misc.getHighlightColor());
+    }
+
+    /** 换头像。 */
+    public boolean applyPilotPortrait(String commanderId, int pilotIndex, String portrait) {
+        PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
+        if (pilot == null || portrait == null) return false;
+        pilot.setPortraitSprite(portrait);
+        return true;
+    }
+
+    /** 改呼号（空白忽略）。 */
+    public boolean applyPilotCallsign(PersonAPI squadLeader, int pilotIndex, String newCallsign) {
+        if (squadLeader == null || newCallsign == null || newCallsign.trim().isEmpty()) return false;
+        Global.getSector().getPersistentData()
+                .put("moci_combatSquad_callsign_" + pilotIndex + "_" + squadLeader.getId(), newCallsign.trim());
+        return true;
+    }
+
+    /** 编队改名（空白忽略）。 */
+    public boolean applySquadName(PersonAPI squadLeader, String newSquadName) {
+        if (squadLeader == null || newSquadName == null || newSquadName.trim().isEmpty()) return false;
+        Moci_PilotManager.setSquadName(squadLeader.getId(), newSquadName.trim());
+        return true;
+    }
+
+    /** 机师改姓名（姓、名都非空才生效）。 */
+    public boolean applyPilotName(String commanderId, int pilotIndex, String last, String first) {
+        PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
+        if (pilot != null && last != null && first != null && !last.trim().isEmpty()
+                && !first.trim().isEmpty()) {
+            pilot.setName(
+                    new com.fs.starfarer.api.characters.FullName(first, last, pilot.getName().getGender()));
+            return true;
+        }
+        return false;
+    }
+
+    /** 还原为默认僚机（自定义舰船归还舰队）。 */
+    public boolean applyRestoreShip(String commanderId, int pilotIndex) {
+        try {
+            Moci_CustomWingmanManager.resetToDefault(commanderId, pilotIndex);
+
+            PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
+            String pilotName = pilot != null ? pilot.getName().getFullName() : csText("pilot_generic", "机师");
+
+            Global.getSector().getCampaignUI().addMessage(
+                    csFormat("msg_restore_success", "{pilot} 的舰船已还原为默认配置，自定义舰船已归还舰队",
+                            "pilot", pilotName),
+                    Misc.getPositiveHighlightColor());
+            return true;
+        } catch (Exception e) {
+            Global.getLogger(this.getClass()).error("舰船还原失败: " + e.getMessage(), e);
+            Global.getSector().getCampaignUI().addMessage(
+                    csText("msg_restore_fail", "舰船还原失败"),
+                    Misc.getNegativeHighlightColor());
+            return false;
+        }
+    }
+
+    /** 指派自定义僚机，规则在 Moci_CustomWingmanManager.assignCustomShip。 */
+    public boolean applyAssignShip(String commanderId, int pilotIndex, FleetMemberAPI ship) {
+        if (ship == null) return false;
+        boolean success = Moci_CustomWingmanManager.assignCustomShip(commanderId, pilotIndex, ship);
+
+        if (success) {
+            String shipName = ship.getHullSpec().getHullNameWithDashClass();
+            PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
+            String pilotName = pilot != null ? pilot.getName().getFullName() : csText("pilot_generic", "机师");
+
+            Global.getSector().getCampaignUI().addMessage(
+                    csFormat("msg_assign_success", "已将{ship}指派给{pilot}",
+                            "ship", shipName, "pilot", pilotName),
+                    Misc.getPositiveHighlightColor());
+        } else {
+            Global.getLogger(this.getClass()).warn("舰船指派失败 - 指挥官ID: " + commanderId
+                    + ", 机师索引: " + pilotIndex
+                    + ", 舰船: " + ship.getHullSpec().getHullNameWithDashClass());
+            Global.getSector().getCampaignUI().addMessage(
+                    csText("msg_assign_fail", "舰船指派失败，可能不符合条件"),
+                    Misc.getNegativeHighlightColor());
+        }
+        return success;
+    }
+
+    /** 升级时可学习的新技能。 */
+    public List<String> listLearnableSkills(PersonAPI pilot) { return getAvailableSkills(pilot); }
+    /** 可精英化的技能（已达精英上限时为空）。 */
+    public List<String> listEliteableSkills(PersonAPI pilot) { return getEliteableSkills(pilot); }
+    /** 换头像候选。 */
+    public List<String> listPortraitOptions(PersonAPI squadLeader) { return getPortraitOptionsForCommander(squadLeader); }
+    /** 升到 level 所需经验。 */
+    public float experienceForLevel(int level) { return getExperienceForLevel(level); }
+    /** 舰队里按 ID 找舰船。 */
+    public FleetMemberAPI fleetMemberById(String memberId) { return findFleetMemberById(memberId); }
+    /** 舰船是否装了作战小队船插。 */
+    public boolean shipHasCombatSquad(FleetMemberAPI ship) { return ship != null && hasCombatSquadSystem(ship); }
+    /** 队长是否已成立小队。 */
+    public boolean squadEstablished(PersonAPI squadLeader) { return squadLeader != null && hasEstablishedSquad(squadLeader); }
+    /** 机师当前僚机的显示舰船（自定义优先，否则默认配置）。 */
+    public List<FleetMemberAPI> wingmanDisplayShips(PersonAPI squadLeader, int pilotIndex) {
+        Moci_CustomWingmanManager.CustomWingmanShip custom =
+                Moci_CustomWingmanManager.getCustomWingmanShip(squadLeader.getId(), pilotIndex);
+        String hullId = custom != null ? custom.hullId : getWingmanShipHull(squadLeader, pilotIndex);
+        return createShipListForDisplay(custom, hullId);
+    }
+    /** 机师当前僚机名称（自定义取 displayName，否则型号名）。 */
+    public String wingmanDisplayName(PersonAPI squadLeader, int pilotIndex) {
+        Moci_CustomWingmanManager.CustomWingmanShip custom =
+                Moci_CustomWingmanManager.getCustomWingmanShip(squadLeader.getId(), pilotIndex);
+        if (custom != null && custom.displayName != null) return custom.displayName;
+        List<FleetMemberAPI> ships = wingmanDisplayShips(squadLeader, pilotIndex);
+        if (!ships.isEmpty() && ships.get(0).getHullSpec() != null) return ships.get(0).getHullSpec().getHullName();
+        return csText("ship_name_unknown", "未知舰船");
+    }
+    /** 机师是否用了自定义僚机。 */
+    public boolean wingmanIsCustom(PersonAPI squadLeader, int pilotIndex) {
+        return Moci_CustomWingmanManager.getCustomWingmanShip(squadLeader.getId(), pilotIndex) != null;
+    }
+    /** 自定义僚机部署点是否超过队长机（与编队页的「DP超出」同一判断）。 */
+    public boolean wingmanDpExceeded(PersonAPI squadLeader, int pilotIndex) {
+        Moci_CustomWingmanManager.CustomWingmanShip custom =
+                Moci_CustomWingmanManager.getCustomWingmanShip(squadLeader.getId(), pilotIndex);
+        if (custom == null) return false;
+        FleetMemberAPI commanderShip = findShipByOfficer(squadLeader);
+        if (commanderShip == null || commanderShip.getHullSpec() == null) return false;
+        return custom.deploymentPoints > (int) commanderShip.getHullSpec().getSuppliesToRecover();
+    }
+    /** 可指派给该编队的候选舰船。 */
+    public List<FleetMemberAPI> listAssignableShips(String commanderId) {
+        return Moci_CustomWingmanManager.getAssignableShips(commanderId);
+    }
+
     @Override
     public boolean doesButtonHaveConfirmDialog(Object buttonId) {
         if (buttonId instanceof String) {
@@ -2706,9 +2845,64 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
     }
 
     @Override
+    public void createConfirmationPrompt(Object buttonId, TooltipMakerAPI prompt) {
+        if ("reset_config".equals(buttonId)) {
+            // 提示语属于确认框正文；getConfirmText 只决定"确认"按钮上显示的字
+            prompt.addPara(csText("confirm_reset", "确认重置所有配置？此操作将清除所有机师数据！"),
+                    Misc.getNegativeHighlightColor(), 0f);
+            prompt.addPara(csText("confirm_reset_detail", "会清除所有作战小队的机师、编队名、呼号、经验和自定义僚机配置，"
+                    + "已指派给僚机的舰船先归还舰队。之后机师会在下次需要时重新生成。此操作无法撤销。"),
+                    Misc.getGrayColor(), 6f);
+            return;
+        }
+        super.createConfirmationPrompt(buttonId, prompt);
+    }
+
+    /** 持久化数据里作战小队相关键的公共前缀（Moci_PilotManager / Moci_PilotTraining / Moci_CustomWingmanManager 都用它）。 */
+    private static final String SQUAD_DATA_PREFIX = "moci_combatSquad_";
+    /** 被指派为僚机、暂时移出舰队的舰船存放键，见 Moci_CustomWingmanManager.REMOVED_SHIP_KEY。 */
+    private static final String SQUAD_REMOVED_SHIP_PREFIX = "moci_combatSquad_removedShip_";
+
+    /**
+     * 「重置所有配置」：先把指派给僚机的舰船归还舰队，再删掉所有作战小队持久化数据。
+     * 舰船没能全部归还时（例如没有玩家舰队），一个键都不删，免得舰船丢失。
+     * 返回给玩家看的结果；成功时以「已」开头。
+     */
+    private String resetAllSquadData() {
+        Map<String, Object> data = Global.getSector().getPersistentData();
+        int stored = 0;
+        for (String key : new ArrayList<>(data.keySet())) {
+            if (key.startsWith(SQUAD_REMOVED_SHIP_PREFIX)) stored++;
+        }
+        if (stored > 0) {
+            Moci_CustomWingmanManager.emergencyCleanupAllStoredShips();
+        }
+        int left = 0;
+        for (String key : new ArrayList<>(data.keySet())) {
+            if (key.startsWith(SQUAD_REMOVED_SHIP_PREFIX) && data.get(key) instanceof FleetMemberAPI) left++;
+        }
+        if (left > 0) {
+            Global.getLogger(this.getClass()).warn("[MOCI_COMBAT_SQUAD_INTEL] 重置中止：还有 " + left + " 艘僚机舰船没能归还舰队");
+            return csFormat("reset_aborted", "重置没有执行：还有 {count} 艘僚机舰船没能归还舰队，请稍后再试。",
+                    "count", String.valueOf(left));
+        }
+        int removed = 0;
+        for (String key : new ArrayList<>(data.keySet())) {
+            if (key.startsWith(SQUAD_DATA_PREFIX)) {
+                data.remove(key);
+                removed++;
+            }
+        }
+        Global.getLogger(this.getClass()).info("[MOCI_COMBAT_SQUAD_INTEL] 已重置所有配置：归还舰船 " + stored
+                + " 艘，清除数据 " + removed + " 项");
+        return csFormat("reset_done", "已重置所有配置：归还舰船 {ships} 艘，清除数据 {count} 项。",
+                "ships", String.valueOf(stored), "count", String.valueOf(removed));
+    }
+
+    @Override
     public String getConfirmText(Object buttonId) {
         if ("reset_config".equals(buttonId)) {
-            return csText("confirm_reset", "确认重置所有配置？此操作将清除所有机师数据！");
+            return csText("confirm_reset_button", "重置");
         }
         return super.getConfirmText(buttonId);
     }
@@ -2842,7 +3036,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         if (pilot == null) {
             Global.getLogger(this.getClass()).warn("无法找到机师信息 - 指挥官ID: " + selectingShipCommanderId
                     + ", 机师索引: " + selectingShipIdx);
-            info.addPara(csText("msg_missing_pilot", "错误：无法找到机师信息"), opad, Misc.getNegativeHighlightColor());
+            info.addPara(csText("msg_missing_pilot", "错误：无法找到机师信息"), Misc.getNegativeHighlightColor(), opad);
             info.addButton(csText("common_cancel", "取消"), "ship_cancel", 120, 20, opad);
             return;
         }
@@ -2859,7 +3053,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
         if (assignableShips.isEmpty()) {
             info.addPara(csText("ship_select_empty", "没有可指派的舰船。舰船必须是护卫舰且部署点低于队长机。"),
-                    opad, Misc.getGrayColor());
+                    Misc.getGrayColor(), opad);
             info.addButton(csText("common_cancel", "取消"), "ship_cancel", 120, 20, opad);
             return;
         }
@@ -2906,12 +3100,13 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
      */
     private void createShipSelectionItem(CustomPanelAPI panel, FleetMemberAPI ship,
             float xPos, float yPos, float width, float height) {
-        // 舰船图像 - 更大的图像
-        TooltipMakerAPI shipImage = panel.createUIElement(width, 80, false);
+        // 舰船图像 - 容器只取图像本身的宽度（80 + 左右各 5 的内边距），居中放进格子，
+        // 不再用整格宽度的容器再右移，否则最右一列的容器会伸出网格之外
+        TooltipMakerAPI shipImage = panel.createUIElement(90f, 80, false);
         List<FleetMemberAPI> singleShip = new ArrayList<>();
         singleShip.add(ship);
         shipImage.addShipList(1, 1, 80, Misc.getButtonTextColor(), singleShip, 0f); // 增大图像尺寸
-        panel.addUIElement(shipImage).inTL(xPos + (width - 80) / 2, yPos + 5); // 居中显示
+        panel.addUIElement(shipImage).inTL(xPos + (width - 90f) / 2, yPos + 5); // 居中显示
 
         // 舰船信息文字
         TooltipMakerAPI shipInfo = panel.createUIElement(width, 50, false);
@@ -2921,7 +3116,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         if (shipCustomName == null || shipCustomName.isEmpty()) {
             shipCustomName = csText("ship_name_unnamed", "未命名");
         }
-        shipInfo.addPara(shipCustomName, 0, Misc.getTextColor());
+        shipInfo.addPara(shipCustomName, Misc.getTextColor(), 0);
 
         // 第二行：舰船名（Hull名称）+ DP（DP高亮显示）
         String shipHullName = ship.getHullSpec().getHullName(); // 舰船名
@@ -2999,9 +3194,9 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             shipColumn.addShipList(1, 1, shipWidth, Misc.getButtonTextColor(), shipList, 0f);
         } else {
             // 如果无法创建舰船图像，显示占位符
-            shipColumn.addPara(csText("ship_placeholder_1", "舰船"), 0, Misc.getGrayColor());
-            shipColumn.addPara(csText("ship_placeholder_2", "图像"), 0, Misc.getGrayColor());
-            shipColumn.addPara(csText("ship_placeholder_3", "缺失"), 0, Misc.getGrayColor());
+            shipColumn.addPara(csText("ship_placeholder_1", "舰船"), Misc.getGrayColor(), 0);
+            shipColumn.addPara(csText("ship_placeholder_2", "图像"), Misc.getGrayColor(), 0);
+            shipColumn.addPara(csText("ship_placeholder_3", "缺失"), Misc.getGrayColor(), 0);
             Global.getLogger(this.getClass()).warn(
                 "无法创建舰船显示 - 原Hull ID: " + displayHullId + ", 图像Hull ID: " + imageHullId
             );
@@ -3098,7 +3293,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
         // 分隔线
         info.addSpacer(5f);
-        info.addPara(csText("help_separator", "——————————————————————————————————————————"), 0, g);
+        info.addPara(csText("help_separator", "——————————————————————————————————————————"), g, 0);
         info.addSpacer(5f);
 
         // 编队组建规则
@@ -3111,7 +3306,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         
         // 分隔线
         info.addSpacer(5f);
-        info.addPara(csText("help_separator", "——————————————————————————————————————————"), 0, g);
+        info.addPara(csText("help_separator", "——————————————————————————————————————————"), g, 0);
         info.addSpacer(5f);
 
         // 僚机选择规则
@@ -3126,7 +3321,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         
         // 分隔线
         info.addSpacer(5f);
-        info.addPara(csText("help_separator", "——————————————————————————————————————————"), 0, g);
+        info.addPara(csText("help_separator", "——————————————————————————————————————————"), g, 0);
         info.addSpacer(5f);
 
         // 自定义舰船功能
@@ -3139,7 +3334,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         
         // 分隔线
         info.addSpacer(5f);
-        info.addPara(csText("help_separator", "——————————————————————————————————————————"), 0, g);
+        info.addPara(csText("help_separator", "——————————————————————————————————————————"), g, 0);
         info.addSpacer(5f);
 
         // 机师管理
@@ -3152,7 +3347,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         
         // 分隔线
         info.addSpacer(5f);
-        info.addPara(csText("help_separator", "——————————————————————————————————————————"), 0, g);
+        info.addPara(csText("help_separator", "——————————————————————————————————————————"), g, 0);
         info.addSpacer(5f);
 
         // 操作说明
@@ -3167,7 +3362,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         
         // 分隔线
         info.addSpacer(5f);
-        info.addPara(csText("help_separator", "——————————————————————————————————————————"), 0, g);
+        info.addPara(csText("help_separator", "——————————————————————————————————————————"), g, 0);
         info.addSpacer(5f);
 
         // 注意事项
@@ -3176,6 +3371,17 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         info.addPara(csFormat("help_notes_2", "- 战斗中僚机会 {autodeploy} ，无需玩家干预", "autodeploy", "自动部署"), pad, h, "自动部署");
         info.addPara(csFormat("help_notes_3", "- 指派的自定义舰船在战斗结束后会 {autoreturn} 到舰队", "autoreturn", "自动归还"), pad, h, "自动归还");
         info.addPara(csFormat("help_notes_4", "- 在战斗中队长机被击毁会导致所属的小队开始 {retreat} ", "retreat", "撤退"), pad, h, "撤退");
+
+        // 重置入口（确认框见 doesButtonHaveConfirmDialog / createConfirmationPrompt）
+        info.addSpacer(5f);
+        info.addPara(csText("help_separator", "——————————————————————————————————————————"), g, 0);
+        info.addSpacer(5f);
+        info.addPara(csText("help_section_reset", "重置"), Misc.getNegativeHighlightColor(), opad);
+        info.addPara(csText("help_reset_hint", "清除所有作战小队的机师、编队名、呼号、经验和自定义僚机配置。已指派给僚机的舰船会先归还舰队。舰载 AI 的数据不受影响。"),
+                g, pad);
+        info.addButton(csText("help_reset_button", "重置所有配置"), "reset_config",
+                Misc.getNegativeHighlightColor(), Misc.scaleColorOnly(Misc.getNegativeHighlightColor(), 0.35f),
+                160, TAB_BUTTON_HEIGHT, pad);
 
         // 返回按钮
         info.addButton(csText("common_back", "返回"), "back_to_fleet", h, Misc.getDarkPlayerColor(), 120, TAB_BUTTON_HEIGHT, opad);

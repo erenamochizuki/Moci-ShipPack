@@ -307,7 +307,7 @@
     "description": {
       "intro": "通过磁流体控制系统，该系统能够大幅降低舰船的传感器信号，并提高对抗糟糕环境的能力。",
       "phase_mobility": "相位或深潜期间，额外提高最大航速}%s}至}%s}、加减速与转向能力}%s}至}%s}。加成随硬幅能占总容量的比例线性增长：无硬幅能时取最低值，硬幅能满载时取最高值，上浮后移除。",
-      "phase_mobility_highlights": ["10%", "40%", "5%", "25%"],
+      "phase_mobility_highlights": ["{phase_min}%", "{phase_max}%", "{phase_min}%", "{phase_max}%"],
       "sensor_profile": "传感器信号降低 %s ，传统的雷达无法跟踪这艘舰船。",
       "sensor_profile_highlights": [
         "{sensor_profile}%"
@@ -1298,9 +1298,9 @@
     "name": "相位潜射",
     "description": {
       "title": "相位潜射机制",
-      "launch_bonus": "深潜状态下通过发射的导弹，飞行速度与最长飞行时间各提高}%s}；导弹退潜后仍保留此加成。",
-      "launch_bonus_highlights": ["20%"],
-      "effect_1": "当舰船在}%s}时，}%s}发射的导弹将进入}%s}状态，接近敌舰后脱离}%s}。外置源武器在深潜期间禁止开火，上浮后恢复。",
+      "launch_bonus": "深潜状态下通过发射的导弹，\n飞行速度与最长飞行时间各提高}%s}；导弹退潜后仍保留此加成。",
+      "launch_bonus_highlights": ["{launch_bonus}%"],
+      "effect_1": "当舰船在}%s}时，\n}%s}发射的导弹将进入}%s}状态，\n接近敌舰后脱离}%s}。外置源武器在深潜期间禁止开火，上浮后恢复。",
       "effect_1_highlights": [
         "P空间",
         "内置与隐藏发射器",
@@ -1508,7 +1508,7 @@
     "description": {
       "level1": "无视米诺夫斯基粒子的干扰效果",
       "level2": "降低 100% 导弹被电子反制或热诱弹拦截的概率。",
-      "level3": "当周围 {enemy_range} 范围内有敌人或 {projectile_range} 范围内有高威胁弹药时触发效果，获得 {ship_time_mult} 倍的时流，并在 {active_duration} 秒内逐渐恢复至 1 倍，冷却 {cooldown_duration} 秒。"
+      "level3": "当周围 {enemy_range} 范围内有敌人或 {projectile_range} 范围内有高威胁弹药时触发效果，获得 {ship_time_mult} 倍的时流，并在 {active_duration} 秒内逐渐恢复至 1 倍，冷却 {cooldown_duration} 秒。亲自驾驶时还可以按子系统栏的「新人类 [键]」手动开启：消耗 300 软幅能，10 秒内本舰时流 ×1.5、世界时流放慢，不与自动触发叠加；按键可在 LunaLib 设置「新人类主动键」里改。"
     },
     "status": {
       "title": "N.T.",
