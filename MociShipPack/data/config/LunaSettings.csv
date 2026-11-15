@@ -2,6 +2,7 @@ fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValu
 ,,,,,,,,
 moci_combatSquadHeader,CombatSquad 机师系统,Header,CombatSquad 机师系统,,,,,CombatSquad
 Moci_enablePilotSystem,启用机师系统,Boolean,true,,是否启用CombatSquad机师系统。关闭后僚机将没有军官。,,,CombatSquad
+Moci_SquadRecallKey,编队集结键,Keycode,0,,作战小队队长机的子系统「编队集结」：打断全部僚机的当前行动并召回至本舰身旁，冷却 60 秒。保持未绑定（0）时由 MagicLib 自动分配子系统热键（见战斗 HUD 的「编队集结 [键]」）；设置后改用这里的键。下一场战斗生效。,,,CombatSquad
 Moci_useDynamicPilots,自定义作战小队,Boolean,true,,开启后允许为舰长军官建立并自定义专属作战小队；关闭后使用舰船配置中的默认小队，不创建军官专属编队。,,,CombatSquad
 ,,,,,,,,
 moci_gnShieldHeader,GN护盾性能优化,Header,GN护盾性能优化,,,,,GNShield
@@ -14,7 +15,7 @@ moci_wingmanHeader,浮游炮系统,Header,浮游炮系统,,,,,Wingman
 Moci_showWingmanStatus,显示浮游炮状态,Boolean,true,,在玩家状态栏显示当前浮游炮数量（例如：浮游炮: 2 / 4）。关闭可减少状态栏信息。,,,Wingman
 ,,,,,,,,
 moci_officerHeader,军官系统,Header,军官系统,,,,,Officer
-Moci_NewtypeActivationKey,新人类主动键,Keycode,0,,拥有「新人类」技能的驾驶员手动开启新人类：消耗 300 软幅能，10 秒内本舰时流 ×1.5、世界时流放慢。保持未绑定（0）时由 MagicLib 自动分配子系统热键（见战斗 HUD 的「新人类 [键]」）；设置后改用这里的键。下一场战斗生效。,,,Officer
+Moci_NewtypeActivationKey,新人类主动键,Keycode,0,,拥有「新人类」技能的驾驶员手动开启新人类：消耗 300 软幅能，10 秒内本舰时流 ×1.5、世界时流放慢。「强化人」技能的手动能力（效果为新人类的 75%，时流 ×1.375）也用这个键。保持未绑定（0）时由 MagicLib 自动分配子系统热键（见战斗 HUD 的「新人类 [键]」）；设置后改用这里的键。下一场战斗生效。,,,Officer
 ,,,,,,,,
 moci_transformHeader,变形系统,Header,变形系统,,,,,Transform
 moci_transform_hold_time,变身长按时间,Float,1.0,,长按X键触发变身所需的时间（秒）,0.1,2.0,机体设置

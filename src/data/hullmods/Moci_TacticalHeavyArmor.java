@@ -12,7 +12,7 @@ import com.fs.starfarer.api.combat.ShipAPI.HullSize;
  * </p>
  */
 public class Moci_TacticalHeavyArmor extends BaseHullMod {
-    public static final float FIGHTER_ARMOR_BONUS = 75f;
+    public static final float FIGHTER_ARMOR_BONUS = 150;
 
     @Override public void applyEffectsBeforeShipCreation(HullSize hullSize, MutableShipStatsAPI stats, String id) {
         float bonus = switch (hullSize) {

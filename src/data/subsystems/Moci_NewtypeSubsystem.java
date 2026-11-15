@@ -6,6 +6,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.log4j.Logger;
 import org.magiclib.subsystems.MagicSubsystem;
@@ -18,6 +19,7 @@ import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 
+import data.scripts.util.Moci_PilotAura;
 import data.scripts.util.Moci_TextLoader;
 
 /**
@@ -31,6 +33,10 @@ import data.scripts.util.Moci_TextLoader;
  * 效果：消耗 300 软幅能，10 秒（本舰时间）内本舰及子模块时流 ×1.5，世界时流 ×1/1.5。
  * 自动新人类（技能监听器的 MociPlayerSkill1_ 修饰）生效时不能开启；
  * 开启期间如果自动新人类触发，本能力立即让位结束，两者不叠加。
+ * 开启期间周身有极光（{@link Moci_PilotAura}），强度恒定所以尺寸不变，结束时淡出。
+ *
+ * 强化人的主动能力是它的弱化版，见 {@link Moci_AugmentedHumanSubsystem}：
+ * 通过受保护的构造器传入强度比例（时流加成按比例缩小）和极光样式，其余逻辑共用。
  */
 public class Moci_NewtypeSubsystem extends MagicSubsystem {
     private static final Logger LOG = Global.getLogger(Moci_NewtypeSubsystem.class);
@@ -54,6 +60,11 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
 
     private final String effectId;
     private final String originalId;
+    /** 日志里的能力名（新人类 / 强化人）。 */
+    private final String label;
+    private final float shipTimeMult;
+    private final float worldTimeMult;
+    private final Moci_PilotAura aura;
     /** 写过时流的本舰/子模块。模块掉出模块树后仍在场，必须按记账释放。 */
     private final Set<ShipAPI> touched = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<ShipAPI> scratch = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -62,13 +73,41 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
     private boolean guardActive;
 
     public Moci_NewtypeSubsystem(ShipAPI ship) {
+        this(ship, "Moci_Newtype_", "新人类", 1f, Moci_PilotAura.Style.NEWTYPE);
+    }
+
+    /**
+     * @param effectIdPrefix 时流修饰 id 的前缀，每种能力必须不同
+     * @param label          日志里的能力名
+     * @param strength       相对新人类的强度比例：时流加成（{@link #SHIP_TIME_MULT} - 1）按它缩放
+     * @param auraStyle      周身极光样式
+     */
+    protected Moci_NewtypeSubsystem(ShipAPI ship, String effectIdPrefix, String label, float strength,
+                                    Moci_PilotAura.Style auraStyle) {
         super(ship);
-        this.effectId = "Moci_Newtype_" + ship.getId();
+        this.effectId = effectIdPrefix + ship.getId();
         this.originalId = "MociPlayerSkill1_" + ship.getId();
+        this.label = label;
+        this.shipTimeMult = scaledShipTimeMult(strength);
+        this.worldTimeMult = 1f / this.shipTimeMult;
+        this.aura = new Moci_PilotAura(ship, auraStyle);
+    }
+
+    /** 按强度比例缩放后的本舰时流倍率：1 + (1.5 - 1) × strength。 */
+    public static float scaledShipTimeMult(float strength) {
+        return 1f + (SHIP_TIME_MULT - 1f) * Math.max(0f, strength);
     }
 
     /** 由新人类技能监听器在本舰成为玩家座舰时调用；同一艘船只挂一次。 */
     public static void attach(ShipAPI ship) {
+        attachWith(ship, Moci_NewtypeSubsystem::new);
+    }
+
+    /**
+     * 挂载本类或其子类的子系统。同一艘船上这一族能力只挂一个：
+     * 已经有了（不论是新人类还是强化人）就不再挂，两者共用一个按键设置。
+     */
+    protected static void attachWith(ShipAPI ship, Function<ShipAPI, ? extends Moci_NewtypeSubsystem> factory) {
         if (ship == null) return;
         List<MagicSubsystem> existing = MagicSubsystemsManager.getSubsystemsForShipCopy(ship);
         if (existing != null) {
@@ -76,12 +115,12 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
                 if (subsystem instanceof Moci_NewtypeSubsystem) return;
             }
         }
-        Moci_NewtypeSubsystem subsystem = new Moci_NewtypeSubsystem(ship);
+        Moci_NewtypeSubsystem subsystem = factory.apply(ship);
         String keyName = Moci_HotkeySubsystem.configuredKeyName(KEY_SETTING);
         if (keyName != null) subsystem.setKey(keyName);
         MagicSubsystemsManager.addSubsystemToShip(ship, subsystem);
         if (TRACE) {
-            LOG.info(LOG_PREFIX + "新人类子系统已挂载 ship=" + ship.getId() + " key=" + subsystem.getKeyText()
+            LOG.info(LOG_PREFIX + subsystem.label + "子系统已挂载 ship=" + ship.getId() + " key=" + subsystem.getKeyText()
                     + (keyName == null ? "（MagicLib 自动分配）" : "（LunaLib 指定）"));
         }
     }
@@ -124,14 +163,14 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
             guardActive = true;
             engine.addPlugin(new RetreatGuard());
         }
-        if (TRACE) LOG.info(LOG_PREFIX + "新人类开启 ship=" + ship.getId() + " 软幅能+" + SOFT_FLUX_COST);
+        if (TRACE) LOG.info(LOG_PREFIX + label + "开启 ship=" + ship.getId() + " 软幅能+" + SOFT_FLUX_COST);
     }
 
     /** 正常到时、以及舰船被毁（默认 onShipDeath 会调这里）都走这里释放。 */
     @Override
     public void onFinished() {
         clearEffects();
-        if (TRACE) LOG.info(LOG_PREFIX + "新人类结束 ship=" + ship.getId());
+        if (TRACE) LOG.info(LOG_PREFIX + label + "结束 ship=" + ship.getId());
     }
 
     @Override
@@ -186,7 +225,7 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
         scratch.clear();
         collectTree(ship, scratch);
         for (ShipAPI target : scratch) {
-            target.getMutableStats().getTimeMult().modifyMult(effectId, SHIP_TIME_MULT);
+            target.getMutableStats().getTimeMult().modifyMult(effectId, shipTimeMult);
         }
         for (ShipAPI old : touched) {
             if (!scratch.contains(old)) old.getMutableStats().getTimeMult().unmodify(effectId);
@@ -195,16 +234,19 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
         touched.addAll(scratch);
         scratch.clear();
         if (worldEngine != null && worldEngine != engine) worldEngine.getTimeMult().unmodify(effectId);
-        engine.getTimeMult().modifyMult(effectId, WORLD_TIME_MULT);
+        engine.getTimeMult().modifyMult(effectId, worldTimeMult);
         worldEngine = engine;
+        // 手动能力开启期间强度恒定，极光保持满尺寸
+        aura.update(1f);
     }
 
     private void clearEffects() {
+        aura.fade();
         for (ShipAPI target : touched) {
             try {
                 target.getMutableStats().getTimeMult().unmodify(effectId);
             } catch (RuntimeException | LinkageError e) {
-                LOG.warn(LOG_PREFIX + "新人类：释放舰船时流失败 ship=" + ship.getId(), e);
+                LOG.warn(LOG_PREFIX + label + "：释放舰船时流失败 ship=" + ship.getId(), e);
             }
         }
         touched.clear();
@@ -219,7 +261,7 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
         clearEffects();
         activeElapsed = false;
         if (state != State.READY) setState(State.READY);
-        if (TRACE) LOG.info(LOG_PREFIX + "新人类提前结束（" + reason + "） ship=" + ship.getId());
+        if (TRACE) LOG.info(LOG_PREFIX + label + "提前结束（" + reason + "） ship=" + ship.getId());
     }
 
     /** 自动新人类的修饰（技能监听器写在本舰上，1.5 → 1.0 线性回落）还在起作用。 */

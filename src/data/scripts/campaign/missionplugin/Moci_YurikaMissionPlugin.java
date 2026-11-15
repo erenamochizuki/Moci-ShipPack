@@ -41,6 +41,7 @@ import data.campaign.MociRecoverableShipHelper;
 import data.scripts.impl.Moci_CampaignFeedback;
 import data.scripts.impl.Moci_CampaignTime;
 import data.scripts.impl.Moci_NergalHeavyIndustriesColonyManager;
+import data.scripts.impl.Moci_StoryOfficerManager;
 import data.scripts.impl.Moci_YurikaStoryManager;
 import data.scripts.util.Moci_TextLoader;
 import org.lwjgl.util.vector.Vector2f;
@@ -428,6 +429,8 @@ public class Moci_YurikaMissionPlugin extends BaseIntelPlugin {
                 Ranks.POST_FLEET_COMMANDER
         );
         applyStoryFlagshipSkillPackage(officer);
+        // 作为敌人时也持有专属技能，但未精英化。
+        officer.getStats().setSkillLevel(Moci_StoryOfficerManager.StoryOfficer.RURI.exclusiveSkillId, 1f);
         return officer;
     }
 
@@ -443,6 +446,8 @@ public class Moci_YurikaMissionPlugin extends BaseIntelPlugin {
                 Ranks.POST_FLEET_COMMANDER
         );
         applyStoryFlagshipSkillPackage(officer);
+        // 作为敌人时也持有专属技能，但未精英化。
+        officer.getStats().setSkillLevel(Moci_StoryOfficerManager.StoryOfficer.TERESA.exclusiveSkillId, 1f);
         return officer;
     }
 
@@ -717,6 +722,8 @@ public class Moci_YurikaMissionPlugin extends BaseIntelPlugin {
                     text("yurika_mission.report_story_b_completed"),
                     false
             );
+            // 抚子B 完成：星野琉璃作为联系人出现在 Lotus。
+            Moci_NergalHeavyIndustriesColonyManager.syncStoryOfficerContacts();
         } else if (missionType == MissionType.STORY_TDD) {
             cargo.getCredits().add(350000f);
             cargo.addWeapons("Moci_heavry_phasecl", 2);
@@ -727,6 +734,8 @@ public class Moci_YurikaMissionPlugin extends BaseIntelPlugin {
                     text("yurika_mission.report_story_tdd_completed"),
                     false
             );
+            // 丹努之子完成：泰蕾莎作为联系人出现在 Aster。
+            Moci_NergalHeavyIndustriesColonyManager.syncStoryOfficerContacts();
         }
         return null;
     }

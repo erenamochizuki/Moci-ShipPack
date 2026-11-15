@@ -638,33 +638,25 @@ public class Moci_TulipColonyManager {
         if (!OKITA_CONTACT_POST_ID.equals(okita.getPostId())) {
             okita.setPostId(OKITA_CONTACT_POST_ID);
         }
-        if (!okita.hasTag(Tags.CONTACT_MILITARY)) {
-            okita.addTag(Tags.CONTACT_MILITARY);
-        }
+        // 注册为原版军事联系人并确保任务枢纽存在：普通军事任务由原版任务枢纽发布。
+        Moci_StoryOfficerManager.ensureContact(okita, market);
 
-        MemoryAPI globalMem = Global.getSector().getMemoryWithoutUpdate();
+        Global.getSector().getMemoryWithoutUpdate().set(OKITA_CONTACT_REGISTERED_KEY, true);
+    }
 
-        ContactIntel intel = ContactIntel.getContactIntel(okita);
-        if (intel == null || intel.isEnded() || intel.isEnding()) {
-            intel = new ContactIntel(okita, market);
-            intel.develop(null); // 直接转为正式联系人（非潜在联系人）
-            Global.getSector().getIntelManager().addIntel(intel, false);
-        } else {
-            intel.relocateToMarket(market, false);
-            ContactIntel.ContactState state = intel.getState();
-            if (state == ContactIntel.ContactState.POTENTIAL
-                    || state == ContactIntel.ContactState.SUSPENDED
-                    || state == ContactIntel.ContactState.LOST_CONTACT
-                    || state == ContactIntel.ContactState.LOST_CONTACT_DECIV) {
-                intel.develop(null);
-            }
-        }
-
-        globalMem.set(OKITA_CONTACT_REGISTERED_KEY, true);
+    private static boolean isOkitaRecruited() {
+        return Moci_StoryOfficerManager.isRecruited(Moci_StoryOfficerManager.StoryOfficer.OKITA);
     }
 
     private static boolean isOkitaContactReady() {
-        if (Global.getSector() == null || !hasOkitaTulipBarMet()) {
+        if (Global.getSector() == null) {
+            return false;
+        }
+        // 已招募为军官：联络员不再出现在 Tulip，维护脚本视为完成。
+        if (isOkitaRecruited()) {
+            return true;
+        }
+        if (!hasOkitaTulipBarMet()) {
             return false;
         }
 
@@ -688,7 +680,7 @@ public class Moci_TulipColonyManager {
     }
 
     private static void tryAddOkitaContactIfUnlocked() {
-        if (!hasOkitaTulipBarMet()) {
+        if (!hasOkitaTulipBarMet() || isOkitaRecruited()) {
             return;
         }
 

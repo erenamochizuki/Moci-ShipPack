@@ -43,6 +43,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import data.campaign.MociFleetFlagshipHelper;
 import data.campaign.MociRecoverableShipHelper;
 import data.scripts.impl.Moci_CampaignFeedback;
+import data.scripts.impl.Moci_StoryOfficerManager;
 import data.scripts.util.Moci_TextLoader;
 
 /**
@@ -166,6 +167,9 @@ public class Moci_OkitaMissionPlugin extends BaseIntelPlugin {
         // 结算奖励并推进任务链内存状态
         grantReward();
         setMissionCompletedMemory();
+        // 主线每完成一个阶段，冲田十三的好感度（原版人物关系）也会提升。
+        Moci_StoryOfficerManager.addRelationship(
+                Moci_StoryOfficerManager.StoryOfficer.OKITA, getRelationshipReward(), null);
 
         // 任务结束：取消重要标记并释放“运行中”锁
         setImportant(false);
@@ -174,6 +178,11 @@ public class Moci_OkitaMissionPlugin extends BaseIntelPlugin {
         endAfterDelay(3f);
 
         Moci_CampaignFeedback.addMissionCompletedMessage(getMissionName());
+    }
+
+    /** 各阶段完成时的好感度奖励（0.10 = 界面上的 10）。三阶段合计 35。 */
+    private float getRelationshipReward() {
+        return stage == 3 ? 0.15f : 0.10f;
     }
 
     /** 按阶段发放奖励。 */

@@ -173,12 +173,12 @@ public class Moci_UIAnimatedSprite extends BaseCustomUIPanelPlugin {
         float cw = baseW / cols;
         float ch = baseH / rows;
         float u = baseX + (current % cols) * cw;
-        float v = baseY + (current / cols) * ch;
+        float v = baseY + (rows - 1 - current / cols) * ch;
         // Clamp each sample inside its atlas cell so bilinear filtering cannot bleed adjacent frames.
         GL20.glUseProgram(blendProgram);
         try {
             GL20.glUniform2f(blendOffset, ((next % cols) - (current % cols)) * cw,
-                    ((next / cols) - (current / cols)) * ch);
+                    ((current / cols) - (next / cols)) * ch);
             GL20.glUniform4f(blendBounds, u + halfTexelU, v + halfTexelV,
                     u + cw - halfTexelU, v + ch - halfTexelV);
             GL20.glUniform1f(blendFraction, fraction);
@@ -253,7 +253,7 @@ public class Moci_UIAnimatedSprite extends BaseCustomUIPanelPlugin {
     /**
      * 第 i 帧在网格里的位置：列 = i % cols，行 = i / cols（从图片顶部数）。
      * 贴图坐标从加载后的基准（getTexX/Y/Width/Height，覆盖整张图）按格子等分。
-     * 行号按「贴图 v 从图片顶部开始」换算；如果引擎约定相反，只是两行对调，循环动画看不出来。
+     * PNG 从顶部排列，SpriteAPI 的 v 从底部开始；必须翻转行号，保持换行和循环处的原始帧序。
      */
     private void drawFrame(SpriteAPI s, int i, float x, float y, float w, float h, float a) {
         float cw = baseW / cols;
@@ -261,7 +261,7 @@ public class Moci_UIAnimatedSprite extends BaseCustomUIPanelPlugin {
         int col = i % cols;
         int row = i / cols;
         s.setTexX(baseX + col * cw);
-        s.setTexY(baseY + row * ch);
+        s.setTexY(baseY + (rows - 1 - row) * ch);
         s.setTexWidth(cw);
         s.setTexHeight(ch);
         s.setAlphaMult(a);

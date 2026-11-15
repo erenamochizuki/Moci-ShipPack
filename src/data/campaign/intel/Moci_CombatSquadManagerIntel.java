@@ -65,7 +65,7 @@ import data.campaign.intel.ui.Moci_CombatSquadDialog;
  * ## 技能选择系统
  * - 普通技能选择：3列网格布局，显示12个可选技能
  * - 精英技能选择：同样采用3列网格布局，提供一致的用户体验
- * - 升级模式：学习新技能+精英化现有技能
+ * - 升级模式：仅学习新技能
  * - 精英化模式：仅显示可精英化的技能
  *
  * ## 技能显示配置
@@ -118,7 +118,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
     private static final boolean AI_DEBUG_MODE = false;
     private static final String AI_DETAIL_LOG_PREFIX = "[MOCI_AI_DETAIL]";
     private static final Color AI_SKILL_NORMAL_COLOR = new Color(255, 215, 0);
-    private static final Color AI_SKILL_ELITE_COLOR = Misc.getPositiveHighlightColor();
+    private static final Color AI_SKILL_ELITE_COLOR = Misc.getStoryOptionColor();
     private static final Color AI_BENEFIT_COLOR = Misc.getPositiveHighlightColor();
     private static final Color AI_NEGATIVE_COLOR = Misc.getNegativeHighlightColor();
     private static final String SHIPBOARD_AI_PERSON_ID_PREFIX = "moci_shipboard_ai_";
@@ -161,7 +161,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
      * @param level 目标等级（0-7）
      * @return 该等级所需的累计经验值
      */
-    private float getExperienceForLevel(int level) {
+    public static float getExperienceForLevel(int level) {
         switch (level) {
             case 0:
                 return 0f;
@@ -822,7 +822,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                         boolean isElite = skillLvl >= 2;
 
                         String skillText = skillName;
-                        Color skillColor = isElite ? Misc.getPositiveHighlightColor() : Misc.getTextColor();
+                        Color skillColor = isElite ? Misc.getStoryOptionColor() : Misc.getTextColor();
 
                         if (isElite) {
                             skillColumn.addPara(skillText, 2f, skillColor, skillText);
@@ -1010,7 +1010,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                     info.addPara(csFormat("upgrade_prompt_elite", "机师 {name} 精英化！请选择要精英化的技能：",
                             "name", upgradePilot.getName().getFullName()), Misc.getHighlightColor(), 10f);
                 } else {
-                    // 升级模式：显示学习新技能和精英化现有技能
+                    // 升级模式：只显示可学习的新技能
                     info.addPara(csFormat("upgrade_prompt_learn", "机师 {name} 升级！请选择要学习的技能：",
                             "name", upgradePilot.getName().getFullName()), Misc.getHighlightColor(), 10f);
                 }
@@ -1083,144 +1083,74 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                     info.addCustom(skillPanel, 10);
                 }
 
-                // 检查是否可以精英化现有技能
-                List<String> eliteableSkills = getEliteableSkills(upgradePilot);
+                // 精英化仅由独立按钮进入，不占用升级时学习新技能的机会。
+                List<String> eliteableSkills = eliteOnlyMode ? getEliteableSkills(upgradePilot) : new ArrayList<>();
                 if (!eliteableSkills.isEmpty()) {
-                    if (eliteOnlyMode) {
-                        // 纯精英化模式：使用技能图标显示可精英化技能
-                        int eliteCols = 8; // 8列显示精英技能图标
-                        int eliteRows = (int) Math.ceil(eliteableSkills.size() / (float) eliteCols);
-                        float eliteIconSize = 64f; // 精英技能图标大小
-                        float eliteNameHeight = 30f; // 精英技能名称高度（包含"精英化"前缀）
-                        float eliteCellWidth = eliteIconSize + 10f; // 每个精英技能单元宽度
-                        float eliteCellHeight = eliteIconSize + eliteNameHeight + 5f; // 每个精英技能单元高度
-                        float eliteGap = 10f;
+                    // 纯精英化模式：使用技能图标显示可精英化技能
+                    int eliteCols = 8; // 8列显示精英技能图标
+                    int eliteRows = (int) Math.ceil(eliteableSkills.size() / (float) eliteCols);
+                    float eliteIconSize = 64f; // 精英技能图标大小
+                    float eliteNameHeight = 30f; // 精英技能名称高度（包含"精英化"前缀）
+                    float eliteCellWidth = eliteIconSize + 10f; // 每个精英技能单元宽度
+                    float eliteCellHeight = eliteIconSize + eliteNameHeight + 5f; // 每个精英技能单元高度
+                    float eliteGap = 10f;
 
-                        float eliteGridWidth = eliteCols * (eliteCellWidth + eliteGap);
-                        float eliteGridHeight = eliteRows * (eliteCellHeight + eliteGap);
-                        CustomPanelAPI elitePanel = panel.createCustomPanel(eliteGridWidth, eliteGridHeight, null);
+                    float eliteGridWidth = eliteCols * (eliteCellWidth + eliteGap);
+                    float eliteGridHeight = eliteRows * (eliteCellHeight + eliteGap);
+                    CustomPanelAPI elitePanel = panel.createCustomPanel(eliteGridWidth, eliteGridHeight, null);
 
-                        float yElitePos = 0;
-                        int eliteIndex = 0;
+                    float yElitePos = 0;
+                    int eliteIndex = 0;
 
-                        for (int r = 0; r < eliteRows; r++) {
-                            float xElitePos = 0;
-                            for (int c = 0; c < eliteCols; c++) {
-                                if (eliteIndex >= eliteableSkills.size())
-                                    break;
+                    for (int r = 0; r < eliteRows; r++) {
+                        float xElitePos = 0;
+                        for (int c = 0; c < eliteCols; c++) {
+                            if (eliteIndex >= eliteableSkills.size())
+                                break;
 
-                                String skillId = eliteableSkills.get(eliteIndex);
-                                String skillName = Global.getSettings().getSkillSpec(skillId).getName();
-                                String skillIcon = Global.getSettings().getSkillSpec(skillId).getSpriteName();
+                            String skillId = eliteableSkills.get(eliteIndex);
+                            String skillName = Global.getSettings().getSkillSpec(skillId).getName();
+                            String skillIcon = Global.getSettings().getSkillSpec(skillId).getSpriteName();
 
-                                // 精英技能图标按钮
-                                TooltipMakerAPI eliteContainer = elitePanel.createUIElement(eliteCellWidth,
-                                        eliteCellHeight, false);
+                            // 精英技能图标按钮
+                            TooltipMakerAPI eliteContainer = elitePanel.createUIElement(eliteCellWidth,
+                                    eliteCellHeight, false);
 
-                                // 创建精英技能图标按钮
-                                List<Object> eliteParams = new ArrayList<>();
-                                eliteParams.add(selectingCommanderId);
-                                eliteParams.add(selectingSkillIdx);
-                                eliteParams.add(skillId);
-                                eliteParams.add("elite_only");
+                            // 创建精英技能图标按钮
+                            List<Object> eliteParams = new ArrayList<>();
+                            eliteParams.add(selectingCommanderId);
+                            eliteParams.add(selectingSkillIdx);
+                            eliteParams.add(skillId);
+                            eliteParams.add("elite_only");
 
-                                ButtonAPI eliteBtn = eliteContainer.addAreaCheckbox("", eliteParams,
-                                        Misc.getPositiveHighlightColor(), Misc.getDarkPlayerColor(),
-                                        Misc.getBrightPlayerColor(),
-                                        (int) eliteIconSize, (int) eliteIconSize, 0);
+                            ButtonAPI eliteBtn = eliteContainer.addAreaCheckbox("", eliteParams,
+                                    Misc.getPositiveHighlightColor(), Misc.getDarkPlayerColor(),
+                                    Misc.getBrightPlayerColor(),
+                                    (int) eliteIconSize, (int) eliteIconSize, 0);
 
-                                elitePanel.addUIElement(eliteContainer).inTL(xElitePos, yElitePos);
+                            elitePanel.addUIElement(eliteContainer).inTL(xElitePos, yElitePos);
 
-                                // 在按钮上叠加技能图标（带金色边框表示精英化）
-                                TooltipMakerAPI eliteIconHolder = elitePanel.createUIElement(eliteIconSize,
-                                        eliteIconSize, false);
-                                eliteIconHolder.addImage(skillIcon, eliteIconSize, 0);
-                                elitePanel.addUIElement(eliteIconHolder).inTL(xElitePos, yElitePos);
+                            // 在按钮上叠加技能图标（带金色边框表示精英化）
+                            TooltipMakerAPI eliteIconHolder = elitePanel.createUIElement(eliteIconSize,
+                                    eliteIconSize, false);
+                            eliteIconHolder.addImage(skillIcon, eliteIconSize, 0);
+                            elitePanel.addUIElement(eliteIconHolder).inTL(xElitePos, yElitePos);
 
-                                // 精英技能名称
-                                TooltipMakerAPI eliteNameHolder = elitePanel.createUIElement(eliteCellWidth,
-                                        eliteNameHeight, false);
-                                eliteNameHolder.addSectionHeading(skillName, Alignment.MID, 0);
-                                eliteNameHolder.addPara("  " + csText("upgrade_elite_tag", "精英化"), 0,
-                                        Misc.getPositiveHighlightColor(), csText("upgrade_elite_tag", "精英化"));
-                                elitePanel.addUIElement(eliteNameHolder).inTL(xElitePos, yElitePos + eliteIconSize + 2);
+                            // 精英技能名称
+                            TooltipMakerAPI eliteNameHolder = elitePanel.createUIElement(eliteCellWidth,
+                                    eliteNameHeight, false);
+                            eliteNameHolder.addSectionHeading(skillName, Alignment.MID, 0);
+                            eliteNameHolder.addPara("  " + csText("upgrade_elite_tag", "精英化"), 0,
+                                    Misc.getPositiveHighlightColor(), csText("upgrade_elite_tag", "精英化"));
+                            elitePanel.addUIElement(eliteNameHolder).inTL(xElitePos, yElitePos + eliteIconSize + 2);
 
-                                xElitePos += eliteCellWidth + eliteGap;
-                                eliteIndex++;
-                            }
-                            yElitePos += eliteCellHeight + eliteGap;
+                            xElitePos += eliteCellWidth + eliteGap;
+                            eliteIndex++;
                         }
-
-                        info.addCustom(elitePanel, 10);
-                    } else {
-                        // 升级模式：作为额外选项显示，使用技能图标
-                        info.addPara(csText("upgrade_elite_alt", "或选择精英化现有技能："), Misc.getHighlightColor(), 5f);
-
-                        int eliteCols = 8; // 8列显示精英技能图标
-                        int eliteRows = (int) Math.ceil(eliteableSkills.size() / (float) eliteCols);
-                        float eliteIconSize = 48f; // 升级模式下使用较小的图标
-                        float eliteNameHeight = 25f; // 精英技能名称高度
-                        float eliteCellWidth = eliteIconSize + 8f; // 每个精英技能单元宽度
-                        float eliteCellHeight = eliteIconSize + eliteNameHeight + 3f; // 每个精英技能单元高度
-                        float eliteGap = 8f;
-
-                        float eliteGridWidth = eliteCols * (eliteCellWidth + eliteGap);
-                        float eliteGridHeight = eliteRows * (eliteCellHeight + eliteGap);
-                        CustomPanelAPI elitePanel = panel.createCustomPanel(eliteGridWidth, eliteGridHeight, null);
-
-                        float yElitePos = 0;
-                        int eliteIndex = 0;
-
-                        for (int r = 0; r < eliteRows; r++) {
-                            float xElitePos = 0;
-                            for (int c = 0; c < eliteCols; c++) {
-                                if (eliteIndex >= eliteableSkills.size())
-                                    break;
-
-                                String skillId = eliteableSkills.get(eliteIndex);
-                                String skillName = Global.getSettings().getSkillSpec(skillId).getName();
-                                String skillIcon = Global.getSettings().getSkillSpec(skillId).getSpriteName();
-
-                                // 精英技能图标按钮
-                                TooltipMakerAPI eliteContainer = elitePanel.createUIElement(eliteCellWidth,
-                                        eliteCellHeight, false);
-
-                                // 创建精英技能图标按钮
-                                List<Object> eliteParams = new ArrayList<>();
-                                eliteParams.add(selectingCommanderId);
-                                eliteParams.add(selectingSkillIdx);
-                                eliteParams.add(skillId);
-                                eliteParams.add("elite_only");
-
-                                ButtonAPI eliteBtn = eliteContainer.addAreaCheckbox("", eliteParams,
-                                        Misc.getPositiveHighlightColor(), Misc.getDarkPlayerColor(),
-                                        Misc.getBrightPlayerColor(),
-                                        (int) eliteIconSize, (int) eliteIconSize, 0);
-
-                                elitePanel.addUIElement(eliteContainer).inTL(xElitePos, yElitePos);
-
-                                // 在按钮上叠加技能图标
-                                TooltipMakerAPI eliteIconHolder = elitePanel.createUIElement(eliteIconSize,
-                                        eliteIconSize, false);
-                                eliteIconHolder.addImage(skillIcon, eliteIconSize, 0);
-                                elitePanel.addUIElement(eliteIconHolder).inTL(xElitePos, yElitePos);
-
-                                // 精英技能名称
-                                TooltipMakerAPI eliteNameHolder = elitePanel.createUIElement(eliteCellWidth,
-                                        eliteNameHeight, false);
-                                eliteNameHolder.addSectionHeading(skillName, Alignment.MID, 0);
-                                eliteNameHolder.addPara("★" + csText("upgrade_elite_tag", "精英化"), 0,
-                                        Misc.getPositiveHighlightColor(), "★" + csText("upgrade_elite_tag", "精英化"));
-                                elitePanel.addUIElement(eliteNameHolder).inTL(xElitePos, yElitePos + eliteIconSize + 2);
-
-                                xElitePos += eliteCellWidth + eliteGap;
-                                eliteIndex++;
-                            }
-                            yElitePos += eliteCellHeight + eliteGap;
-                        }
-
-                        info.addCustom(elitePanel, 5);
+                        yElitePos += eliteCellHeight + eliteGap;
                     }
+
+                    info.addCustom(elitePanel, 10);
                 } else if (eliteOnlyMode) {
                     // 精英化模式但没有可精英化技能
                     info.addPara(csText("upgrade_no_elite", "该机师暂无可精英化的技能"), Misc.getGrayColor(), 5f);
@@ -1402,7 +1332,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                     boolean elite = data.eliteSkills.contains(skillId);
                     Color color = elite ? AI_SKILL_ELITE_COLOR : AI_SKILL_NORMAL_COLOR;
                     String safeSkillName = escapeTooltipFormat(skillName);
-                    leftColumn.addPara(safeSkillName + (elite ? aiUiText("tooltip_elite_suffix", " [精英]") : ""),
+                    leftColumn.addPara(safeSkillName,
                             sectionContentPad, color, safeSkillName);
                 }
             }
@@ -1667,7 +1597,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
     /**
      * 获取机师可学习的技能列表
      */
-    private List<String> getAvailableSkills(PersonAPI pilot) {
+    public static List<String> getAvailableSkills(PersonAPI pilot) {
         List<String> availableSkills = new ArrayList<>();
         List<String> allSkills = new ArrayList<>();
 
@@ -2506,22 +2436,6 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 ui.updateUIForItem(this);
                 return;
             }
-            // 精英化技能：参数为[指挥官ID, 机师索引, 技能ID, "elite_skill"]
-            if (params.size() == 4 && params.get(0) instanceof String && params.get(1) instanceof Integer &&
-                    params.get(2) instanceof String && "elite_skill".equals(params.get(3))) {
-                String commanderId = (String) params.get(0);
-                int pilotIndex = (Integer) params.get(1);
-                String skillId = (String) params.get(2);
-
-                applyUpgradeEliteSkill(commanderId, pilotIndex, skillId);
-
-                // 退出技能选择模式
-                selectingSkillIdx = null;
-                selectingCommanderId = null;
-                eliteOnlyMode = false; // 重置模式标记
-                ui.updateUIForItem(this);
-                return;
-            }
             // 单独精英化技能：参数为[指挥官ID, 机师索引, 技能ID, "elite_only"]
             if (params.size() == 4 && params.get(0) instanceof String && params.get(1) instanceof Integer &&
                     params.get(2) instanceof String && "elite_only".equals(params.get(3))) {
@@ -2665,18 +2579,6 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         boolean success = upgradeAndLearnSkill(commanderId, pilotIndex, skillId);
         if (success) {
             postPilotSkillMessage("msg_learn_skill_success", "机师 {pilot} (呼号: {callsign}) 升级并学习了技能: {skill}",
-                    pilot, commanderId, pilotIndex, skillId);
-        }
-        return success;
-    }
-
-    /** 升级并精英化技能（升级时选择精英化已有技能）。 */
-    public boolean applyUpgradeEliteSkill(String commanderId, int pilotIndex, String skillId) {
-        PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
-        if (pilot == null || skillId == null) return false;
-        boolean success = upgradeAndEliteSkill(commanderId, pilotIndex, skillId);
-        if (success) {
-            postPilotSkillMessage("msg_elite_skill_success", "机师 {pilot} (呼号: {callsign}) 升级并精英化了技能: {skill}",
                     pilot, commanderId, pilotIndex, skillId);
         }
         return success;
@@ -2952,58 +2854,12 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             return false;
         }
 
-        int newLevel = currentLevel + 1;
-        pilot.getStats().setLevel(newLevel);
-
-        if (!pilot.getStats().hasSkill(skillId)) {
-            pilot.getStats().setSkillLevel(skillId, 1);
-        }
-
-        float newExp = currentExp - requiredExp;
-        try {
-            Map<String, Object> storage = Global.getSector().getPersistentData();
-            String key = "moci_combatSquad_exp_" + pilotIndex + "_" + commanderId;
-            storage.put(key, newExp);
-        } catch (Exception e) {
-            // 保存失败
-        }
-
-        return true;
-    }
-
-    /**
-     * 升级机师并精英化指定技能
-     */
-    private boolean upgradeAndEliteSkill(String commanderId, int pilotIndex, String skillId) {
-        PersonAPI pilot = Moci_PilotManager.getPilot(commanderId, pilotIndex, true);
-        if (pilot == null) {
-            return false;
-        }
-
-        int currentLevel = pilot.getStats().getLevel();
-        if (currentLevel >= 7) {
-            return false;
-        }
-
-        float currentExp = Moci_PilotManager.getExperience(commanderId, pilotIndex, true);
-        float requiredExp = getExperienceForLevel(currentLevel + 1);
-        if (currentExp < requiredExp) {
-            return false;
-        }
-
-        int maxElite = Moci_PilotTraining.calculatePilotMaxEliteSkills(pilot);
-        int currentEliteSkills = com.fs.starfarer.api.util.Misc.getNumEliteSkills(pilot);
-
-        if (currentEliteSkills >= maxElite) {
-            return false;
-        }
+        // 已学习的技能不能再次消耗一次升级；精英化统一走独立按钮。
+        if (!getAvailableSkills(pilot).contains(skillId)) return false;
 
         int newLevel = currentLevel + 1;
         pilot.getStats().setLevel(newLevel);
-
-        if (pilot.getStats().hasSkill(skillId) && pilot.getStats().getSkillLevel(skillId) < 2) {
-            pilot.getStats().setSkillLevel(skillId, 2);
-        }
+        pilot.getStats().setSkillLevel(skillId, 1);
 
         float newExp = currentExp - requiredExp;
         try {

@@ -8,6 +8,7 @@ import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
 import data.scripts.util.Moci_TextLoader;
+import data.scripts.util.Moci_PilotAura;
 import data.shipsystems.scripts.Moci_MissileJammerSystemScript;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.MathUtils;
@@ -179,6 +180,7 @@ public class Moci_PlayerSkill1 {
         
         // 性能优化：采样间隔
         static final float CHECK_FREQUENCY = 0.1f;     // 检测频率（秒）
+
         // ================================
         
         final ShipAPI ship;
@@ -199,6 +201,8 @@ public class Moci_PlayerSkill1 {
         private boolean releaseLogged;
         /** 新人类手动子系统是否已尝试挂到本舰（成功失败都只试一次，避免每帧重试刷日志）。 */
         private boolean newtypeAttached;
+        /** 生效期间的周身极光（绿 / 蓝绿渐变），尺寸跟随技能强度与碰撞半径。 */
+        private final Moci_PilotAura aura;
 
         public static listener getInstance(ShipAPI ship) {
             if (ship.getCustomData().containsKey(LISTENER_DATA_KEY)) {
@@ -256,6 +260,7 @@ public class Moci_PlayerSkill1 {
             this.ship = ship;
             this.id = "MociPlayerSkill1_" + ship.getId();
             this.spriteName = Global.getSettings().getSpriteName("icon", "Moci_skill1");
+            this.aura = new Moci_PilotAura(ship, Moci_PilotAura.Style.NEWTYPE);
         }
 
         @Override
@@ -411,11 +416,14 @@ public class Moci_PlayerSkill1 {
 
         private void apply(boolean player, float progress) {
             float clampedProgress = Math.max(0f, Math.min(1f, progress));
+            // 技能强度：触发瞬间为 1，随持续时间线性回落到 0（时流倍率也是按它插值的）
+            float effectLevel = 1f - clampedProgress;
             float shipTimeMult = SHIP_TIME_MULT + (1f - SHIP_TIME_MULT) * clampedProgress;
             float worldTimeMult = WORLD_TIME_MULT + (1f - WORLD_TIME_MULT) * clampedProgress;
 
             ship.getMutableStats().getTimeMult().modifyMult(id, shipTimeMult);
             syncChildModuleTimeMult(shipTimeMult);
+            aura.update(effectLevel);
 
             var engine = Global.getCombatEngine();
             // 世界那一半只给玩家舰且必须还活着：舰船被打爆后没人会把它改回 1 倍速，
@@ -462,6 +470,7 @@ public class Moci_PlayerSkill1 {
         }
 
         private void unapply() {
+            aura.fade();
             try {
                 ship.getMutableStats().getTimeMult().unmodify(id);
             } catch (RuntimeException | LinkageError ignored) {

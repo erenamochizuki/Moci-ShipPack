@@ -1,4 +1,7 @@
 package data.hullmods;
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.CombatEngineAPI;
+import com.fs.starfarer.api.combat.ShieldAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import org.lwjgl.util.vector.Vector2f;
 import org.moci.filmshield.api.FilmShield;
@@ -28,9 +31,16 @@ public class Moci_GNShield_Script extends FilmShieldController {
     }
     public static boolean hasShield(ShipAPI ship) { return FilmShield.find(ship) instanceof Moci_GNShield_Script; }
     public static String getKey() { return KEY; }
-    /** 实验功能（LunaSettings 开关 Moci_gnShieldOmniPerceptionAI，默认关闭）：开启后每帧把原版 BasicShipAI 换成 Moci_GNShieldAI，让 AI 把本舰视为固定 360° 护盾。 */
+    /** 保留本体 GN 盾的关盾装甲快照，并按显式实验开关安装全向盾感知 AI。 */
     @Override public void advance(float amount) {
         super.advance(amount);
+        ShipAPI ship=getShip();
+        CombatEngineAPI engine=Global.getCombatEngine();
+        if(FilmShield.find(ship)==this && !ship.isStationModule() && engine!=null && !engine.isPaused()) {
+            ShieldAPI shield=ship.getShield();
+            // 本体非模块舰关盾时也刷新基准，避免下一次开盾恢复关盾期间的装甲损失。
+            if(shield!=null&&!shield.isOn()) saveArmor();
+        }
         if(!Moci_FilmShieldIntegration.omniPerceptionAIEnabled()) return;
         if(FilmShield.find(getShip())==this) Moci_GNShieldAI.ensureInstalled(getShip());
     }

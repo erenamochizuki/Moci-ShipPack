@@ -9,14 +9,19 @@ import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import com.fs.starfarer.api.characters.CustomSkillDescription;
+import com.fs.starfarer.api.characters.DescriptionSkillEffect;
 import com.fs.starfarer.api.characters.FullName;
+import com.fs.starfarer.api.characters.LevelBasedEffect;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.characters.SkillEffectType;
 import com.fs.starfarer.api.characters.SkillSpecAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
@@ -44,8 +49,10 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 作战小队管理弹窗（编队页 + 舰载 AI 页），写法对齐 Moci_AirSquadronDialog：open → Wrapper(InteractionDialogPlugin)
@@ -68,6 +75,7 @@ public final class Moci_CombatSquadDialog {
 
     private static final int MAX_PORTRAITS = 160;
     private static final int MAX_SHIPS = 60;
+    private static final int MAX_SHIP_HULLMOD_ICONS = 12;
     private static final int MAX_AI_OPTIONS = 18;
     private static final int MAX_EVOLUTIONS = 4;
     private static final int MAX_LEVEL = 7;
@@ -80,9 +88,18 @@ public final class Moci_CombatSquadDialog {
     private static final Color C_BORDER = new Color(90, 160, 200, 170);
     private static final Color C_GOLD = new Color(255, 215, 0);
     private static final float NINE_FIGURE_SCALE = 1.2f;
+    /** 奈因立绘背后的旋转齿轮：true 显示，false 隐藏；修改后需重新打包 JAR。 */
+    private static final boolean SHOW_NINE_GEAR = false;
     private static final Color[] AI_FX = {
             new Color(170, 222, 255), new Color(100, 225, 255),
             new Color(195, 170, 255), new Color(255, 215, 135)};
+    /**
+     * 舰载 AI 舞台特效的渐变副色，与上面的 AI_FX（主色）按阶段一一对应，依次是第 1–4 阶段：浅蓝→蓝、青→紫、紫→粉、金→橙红。
+     * 想让某个阶段不渐变，把它的副色写成和主色一样的数值。
+     */
+    private static final Color[] AI_FX_2 = {
+            new Color(110, 140, 255), new Color(150, 110, 255),
+            new Color(255, 130, 220), new Color(255, 120, 80)};
 
     static {
         // 代码内置默认值；JSON 同名槽位逐字段覆盖。坐标相对父槽位（in），y 向下，逻辑屏 1280×800。
@@ -137,16 +154,19 @@ public final class Moci_CombatSquadDialog {
                 .slot("popupElite", null, 308, 152, 600, 400)
                 .slot("popupEliteTitle", "popupElite", 16, 12, 568, 24)
                 .slot("popupEliteList", "popupElite", 16, 44, 568, 300)
-                .repeat("popupEliteRow", "popupEliteList", 0, 0, 552, 40, 0, 46, 0)
+                .repeat("popupEliteRow", "popupEliteList", 0, 0, 176, 88, 188, 96, 3)
                 .slot("popupEliteCancel", "popupElite", 484, 366, 100, 22)
-                .slot("popupShip", null, 208, 92, 800, 520)
-                .slot("popupShipTitle", "popupShip", 16, 12, 600, 24)
-                .slot("popupShipGrid", "popupShip", 16, 44, 768, 432)
-                .repeat("popupShipCell", "popupShipGrid", 0, 0, 180, 120, 188, 128, 4)
-                .slot("popupShipCellImage", "popupShipCell", 8, 8, 64, 64)
-                .slot("popupShipCellInfo", "popupShipCell", 80, 8, 92, 104)
-                .slot("popupShipRestore", "popupShip", 16, 486, 140, 22)
-                .slot("popupShipCancel", "popupShip", 684, 486, 100, 22)
+                .slot("popupShip", null, 48, 32, 1120, 640)
+                .slot("popupShipTitle", "popupShip", 16, 12, 1088, 24)
+                .slot("popupShipGrid", "popupShip", 16, 48, 1088, 532)
+                .repeat("popupShipCell", "popupShipGrid", 0, 0, 348, 252, 360, 264, 3)
+                .slot("popupShipCellImage", "popupShipCell", 8, 8, 176, 176)
+                .slot("popupShipCellModsTitle", "popupShipCell", 196, 20, 140, 20)
+                .slot("popupShipCellMods", "popupShipCell", 196, 48, 140, 104)
+                .repeat("popupShipModIcon", "popupShipCellMods", 0, 0, 32, 32, 36, 36, 4)
+                .slot("popupShipCellInfo", "popupShipCell", 12, 192, 324, 56)
+                .slot("popupShipRestore", "popupShip", 16, 602, 140, 22)
+                .slot("popupShipCancel", "popupShip", 1004, 602, 100, 22)
                 .slot("popupRename", null, 358, 232, 500, 240)
                 .slot("popupRenameTitle", "popupRename", 16, 12, 468, 24)
                 .repeat("popupRenameLabel", "popupRename", 16, 48, 100, 20, 0, 40, 0)
@@ -522,10 +542,6 @@ public final class Moci_CombatSquadDialog {
                     if (canSquadOp(cid)) result(squad.applyLearnSkill(cid, popupPilot, (String) x.a));
                     popup = null;
                     break;
-                case "upgrade_elite_pick":
-                    if (canSquadOp(cid)) result(squad.applyUpgradeEliteSkill(cid, popupPilot, (String) x.a));
-                    popup = null;
-                    break;
                 case "elite_pick":
                     if (canSquadOp(cid)) result(squad.applyEliteOnly(cid, popupPilot, (String) x.a));
                     popup = null;
@@ -745,7 +761,7 @@ public final class Moci_CombatSquadDialog {
             // 统计压成两行：第一行两个计数，第二行灰色操作提示（squadStats 只有 52 高）
             TooltipMakerAPI stats = text(bar, "squadStats", 0);
             float sw = width("squadStats", 0);
-            String counts = csFormat("dialog_stats_upgrade", "可升级机师：{count}", "count", String.valueOf(canUp)) + "　　"
+            String counts = csFormat("dialog_stats_upgrade", "可升级机师：{count}", "count", String.valueOf(canUp)) + "    "
                     + csFormat("dialog_stats_elite", "可精英化机师：{count}", "count", String.valueOf(canEl));
             stats.addPara(fit(counts, sw), canUp + canEl > 0 ? Misc.getPositiveHighlightColor() : Misc.getTextColor(), 0f);
             stats.addPara(fit(csText("dialog_stats_hint", "点击机师头像可更换头像；卡片下方按钮可改名、指派舰船、升级与精英化。"), sw),
@@ -757,7 +773,7 @@ public final class Moci_CombatSquadDialog {
         }
 
         /**
-         * 成员卡片（repeat 槽位 memberCard，cols 2）：左上可点头像（扫描框 + 悬停框），右上僚机机体图（按比例放进框）+ 舰名，
+         * 成员卡片（repeat 槽位 memberCard，cols 2）：左上可点头像（通讯干扰 + 悬停框），右上僚机机体图（按比例放进框）+ 舰名，
          * 中部机师信息 / 技能两列，底部按钮横排（repeat 槽位 memberAction）。
          */
         private void buildMemberCard(CustomPanelAPI list, PersonAPI leader, int i) {
@@ -784,9 +800,9 @@ public final class Moci_CombatSquadDialog {
                 return;
             }
 
-            // 头像容器的插件是扫描框：网格画在头像下面，扫描线 / 角标画在头像上面；悬停框照旧最后加，叠在最上层
+            // 原头像保留为底图，只叠加间歇通讯干扰；悬停框最后添加，点击仍用于更换头像。
             clickImage(card, "memberPortrait", i, pilot.getPortraitSprite(), act("portrait_open", i, null, false),
-                    new Moci_UIScanFrame(Misc.getBasePlayerColor()));
+                    new Moci_UIPortraitSignal(pilot.getPortraitSprite(), Misc.getBasePlayerColor()));
 
             int level = pilot.getStats().getLevel();
             float exp = Moci_PilotManager.getExperience(cid, i, true);
@@ -799,9 +815,20 @@ public final class Moci_CombatSquadDialog {
             info.addPara(fit(pilot.getNameString(), iw * 0.8f), Misc.getHighlightColor(), 0f);
             info.setParaFontDefault();
             info.addPara(fit(csText("dialog_callsign", "呼号：") + callsignOf(cid, i), iw), Misc.getTextColor(), 6f);
-            info.addPara(fit(csFormat("dialog_level", "等级 {level}", "level", String.valueOf(level)), iw), Misc.getTextColor(), 4f);
-            String expText = level >= MAX_LEVEL ? csText("dialog_exp_max", "经验 已满级")
-                    : csFormat("dialog_exp", "经验 {exp}/{next}", "exp", String.valueOf((int) exp), "next", String.valueOf((int) next));
+            // 「等级：当前/满级」，只把当前等级标成高亮色。先用占位符排版，拿到当前等级在整句里的位置，
+            // 这样文案被文本表覆盖、或者前面带数字时也不会标错位置。
+            String levelNow = String.valueOf(level);
+            String levelTpl = csFormat("dialog_level", "等级：{level}/{max}", "level", "\u0001", "max", String.valueOf(MAX_LEVEL));
+            int levelAt = levelTpl.indexOf('\u0001');
+            String levelText = fit(levelTpl.replace("\u0001", levelNow), iw);
+            LabelAPI levelLabel = info.addPara(levelText, Misc.getTextColor(), 4f);
+            if (levelAt >= 0 && levelAt + levelNow.length() <= levelText.length()) {
+                levelLabel.setHighlightColor(Misc.getHighlightColor());
+                levelLabel.setHighlight(levelAt, levelAt + levelNow.length());
+            }
+            // 文案在 data/config/Moci_IntelText/Moci_Intel_Texts.json 的 Moci_CombatSquadIntel 段
+            String expText = level >= MAX_LEVEL ? csText("dialog_exp_max", "经验值：已满级")
+                    : csFormat("dialog_exp", "经验值：{exp}/{next}", "exp", String.valueOf((int) exp), "next", String.valueOf((int) next));
             info.addPara(fit(expText, iw), up ? Misc.getPositiveHighlightColor() : Misc.getGrayColor(), 4f);
             place(card, info, "memberInfo", i);
 
@@ -812,16 +839,20 @@ public final class Moci_CombatSquadDialog {
             float kw = width("memberSkills", i);
             sk.addPara(fit(csFormat("dialog_elite_count", "精英 {count}/{max}", "count", String.valueOf(elite), "max",
                     String.valueOf(maxElite)), kw), elite >= maxElite ? Misc.getPositiveHighlightColor() : Misc.getHighlightColor(), 0f);
-            List<String> names = skillNames(pilot);
-            if (names.isEmpty()) {
+            List<MutableCharacterStatsAPI.SkillLevelAPI> skills = learnedSkills(pilot);
+            if (skills.isEmpty()) {
                 sk.addPara(fit(csText("dialog_no_skills", "尚未学习技能"), kw), Misc.getGrayColor(), 6f);
             } else {
                 // 一行一个技能，行数按槽位高度算（首行 15 + 间距 6 + 每行 15，之后每行 4 + 15）；放不下时最后一行改成「等 N 项」
                 int maxLines = Math.max(1, (int) ((kr.h - 17f) / 19f));
-                int shown = names.size() <= maxLines ? names.size() : maxLines - 1;
-                for (int s = 0; s < shown; s++) sk.addPara(fit(names.get(s), kw), Misc.getTextColor(), s == 0 ? 6f : 4f);
-                if (shown < names.size()) {
-                    sk.addPara(fit(csFormat("dialog_more_skills", "等 {count} 项", "count", String.valueOf(names.size() - shown)), kw),
+                int shown = skills.size() <= maxLines ? skills.size() : maxLines - 1;
+                for (int s = 0; s < shown; s++) {
+                    MutableCharacterStatsAPI.SkillLevelAPI skill = skills.get(s);
+                    sk.addPara(fit(skill.getSkill().getName(), kw),
+                            skill.getLevel() >= 2f ? Misc.getStoryOptionColor() : Misc.getTextColor(), s == 0 ? 6f : 4f);
+                }
+                if (shown < skills.size()) {
+                    sk.addPara(fit(csFormat("dialog_more_skills", "等 {count} 项", "count", String.valueOf(skills.size() - shown)), kw),
                             Misc.getGrayColor(), shown == 0 ? 6f : 4f);
                 }
             }
@@ -831,16 +862,16 @@ public final class Moci_CombatSquadDialog {
             int k = 0;
             button(acts, "memberAction", k++, csText("dialog_btn_rename", "改名"), act("rename_open", i, null, false));
             button(acts, "memberAction", k++, csText("dialog_btn_assign", "指派舰船"), act("ship_open", i, null, false));
-            if (up) button(acts, "memberAction", k++, csText("dialog_btn_upgrade", "升级"), act("upgrade_open", i, null, false));
-            if (canElite(pilot)) button(acts, "memberAction", k, csText("dialog_btn_elite", "精英化"), act("elite_open", i, null, false));
+            if (canElite(pilot)) button(acts, "memberAction", k++, csText("dialog_btn_elite", "精英化"), act("elite_open", i, null, false));
+            if (up) button(acts, "memberAction", k, csText("dialog_btn_upgrade", "升级"), act("upgrade_open", i, null, false));
         }
 
-        /** 已学技能名（精英技能带「(精)」）；跳过未学和天赋类技能（与旧页面技能摘要的规则相同）。 */
-        private List<String> skillNames(PersonAPI pilot) {
-            List<String> out = new ArrayList<>();
+        /** 保留技能等级用于名称着色；跳过未学和天赋类技能。 */
+        private List<MutableCharacterStatsAPI.SkillLevelAPI> learnedSkills(PersonAPI pilot) {
+            List<MutableCharacterStatsAPI.SkillLevelAPI> out = new ArrayList<>();
             for (MutableCharacterStatsAPI.SkillLevelAPI s : pilot.getStats().getSkillsCopy()) {
                 if (s == null || s.getSkill() == null || s.getLevel() <= 0f || s.getSkill().isAptitudeEffect()) continue;
-                out.add(s.getSkill().getName() + (s.getLevel() >= 2f ? csText("dialog_elite_mark", "(精)") : ""));
+                out.add(s);
             }
             return out;
         }
@@ -961,6 +992,8 @@ public final class Moci_CombatSquadDialog {
             } else if (type.hasEvolutionRoute) {
                 ev.addPara(fit(aiFormat("intel_evolution_requirement", "进化条件：达到等级 {level}", "level",
                         String.valueOf(type.evolutionLevel)), ew), Misc.getGrayColor(), 4f);
+            } else if (type.isEvolved) {
+                ev.addPara(fit(aiText("dialog_ai_evolved", "已进化"), ew), Misc.getStoryOptionColor(), 4f);
             } else {
                 ev.addPara(fit(aiText("dialog_ai_no_evolution", "没有进化路线"), ew), Misc.getGrayColor(), 4f);
             }
@@ -972,16 +1005,16 @@ public final class Moci_CombatSquadDialog {
             if (data.learnedSkills.isEmpty()) sk.addPara(aiText("dialog_ai_no_skills", "尚未学习技能"), Misc.getGrayColor(), 6f);
             for (String id : data.learnedSkills) {
                 boolean elite = data.eliteSkills.contains(id);
-                sk.addPara(Moci_ShipboardAIManagerIntel.getSkillName(id) + (elite ? aiText("tooltip_elite_suffix", " [精英]") : ""),
-                        elite ? Misc.getPositiveHighlightColor() : C_GOLD, 4f);
+                sk.addPara(Moci_ShipboardAIManagerIntel.getSkillName(id),
+                        elite ? Misc.getStoryOptionColor() : C_GOLD, 4f);
             }
             if (skillPicks > 0) {
                 aiButtons(sk, "ai_learn", aiFormat("intel_available_skill_heading", "可学习技能（剩余 {count} 次）", "count",
-                        String.valueOf(skillPicks)), Moci_ShipboardAIManager.getAvailableSkillOptions(ship), sr.w - 25f);
+                        String.valueOf(skillPicks)), Moci_ShipboardAIManager.getAvailableSkillOptions(ship), sr.w - 25f, data.aiPerson);
             }
             if (elitePicks > 0) {
                 aiButtons(sk, "ai_elite", aiFormat("intel_available_elite_heading", "可精英化技能（剩余 {count} 次）", "count",
-                        String.valueOf(elitePicks)), Moci_ShipboardAIManager.getAvailableEliteSkillOptions(ship), sr.w - 25f);
+                        String.valueOf(elitePicks)), Moci_ShipboardAIManager.getAvailableEliteSkillOptions(ship), sr.w - 25f, data.aiPerson);
             }
             place(body, sk, "aiSkills", 0);
 
@@ -997,7 +1030,7 @@ public final class Moci_CombatSquadDialog {
             }
             if (auxPicks > 0) {
                 aiButtons(ax, "ai_aux", aiFormat("intel_available_aux_heading", "可学习辅助效果（剩余 {count} 次）", "count",
-                        String.valueOf(auxPicks)), Moci_ShipboardAIManager.getAvailableAuxOptions(ship), ar.w - 25f);
+                        String.valueOf(auxPicks)), Moci_ShipboardAIManager.getAvailableAuxOptions(ship), ar.w - 25f, data.aiPerson);
             }
             if (skillPicks <= 0 && elitePicks <= 0 && auxPicks <= 0 && evolutions.isEmpty()) {
                 ax.addPara(aiText("intel_no_actions", "当前暂无可执行操作。"), Misc.getGrayColor(), 10f);
@@ -1013,6 +1046,8 @@ public final class Moci_CombatSquadDialog {
         private void buildAIStage(CustomPanelAPI card, String aiTypeId, int level, Moci_ShipboardAIConfigLoader.AITypeDefinition type,
                                   String[][] tags) {
             boolean nine = "Moci_Nine".equals(aiTypeId);
+            // 特效阶段：AI 等级 1–3 / 4–6 / 7–9 / 10+ → grade 0 / 1 / 2 / 3，传给特效的 detail = grade + 1。
+            // 各阶段多出哪些特效（光线、海浪、数字）见 Moci_UIPulseRings 顶部的「阶段特效速查」；改分段等级就改这一行的 10、7、4。
             int grade = level >= 10 ? 3 : level >= 7 ? 2 : level >= 4 ? 1 : 0;
             Color fx = AI_FX[grade];
             float figureScale = nine ? NINE_FIGURE_SCALE : 1f;
@@ -1022,10 +1057,11 @@ public final class Moci_CombatSquadDialog {
             float cy = fr.y + fr.h / 2f;
             float inner = Math.min(fr.w, fr.h) * figureScale / 2f + 8f;
             float outer = Math.max(inner + 8f, Math.min(Math.min(cx, sr.w - cx), Math.min(cy, sr.h - cy)) - 4f);
-            CustomPanelAPI stage = panel(card, "aiStage", 0, new Moci_UIPulseRings(fx)
-                    .setCenter(cx, cy).setRadius(inner, outer).setDetail(grade + 1));
+            CustomPanelAPI stage = panel(card, "aiStage", 0, new Moci_UIPulseRings(fx, AI_FX_2[grade])
+                    .setCenter(cx, cy).setRadius(inner, outer).setDetail(grade + 1)
+                    .setMaxLevel(level >= type.levelCap));
             Moci_ShipboardAIConfigLoader.IllustrationSpec art = illustrationOf(aiTypeId, level);
-            if (art != null && art.hasBackdrop()) aiBackdrop(stage, art);
+            if (art != null && art.hasBackdrop() && (!nine || SHOW_NINE_GEAR)) aiBackdrop(stage, art);
             aiFigure(stage, art, type, figureScale);
 
             Moci_UILayout.Rect lr = layout.rect("aiLines");
@@ -1130,7 +1166,7 @@ public final class Moci_CombatSquadDialog {
             place(stage, t, slot, 0);
         }
 
-        private void aiButtons(TooltipMakerAPI t, String kind, String heading, List<String> ids, float bw) {
+        private void aiButtons(TooltipMakerAPI t, String kind, String heading, List<String> ids, float bw, PersonAPI person) {
             List<String> list = safeList(ids);
             if (list.isEmpty()) return;
             t.addPara(heading, Misc.getHighlightColor(), 10f);
@@ -1138,14 +1174,20 @@ public final class Moci_CombatSquadDialog {
             int n = 0;
             for (String id : list) {
                 if (n++ >= MAX_AI_OPTIONS) break;
-                String name = aux ? Moci_ShipboardAIManagerIntel.getAuxEffectDisplayName(id) : Moci_ShipboardAIManagerIntel.getSkillName(id);
                 Action a = act(kind, id, null, false);
+                if (!aux) {
+                    boolean elite = "ai_elite".equals(kind);
+                    CustomPanelAPI choice = skillChoice(content, bw, 40f, id,
+                            elite ? csText("upgrade_elite_tag", "精英化") : csText("skill_tooltip_learn", "学习"),
+                            person, elite ? 2f : 1f, a, false);
+                    t.addCustom(choice, 4f);
+                    continue;
+                }
+                String name = Moci_ShipboardAIManagerIntel.getAuxEffectDisplayName(id);
                 ButtonAPI b = t.addButton(Moci_ShipboardAIManagerIntel.escapeTooltipFormat(fit(name, bw - 16f)), a, bw, 20f, 4f);
                 track(b, a);
-                if (aux) {
-                    String desc = Moci_ShipboardAIAuxEffectRegistry.getEffectDescription(id, 1f);
-                    if (desc != null && !desc.isEmpty()) t.addPara(desc, Misc.getGrayColor(), 2f);
-                }
+                String desc = Moci_ShipboardAIAuxEffectRegistry.getEffectDescription(id, 1f);
+                if (desc != null && !desc.isEmpty()) t.addPara(desc, Misc.getGrayColor(), 2f);
             }
         }
 
@@ -1186,9 +1228,6 @@ public final class Moci_CombatSquadDialog {
                     for (String s : safeList(squad.listLearnableSkills(pilot))) {
                         rows.add(new String[]{"learn_pick", s, csText("dialog_tag_learn", "升级并学习")});
                     }
-                    for (String s : safeList(squad.listEliteableSkills(pilot))) {
-                        rows.add(new String[]{"upgrade_elite_pick", s, csText("dialog_tag_upgrade_elite", "升级并精英化")});
-                    }
                 } else {
                     for (String s : safeList(squad.listEliteableSkills(pilot))) {
                         rows.add(new String[]{"elite_pick", s, csText("dialog_tag_elite", "精英化")});
@@ -1212,8 +1251,10 @@ public final class Moci_CombatSquadDialog {
             CustomPanelAPI list = scrollArea(box, "popupEliteList", "popupEliteRow", rows.size());
             for (int i = 0; i < rows.size(); i++) {
                 String[] row = rows.get(i);
-                String label = row[2] + "：" + skillName(row[1]);
-                button(list, "popupEliteRow", i, fit(label, layout.rect("popupEliteRow", i).w - 16f), act(row[0], row[1], null, true));
+                Moci_UILayout.Rect r = layout.rect("popupEliteRow", i);
+                CustomPanelAPI choice = skillChoice(list, r.w, r.h, row[1], row[2], pilot,
+                        "learn_pick".equals(row[0]) ? 1f : 2f, act(row[0], row[1], null, true), true);
+                layout.place(list.addComponent(choice), "popupEliteRow", i);
             }
             button(box, "popupEliteCancel", 0, csText("common_cancel", "取消"), act("popup_cancel", null, null, true));
         }
@@ -1246,14 +1287,52 @@ public final class Moci_CombatSquadDialog {
             pin(cb);
             cell.addUIElement(hit).inTL(0f, 0f);
             track(cb, pick);
-            shipImage(cell, "popupShipCellImage", i, s);
+            shipSprite(cell, "popupShipCellImage", i, s);
+            shipHullmodIcons(cell, i, s);
             TooltipMakerAPI info = text(cell, "popupShipCellInfo", i);
             float iw = width("popupShipCellInfo", i);
-            info.addPara(fit(safe(s.getShipName(), csText("ship_name_unnamed", "未命名")), iw), Misc.getHighlightColor(), 0f);
-            info.addPara(fit(s.getHullSpec().getHullName(), iw), Misc.getTextColor(), 4f);
-            info.addPara(fit(csText("ship_dp_label", "DP:") + " " + (int) s.getDeploymentPointsCost(), iw), Misc.getGrayColor(), 4f);
+            info.addPara(fit(safe(s.getShipName(), csText("ship_name_unnamed", "未命名")), iw), Misc.getHighlightColor(), 0f)
+                    .setAlignment(Alignment.MID);
+            info.addPara(fit(s.getHullSpec().getHullName(), iw), Misc.getTextColor(), 4f)
+                    .setAlignment(Alignment.MID);
+            info.addPara(fit(csText("ship_dp_label", "DP:") + " " + (int) s.getDeploymentPointsCost(), iw), Misc.getGrayColor(), 4f)
+                    .setAlignment(Alignment.MID);
             place(cell, info, "popupShipCellInfo", i);
             addFrame(Moci_UIHoverFrame.attach(cell, 0f, 0f, r.w, r.h));
+        }
+
+        private void shipHullmodIcons(CustomPanelAPI cell, int index, FleetMemberAPI ship) {
+            List<HullModSpecAPI> mods = new ArrayList<>();
+            if (ship.getVariant() != null) {
+                for (String id : ship.getVariant().getNonBuiltInHullmods()) {
+                    if (ship.getVariant().getSuppressedMods() != null
+                            && ship.getVariant().getSuppressedMods().contains(id)) continue;
+                    HullModSpecAPI spec = Global.getSettings().getHullModSpec(id);
+                    if (spec != null && !spec.isHidden() && !spec.isHiddenEverywhere()
+                            && spec.getSpriteName() != null && !spec.getSpriteName().isEmpty()) mods.add(spec);
+                }
+            }
+            TooltipMakerAPI title = text(cell, "popupShipCellModsTitle", index);
+            title.addPara(mods.isEmpty() ? csText("dialog_ship_no_hullmods", "无额外船插")
+                            : csText("dialog_ship_hullmods", "船插"),
+                    Misc.getGrayColor(), 0f);
+            place(cell, title, "popupShipCellModsTitle", index);
+            CustomPanelAPI icons = panel(cell, "popupShipCellMods", index, null);
+            for (int i = 0; i < Math.min(mods.size(), MAX_SHIP_HULLMOD_ICONS); i++) {
+                HullModSpecAPI spec = mods.get(i);
+                Moci_UILayout.Rect r = layout.rect("popupShipModIcon", i);
+                TooltipMakerAPI icon = icons.createUIElement(r.w, r.h, false);
+                icon.addImage(spec.getSpriteName(), r.w, r.h, 0f);
+                pin(icon.getPrev());
+                place(icons, icon, "popupShipModIcon", i);
+                icon.addTooltipTo(new TooltipMakerAPI.TooltipCreator() {
+                    public boolean isTooltipExpandable(Object param) { return false; }
+                    public float getTooltipWidth(Object param) { return 240f; }
+                    public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object param) {
+                        tooltip.addTitle(spec.getDisplayName());
+                    }
+                }, icon.getPrev(), TooltipMakerAPI.TooltipLocation.RIGHT, false);
+            }
         }
 
         private void buildRenamePopup(PersonAPI leader) {
@@ -1281,6 +1360,41 @@ public final class Moci_CombatSquadDialog {
         }
 
         // ------------------------------ 放置小工具 ------------------------------
+
+        /** 图标与名称共用点击区和原生悬停提示；动作仍交给现有的延迟处理流程。 */
+        private CustomPanelAPI skillChoice(CustomPanelAPI parent, float w, float h, String skillId,
+                                          String actionLabel, PersonAPI person, float targetLevel, Action action, boolean grid) {
+            Color tint = targetLevel >= 2f ? Misc.getHighlightColor() : Misc.getBasePlayerColor();
+            CustomPanelAPI row = parent.createCustomPanel(w, h, null);
+            TooltipMakerAPI hit = row.createUIElement(w, h, false);
+            ButtonAPI button = hit.addAreaCheckbox("", action, tint, Misc.getDarkPlayerColor(),
+                    Misc.getBrightPlayerColor(), w, h, 0f);
+            pin(button);
+            row.addUIElement(hit).inTL(0f, 0f);
+            track(button, action);
+
+            float iconSize = Math.min(grid ? 44f : 36f, h - 4f);
+            SkillSpecAPI spec = Global.getSettings().getSkillSpec(skillId);
+            TooltipMakerAPI icon = row.createUIElement(iconSize, iconSize, false);
+            icon.addImage(spec.getSpriteName(), iconSize, iconSize, 0f);
+            pin(icon.getPrev());
+            row.addUIElement(icon).inTL(grid ? (w - iconSize) / 2f : 2f, grid ? 4f : (h - iconSize) / 2f);
+
+            float nameX = grid ? 5f : iconSize + 10f;
+            float nameY = grid ? iconSize + 8f : Math.max(0f, (h - 32f) / 2f);
+            float nameWidth = w - nameX - (grid ? 5f : 6f);
+            TooltipMakerAPI name = row.createUIElement(nameWidth, h - nameY, false);
+            LabelAPI title = name.addPara(fit(skillName(skillId), nameWidth - 10f), Misc.getTextColor(), 0f);
+            LabelAPI operation = addSkillActionLabel(name, actionLabel, Misc.getGrayColor(), 2f);
+            if (grid) {
+                title.setAlignment(Alignment.MID);
+                operation.setAlignment(Alignment.MID);
+            }
+            row.addUIElement(name).inTL(nameX, nameY);
+            hit.addTooltipTo(new SkillTooltip(spec, person, targetLevel, actionLabel), row,
+                    TooltipMakerAPI.TooltipLocation.RIGHT, false);
+            return row;
+        }
 
         private Action act(String kind, Object a, Object b, boolean modal) {
             return new Action(kind, a, b, gen, modal);
@@ -1355,18 +1469,6 @@ public final class Moci_CombatSquadDialog {
             return cb;
         }
 
-        private void shipImage(CustomPanelAPI parent, String slot, int index, FleetMemberAPI ship) {
-            Moci_UILayout.Rect r = layout.rect(slot, index);
-            TooltipMakerAPI t = parent.createUIElement(r.w, r.h, false);
-            if (ship != null) {
-                List<FleetMemberAPI> one = new ArrayList<>();
-                one.add(ship);
-                t.addShipList(1, 1, Math.min(r.w, r.h), Misc.getBasePlayerColor(), one, 0f);
-                pin(t.getPrev());
-            }
-            place(parent, t, slot, index);
-        }
-
         private TextFieldAPI field(CustomPanelAPI parent, String slot, int index, String key, String value) {
             Moci_UILayout.Rect r = layout.rect(slot, index);
             TooltipMakerAPI t = parent.createUIElement(r.w, r.h, false);
@@ -1413,6 +1515,115 @@ public final class Moci_CombatSquadDialog {
             Moci_UIHoverFrame f = Moci_UIHoverFrame.of(framePanel);
             if (f != null) frames.add(f);
         }
+    }
+
+    /** 从技能自身的效果脚本生成说明，包含基础和精英效果，不修改实际机师。 */
+    private static final class SkillTooltip implements TooltipMakerAPI.TooltipCreator {
+        private final SkillSpecAPI skill;
+        private final PersonAPI person;
+        private final float targetLevel;
+        private final String actionLabel;
+
+        SkillTooltip(SkillSpecAPI skill, PersonAPI person, float targetLevel, String actionLabel) {
+            this.skill = skill;
+            this.person = person;
+            this.targetLevel = targetLevel;
+            this.actionLabel = actionLabel;
+        }
+
+        @Override
+        public boolean isTooltipExpandable(Object param) { return false; }
+
+        @Override
+        public float getTooltipWidth(Object param) { return 420f; }
+
+        @Override
+        public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object param) {
+            tooltip.addTitle(skill.getName());
+            addSkillActionLabel(tooltip, actionLabel, Misc.getHighlightColor(), 6f);
+            String description = skill.getDescription();
+            if (description != null && !description.isEmpty()) tooltip.addPara(description, 8f);
+
+            // 独立预览属性，让自定义说明按选择后的技能等级显示；禁止触发实际属性刷新。
+            MutableCharacterStatsAPI preview = Global.getFactory().createPerson().getStats();
+            preview.setSkipRefresh(true);
+            if (person != null) {
+                preview.setLevel(person.getStats().getLevel());
+                preview.setFleet(person.getStats().getFleet());
+                for (MutableCharacterStatsAPI.SkillLevelAPI level : person.getStats().getSkillsCopy()) {
+                    preview.setSkillLevel(level.getSkill().getId(), level.getLevel());
+                }
+            }
+            preview.setSkillLevel(skill.getId(), targetLevel);
+            addEffects(tooltip, preview, false);
+            addEffects(tooltip, preview, true);
+        }
+
+        private void addEffects(TooltipMakerAPI tooltip, MutableCharacterStatsAPI preview, boolean elite) {
+            boolean heading = false;
+            Set<String> shown = new HashSet<>();
+            for (SkillSpecAPI.SkillEffectSpecAPI effect : skill.getEffectsAPI()) {
+                if ((effect.getRequiredSkillLevel() >= 2f) != elite) continue;
+                String effectClass = effect.getEffectClass();
+                if (effectClass == null || !shown.add(effectClass)) continue;
+                try {
+                    if (!heading) {
+                        tooltip.addSectionHeading(elite ? csText("skill_tooltip_elite", "精英效果")
+                                        : csText("skill_tooltip_base", "基础效果"),
+                                elite ? Misc.getStoryOptionColor() : Misc.getBasePlayerColor(),
+                                Misc.getDarkPlayerColor(), Alignment.MID, 8f);
+                        heading = true;
+                    }
+                    if (effect.getType() == SkillEffectType.DESCRIPTION) {
+                        DescriptionSkillEffect text = effect.getAsDescriptionEffect();
+                        LabelAPI label = tooltip.addPara(text.getString(), text.getTextColor(), 3f);
+                        if (text.getHighlights() != null) label.setHighlight(text.getHighlights());
+                        if (text.getHighlightColors() != null) label.setHighlightColors(text.getHighlightColors());
+                        if (elite) colorEliteDescription(label);
+                        continue;
+                    }
+                    LevelBasedEffect details = effect.getAsLevelBasedEffect();
+                    if (details instanceof CustomSkillDescription && ((CustomSkillDescription) details).hasCustomDescription()) {
+                        addCustomDescription((CustomSkillDescription) details, preview, tooltip, elite);
+                    } else if (details != null) {
+                        String text = details.getEffectDescription(Math.max(targetLevel, effect.getRequiredSkillLevel()));
+                        if (text != null && !text.isEmpty()) {
+                            tooltip.addPara(text, elite ? Misc.getHighlightColor() : Misc.getTextColor(), 3f);
+                        }
+                    }
+                } catch (RuntimeException ex) {
+                    LOG.warn(P + "技能说明加载失败 skill=" + skill.getId() + " effect=" + effectClass, ex);
+                    tooltip.addPara(csText("skill_tooltip_unavailable", "部分效果说明暂不可用。"), Misc.getGrayColor(), 3f);
+                }
+            }
+        }
+
+        private void addCustomDescription(CustomSkillDescription details, MutableCharacterStatsAPI preview,
+                                          TooltipMakerAPI tooltip, boolean elite) {
+            if (!elite) {
+                details.createCustomDescription(preview, skill, tooltip, getTooltipWidth(null));
+                return;
+            }
+            // 技能脚本可能自行指定正文和数值颜色；生成后统一着色，避免普通/自定义说明颜色不同。
+            Moci_UIColoredTooltip colored = new Moci_UIColoredTooltip(tooltip, Misc.getHighlightColor());
+            try {
+                details.createCustomDescription(preview, skill, colored, getTooltipWidth(null));
+            } finally {
+                colored.applyColor();
+            }
+        }
+    }
+
+    private static void colorEliteDescription(LabelAPI label) {
+        label.setColor(Misc.getHighlightColor());
+        label.setHighlight();
+    }
+
+    private static LabelAPI addSkillActionLabel(TooltipMakerAPI tooltip, String text, Color color, float pad) {
+        LabelAPI label = tooltip.addPara(text, color, pad);
+        label.setHighlight(csText("upgrade_elite_tag", "精英化"));
+        label.setHighlightColor(Misc.getStoryOptionColor());
+        return label;
     }
 
     // ============================== 背景填充 ==============================

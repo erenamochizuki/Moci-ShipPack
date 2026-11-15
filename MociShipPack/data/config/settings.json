@@ -187,6 +187,7 @@
 		
     },
     "plugins": {
+        "mociGNShieldDiagnostics": "data.scripts.Moci_GNShieldDiagnostics",
         "mociTailCombatPlugin": "data.scripts.Moci_TailCombatPlugin",
 		"mociCombatSquadCombatPlugin": "data.scripts.Moci_CombatSquadCombatPlugin",
 		"mociShroudedDragonTailCombatPlugin": "data.scripts.Moci_ShroudedDragonTailCombatPlugin",

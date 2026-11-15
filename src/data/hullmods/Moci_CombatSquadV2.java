@@ -20,6 +20,8 @@ import com.fs.starfarer.api.util.Misc;
 
 import data.hullmods.Moci_CombatSquadOfficierManager.SquadMember;
 import data.scripts.Moci_CombatSquadCombatPlugin;
+import data.scripts.Moci_SquadRecallController;
+import data.subsystems.Moci_SquadRecallSubsystem;
 // 经验系统现在使用全局监听器，不再需要战斗插件
 // import data.scripts.Moci_CombatSquadExperiencePlugin;
 
@@ -28,6 +30,8 @@ public class Moci_CombatSquadV2 extends BaseHullMod {
     public static float TRAVEL_DRIVE_DURATION = 3.0f; // 巡航驱动持续时间
     public static float DEPLOYMENT_COST_MULT = 1.5f; // 部署点消耗倍数
     public static Object STATUS_KEY = new Object();
+    /** 已尝试为该舰挂载「编队集结」子系统（每艘船只尝试一次）。 */
+    private static final String RECALL_SUBSYSTEM_CHECKED_KEY = "Moci_SquadRecallSubsystemChecked";
 
     private static String text(String key, String fallback) {
         return Moci_CombatSquadTextRegistry.getText(key, fallback);
@@ -313,6 +317,16 @@ public class Moci_CombatSquadV2 extends BaseHullMod {
                 (int)(CR_RETREAT_THRESHOLD * 100) + "%"
         );
 
+        tooltip.addPara(
+                text("hullmod_recall", "队长机拥有子系统 %s ：打断全部僚机的当前行动并召回至本舰身旁，僚机在到位前获得 %s 最大速度与 %s 机动性。冷却 %s 。"),
+                pad,
+                highlight,
+                text("hullmod_recall_name", "编队集结"),
+                "+" + (int) Moci_SquadRecallController.SPEED_BONUS_PERCENT + "%",
+                "+" + (int) Moci_SquadRecallController.MANEUVER_BONUS_PERCENT + "%",
+                (int) Moci_SquadRecallSubsystem.COOLDOWN_SECONDS + text("description_seconds_suffix", "秒")
+        );
+
         // 使用动态部署点描述生成器
         Moci_DeploymentDescriptionGenerator.addDynamicDeploymentDescription(tooltip, ship, width, isForModSpec);
 
@@ -392,6 +406,19 @@ public class Moci_CombatSquadV2 extends BaseHullMod {
         if (!engine.getCustomData().containsKey("Moci_CombatSquadCombatPlugin_Registered")) {
             engine.addPlugin(new Moci_CombatSquadCombatPlugin());
             engine.getCustomData().put("Moci_CombatSquadCombatPlugin_Registered", true);
+        }
+
+        // 队长机子系统「编队集结」：每艘船只尝试挂一次。自身是别人僚机的船不挂。
+        if (!ship.getCustomData().containsKey(RECALL_SUBSYSTEM_CHECKED_KEY)) {
+            ship.setCustomData(RECALL_SUBSYSTEM_CHECKED_KEY, true);
+            if (!ship.isFighter() && !ship.getCustomData().containsKey(Moci_SquadRecallController.COMMANDER_KEY)) {
+                try {
+                    Moci_SquadRecallSubsystem.attach(ship);
+                } catch (RuntimeException | LinkageError e) {
+                    Global.getLogger(Moci_CombatSquadV2.class)
+                            .error("[CombatSquad召回] 编队集结子系统挂载失败 ship=" + ship.getId(), e);
+                }
+            }
         }
         
         // 整合机师系统 - 为每个安装了CombatSquad的舰船管理机师

@@ -342,12 +342,15 @@
       "h": 300
     },
     "popupEliteRow": {
+      "_note": "技能选择格：三列，图标居上，名称和操作提示居中放在下方",
       "in": "popupEliteList",
       "x": 0,
       "y": 0,
-      "w": 552,
-      "h": 40,
-      "pitchY": 46
+      "w": 176,
+      "h": 88,
+      "pitchX": 188,
+      "pitchY": 96,
+      "cols": 3
     },
     "popupEliteCancel": {
       "in": "popupElite",
@@ -357,61 +360,61 @@
       "h": 22
     },
     "popupShip": {
-      "x": 208,
-      "y": 92,
-      "w": 800,
-      "h": 520
+      "x": 48,
+      "y": 32,
+      "w": 1120,
+      "h": 640
     },
     "popupShipTitle": {
       "in": "popupShip",
       "x": 16,
       "y": 12,
-      "w": 600,
+      "w": 1088,
       "h": 24
     },
     "popupShipGrid": {
       "in": "popupShip",
       "x": 16,
-      "y": 44,
-      "w": 768,
-      "h": 432
+      "y": 48,
+      "w": 1088,
+      "h": 532
     },
     "popupShipCell": {
-      "_note": "舰船格：x + (i % cols) × pitchX，y + ⌊i / cols⌋ × pitchY",
+      "_note": "机体卡片：每行三格，上方大图，下方居中显示名称、机型和部署点；超过两行时滚动",
       "in": "popupShipGrid",
       "x": 0,
       "y": 0,
-      "w": 180,
-      "h": 120,
-      "pitchX": 188,
-      "pitchY": 128,
-      "cols": 4
+      "w": 348,
+      "h": 252,
+      "pitchX": 360,
+      "pitchY": 264,
+      "cols": 3
     },
     "popupShipCellImage": {
       "in": "popupShipCell",
       "x": 8,
       "y": 8,
-      "w": 64,
-      "h": 64
+      "w": 176,
+      "h": 176
     },
     "popupShipCellInfo": {
       "in": "popupShipCell",
-      "x": 80,
-      "y": 8,
-      "w": 92,
-      "h": 104
+      "x": 12,
+      "y": 192,
+      "w": 324,
+      "h": 56
     },
     "popupShipRestore": {
       "in": "popupShip",
       "x": 16,
-      "y": 486,
+      "y": 602,
       "w": 140,
       "h": 22
     },
     "popupShipCancel": {
       "in": "popupShip",
-      "x": 684,
-      "y": 486,
+      "x": 1004,
+      "y": 602,
       "w": 100,
       "h": 22
     },
@@ -459,6 +462,31 @@
       "y": 206,
       "w": 100,
       "h": 22
+    },
+    "popupShipCellModsTitle": {
+      "in": "popupShipCell",
+      "x": 196,
+      "y": 20,
+      "w": 140,
+      "h": 20
+    },
+    "popupShipCellMods": {
+      "in": "popupShipCell",
+      "x": 196,
+      "y": 48,
+      "w": 140,
+      "h": 104
+    },
+    "popupShipModIcon": {
+      "_note": "非内置船插图标：三排，每排四个；超过十二个直接忽略",
+      "in": "popupShipCellMods",
+      "x": 0,
+      "y": 0,
+      "w": 32,
+      "h": 32,
+      "pitchX": 36,
+      "pitchY": 36,
+      "cols": 4
     }
   }
 }

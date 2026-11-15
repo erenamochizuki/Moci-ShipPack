@@ -218,3 +218,32 @@ MociTulipOkitaMission3Accept,DialogOptionSelected,$option == moci_okita_mission3
 SetShortcut moci_okita_return ""ESCAPE""",任务【寻找航标】已接取。目标将刷新在一个星门附近。,100:moci_okita_return:继续,,,
 MociTulipOkitaMission3RunningTalk,DialogOptionSelected,$option == moci_okita_mission3_running,"SetShortcut moci_okita_return ""ESCAPE""",冲田十三没有再多说废话，只是把那个坐标重新发到了你的终端上。,100:moci_okita_return:明白了,,,
 ,,,,,,,,
+# Tulip联络员：冲田十三（主线完成且好感度≥50 后可消耗 1 故事点招募）,,,,,,,,
+MociTulipOkitaRecruitOption,PopulateOptions,"$isPerson
+$id == moci_tulip_contact_okita
+$global.moci_okita_mission3_completed
+!$global.moci_okita_recruited","SetStoryOption moci_okita_recruit 1 avoidCargoScan ui_char_spent_story_point ""邀请冲田十三加入了舰队""
+Moci_StoryOfficerCommand prepareRecruit okita moci_okita_recruit",,20:moci_okita_recruit:邀请冲田十三加入你的舰队,,,
+MociTulipOkitaRecruitSelected,DialogOptionSelected,$option == moci_okita_recruit,"Moci_CampaignTextCommand ""addText"" ""rules.okita_recruit_accept""
+Moci_StoryOfficerCommand recruit okita",,0:cutCommLink:离开,,,
+,,,,,,,,
+# 尼尔加剧情军官：星野琉璃（Lotus）/ 泰蕾莎（Aster），好感度≥50 后可消耗 1 故事点招募,,,,,,,,
+MociNergalRuriGreeting,PickGreeting,$id == moci_nergal_contact_ruri score:1000,"ShowPersonVisual
+Moci_CampaignTextCommand ""addText"" ""rules.ruri_greeting""
+FireAll PopulateOptions",,,,,
+MociNergalRuriRecruitOption,PopulateOptions,"$isPerson
+$id == moci_nergal_contact_ruri
+!$global.moci_ruri_recruited","SetStoryOption moci_ruri_recruit 1 avoidCargoScan ui_char_spent_story_point ""邀请星野琉璃加入了舰队""
+Moci_StoryOfficerCommand prepareRecruit ruri moci_ruri_recruit",,20:moci_ruri_recruit:邀请星野琉璃加入你的舰队,,,
+MociNergalRuriRecruitSelected,DialogOptionSelected,$option == moci_ruri_recruit,"Moci_CampaignTextCommand ""addText"" ""rules.ruri_recruit_accept""
+Moci_StoryOfficerCommand recruit ruri",,0:cutCommLink:离开,,,
+MociNergalTeresaGreeting,PickGreeting,$id == moci_nergal_contact_teresa score:1000,"ShowPersonVisual
+Moci_CampaignTextCommand ""addText"" ""rules.teresa_greeting""
+FireAll PopulateOptions",,,,,
+MociNergalTeresaRecruitOption,PopulateOptions,"$isPerson
+$id == moci_nergal_contact_teresa
+!$global.moci_teresa_recruited","SetStoryOption moci_teresa_recruit 1 avoidCargoScan ui_char_spent_story_point ""邀请泰蕾莎加入了舰队""
+Moci_StoryOfficerCommand prepareRecruit teresa moci_teresa_recruit",,20:moci_teresa_recruit:邀请泰蕾莎加入你的舰队,,,
+MociNergalTeresaRecruitSelected,DialogOptionSelected,$option == moci_teresa_recruit,"Moci_CampaignTextCommand ""addText"" ""rules.teresa_recruit_accept""
+Moci_StoryOfficerCommand recruit teresa",,0:cutCommLink:离开,,,
+,,,,,,,,

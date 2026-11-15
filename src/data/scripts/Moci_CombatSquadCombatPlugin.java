@@ -88,6 +88,13 @@ public class Moci_CombatSquadCombatPlugin extends BaseEveryFrameCombatPlugin {
         if (!USE_CUSTOM_AI && ENABLE_FALLBACK_LOGIC) {
             manageFallbackLogic(amount);
         }
+
+        // 「编队集结」的逐帧推进放在这里而不是子系统里：队长机阵亡或离场后也要能清掉僚机身上的加成。
+        try {
+            Moci_SquadRecallController.advance(amount);
+        } catch (RuntimeException e) {
+            Global.getLogger(Moci_CombatSquadCombatPlugin.class).error("[CombatSquad召回] 推进召回状态失败", e);
+        }
     }
 
 
@@ -592,6 +599,8 @@ public class Moci_CombatSquadCombatPlugin extends BaseEveryFrameCombatPlugin {
 
         // 记录队长信息，用于撤退检查
         wingman.setCustomData("Moci_WingmanCommander", commander);
+        // 记录部署序号，「编队集结」按它分配站位
+        wingman.setCustomData(Moci_SquadRecallController.WINGMAN_INDEX_KEY, index);
 
         // 设置AI
         if (USE_CUSTOM_AI) {

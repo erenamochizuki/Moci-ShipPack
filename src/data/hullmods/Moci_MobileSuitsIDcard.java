@@ -803,10 +803,10 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 			);
 		}
 
-		// 对导弹和战机的增伤
+		// 对导弹和战机的增伤：目标类型用普通高亮，数值用增益色
 		tooltip.addPara(
 			Moci_TextLoader.getTextWithReplacements(hullmodId, "description.anti_missile_fighter", replacements),
-			pad, good,
+			pad, new Color[] { h, h, good },
 			Moci_TextLoader.getHighlightsWithReplacements(hullmodId, "description.anti_missile_fighter_highlights", replacements).toArray(new String[0])
 		);
 
@@ -814,7 +814,7 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 		if (ship != null && shouldDisableAllEffects(ship.getMutableStats())) {
 			tooltip.addPara(
 				Moci_TextLoader.getText(hullmodId, "description.disabled_by_hullmod"),
-				pad, bad,
+				pad, h,
 				Moci_TextLoader.getHighlights(hullmodId, "description.disabled_by_hullmod_highlights").toArray(new String[0])
 			);
 			return; // 如果功能被禁用，不显示其他效果描述
@@ -904,7 +904,7 @@ public class Moci_MobileSuitsIDcard extends BaseLogisticsHullMod {
 				tooltip.addPara(
 					Moci_TextLoader.getText(hullmodId, "description.frigate_collision_only_benefit2"),
 					pad,
-					new Color[] { Misc.getHighlightColor(), good },  // # 用黄色，其他用绿色
+					h,  // # 与"同时"均为普通高亮
 					Moci_TextLoader.getHighlights(hullmodId, "description.frigate_collision_only_benefit2_highlights").toArray(new String[0])
 				);
 			} else {

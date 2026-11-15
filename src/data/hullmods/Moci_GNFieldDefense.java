@@ -43,6 +43,7 @@ public class Moci_GNFieldDefense extends BaseHullMod implements org.moci.filmshi
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
         // 添加GN力场防御脚本监听器
         Moci_GNFieldDefense_Script.getInstance(ship);
+        data.scripts.Moci_GNShieldDiagnostics.recordCreation(ship);
     }
 
     @Override

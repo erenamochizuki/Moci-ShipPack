@@ -36,7 +36,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
     private static final float ENTRY_HEIGHT = 176f;
     private static final float PORTRAIT_SIZE = 128f;
     private static final Color SKILL_NORMAL_COLOR = new Color(255, 215, 0);
-    private static final Color SKILL_ELITE_COLOR = Misc.getPositiveHighlightColor();
+    private static final Color SKILL_ELITE_COLOR = Misc.getStoryOptionColor();
     private static final Color BENEFIT_COLOR = Misc.getPositiveHighlightColor();
     private static final Color NEGATIVE_COLOR = Misc.getNegativeHighlightColor();
 
@@ -302,7 +302,7 @@ public class Moci_ShipboardAIManagerIntel extends BaseIntelPlugin {
                     boolean elite = data.eliteSkills.contains(skillId);
                     Color c = elite ? SKILL_ELITE_COLOR : SKILL_NORMAL_COLOR;
                     String safeName = escapeTooltipFormat(name);
-                    leftColumn.addPara(safeName + (elite ? uiText("tooltip_elite_suffix", " [精英]") : ""),
+                    leftColumn.addPara(safeName,
                             sectionContentPad, c, safeName);
                 }
             }

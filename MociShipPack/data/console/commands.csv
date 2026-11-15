@@ -1,2 +1,3 @@
 command,class,tags,syntax,help
 MociAI,data.console.commands.MociAI,"moci,cheat,campaign",MociAI levelup [数量] | evolve,"操作旗舰的舰载 AI。MociAI levelup 1 升一级，省略数量默认一级；MociAI levelup 4 升四级；MociAI evolve 进化。升级遵守当前形态的等级上限，不会自动进化。"
+MociSquad,data.console.commands.MociSquad,"moci,cheat,campaign",MociSquad levelup [数量] | exp,"操作旗舰小队的机师。levelup [数量] 立即升级，默认一级，最高 7 级，随机补齐普通技能并保留精英状态；exp 补齐升下一级所需经验，之后在界面中手动升级和选择技能。不升级指挥官。"

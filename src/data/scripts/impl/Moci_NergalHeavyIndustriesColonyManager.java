@@ -79,6 +79,12 @@ public class Moci_NergalHeavyIndustriesColonyManager {
     private static final String ASTER_STATION_COMMANDER_ID = "moci_nergal_aster_station_commander";
     private static final String ASTER_SECURITY_CHIEF_ID = "moci_nergal_aster_security_chief";
 
+    // 剧情军官联系人（星野琉璃 / 泰蕾莎）的军衔、职位与初始好感度（0.2 = 界面上的 20）
+    private static final String RANK_LIEUTENANT_COMMANDER = "Moci_spaceLieutenantCommander";
+    private static final String POST_NADESICO_CAPTAIN = "Moci_Nadesico_Captain";
+    private static final String POST_TDD_CAPTAIN = "Moci_TDD_Captain";
+    private static final float STORY_OFFICER_INITIAL_REL = 0.2f;
+
     private static final String DESCRIPTION_SYSTEM = "moci_nergal_helianthus";
     private static final String DESCRIPTION_LOTUS = "moci_nergal_lotus";
     private static final String DESCRIPTION_ASTER = "moci_nergal_aster";
@@ -581,6 +587,55 @@ public class Moci_NergalHeavyIndustriesColonyManager {
 
     public static void syncLotusStoryContacts() {
         syncLotusStoryContacts(getLotusMarket());
+    }
+
+    /**
+     * 同步剧情军官联系人：抚子B 完成后星野琉璃出现在 Lotus，丹努之子完成后泰蕾莎出现在 Aster。
+     * 两人都是原版军事联系人（带任务枢纽），被招募后不再出现。可重复调用。
+     */
+    public static void syncStoryOfficerContacts() {
+        syncStoryOfficerContact(Moci_StoryOfficerManager.StoryOfficer.RURI, getLotusMarket(), 2);
+        syncStoryOfficerContact(Moci_StoryOfficerManager.StoryOfficer.TERESA, getAsterMarket(), 1);
+    }
+
+    private static void syncStoryOfficerContact(Moci_StoryOfficerManager.StoryOfficer who, MarketAPI market,
+                                                int order) {
+        if (market == null) {
+            return;
+        }
+        if (Moci_StoryOfficerManager.isRecruited(who) || !Moci_StoryOfficerManager.isStoryDone(who)) {
+            return;
+        }
+
+        PersonAPI person = getPersonById(market, who.npcId);
+        if (person == null) {
+            person = createStoryOfficerContact(who, market);
+            addPersonIfMissing(market, person, order);
+            Global.getLogger(Moci_NergalHeavyIndustriesColonyManager.class)
+                    .info("剧情军官联系人已加入通讯录: " + person.getNameString() + " @ " + market.getName());
+        }
+        Moci_StoryOfficerManager.ensureContact(person, market);
+    }
+
+    private static PersonAPI createStoryOfficerContact(Moci_StoryOfficerManager.StoryOfficer who, MarketAPI market) {
+        PersonAPI person = market.getFaction().createRandomPerson();
+        person.setId(who.npcId);
+        person.getName().setFirst(who.firstName);
+        person.getName().setLast(who.lastName);
+        person.setGender(who.gender);
+        person.setPortraitSprite(who.portrait);
+        person.setImportanceAndVoice(PersonImportance.HIGH, StarSystemGenerator.random);
+        person.addTag(Tags.CONTACT_MILITARY);
+        if (who == Moci_StoryOfficerManager.StoryOfficer.RURI) {
+            person.setRankId(RANK_LIEUTENANT_COMMANDER);
+            person.setPostId(POST_NADESICO_CAPTAIN);
+        } else {
+            person.setRankId(Ranks.SPACE_CAPTAIN);
+            person.setPostId(POST_TDD_CAPTAIN);
+        }
+        // 交过手之后才结识：出现时带一点初始好感。
+        person.getRelToPlayer().setRel(STORY_OFFICER_INITIAL_REL);
+        return person;
     }
 
     private static void ensureAsterPeople(MarketAPI market) {

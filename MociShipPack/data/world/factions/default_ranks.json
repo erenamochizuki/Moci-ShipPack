@@ -9,6 +9,8 @@
 	"posts":{
 		"Moci_Store_Manager":{"name":"店长"},
 		"Moci_Liaison_Officer":{"name":"大和号舰长"},
+		"Moci_Nadesico_Captain":{"name":"抚子号舰长"},
+		"Moci_TDD_Captain":{"name":"丹努之子舰长"},
 	},
 }
 

@@ -883,6 +883,12 @@ public class Moci_Util {
 		public float thicknessFlat = 0f;
 		/** 纹理沿圆周方向的平铺密度倍率 */
 		public float texPerSegmentMult = 1f;
+		/**
+		 * 锁定整圈纹理平铺次数（以首次绘制时算出的为准，只对 AuroraRing 生效）。
+		 * 平铺次数按「周长 / 厚度」取整，半径逐帧变化（例如随技能强度缩放）时会一格一格跳变，整圈纹理随之突跳；
+		 * 开启后不再跳变，代价是厚度变化时纹理会沿圆周方向被拉伸/压缩。
+		 */
+		public boolean lockTexTiling = false;
 		/** 纹理中单条光带的宽度（像素），原版 aurorae.png 为 256 */
 		public float bandWidthInTexture = 256f;
 		/** 可选的原版遮挡器，见 setBlocker() */
@@ -968,6 +974,12 @@ public class Moci_Util {
 		public AuroraParams setThickness(float thicknessMult, float thicknessFlat) {
 			this.thicknessMult = thicknessMult;
 			this.thicknessFlat = thicknessFlat;
+			return this;
+		}
+
+		/** 半径会逐帧变化时开启，见 lockTexTiling */
+		public AuroraParams setLockTexTiling(boolean lockTexTiling) {
+			this.lockTexTiling = lockTexTiling;
 			return this;
 		}
 
@@ -1140,6 +1152,8 @@ public class Moci_Util {
 		private int trigSegments = -1;
 		private float[] segCos, segSin;
 		private float leftTX0, rightTX0, leftTX1, rightTX1;
+		/** params.lockTexTiling 开启时记下的首帧平铺数据；0 = 尚未记录 */
+		private float lockedTotalTex = 0f, lockedTexStart1 = 0f;
 
 		public AuroraRing(AuroraParams params) {
 			this.params = params != null ? params : new AuroraParams();
@@ -1220,9 +1234,21 @@ public class Moci_Util {
 					* bandWidthInTexture / thickness * params.getAuroraTexPerSegmentMult();
 			float totalTex = Math.max(1f, Math.round(refTexPerSegment * refSegments));
 			if (!Float.isFinite(totalTex)) return 0;
-			float texPerSegment = totalTex / segments;
 			// 原版第二条光带接着第一条的纹理进度继续，起点多走了一段
 			float texStart1 = totalTex + totalTex / refSegments;
+			if (params.lockTexTiling) {
+				// 半径逐帧变化时沿用首帧的平铺次数，避免取整跳变导致整圈纹理突跳
+				if (lockedTotalTex > 0f) {
+					totalTex = lockedTotalTex;
+					texStart1 = lockedTexStart1;
+				} else {
+					lockedTotalTex = totalTex;
+					lockedTexStart1 = texStart1;
+				}
+			} else {
+				lockedTotalTex = 0f;
+			}
+			float texPerSegment = totalTex / segments;
 
 			float texWidth = tex.getTextureWidth();
 			leftTX0 = texWidth * bandWidthInTexture / imageWidth;
