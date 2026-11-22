@@ -55,6 +55,6 @@
     "particleDuration": 0.5,
     "particleCount": 30,
 	"particleColor":[255,185,215,215]},
-  #"fireSoundTwo": "Moci_Yamato_maingun_02"
-  #"fireSoundTwo": "Moci_HearyEnergy_5"
+  #"fireSoundTwo": "moci_wpn_yamato_maingun_02"
+  #"fireSoundTwo": "moci_wpn_heavy_energy_05"
 }

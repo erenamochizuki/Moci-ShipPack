@@ -1,14 +1,14 @@
 #version 110
 
-// GN护盾顶点着色器
-// 基于光环src的HSIShield.vert，针对GN护盾优化
+// GN shield vertex shader
+// Based on HSIShield.vert from the halo source, tuned for the GN shield
 
 varying vec2 fragUV;
 
 void main() {
-    // 标准的顶点变换
+    // Standard vertex transform
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     
-    // 传递纹理坐标到片段着色器
+    // Pass texture coordinates to the fragment shader
     fragUV = gl_MultiTexCoord0.xy;
 }

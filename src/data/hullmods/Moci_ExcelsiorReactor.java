@@ -169,16 +169,16 @@ public class Moci_ExcelsiorReactor extends BaseHullMod {
             }
             if (!deathExploded) {
                 if (ship.getFluxTracker().getCurrFlux() >= 6000f) {
-                    Global.getSoundPlayer().playSound("Moci_HearyEnergy_2", 1f, 0.8f, ship.getLocation(), ZERO);
+                    Global.getSoundPlayer().playSound("moci_wpn_heavy_energy_02", 1f, 0.8f, ship.getLocation(), ZERO);
                 }
                 if (ship.getFluxTracker().getCurrFlux() >= 4000f) {
-                    Global.getSoundPlayer().playSound("Moci_HearyEnergy_1", 1f, 0.5f, ship.getLocation(), ZERO);
+                    Global.getSoundPlayer().playSound("moci_wpn_heavy_energy_01", 1f, 0.5f, ship.getLocation(), ZERO);
                 }
                 if (ship.getFluxTracker().getCurrFlux() >= 2400f) {
-                    Global.getSoundPlayer().playSound("Moci_Weapon2Sound", 1f, 1f, ship.getLocation(), ZERO);
+                    Global.getSoundPlayer().playSound("moci_wpn_weapon_02", 1f, 1f, ship.getLocation(), ZERO);
                 }
                 if (ship.getFluxTracker().getCurrFlux() >= 1200f) {
-                    Global.getSoundPlayer().playSound("Moci_BeamShot_Hit", 1f, 1f, ship.getLocation(), ZERO);
+                    Global.getSoundPlayer().playSound("moci_fx_beam_shot_hit", 1f, 1f, ship.getLocation(), ZERO);
 
                     engine.spawnExplosion(ship.getLocation(), ZERO, highlightColor, 750f * fluxLevel, fluxLevel);
                     engine.addHitParticle(ship.getLocation(), ZERO, 2000f * fluxLevel, 1f, (float) Math.sqrt(fluxLevel) * 2f, glowColor);
@@ -248,7 +248,7 @@ public class Moci_ExcelsiorReactor extends BaseHullMod {
                                     ship, target,
                                     DamageType.ENERGY,
                                     70f * scale, 70f * scale, range * 1.25f,
-                                    "Moci_Lightting", 5f * scale,
+                                    "moci_fx_lightning", 5f * scale,
                                     new Color(255, 50, 150), new Color(255, 100, 200));
                         }
                     } else {

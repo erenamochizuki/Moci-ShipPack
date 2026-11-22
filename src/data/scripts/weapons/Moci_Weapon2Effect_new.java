@@ -603,7 +603,7 @@ public class Moci_Weapon2Effect_new implements EveryFrameWeaponEffectPlugin {
               new anchorEffect(target, point, weapon.getCurrAngle(), ship, weapon));
       
       // 播放音效
-      Global.getSoundPlayer().playSound("Moci_Weapon2Sound", 1f, 1f, point, new Vector2f());
+      Global.getSoundPlayer().playSound("moci_wpn_weapon_02", 1f, 1f, point, new Vector2f());
       
       // 缓存向量对象，减少创建
       Vector2f vel = new Vector2f();
@@ -1098,7 +1098,7 @@ public class Moci_Weapon2Effect_new implements EveryFrameWeaponEffectPlugin {
       // 爆炸前播放警告音效
             if (timer < EXPLODE_DELAY) {
                 if (timer - lastBeepTime >= BEEP_INTERVAL) {
-          Global.getSoundPlayer().playSound("Moci_Beep", 1f, 0.7f, location, zeroVector);
+          Global.getSoundPlayer().playSound("moci_wpn_beep", 1f, 0.7f, location, zeroVector);
                     lastBeepTime = timer;
                 }
             }

@@ -8,7 +8,7 @@
 
 	"runScriptWhileIdle":true, # unapply() never gets called
 
-	"useSound":"Moci_Yamato_ET_System",
+	"useSound":"moci_sys_yamato_et",
 	"outOfUsesSound":"gun_out_of_ammo",
 	
 	"aiHints":{

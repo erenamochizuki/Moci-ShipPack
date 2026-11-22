@@ -137,7 +137,7 @@ public class Moci_DisplacerStats extends BaseShipSystemScript {
 			Vector2f velocity = Vector2f.sub(data.targetLocation, data.startingLocation, null);
 			velocity.scale(1f / ship.getSystem().getChargeUpDur());
 			Global.getSoundPlayer().playSound(
-				"Moci_displacer_active2", 1f, 1f, 
+				"moci_sys_displacer_active_02", 1f, 1f, 
 				ship.getLocation(), velocity
 			);
 		}

@@ -160,7 +160,7 @@ public class Moci_TravelJump extends BaseShipSystemScript {
                             TARGET_GLOW_1, TARGET_GLOW_2);
 
                     // 播放音效和创建涟漪效果
-                    Global.getSoundPlayer().playSound("Moci_WarpSound2", 1f, 2f, ship.getLocation(), ship.getVelocity());
+                    Global.getSoundPlayer().playSound("moci_sys_warp_02", 1f, 2f, ship.getLocation(), ship.getVelocity());
                     createOutPhaseRipple(ship.getLocation());
                 }
             } else {

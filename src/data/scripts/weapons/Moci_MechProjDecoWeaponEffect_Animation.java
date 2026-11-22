@@ -50,10 +50,9 @@ public class Moci_MechProjDecoWeaponEffect_Animation implements EveryFrameWeapon
             return;
         }
         
-        // 即使暂停也要持续隐藏SOURCE武器
-        if (source != null) {
-            hideSourceWeapon();
-        }
+        // 暂停期间只维护已绑定武器的隐藏，不推进动画或角度。
+        hideSourceWeapon();
+        hideFollowWeapon();
         
         // 暂停时不更新其他逻辑
         if (engine.isPaused()) {

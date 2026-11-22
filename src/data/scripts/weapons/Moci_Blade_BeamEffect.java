@@ -284,7 +284,7 @@ public class Moci_Blade_BeamEffect implements BeamEffectPlugin {
         if (active && target != null && beam.getBrightness() > 0.9f
                 && effectInterval.intervalElapsed() && MagicRender.screenCheck(0.2f, beam.getTo())
                 && soundPlayedThisBurst.add(target)) {
-            Global.getSoundPlayer().playSound("Moci_BeamSabre_Hit", 1f, 0.5f, beam.getTo(), new Vector2f());
+            Global.getSoundPlayer().playSound("moci_wpn_beam_sabre_hit", 1f, 0.5f, beam.getTo(), new Vector2f());
         }
         // ========== 光束沿线粒子效果 ==========
         Vector2f spawnPoint = MathUtils.getRandomPointOnLine(beam.getFrom(), beam.getTo());

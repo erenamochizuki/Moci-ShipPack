@@ -131,7 +131,7 @@ public final class ZetaRifleModes implements AutoCloseable {
         else{pose.clear();arm();}
     }
     private void arm(){if(form==Form.TRANSITION)return;if(!ammo.reserveBeam()){cancel("步枪弹仓为空");return;}shotForm=form;shotBeam=beam();phase=Phase.RELEASING;wait=0;reason="等待原生照射首亮";}
-    private void confirm(){if(phase!=Phase.RELEASING||shotBeam==null||dark(shotBeam))return;if(!ammo.pending())throw new IllegalStateException("Zeta native beam lacks its ammunition reservation");ammo.confirmBeam();confirmed=true;phase=Phase.FIRING;fired=0;firstLight=elapsed;shots++;if(shotForm==Form.MS&&!rapidShot){if(combo==null)pose.firstLight();else combo.rig.onNativeFirstLight();}reason="照射中";if(Global.getSoundPlayer()!=null)Global.getSoundPlayer().playSound("Moci_Magnum_03",1,.25f,shotBeam.getFirePoint(0),ship.getVelocity());publish();}
+    private void confirm(){if(phase!=Phase.RELEASING||shotBeam==null||dark(shotBeam))return;if(!ammo.pending())throw new IllegalStateException("Zeta native beam lacks its ammunition reservation");ammo.confirmBeam();confirmed=true;phase=Phase.FIRING;fired=0;firstLight=elapsed;shots++;if(shotForm==Form.MS&&!rapidShot){if(combo==null)pose.firstLight();else combo.rig.onNativeFirstLight();}reason="照射中";if(Global.getSoundPlayer()!=null)Global.getSoundPlayer().playSound("moci_wpn_magnum_03",1,.25f,shotBeam.getFirePoint(0),ship.getVelocity());publish();}
     private boolean overdrive(){return ZetaOverdriveLifecycle.immune(ship);}
     /** Short actual continuous-beam pulses reuse the installed beam, its native flux costs and
      * shared magazine. Dark/charge-down is mandatory; there is no extra scripted refire timer. */

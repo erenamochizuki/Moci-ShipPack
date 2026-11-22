@@ -32,6 +32,6 @@
       "particleColor": [255,220,0,255]
     },
 	"pierceSet":[PROJECTILE_FF,PROJECTILE_NO_FF,PROJECTILE_FIGHTER],
-	"fireSoundOne":"Moci_LightEnergy_2",
+	"fireSoundOne":"moci_wpn_light_energy_02",
 	#"fireSoundTwo":"burst_pd_loop",
 }

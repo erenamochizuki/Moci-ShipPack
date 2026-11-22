@@ -19,6 +19,7 @@
 		
 	"graphics":{
 		"misc":{
+            "Moci_gacha_credits":"graphics/icons/cargo/Moci_coin.png",
 		    "Moci_slipstream2":"graphics/fx/Moci_slipstream2.png",
 		    "Moci_slipstream3":"graphics/fx/Moci_slipstream3.png",
 		    "Moci_shock_wave":"graphics/fx/Moci_shock_wave.png",
@@ -27,6 +28,7 @@
 		    "Moci_arrow":"graphics/fx/Moci_arrow.png",
 		},
 		"illustrations":{
+            "Moci_gacha_portal":"graphics/illustrations/moci_gacha_portal.png",
 			"Moci_gacha_Gacha1":"graphics/illustrations/moci_gacha_Gacha1.png",
 			"Moci_gacha_entity":"graphics/illustrations/moci_gacha_entity.png",
 			"Moci_Tulip_Market":"graphics/illustrations/moci_tulip_market.png",
@@ -177,6 +179,16 @@
 			"Moci_ARP_Iona":"graphics/portraits/ai_pilot/Moci_ARP_Iona.png",
 			"Moci_system99":"graphics/portraits/ai_pilot/Moci_system99.png",
 			"Moci_Nine":"graphics/portraits/ai_pilot/Moci_Nine.png",
+			"Moci_ai_core_ChatGpt":"graphics/portraits/ai_pilot/Moci_ai_core_ChatGpt.png",
+			"Moci_ai_core_ChatGpt_lite":"graphics/portraits/ai_pilot/Moci_ai_core_ChatGpt_lite.png",
+			"Moci_ai_core_Claude":"graphics/portraits/ai_pilot/Moci_ai_core_Claude.png",
+			"Moci_ai_core_Claude_lite":"graphics/portraits/ai_pilot/Moci_ai_core_Claude_lite.png",
+			"Moci_ai_core_Deepseek":"graphics/portraits/ai_pilot/Moci_ai_core_Deepseek.png",
+			"Moci_ai_core_Deepseek_lite":"graphics/portraits/ai_pilot/Moci_ai_core_Deepseek_lite.png",
+			"Moci_ai_core_Gemini":"graphics/portraits/ai_pilot/Moci_ai_core_Gemini.png",
+			"Moci_ai_core_Gemini_lite":"graphics/portraits/ai_pilot/Moci_ai_core_Gemini_lite.png",
+			"Moci_ai_core_Grok":"graphics/portraits/ai_pilot/Moci_ai_core_Grok.png",
+			"Moci_ai_core_Grok_lite":"graphics/portraits/ai_pilot/Moci_ai_core_Grok_lite.png",
 			
 			"Moci_omega_lexington_portrait":"graphics/portraits/Moci_omega_lexington_portrait.png",
 		},

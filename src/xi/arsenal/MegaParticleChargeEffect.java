@@ -74,7 +74,7 @@ public final class MegaParticleChargeEffect implements EveryFrameWeaponEffectPlu
         if (peak && !soundPlayed) {
             float volume = "Moci_fw_penelope_mega_particle".equals(weapon.getId())
                     ? PENELOPE_FIRE_VOLUME : XI_FIRE_VOLUME;
-            Global.getSoundPlayer().playSound("Moci_Magnum_03", 1f, volume,
+            Global.getSoundPlayer().playSound("moci_wpn_magnum_03", 1f, volume,
                     weapon.getLocation(), ship.getVelocity());
             soundPlayed = true;
         }

@@ -42,11 +42,14 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
     private final Map<Object, SingularityData> manual = new HashMap<Object, SingularityData>();
 
     // 着色器与采样纹理资源
+    // program 由 Moci_ShaderManager 按 key 缓存并跨战斗复用，本类不负责删除。
     private int program = 0;
-    private int[] uniform = null; // 0: srcTex, 1: center, 2: rs_rlens_strength, 3: texSize, 4: darkAlpha
-    private int screenTexId = 0;
-    private int screenTexW = 0;
-    private int screenTexH = 0;
+    private int[] uniform = null; // 0: srcTex, 1: center, 2: rs_rlens_strength, 3: texSize, 4: darkAlpha, 5: magStrength, 6: horizonColor
+    // 屏幕截图纹理跨战斗共享（GL 上下文贯穿整个游戏进程），避免每场战斗泄漏一张全屏纹理。
+    private static int screenTexId = 0;
+    private static int screenTexW = 0;
+    private static int screenTexH = 0;
+    private final IntBuffer viewportBuf = BufferUtils.createIntBuffer(16);
     private final Vector2f renderAnchor = new Vector2f();
 
     // 可配置默认参数（保持通用性）
@@ -65,26 +68,27 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
     private static final float ASSIMILATION_SQRT_MULT = 0.65f;           // 随增长质量开根的附加比例
     private static final float ASSIMILATION_MAX_FRAC = 0.95f;            // 限制单秒内同化上限，避免一次性清空
 
-    // 像素制半径参数（默认）
-    private static final float DEFAULT_BASE_RADIUS_PX = 10f;             // 初始像素半径
-    private static final float DEFAULT_GROWTH_PX_PER_SEC = 2f;           // 每秒像素增长
+    // 半径参数（默认）。以下所有半径/距离均为世界单位，渲染时才换算成屏幕像素，
+    // 保证玩法判定不随镜头缩放和屏幕分辨率变化（数值沿用旧像素制在 1 倍缩放下的手感）。
+    private static final float DEFAULT_BASE_RADIUS = 10f;             // 初始半径（世界单位）
+    private static final float DEFAULT_GROWTH_PER_SEC = 2f;           // 每秒半径增长（世界单位）
     private static final float EINSTEIN_SCALE = 0.03f;                   // θE ~ sqrt(mass) * scale（像素）
 
-    // 物理定标常量（屏幕像素尺度，折叠距离比）
+    // 物理定标常量（世界单位）
     private static final float MASS_NORMALIZER = 10000f;                 // M0，巡洋级结构量级
-    private static final float RS_PIXELS_PER_MHAT = 40f;                 // k_px：r_s 像素/单位 M̂（可调）
+    private static final float RS_PER_MHAT = 40f;                 // r_s 世界单位/单位 M̂（可调）
     private static final float SHADOW_MULT = 2.6f;                       // 阴影=2.6 r_s
-    private static final float THETA_E_COEFF = 90f;                      // θE = 90 * sqrt(M̂) 像素（可调）
+    private static final float THETA_E_COEFF = 90f;                      // θE = 90 * sqrt(M̂) 世界单位（可调）
     private static final float RMAX_COEFF = 3.5f;                         // rMax = 3.5 * θE
-    private static final float COLLAPSE_THRESHOLD_PX = 100f;              // 达到此事件视界像素后坍塌
-    private static final float COLLAPSE_SHRINK_PX_PER_SEC = 140f;         // 坍塌完成后向 0px 收缩速度
+    private static final float COLLAPSE_THRESHOLD = 100f;              // 事件视界达到此半径（世界单位）后坍塌
+    private static final float COLLAPSE_SHRINK_PER_SEC = 140f;         // 坍塌完成后向 0 收缩速度（世界单位/秒）
     private static final float TRAVEL_MASS_PER_WORLD = 2f;                // 每世界单位位移增加的质量
     private static final float RADIUS_SMOOTH_LERP = 5f;                   // 半径平滑时间常数（秒）
     // 关闭坍塌阶段时：允许继续膨胀到上限并在弹体结束时蒸发
-    private static final float NO_COLLAPSE_MAX_RS_PX = 250f;              // 无坍塌上限像素半径
+    private static final float NO_COLLAPSE_MAX_RS = 250f;              // 无坍塌时的半径上限（世界单位）
     private static boolean COLLAPSE_ENABLED = false;                       // 全局坍塌开关（默认关闭）
     // 合并/爆炸参数
-    private static final float MERGE_DISTANCE_PX = 20f;                   // 视界中心间像素距离小于此阈值视为相撞
+    private static final float MERGE_DISTANCE = 20f;                   // 视界中心间距离（世界单位）小于此阈值视为相撞
     private static final float SUPER_NOVA_MASS_THRESHOLD = 5f * MASS_NORMALIZER; // 超爆的质量阈值（M̂ ~5）
 
     // 运行时
@@ -102,14 +106,14 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
         float massMult;
         float massCache;                 // 缓存质量：新增质量先进入此处
         float massGrowth;                // 增长质量：半径/透镜/伤害依据
-        float baseRadiusPx;              // 初始像素半径
-        float growthPxPerSec;            // 每秒像素增长
-        float currentRadiusPx;           // 当前像素半径
-        float smoothedRsPx;              // 渲染使用的平滑半径
+        float baseRadius;              // 初始半径（世界单位）
+        float growthPerSec;            // 每秒半径增长（世界单位）
+        float currentRadius;           // 当前像素半径
+        float smoothedRs;              // 渲染使用的平滑半径
         boolean collapsed;
         boolean collapsing;
         float collapseProgress;          // 0..1
-        float collapseStartRsPx;
+        float collapseStartRs;
         Vector2f manualCenter = new Vector2f();
         float lastLogAt = -999f;
         int collapseStepLogged = -1;
@@ -133,14 +137,14 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
             this.massMult = 1f;
             this.massCache = 0f;
             this.massGrowth = 0f;
-            this.baseRadiusPx = DEFAULT_BASE_RADIUS_PX;
-            this.growthPxPerSec = DEFAULT_GROWTH_PX_PER_SEC;
-            this.currentRadiusPx = this.baseRadiusPx;
-            this.smoothedRsPx = 1.0f; // 从极小值开始，平滑插值到目标大小，避免瞬间膨胀
+            this.baseRadius = DEFAULT_BASE_RADIUS;
+            this.growthPerSec = DEFAULT_GROWTH_PER_SEC;
+            this.currentRadius = this.baseRadius;
+            this.smoothedRs = 1.0f; // 从极小值开始，平滑插值到目标大小，避免瞬间膨胀
             this.collapsed = false;
             this.collapsing = false;
             this.collapseProgress = 0f;
-            this.collapseStartRsPx = this.currentRadiusPx;
+            this.collapseStartRs = this.currentRadius;
             this.freezeCenter = false;
             this.afterCollapseHold = 0f;
             this.lastCenterInit = false;
@@ -246,7 +250,7 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
             Map.Entry<DamagingProjectileAPI, SingularityData> e = it.next();
             DamagingProjectileAPI p = e.getKey();
             SingularityData s = e.getValue();
-            boolean allowLifecycleCleanup = !s.collapsing && (!s.collapsed || (s.afterCollapseHold <= 0f && s.smoothedRsPx <= 0.5f));
+            boolean allowLifecycleCleanup = !s.collapsing && (!s.collapsed || (s.afterCollapseHold <= 0f && s.smoothedRs <= 0.5f));
             boolean projEnded = (p != null) && (p.isFading() || p.isExpired() || p.getBrightness() <= 0f);
             // 若投射物结束且尚未进入蒸发阶段，则转入蒸发而不立即清理
             if (projEnded && !s.evaporating && !s.collapsing && !s.collapsed) {
@@ -254,7 +258,7 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
                 s.evaporateProgress = 0f;
                 if (p != null) { s.frozenCenter.set(p.getLocation()); s.freezeCenter = true; }
             }
-            boolean evapDone = s.evaporating && (s.evaporateProgress >= 0.999f || s.smoothedRsPx <= 0.5f);
+            boolean evapDone = s.evaporating && (s.evaporateProgress >= 0.999f || s.smoothedRs <= 0.5f);
             boolean shouldCleanup = (p == null) || p.didDamage() || evapDone ||
                     (allowLifecycleCleanup && projEnded && !s.evaporating);
             if (shouldCleanup) {
@@ -269,7 +273,7 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
                         (allowLifecycleCleanup && p.isExpired() ? "isExpired" :
                         (allowLifecycleCleanup && p.getBrightness() <= 0f ? "noBrightness" : "unknown"))));
                 String pid = (p != null ? p.getProjectileSpecId() : "null");
-                LOG.info("[MOCI_SINGULARITY] cleanup projectile id=" + pid + " reason=" + reason + " texId=" + s.texId + " collapsing=" + s.collapsing + " collapsed=" + s.collapsed + " rsPx=" + s.smoothedRsPx);
+                LOG.info("[MOCI_SINGULARITY] cleanup projectile id=" + pid + " reason=" + reason + " texId=" + s.texId + " collapsing=" + s.collapsing + " collapsed=" + s.collapsed + " rs=" + s.smoothedRs);
                 it.remove();
             }
         }
@@ -278,7 +282,7 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
         // 基于时间的质量增长
         for (SingularityData s : active.values()) {
             s.massMult = Math.min(MAX_MASS_MULT, s.massMult + MASS_GROWTH_PER_SECOND * amount);
-            s.currentRadiusPx += s.growthPxPerSec * amount;
+            s.currentRadius += s.growthPerSec * amount;
             // 移动距离驱动的质量增长（坍塌阶段冻结中心后不再增长）
             try {
                 if (!s.freezeCenter && s.projectile != null) {
@@ -309,46 +313,46 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
             float lerp = 1f - (float)Math.exp(-amount / Math.max(0.001f, RADIUS_SMOOTH_LERP));
             float mHat = Math.max(0f, s.massGrowth) / MASS_NORMALIZER;
             float mHatRender = Math.min(mHat, 25f);
-            float rsPhysicalPx = SHADOW_MULT * (RS_PIXELS_PER_MHAT * mHatRender);
-            float growthPx = s.currentRadiusPx * s.massMult;
+            float rsPhysicalPx = SHADOW_MULT * (RS_PER_MHAT * mHatRender);
+            float growthPx = s.currentRadius * s.massMult;
             float targetPx;
             if (s.collapsed) {
                 targetPx = 10f;
             } else if (s.collapsing) {
-                targetPx = s.smoothedRsPx;
+                targetPx = s.smoothedRs;
             } else if (s.evaporating) {
                 // 蒸发阶段：质量与半径逐步衰减，中心冻结
                 s.evaporateProgress = Math.min(1f, s.evaporateProgress + amount * 0.6f);
                 s.massGrowth = Math.max(0f, s.massGrowth * (1f - 0.6f * amount));
                 s.massCache = Math.max(0f, s.massCache * (1f - 0.6f * amount));
-                float targetEvap = Math.max(0f, s.smoothedRsPx * (1f - 0.7f * amount));
-                targetPx = Math.min(s.smoothedRsPx, targetEvap);
+                float targetEvap = Math.max(0f, s.smoothedRs * (1f - 0.7f * amount));
+                targetPx = Math.min(s.smoothedRs, targetEvap);
             } else {
                 targetPx = Math.max(growthPx, rsPhysicalPx);
-                if (!COLLAPSE_ENABLED) targetPx = Math.min(targetPx, NO_COLLAPSE_MAX_RS_PX);
+                if (!COLLAPSE_ENABLED) targetPx = Math.min(targetPx, NO_COLLAPSE_MAX_RS);
             }
-            s.smoothedRsPx = s.smoothedRsPx + (targetPx - s.smoothedRsPx) * lerp;
+            s.smoothedRs = s.smoothedRs + (targetPx - s.smoothedRs) * lerp;
             // 坍塌触发（仅在开启时）
-            if (COLLAPSE_ENABLED && !s.collapsed && !s.collapsing && s.smoothedRsPx >= COLLAPSE_THRESHOLD_PX) {
+            if (COLLAPSE_ENABLED && !s.collapsed && !s.collapsing && s.smoothedRs >= COLLAPSE_THRESHOLD) {
                 s.collapsing = true;
-                s.collapseStartRsPx = s.smoothedRsPx;
+                s.collapseStartRs = s.smoothedRs;
                 s.collapseProgress = 0f;
                 if (s.projectile != null) { s.frozenCenter.set(s.projectile.getLocation()); s.freezeCenter = true; }
-                LOG.info("[MOCI_SINGULARITY] collapse start (projectile) rsPx=" + s.smoothedRsPx);
+                LOG.info("[MOCI_SINGULARITY] collapse start (projectile) rs=" + s.smoothedRs);
             }
             // 坍塌过程：逐步向 10px 收缩；坍塌阶段不再提供引力
             if (s.collapsing && !s.collapsed) {
                 float target = 10f;
-                s.smoothedRsPx = s.smoothedRsPx + (target - s.smoothedRsPx) * Math.min(1f, lerp * 2.5f);
-                float span = Math.max(1f, s.collapseStartRsPx - 10f);
-                s.collapseProgress = Math.min(1f, 1f - (s.smoothedRsPx - 10f) / span);
+                s.smoothedRs = s.smoothedRs + (target - s.smoothedRs) * Math.min(1f, lerp * 2.5f);
+                float span = Math.max(1f, s.collapseStartRs - 10f);
+                s.collapseProgress = Math.min(1f, 1f - (s.smoothedRs - 10f) / span);
                 int step = (int)Math.floor(s.collapseProgress * 5f);
                 if (step > s.collapseStepLogged) {
                     s.collapseStepLogged = step;
-                    LOG.info("[MOCI_SINGULARITY] collapse progress (projectile) step=" + step + "/5 rsPx=" + s.smoothedRsPx + " progress=" + s.collapseProgress);
+                    LOG.info("[MOCI_SINGULARITY] collapse progress (projectile) step=" + step + "/5 rs=" + s.smoothedRs + " progress=" + s.collapseProgress);
                 }
-                if (s.smoothedRsPx <= 10.5f) {
-                    s.smoothedRsPx = 10f;
+                if (s.smoothedRs <= 10.5f) {
+                    s.smoothedRs = 10f;
                     s.collapseProgress = 1f;
                     s.collapsing = false;
                     s.collapsed = true;
@@ -359,8 +363,8 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
             // 坍塌完成后的延迟清理：当弹体失效且缓冲时间结束时，允许清理
             if (s.collapsed) {
                 // 坍塌完成后继续向 0px 收缩
-                if (s.smoothedRsPx > 0f) {
-                    s.smoothedRsPx = Math.max(0f, s.smoothedRsPx - COLLAPSE_SHRINK_PX_PER_SEC * amount);
+                if (s.smoothedRs > 0f) {
+                    s.smoothedRs = Math.max(0f, s.smoothedRs - COLLAPSE_SHRINK_PER_SEC * amount);
                 }
                 if (s.afterCollapseHold > 0f) s.afterCollapseHold -= amount;
                 DamagingProjectileAPI p = s.projectile;
@@ -373,8 +377,8 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
             if (elapsed - s.lastLogAt >= LOG_INTERVAL) {
                 s.lastLogAt = elapsed;
                 mHat = Math.max(0f, s.massGrowth) / MASS_NORMALIZER;
-                rsPhysicalPx = SHADOW_MULT * (RS_PIXELS_PER_MHAT * Math.min(mHat, 25f));
-                LOG.debug("[MOCI_SINGULARITY] diag P rsSmooth=" + s.smoothedRsPx + " rsPhys=" + rsPhysicalPx + " mGrowth=" + s.massGrowth + " mCache=" + s.massCache + " mHat=" + mHat + " collapsing=" + s.collapsing + " collapsed=" + s.collapsed);
+                rsPhysicalPx = SHADOW_MULT * (RS_PER_MHAT * Math.min(mHat, 25f));
+                LOG.debug("[MOCI_SINGULARITY] diag P rsSmooth=" + s.smoothedRs + " rsPhys=" + rsPhysicalPx + " mGrowth=" + s.massGrowth + " mCache=" + s.massCache + " mHat=" + mHat + " collapsing=" + s.collapsing + " collapsed=" + s.collapsed);
             }
         }
         // 相撞检测：两两检测，合并或超爆
@@ -391,10 +395,7 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
                 if (cb == null) continue;
                 float dx = ca.x - cb.x, dy = ca.y - cb.y;
                 float dist = (float)Math.sqrt(dx*dx + dy*dy);
-                // 转换为屏幕像素距离以比较阈值
-                float pixelsPerWorldUnit = screenTexW / Math.max(1f, Global.getCombatEngine().getViewport().getVisibleWidth());
-                float dpix = dist * pixelsPerWorldUnit;
-                if (dpix <= MERGE_DISTANCE_PX) {
+                if (dist <= MERGE_DISTANCE) {
                     float totalGrowth = a.massGrowth + b.massGrowth;
                     if (totalGrowth >= SUPER_NOVA_MASS_THRESHOLD) {
                         triggerSuperExplosion(a, b, ca);
@@ -408,8 +409,8 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
         for (Iterator<Map.Entry<DamagingProjectileAPI, SingularityData>> it2 = active.entrySet().iterator(); it2.hasNext();) {
             Map.Entry<DamagingProjectileAPI, SingularityData> en = it2.next();
             SingularityData s = en.getValue();
-            boolean collapseClean = s.collapsed && s.afterCollapseHold <= 0f && s.smoothedRsPx <= 0.5f;
-            boolean evapClean = s.evaporating && (s.evaporateProgress >= 0.999f || s.smoothedRsPx <= 0.5f);
+            boolean collapseClean = s.collapsed && s.afterCollapseHold <= 0f && s.smoothedRs <= 0.5f;
+            boolean evapClean = s.evaporating && (s.evaporateProgress >= 0.999f || s.smoothedRs <= 0.5f);
             if (collapseClean || evapClean) {
                 if (s.texId != 0) { 
                     try { 
@@ -426,7 +427,7 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
         }
         for (SingularityData s : manual.values()) {
             s.massMult = Math.min(MAX_MASS_MULT, s.massMult + MASS_GROWTH_PER_SECOND * amount);
-            s.currentRadiusPx += s.growthPxPerSec * amount;
+            s.currentRadius += s.growthPerSec * amount;
             // 同化
             {
                 float mHatGrowth = Math.max(0f, s.massGrowth) / MASS_NORMALIZER;
@@ -438,32 +439,32 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
             float lerp = 1f - (float)Math.exp(-amount / Math.max(0.001f, RADIUS_SMOOTH_LERP));
             float mHat = Math.max(0f, s.massGrowth) / MASS_NORMALIZER;
             float mHatRender = Math.min(mHat, 25f);
-            float rsPhysicalPx = SHADOW_MULT * (RS_PIXELS_PER_MHAT * mHatRender);
-            float growthPx = (s.collapsing || s.collapsed) ? s.smoothedRsPx : s.currentRadiusPx * s.massMult;
+            float rsPhysicalPx = SHADOW_MULT * (RS_PER_MHAT * mHatRender);
+            float growthPx = (s.collapsing || s.collapsed) ? s.smoothedRs : s.currentRadius * s.massMult;
             float targetPx = s.collapsed ? 10f : Math.max(growthPx, rsPhysicalPx);
-            if (!COLLAPSE_ENABLED) targetPx = Math.min(targetPx, NO_COLLAPSE_MAX_RS_PX);
-            s.smoothedRsPx = s.smoothedRsPx + (targetPx - s.smoothedRsPx) * lerp;
-            if (COLLAPSE_ENABLED && !s.collapsed && !s.collapsing && s.smoothedRsPx >= COLLAPSE_THRESHOLD_PX) {
-                s.collapsing = true; s.collapseStartRsPx = s.smoothedRsPx; s.collapseProgress = 0f;
-                LOG.info("[MOCI_SINGULARITY] collapse start (manual) rsPx=" + s.smoothedRsPx);
+            if (!COLLAPSE_ENABLED) targetPx = Math.min(targetPx, NO_COLLAPSE_MAX_RS);
+            s.smoothedRs = s.smoothedRs + (targetPx - s.smoothedRs) * lerp;
+            if (COLLAPSE_ENABLED && !s.collapsed && !s.collapsing && s.smoothedRs >= COLLAPSE_THRESHOLD) {
+                s.collapsing = true; s.collapseStartRs = s.smoothedRs; s.collapseProgress = 0f;
+                LOG.info("[MOCI_SINGULARITY] collapse start (manual) rs=" + s.smoothedRs);
             }
             if (s.collapsing && !s.collapsed) {
                 float target = 10f;
-                s.smoothedRsPx = s.smoothedRsPx + (target - s.smoothedRsPx) * Math.min(1f, lerp * 2.5f);
-                float span = Math.max(1f, s.collapseStartRsPx - 10f);
-                s.collapseProgress = Math.min(1f, 1f - (s.smoothedRsPx - 10f) / span);
+                s.smoothedRs = s.smoothedRs + (target - s.smoothedRs) * Math.min(1f, lerp * 2.5f);
+                float span = Math.max(1f, s.collapseStartRs - 10f);
+                s.collapseProgress = Math.min(1f, 1f - (s.smoothedRs - 10f) / span);
                 int step = (int)Math.floor(s.collapseProgress * 5f);
-                if (step > s.collapseStepLogged) { s.collapseStepLogged = step; LOG.info("[MOCI_SINGULARITY] collapse progress (manual) step=" + step + "/5 rsPx=" + s.smoothedRsPx + " progress=" + s.collapseProgress); }
-                if (s.smoothedRsPx <= 10.5f) { s.smoothedRsPx = 10f; s.collapseProgress = 1f; s.collapsing=false; s.collapsed=true; LOG.info("[MOCI_SINGULARITY] collapse completed (manual)"); }
+                if (step > s.collapseStepLogged) { s.collapseStepLogged = step; LOG.info("[MOCI_SINGULARITY] collapse progress (manual) step=" + step + "/5 rs=" + s.smoothedRs + " progress=" + s.collapseProgress); }
+                if (s.smoothedRs <= 10.5f) { s.smoothedRs = 10f; s.collapseProgress = 1f; s.collapsing=false; s.collapsed=true; LOG.info("[MOCI_SINGULARITY] collapse completed (manual)"); }
             }
             if (s.collapsed) {
-                if (s.smoothedRsPx > 0f) s.smoothedRsPx = Math.max(0f, s.smoothedRsPx - COLLAPSE_SHRINK_PX_PER_SEC * amount);
+                if (s.smoothedRs > 0f) s.smoothedRs = Math.max(0f, s.smoothedRs - COLLAPSE_SHRINK_PER_SEC * amount);
             }
             if (elapsed - s.lastLogAt >= LOG_INTERVAL) {
                 s.lastLogAt = elapsed;
                 mHat = Math.max(0f, s.massGrowth) / MASS_NORMALIZER;
-                rsPhysicalPx = SHADOW_MULT * (RS_PIXELS_PER_MHAT * Math.min(mHat, 25f));
-                LOG.debug("[MOCI_SINGULARITY] diag M rsSmooth=" + s.smoothedRsPx + " rsPhys=" + rsPhysicalPx + " mGrowth=" + s.massGrowth + " mCache=" + s.massCache + " mHat=" + mHat + " collapsing=" + s.collapsing + " collapsed=" + s.collapsed);
+                rsPhysicalPx = SHADOW_MULT * (RS_PER_MHAT * Math.min(mHat, 25f));
+                LOG.debug("[MOCI_SINGULARITY] diag M rsSmooth=" + s.smoothedRs + " rsPhys=" + rsPhysicalPx + " mGrowth=" + s.massGrowth + " mCache=" + s.massCache + " mHat=" + mHat + " collapsing=" + s.collapsing + " collapsed=" + s.collapsed);
             }
         }
     }
@@ -475,220 +476,143 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
 
         // 检测战术指挥UI状态：当显示指挥地图时跳过渲染，避免地图上的舰船图标被引力透镜扭曲
         if (engine != null && engine.getCombatUI() != null && engine.getCombatUI().isShowingCommandUI()) {
-            LOG.debug("[MOCI_SINGULARITY] skipping render: command UI showing");
             return;
         }
-        
+
         // 额外检测：其他对话框（部署界面等）
         if (engine != null && engine.getCombatUI() != null && engine.getCombatUI().isShowingDeploymentDialog()) {
-            LOG.debug("[MOCI_SINGULARITY] skipping render: deployment dialog showing");
             return;
         }
 
-        float screenW = Global.getSettings().getScreenWidth();
-        float screenH = Global.getSettings().getScreenHeight();
+        if (program == 0 || uniform == null) {
+            LOG.warn("[MOCI_SINGULARITY] shader program missing; program=" + program + " uniformNull=" + (uniform == null));
+            return;
+        }
 
-        // 1) 拷贝整屏已渲染的世界画面（UI 仍未绘制），使用实际 GL 视口尺寸，避免缩放/像素比例偏差
-        IntBuffer vpBuf = BufferUtils.createIntBuffer(16);
-        GL11.glGetInteger(GL11.GL_VIEWPORT, vpBuf);
-        int vpX = vpBuf.get(0);
-        int vpY = vpBuf.get(1);
-        int vpW = vpBuf.get(2);
-        int vpH = vpBuf.get(3);
-
-        ensureScreenTexture(vpW, vpH);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, screenTexId);
-        GL11.glCopyTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, vpX, vpY, vpW, vpH);
+        // 使用实际 GL 视口尺寸，避免缩放/像素比例偏差
+        viewportBuf.clear();
+        GL11.glGetInteger(GL11.GL_VIEWPORT, viewportBuf);
+        int vpX = viewportBuf.get(0);
+        int vpY = viewportBuf.get(1);
+        int vpW = viewportBuf.get(2);
+        int vpH = viewportBuf.get(3);
+        if (vpW <= 0 || vpH <= 0) return;
 
         ViewportAPI vp = Global.getCombatEngine().getViewport();
 
-        // 2) 对每个奇点执行一次全屏折射叠加（UI 不受影响）。坍塌阶段不渲染透镜。
-        for (SingularityData s : active.values()) {
-            Vector2f world = s.freezeCenter ? s.frozenCenter : s.projectile.getLocation();
-            float sx = vp.convertWorldXtoScreenX(world.x);
-            float sy = vp.convertWorldYtoScreenY(world.y);
-            // 将世界长度换算为以捕获纹理像素为单位的长度，避免逻辑分辨率/像素分辨率不一致
-            float pixelsPerWorldUnit = screenTexW / vp.getVisibleWidth();
-            float mHat = Math.max(0f, s.massGrowth) / MASS_NORMALIZER;
-            float mHatRender = Math.min(mHat, 25f);
-            float rsPx = s.smoothedRsPx; // 使用已平滑的最终半径
-            // 爱因斯坦半径与影响半径
-            float thetaEPx = THETA_E_COEFF * (float)Math.sqrt(Math.max(0f, mHatRender));
-            // 保证 θE 不小于 rs 的一定比例，避免极小质量时形变不连续
-            thetaEPx = Math.max(rsPx * 0.9f, thetaEPx);
-            float rMaxPx;
-            if (s.collapsing || s.collapsed) {
-                // 坍塌阶段：禁用透镜，仅显示视界（rMax=rs）
-                rMaxPx = rsPx;
-            } else {
-                rMaxPx = Math.max(rsPx * 1.2f, RMAX_COEFF * thetaEPx);
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_TEXTURE_BIT | GL11.GL_TRANSFORM_BIT);
+        try {
+            ensureScreenTexture(vpW, vpH);
+
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glPushMatrix();
+            GL11.glLoadIdentity();
+            GL11.glOrtho(0, (double) screenTexW, 0, (double) screenTexH, -1, 1);
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glPushMatrix();
+            GL11.glLoadIdentity();
+
+            GL20.glUseProgram(program);
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, screenTexId);
+            GL20.glUniform1i(uniform[0], 0);
+            GL20.glUniform2f(uniform[3], (float) screenTexW, (float) screenTexH);
+            // 可配置的放大强度（备用参数），0 = 仅几何形变（不提亮），1 = 完整雅可比放大
+            if (uniform[5] >= 0) GL20.glUniform1f(uniform[5], 0.0f);
+
+            // 对每个奇点只截取并重绘其透镜包围盒。每个奇点绘制前重新截取所在区域，
+            // 后绘制的奇点能采样到先绘制的奇点，多个黑洞同屏时不会互相覆盖。
+            for (SingularityData s : active.values()) {
+                Vector2f world = s.freezeCenter ? s.frozenCenter : s.projectile.getLocation();
+                renderSingularity(s, world, vp, vpX, vpY);
             }
-            // 按屏幕尺寸强制上限，防止覆盖全屏
-            float screenMinPx = Math.min(screenTexW, screenTexH);
-            rsPx = Math.min(rsPx, screenMinPx * 0.45f);
-            rMaxPx = Math.min(rMaxPx, screenMinPx * 0.49f);
-            thetaEPx = Math.max(rsPx * 0.9f, Math.min(thetaEPx, rMaxPx * 0.95f));
-            if (rMaxPx - rsPx < 6f) {
-                LOG.debug("[MOCI_SINGULARITY] lens band too thin; rsPx=" + rsPx + " rMaxPx=" + rMaxPx + " thetaE=" + thetaEPx);
+            for (SingularityData s : manual.values()) {
+                Vector2f world = s.freezeCenter ? s.frozenCenter : s.manualCenter;
+                renderSingularity(s, world, vp, vpX, vpY);
             }
 
-            if (program != 0 && uniform != null) {
-                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-                try {
-                GL20.glUseProgram(program);
-                GL11.glEnable(GL11.GL_BLEND);
-                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glPopMatrix();
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glPopMatrix();
+        } finally {
+            GL20.glUseProgram(0);
+            GL11.glPopAttrib();
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        }
+    }
 
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, screenTexId);
-                GL20.glUniform1i(uniform[0], 0);
+    /** 在屏幕空间（捕获纹理像素）绘制单个奇点的透镜包围盒，屏幕外直接跳过。调用方已绑定 program、纹理和正交投影。 */
+    private void renderSingularity(SingularityData s, Vector2f world, ViewportAPI vp, int vpX, int vpY) {
+        if (world == null) return;
+        float visibleW = Math.max(1f, vp.getVisibleWidth());
+        float visibleH = Math.max(1f, vp.getVisibleHeight());
+        // 世界单位 -> 捕获纹理像素
+        float pixelsPerWorldUnit = screenTexW / visibleW;
+        float mHat = Math.max(0f, s.massGrowth) / MASS_NORMALIZER;
+        float mHatRender = Math.min(mHat, 25f);
+        float rsPx = s.smoothedRs * pixelsPerWorldUnit;
+        // 爱因斯坦半径与影响半径；保证 θE 不小于 rs 的一定比例，避免极小质量时形变不连续
+        float thetaEPx = THETA_E_COEFF * (float) Math.sqrt(Math.max(0f, mHatRender)) * pixelsPerWorldUnit;
+        thetaEPx = Math.max(rsPx * 0.9f, thetaEPx);
+        float rMaxPx;
+        if (s.collapsing || s.collapsed) {
+            // 坍塌阶段：禁用透镜，仅显示视界（rMax=rs）
+            rMaxPx = rsPx;
+        } else {
+            rMaxPx = Math.max(rsPx * 1.2f, RMAX_COEFF * thetaEPx);
+        }
+        // 按屏幕尺寸强制上限，防止覆盖全屏
+        float screenMinPx = Math.min(screenTexW, screenTexH);
+        rsPx = Math.min(rsPx, screenMinPx * 0.45f);
+        rMaxPx = Math.min(rMaxPx, screenMinPx * 0.49f);
+        thetaEPx = Math.max(rsPx * 0.9f, Math.min(thetaEPx, rMaxPx * 0.95f));
 
-                // 使用可见世界窗口的归一化坐标，消除相机平移/缩放影响
-                float centerUx = (world.x - vp.getLLX()) / vp.getVisibleWidth();
-                float centerUy = (world.y - vp.getLLY()) / vp.getVisibleHeight();
-                GL20.glUniform2f(uniform[1], centerUx, centerUy);
+        // 使用可见世界窗口的归一化坐标，消除相机平移/缩放影响
+        float centerUx = (world.x - vp.getLLX()) / visibleW;
+        float centerUy = (world.y - vp.getLLY()) / visibleH;
+        float cxPx = centerUx * screenTexW;
+        float cyPx = centerUy * screenTexH;
 
-                GL20.glUniform3f(uniform[2], rsPx, rMaxPx, thetaEPx);
-                GL20.glUniform2f(uniform[3], (float)screenTexW, (float)screenTexH);
-                // 蒸发阶段按进度淡出；常态用默认 alpha
-                float fade = 1f;
-                if (s.evaporating) fade = Math.max(0f, 1f - s.evaporateProgress);
-                GL20.glUniform1f(uniform[4], DEFAULT_DARK_ALPHA * fade);
-                // 可配置的放大强度，0 = 仅几何形变（不提亮），1 = 完整雅可比放大
-                int magLocation = GL20.glGetUniformLocation(program, "magStrength");
-                if (magLocation >= 0) GL20.glUniform1f(magLocation, 0.0f);
-                // 事件视界颜色：坍塌后为白色，否则黑色
-                int hc = GL20.glGetUniformLocation(program, "horizonColor");
-                if (hc >= 0) {
-                    if (s.collapsed) {
-                        GL20.glUniform3f(hc, 1f, 1f, 1f);
-                    } else if (s.collapsing) {
-                        float t = Math.min(1f, Math.max(0f, s.collapseProgress));
-                        float c = t; // 0黑->1白
-                        GL20.glUniform3f(hc, c, c, c);
-                    } else {
-                        GL20.glUniform3f(hc, 0f, 0f, 0f);
-                    }
-                }
+        // 透镜包围盒（含 2px 余量），裁剪到屏幕；完全在屏幕外则跳过截屏与绘制
+        float pad = rMaxPx + 2f;
+        int x0 = Math.max(0, (int) Math.floor(cxPx - pad));
+        int y0 = Math.max(0, (int) Math.floor(cyPx - pad));
+        int x1 = Math.min(screenTexW, (int) Math.ceil(cxPx + pad));
+        int y1 = Math.min(screenTexH, (int) Math.ceil(cyPx + pad));
+        if (x1 <= x0 || y1 <= y0) return;
 
-                // 切换到屏幕空间的正交投影，绘制全屏四边形，避免与世界矩阵混用导致的采样偏移
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-                GL11.glOrtho(0, (double)screenTexW, 0, (double)screenTexH, -1, 1);
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
+        // 截取当前帧缓冲中该区域（已包含先绘制的奇点）
+        GL11.glCopyTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x0, y0, vpX + x0, vpY + y0, x1 - x0, y1 - y0);
 
-                GL11.glEnable(GL11.GL_TEXTURE_2D);
-                GL11.glBegin(GL11.GL_QUADS);
-                GL11.glTexCoord2f(0f, 0f); GL11.glVertex2f(0f, 0f);
-                GL11.glTexCoord2f(0f, 1f); GL11.glVertex2f(0f, screenTexH);
-                GL11.glTexCoord2f(1f, 1f); GL11.glVertex2f(screenTexW, screenTexH);
-                GL11.glTexCoord2f(1f, 0f); GL11.glVertex2f(screenTexW, 0f);
-                GL11.glEnd();
-
-                // 恢复矩阵
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                GL11.glPopMatrix();
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glPopMatrix();
-
-                GL20.glUseProgram(0);
-                } finally {
-                    GL11.glPopAttrib();
-                    GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                    GL20.glUseProgram(0);
-                }
+        GL20.glUniform2f(uniform[1], centerUx, centerUy);
+        GL20.glUniform3f(uniform[2], rsPx, rMaxPx, thetaEPx);
+        // 蒸发阶段按进度淡出；常态用默认 alpha
+        float fade = 1f;
+        if (s.evaporating) fade = Math.max(0f, 1f - s.evaporateProgress);
+        GL20.glUniform1f(uniform[4], DEFAULT_DARK_ALPHA * fade);
+        // 事件视界颜色：坍塌后为白色，否则黑色
+        if (uniform[6] >= 0) {
+            if (s.collapsed) {
+                GL20.glUniform3f(uniform[6], 1f, 1f, 1f);
+            } else if (s.collapsing) {
+                float c = Math.min(1f, Math.max(0f, s.collapseProgress)); // 0黑->1白
+                GL20.glUniform3f(uniform[6], c, c, c);
             } else {
-                LOG.warn("[MOCI_SINGULARITY] shader program missing; program=" + program + " uniformNull=" + (uniform==null));
+                GL20.glUniform3f(uniform[6], 0f, 0f, 0f);
             }
         }
-        // 手动项渲染（坍塌阶段不渲染透镜）
-        for (SingularityData s : manual.values()) {
-            Vector2f world = s.freezeCenter ? s.frozenCenter : s.manualCenter;
-            float sx = vp.convertWorldXtoScreenX(world.x);
-            float sy = vp.convertWorldYtoScreenY(world.y);
 
-            float pixelsPerWorldUnit = screenTexW / vp.getVisibleWidth();
-            float mHat = Math.max(0f, s.massGrowth) / MASS_NORMALIZER;
-            float mHatRender = Math.min(mHat, 25f);
-            float rsPx = s.smoothedRsPx;
-            float thetaEPx = THETA_E_COEFF * (float)Math.sqrt(Math.max(0f, mHatRender));
-            thetaEPx = Math.max(rsPx * 0.9f, thetaEPx);
-            float rMaxPx;
-            if (s.collapsing || s.collapsed) {
-                rMaxPx = rsPx;
-            } else {
-                rMaxPx = Math.max(rsPx * 1.2f, RMAX_COEFF * thetaEPx);
-            }
-            float screenMinPx = Math.min(screenTexW, screenTexH);
-            rsPx = Math.min(rsPx, screenMinPx * 0.45f);
-            rMaxPx = Math.min(rMaxPx, screenMinPx * 0.49f);
-            thetaEPx = Math.max(rsPx * 0.9f, Math.min(thetaEPx, rMaxPx * 0.95f));
-            if (rMaxPx - rsPx < 6f) {
-                LOG.debug("[MOCI_SINGULARITY] lens band too thin (manual); rsPx=" + rsPx + " rMaxPx=" + rMaxPx + " thetaE=" + thetaEPx);
-            }
-
-            if (program != 0 && uniform != null) {
-                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-                try {
-                GL20.glUseProgram(program);
-                GL11.glEnable(GL11.GL_BLEND);
-                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, screenTexId);
-                GL20.glUniform1i(uniform[0], 0);
-
-                float centerUx = (world.x - vp.getLLX()) / vp.getVisibleWidth();
-                float centerUy = (world.y - vp.getLLY()) / vp.getVisibleHeight();
-                GL20.glUniform2f(uniform[1], centerUx, centerUy);
-
-                GL20.glUniform3f(uniform[2], rsPx, rMaxPx, thetaEPx);
-                GL20.glUniform2f(uniform[3], (float)screenTexW, (float)screenTexH);
-                float fadeM = 1f;
-                if (s.evaporating) fadeM = Math.max(0f, 1f - s.evaporateProgress);
-                GL20.glUniform1f(uniform[4], DEFAULT_DARK_ALPHA * fadeM);
-                int magLocation = GL20.glGetUniformLocation(program, "magStrength");
-                if (magLocation >= 0) GL20.glUniform1f(magLocation, 0.0f);
-                int hc = GL20.glGetUniformLocation(program, "horizonColor");
-                if (hc >= 0) {
-                    if (s.collapsed) GL20.glUniform3f(hc, 1f, 1f, 1f);
-                    else if (s.collapsing) {
-                        float t = Math.min(1f, Math.max(0f, s.collapseProgress));
-                        float c = t;
-                        GL20.glUniform3f(hc, c, c, c);
-                    } else GL20.glUniform3f(hc, 0f, 0f, 0f);
-                }
-
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-                GL11.glOrtho(0, (double)screenTexW, 0, (double)screenTexH, -1, 1);
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-
-                GL11.glEnable(GL11.GL_TEXTURE_2D);
-                GL11.glBegin(GL11.GL_QUADS);
-                GL11.glTexCoord2f(0f, 0f); GL11.glVertex2f(0f, 0f);
-                GL11.glTexCoord2f(0f, 1f); GL11.glVertex2f(0f, screenTexH);
-                GL11.glTexCoord2f(1f, 1f); GL11.glVertex2f(screenTexW, screenTexH);
-                GL11.glTexCoord2f(1f, 0f); GL11.glVertex2f(screenTexW, 0f);
-                GL11.glEnd();
-
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                GL11.glPopMatrix();
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glPopMatrix();
-
-                GL20.glUseProgram(0);
-                } finally {
-                    GL11.glPopAttrib();
-                    GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                    GL20.glUseProgram(0);
-                }
-            }
-        }
+        float u0 = (float) x0 / screenTexW, u1 = (float) x1 / screenTexW;
+        float v0 = (float) y0 / screenTexH, v1 = (float) y1 / screenTexH;
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glTexCoord2f(u0, v0); GL11.glVertex2f(x0, y0);
+        GL11.glTexCoord2f(u0, v1); GL11.glVertex2f(x0, y1);
+        GL11.glTexCoord2f(u1, v1); GL11.glVertex2f(x1, y1);
+        GL11.glTexCoord2f(u1, v0); GL11.glVertex2f(x1, y0);
+        GL11.glEnd();
     }
 
     @Override
@@ -732,30 +656,10 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
         active.clear();
         manual.clear();
         
-        // 清理屏幕纹理资源，防止渲染残留
-        if (screenTexId != 0) {
-            try {
-                GL11.glDeleteTextures(screenTexId);
-                LOG.info("[MOCI_SINGULARITY] deleted screenTex id=" + screenTexId);
-            } catch (Exception ex) {
-                LOG.error("[MOCI_SINGULARITY] failed to delete screenTex", ex);
-            }
-            screenTexId = 0;
-            screenTexW = 0;
-            screenTexH = 0;
-        }
-        
-        // 清理着色器程序资源
-        if (program != 0) {
-            try {
-                GL20.glDeleteProgram(program);
-                LOG.info("[MOCI_SINGULARITY] deleted shader program id=" + program);
-            } catch (Exception ex) {
-                LOG.error("[MOCI_SINGULARITY] failed to delete shader program", ex);
-            }
-            program = 0;
-            uniform = null;
-        }
+        // 屏幕纹理为跨战斗共享的静态资源，program 由 Moci_ShaderManager 缓存复用，均不在此删除：
+        // 删除 program 会让 ShaderManager 缓存里留下失效 ID，导致下一场战斗透镜整体失效。
+        uniform = null;
+        program = 0;
     }
 
     private void initShader() {
@@ -769,7 +673,9 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
                     GL20.glGetUniformLocation(program, "center"),
                     GL20.glGetUniformLocation(program, "rs_rlens_strength"),
                     GL20.glGetUniformLocation(program, "texSize"),
-                    GL20.glGetUniformLocation(program, "darkAlpha")
+                    GL20.glGetUniformLocation(program, "darkAlpha"),
+                    GL20.glGetUniformLocation(program, "magStrength"),
+                    GL20.glGetUniformLocation(program, "horizonColor")
                 };
                 GL20.glUseProgram(0);
             }
@@ -795,7 +701,11 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
         s.texId = id; s.texW = w; s.texH = h;
     }
 
-    private void ensureScreenTexture(int w, int h) {
+    private static void ensureScreenTexture(int w, int h) {
+        if (screenTexId != 0 && !GL11.glIsTexture(screenTexId)) {
+            // 防御：纹理被外部删除（或 GL 上下文重建）时重新创建
+            screenTexId = 0; screenTexW = 0; screenTexH = 0;
+        }
         if (screenTexId != 0 && screenTexW == w && screenTexH == h) return;
         if (screenTexId != 0) {
             try { GL11.glDeleteTextures(screenTexId); } catch (Exception ignore) { }
@@ -829,8 +739,8 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
         // 合并质量：增长质量与缓存质量分别相加
         a.massGrowth = Math.max(0f, a.massGrowth) + Math.max(0f, b.massGrowth);
         a.massCache  = Math.max(0f, a.massCache)  + Math.max(0f, b.massCache);
-        a.currentRadiusPx = Math.max(a.currentRadiusPx, b.currentRadiusPx);
-        a.smoothedRsPx = Math.max(a.smoothedRsPx, b.smoothedRsPx);
+        a.currentRadius = Math.max(a.currentRadius, b.currentRadius);
+        a.smoothedRs = Math.max(a.smoothedRs, b.smoothedRs);
         a.freezeCenter = true; a.frozenCenter.set(c);
         // b 进入快速蒸发
         b.evaporating = true; b.evaporateProgress = 0f; b.freezeCenter = true; b.frozenCenter.set(cb);
@@ -868,10 +778,7 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
     public float getEventHorizonRadiusWorld(DamagingProjectileAPI proj) {
         SingularityData s = active.get(proj);
         if (s == null) return DEFAULT_EVENT_HORIZON_RADIUS;
-        ViewportAPI vp = Global.getCombatEngine().getViewport();
-        float pixelsPerWorldUnit = screenTexW / Math.max(1f, vp.getVisibleWidth());
-        float rsPx = Math.max(2f, s.smoothedRsPx);
-        return rsPx / Math.max(1e-3f, pixelsPerWorldUnit);
+        return Math.max(2f, s.smoothedRs);
     }
 
     public Vector2f getCenterWorld(DamagingProjectileAPI proj) {
@@ -888,26 +795,23 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
     public float getEventHorizonRadiusWorld(Object token) {
         SingularityData s = manual.get(token);
         if (s == null) return DEFAULT_EVENT_HORIZON_RADIUS;
-        ViewportAPI vp = Global.getCombatEngine().getViewport();
-        float pixelsPerWorldUnit = screenTexW / Math.max(1f, vp.getVisibleWidth());
-        float rsPx = Math.max(2f, s.smoothedRsPx);
-        return rsPx / Math.max(1e-3f, pixelsPerWorldUnit);
+        return Math.max(2f, s.smoothedRs);
     }
 
-    public void configurePixelRadius(DamagingProjectileAPI proj, float basePx, float growthPxPerSec) {
+    public void configureRadius(DamagingProjectileAPI proj, float baseRadius, float growthPerSec) {
         SingularityData s = active.get(proj);
         if (s == null) return;
-        s.baseRadiusPx = Math.max(1f, basePx);
-        s.growthPxPerSec = Math.max(0f, growthPxPerSec);
-        s.currentRadiusPx = s.baseRadiusPx;
+        s.baseRadius = Math.max(1f, baseRadius);
+        s.growthPerSec = Math.max(0f, growthPerSec);
+        s.currentRadius = s.baseRadius;
     }
 
-    public void configurePixelRadius(Object token, float basePx, float growthPxPerSec) {
+    public void configureRadius(Object token, float baseRadius, float growthPerSec) {
         SingularityData s = manual.get(token);
         if (s == null) return;
-        s.baseRadiusPx = Math.max(1f, basePx);
-        s.growthPxPerSec = Math.max(0f, growthPxPerSec);
-        s.currentRadiusPx = s.baseRadiusPx;
+        s.baseRadius = Math.max(1f, baseRadius);
+        s.growthPerSec = Math.max(0f, growthPerSec);
+        s.currentRadius = s.baseRadius;
     }
 
     public float getMassValue(DamagingProjectileAPI proj) {

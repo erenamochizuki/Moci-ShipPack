@@ -5,6 +5,7 @@ import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.WeaponAPI.WeaponType;
 import com.fs.starfarer.api.combat.BoundsAPI;
 import com.fs.starfarer.api.combat.BoundsAPI.SegmentAPI;
+import com.fs.starfarer.api.combat.EmpArcEntityAPI.EmpArcParams;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.loading.WeaponSlotAPI;
 import com.fs.starfarer.api.loading.MissileSpecAPI;
@@ -15,6 +16,7 @@ import org.dark.shaders.distortion.RippleDistortion;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
+import org.json.JSONObject;
 import org.magiclib.util.MagicLensFlare;
 
 import java.awt.Color;
@@ -47,7 +49,22 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
 
     // 充能阶段参数
     private static final float CHARGE_ARC_INTERVAL = 0.25f; // 充能电弧间隔（增加到0.25秒）
-    private static final float CHARGE_DURATION = 1.2f; // 充能持续时间
+    // ==================== 电弧运动速度配置（想调电弧手感改这里） ====================
+    // 速度单位：游戏距离/秒。每生成一条电弧，就在 MIN~MAX 之间随机取一个速度。
+    //   - MAX 填 0（或负数）：旧版电弧，整条电弧同时出现并闪烁，没有亮斑运动。
+    //   - MAX 大于 0：0.98 新版移动电弧，一段亮斑以该速度从起点跑到终点。
+    //     速度越大跑得越快；例如 5000 时，1500 长的电弧约 0.3 秒跑完。
+    //   - 想要固定速度不随机，把 MIN 和 MAX 填成同一个数即可。
+
+    // 充能阶段：炮口与 LIGHT_ 槽位之间的聚能电弧（含次级电弧），见 createGravityChargingArcs()
+    // 当前为 0 = 旧版无速度电弧
+    private static final float CHARGE_ARC_SPEED_MIN = 0f;
+    private static final float CHARGE_ARC_SPEED_MAX = 0f;
+
+    // 发射阶段：沿光束从炮口到末端的全长电弧，见 createBeamPathContinuousArcs()
+    // （光束上溅出的短分支电弧、地雷间连接电弧、备用环形电弧始终是旧版，不受这里影响）
+    private static final float BEAM_PATH_ARC_SPEED_MIN = 4000f;
+    private static final float BEAM_PATH_ARC_SPEED_MAX = 6000f;
 
     // 重力波颜色定义 - 深紫色到蓝紫色渐变
     private static final Color GRAVITY_DARK = new Color(75, 0, 130, 100); // 深紫色
@@ -77,10 +94,10 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
     private static final Color NEGATIVE_GRAVITY_COLOR = new Color(75, 0, 130, 100); // 重力负粒子颜色
 
     // 充能系统状态
-    private float effectLevel = 0f; // 充能进度 (0-1)
+    private float effectLevel = 0f; // 充能特效强度 (0-1)，取自武器真实充能等级，光束出现时正好到 1
     private final IntervalUtil chargeArcTimer = new IntervalUtil(CHARGE_ARC_INTERVAL, CHARGE_ARC_INTERVAL);
     private final IntervalUtil flareTimer = new IntervalUtil(0.1f, 0.1f); // 光晕生成间隔
-    private boolean wasCharging = false; // 用于检测充能状态变化
+    private boolean wasChargingOrFiring = false; // 用于检测充能/发射状态结束
 
     // 新增fx贴图特效状态
     private float fx1Size = 0f; // Moci_Nadesico_fx_1 当前尺寸
@@ -115,10 +132,13 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
             return;
 
         ShipAPI ship = weapon.getShip();
-        boolean isCharging = weapon.isFiring() && weapon.getCooldownRemaining() == 0;
-        
-        // 检查武器是否在充能或发射阶段（effectLevel > 0 且还未完全发射）
-        boolean isWeaponActive = effectLevel > 0 && isCharging;
+        // 充能或发射阶段（收尾阶段计入 cooldown，不在此列）
+        boolean isChargingOrFiring = weapon.isFiring() && weapon.getCooldownRemaining() == 0;
+        // 发射阶段引擎返回的充能等级恒为 1.0，充能阶段小于 1
+        boolean isBeamFiring = weapon.getChargeLevel() >= 1f;
+
+        // 不再要求 effectLevel > 0：它在本帧稍后才更新，原条件会让充能第一帧漏掉封锁
+        boolean isWeaponActive = isChargingOrFiring;
 
         // 禁用战术系统（在充能和发射阶段）
         if (isWeaponActive) {
@@ -128,10 +148,10 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
             // 为玩家舰船添加状态栏提示
             if (ship == engine.getPlayerShip()) {
                 String statusText;
-                if (effectLevel < 1f) {
-                    statusText = "重力波炮 启动中 - 禁用战术系统";
-                } else {
+                if (isBeamFiring) {
                     statusText = "重力波炮 发射中 - 禁用战术系统";
+                } else {
+                    statusText = "重力波炮 充能中 - 禁用战术系统";
                 }
                 engine.maintainStatusForPlayerShip(
                     "Moci_GravityBeamCannon_SystemBlock",
@@ -143,10 +163,10 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
             }
         }
         
-        // 处理充能阶段
-        if (isCharging) {
-            // 更新充能进度
-            effectLevel = Math.min(1f, effectLevel + amount / CHARGE_DURATION);
+        // 处理充能与发射阶段
+        if (isChargingOrFiring) {
+            // 特效强度跟随武器真实充能等级（充能阶段 0→1，发射阶段恒为 1）
+            effectLevel = weapon.getChargeLevel();
 
             // 更新fx贴图特效状态（已移动到相位穿越系统）
             // updateFxEffects(amount, effectLevel);
@@ -165,12 +185,12 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
             // 渲染fx贴图特效（已移动到相位穿越系统）
             // renderFxEffects(engine, weapon);
 
-            wasCharging = true;
+            wasChargingOrFiring = true;
         } else {
             // 重置充能状态
-            if (wasCharging) {
+            if (wasChargingOrFiring) {
                 effectLevel = 0f;
-                wasCharging = false;
+                wasChargingOrFiring = false;
                 // 重置fx特效状态（已移动到相位穿越系统）
                 // resetFxEffects();
             }
@@ -196,6 +216,14 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
         negativeParticleTimer.advance(amount);
         if (negativeParticleTimer.intervalElapsed()) {
             spawnGravityNegativeParticles(engine, beam);
+        }
+
+        // 光束满亮度时，每 0.5 秒在开火点生成一次涟漪扭曲
+        if (beam.getBrightness() >= 1f) {
+            firePointRippleTimer.advance(amount);
+            if (firePointRippleTimer.intervalElapsed()) {
+                createFirePointRipple(beam.getFrom(), engine);
+            }
         }
 
         // 沿光束路径创建扭曲效果已删除
@@ -324,14 +352,6 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
             Color randomColor = getRandomGravityColor();
             engine.addNegativeParticle(loc, ship.getVelocity(), size, rampUp / dur, dur, randomColor);
         }
-
-        // 光束亮度=1时，在开火点生成涟漪扭曲（控制频率）
-        if (beam.getBrightness() >= 1.0f) {
-            firePointRippleTimer.advance(Global.getCombatEngine().getElapsedInLastFrame());
-            if (firePointRippleTimer.intervalElapsed()) {
-                createFirePointRipple(from, engine);
-            }
-        }
     }
 
     /**
@@ -419,11 +439,7 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
         if (radiusOverride >= 0) {
             actualRadius = radiusOverride;
         }
-        if (!hitShield) {
-            actualRadius += -30f + 50f * (float) Math.random();
-        } else {
-            actualRadius += -30f + 50f * (float) Math.random();
-        }
+        actualRadius += -30f + 50f * (float) Math.random();
 
         arcTo = Misc.getUnitVectorAtDegreeAngle(angle);
         arcTo.scale(actualRadius);
@@ -444,10 +460,9 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
                     }
                 }
                 if (best != null) {
-                    Object o = Global.getSettings().getWeaponSpec(GRAVITY_ANOMALY_ID).getProjectileSpec();
-                    if (o instanceof MissileSpecAPI) {
-                        MissileSpecAPI spec = (MissileSpecAPI) o;
-                        float explosionRadius = (float) spec.getBehaviorJSON().optJSONObject("explosionSpec").optDouble("coreRadius");
+                    float coreRadius = getMineCoreRadius();
+                    if (coreRadius > 0f) {
+                        float explosionRadius = coreRadius;
                         float sizeMult = getGravityMineSizeMult();
                         explosionRadius *= sizeMult;
                         
@@ -461,6 +476,53 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
         }
 
         return arcTo;
+    }
+
+    // 地雷爆炸核心半径缓存：规格在一局游戏内不变，只读一次（-1 表示尚未读取，0 表示读取失败）
+    private static float cachedMineCoreRadius = -1f;
+
+    private static float getMineCoreRadius() {
+        if (cachedMineCoreRadius < 0f) {
+            float radius = 0f;
+            Object o = Global.getSettings().getWeaponSpec(GRAVITY_ANOMALY_ID).getProjectileSpec();
+            if (o instanceof MissileSpecAPI) {
+                JSONObject explosionSpec = ((MissileSpecAPI) o).getBehaviorJSON().optJSONObject("explosionSpec");
+                if (explosionSpec != null) {
+                    double value = explosionSpec.optDouble("coreRadius", 0d);
+                    if (value > 0d) {
+                        radius = (float) value;
+                    }
+                }
+            }
+            cachedMineCoreRadius = radius;
+        }
+        return cachedMineCoreRadius;
+    }
+
+    /**
+     * 生成装饰电弧，按速度参数决定用旧版还是 0.98 新版移动电弧。
+     * speedMax <= 0：旧版电弧（不传 EmpArcParams，与改动前完全一致）。
+     * speedMax > 0：亮斑以 speedMin~speedMax 间的随机速度从起点运动到终点，
+     * 参数写法参照原版 RiftLightningEffect，只设置运动时长，弯折形态保持默认。
+     */
+    private static EmpArcEntityAPI spawnMovingArcVisual(CombatEngineAPI engine,
+            Vector2f from, CombatEntityAPI fromAnchor, Vector2f to, CombatEntityAPI toAnchor,
+            float thickness, Color fringe, Color core, float speedMin, float speedMax) {
+        if (speedMax <= 0f) {
+            // 旧版电弧：没有速度参数
+            return engine.spawnEmpArcVisual(from, fromAnchor, to, toAnchor, thickness, fringe, core);
+        }
+
+        EmpArcParams params = new EmpArcParams();
+        float speed = Math.max(1f, MathUtils.getRandomNumberInRange(speedMin, speedMax));
+        // movementDurOverride = 亮斑跑完整条电弧所需的秒数（距离 ÷ 速度），最短 0.05 秒
+        params.movementDurOverride = Math.max(0.05f, Misc.getDistance(from, to) / speed);
+        EmpArcEntityAPI arc = engine.spawnEmpArcVisual(from, fromAnchor, to, toAnchor,
+                thickness, fringe, core, params);
+        if (arc != null) {
+            arc.setSingleFlickerMode(true);
+        }
+        return arc;
     }
 
     /**
@@ -718,25 +780,27 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
             // 计算电弧粗细
             float thickness = 3f + 9f * effectLevel;
 
-            // 创建主重力电弧
-            engine.spawnEmpArcVisual(
+            // 创建主重力聚能电弧（速度由 CHARGE_ARC_SPEED_MIN/MAX 控制，0 = 旧版）
+            spawnMovingArcVisual(engine,
                     firePoint, sourceWeapon.getShip(),
                     targetPoint, ship,
                     thickness,
                     arcColor,
-                    coreColor);
+                    coreColor,
+                    CHARGE_ARC_SPEED_MIN, CHARGE_ARC_SPEED_MAX);
 
             // 添加次级重力电弧增强效果
             if (effectLevel > 0.6f) {
                 Vector2f midPoint = getMidPointWithOffset(firePoint, targetPoint,
                         MathUtils.getRandomNumberInRange(-40f, 40f));
 
-                engine.spawnEmpArcVisual(
+                spawnMovingArcVisual(engine,
                         firePoint, sourceWeapon.getShip(),
                         midPoint, null,
                         thickness * 0.7f,
                         new Color(arcColor.getRed(), arcColor.getGreen(), arcColor.getBlue(), 140),
-                        new Color(coreColor.getRed(), coreColor.getGreen(), coreColor.getBlue(), 170));
+                        new Color(coreColor.getRed(), coreColor.getGreen(), coreColor.getBlue(), 170),
+                        CHARGE_ARC_SPEED_MIN, CHARGE_ARC_SPEED_MAX);
             }
         }
     }
@@ -866,13 +930,16 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
             Vector2f.add(arcStart, startOffset, arcStart);
             Vector2f.add(arcEnd, endOffset, arcEnd);
 
-            // 创建完整的连贯电弧
-            engine.spawnEmpArcVisual(
-                    arcStart, beam.getSource(), // 绑定到光束源舰船
-                    arcEnd, null, // 终点不绑定，让电弧自由延伸
+            // 创建完整的连贯电弧（两端都不绑定：起点若绑在舰船上而终点固定在世界坐标，
+            // 舰船转向或移动时电弧会被拉斜）。使用移动电弧，亮斑从炮口沿光束跑向末端
+            // 速度由 BEAM_PATH_ARC_SPEED_MIN/MAX 控制，0 = 旧版
+            spawnMovingArcVisual(engine,
+                    arcStart, null,
+                    arcEnd, null,
                     thickness,
                     arcColor,
-                    coreColor);
+                    coreColor,
+                    BEAM_PATH_ARC_SPEED_MIN, BEAM_PATH_ARC_SPEED_MAX);
         }
 
         // 额外创建一些短距离的分支电弧，增强视觉效果

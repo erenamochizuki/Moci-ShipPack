@@ -16,7 +16,7 @@ public class Moci_AlphaCoreAISystem extends Moci_RandomAICoreSystemBase {
     public static final String HULLMOD_ID = "Moci_AlphaCoreAISystem";
     private static final String TEXT_ID = HULLMOD_ID;
     public static final String AI_TYPE_ID = "Moci_ARP_AlphaRandom";
-    private static final List<String> AI_POOL = Arrays.asList(
+    static final List<String> AI_POOL = Arrays.asList(
             "Moci_ARP_Takao",
             "Moci_ARP_Kongou",
             "Moci_ARP_Haruna"
@@ -25,16 +25,6 @@ public class Moci_AlphaCoreAISystem extends Moci_RandomAICoreSystemBase {
     @Override
     protected String getHullmodId() {
         return HULLMOD_ID;
-    }
-
-    @Override
-    protected String getPlaceholderAiTypeId() {
-        return AI_TYPE_ID;
-    }
-
-    @Override
-    protected List<String> getAiPool() {
-        return AI_POOL;
     }
 
     @Override
@@ -50,7 +40,7 @@ public class Moci_AlphaCoreAISystem extends Moci_RandomAICoreSystemBase {
     @Override
     public void addPostDescriptionSection(TooltipMakerAPI tooltip, HullSize hullSize, ShipAPI ship,
                                           float width, boolean isForModSpec) {
-        syncIcon(ship);
+        if (showInstallationHint(tooltip, ship)) return;
         boolean installed = ship != null
                 && ship.getVariant() != null
                 && ship.getVariant().hasHullMod(HULLMOD_ID);

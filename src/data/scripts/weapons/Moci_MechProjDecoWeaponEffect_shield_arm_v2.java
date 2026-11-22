@@ -81,8 +81,13 @@ public class Moci_MechProjDecoWeaponEffect_shield_arm_v2 implements EveryFrameWe
      */
     @Override
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
-        // 战斗引擎不存在或游戏暂停时直接跳过，避免暂停期间动画/角度继续推进。
-        if (engine == null || engine.isPaused()) {
+        // 无引擎时跳过；暂停时只维护隐藏，避免动画/角度继续推进。
+        if (engine == null) {
+            return;
+        }
+        if (engine.isPaused()) {
+            // 暂停期间只维护已绑定武器的隐藏，不初始化、不推进动作。
+            hideFollowWeapon();
             return;
         }
 

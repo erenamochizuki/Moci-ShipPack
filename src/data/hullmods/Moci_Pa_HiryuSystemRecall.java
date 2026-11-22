@@ -5,7 +5,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
-import com.fs.starfarer.api.combat.BaseHullMod;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
@@ -15,7 +14,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.util.Moci_TextLoader;
 
-public class Moci_Pa_HiryuSystemRecall extends BaseHullMod {
+public class Moci_Pa_HiryuSystemRecall extends Moci_Pa_HiryuSystemHullMod {
   private static final String TEXT_ID = "Moci_hiryu_system_recall";
   @Override
   public void applyEffectsBeforeShipCreation(

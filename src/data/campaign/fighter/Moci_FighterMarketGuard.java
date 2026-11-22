@@ -123,7 +123,7 @@ public final class Moci_FighterMarketGuard implements ColonyInteractionListener 
      * 玩家仓库与免费转移子市场要跳过。第三方插件的 isFreeTransfer 若抛异常，
      * 由 sanitizeMarket 放弃本次清理，不能把「判断失败」当成「不是仓库」去转换玩家自己的东西。
      */
-    private static boolean isPlayerStorage(SubmarketAPI submarket) {
+    static boolean isPlayerStorage(SubmarketAPI submarket) {
         // 玩家仓库里的自定义联队是正常状态（本 mod 的装配流程就靠它中转），必须跳过。
         if (Submarkets.SUBMARKET_STORAGE.equals(submarket.getSpecId())) return true;
         // 免费转移的子市场（殖民地仓库、其它 mod 的仓库类子市场）里放的仍然是玩家自己的东西，不算卖出。

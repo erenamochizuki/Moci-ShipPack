@@ -7,6 +7,10 @@ import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.impl.Moci_GachaManager;
+import data.campaign.gacha.Moci_GachaReward;
+import data.campaign.gacha.Moci_GachaBatchReceipt;
+import data.campaign.gacha.Moci_GachaBatchDialog;
+import data.campaign.gacha.Moci_GachaRevealDialog;
 import data.scripts.util.Moci_TextLoader;
 
 import java.util.List;
@@ -62,13 +66,11 @@ public class Moci_GachaCommand extends BaseCommandPlugin {
                     return false;
                 }
                 int num = params.get(1).getInt(memoryMap);
-                if (num == 0) {
+                if (num <= 0) {
                     text.addPara(text("gacha.command.error_zero_draws"));
                     return false;
                 }
-                Moci_GachaManager.getInstance().Gacha(cargo, text, num);
-                cargo.removeCommodity(Moci_GachaManager.gachaMemoryItem, num * Moci_GachaManager.gachaMemoryItemNum);
-                AddRemoveCommodity.addCommodityLossText(Moci_GachaManager.gachaMemoryItem, num * Moci_GachaManager.gachaMemoryItemNum, text);
+                performDraw(dialog, cargo, num, Moci_GachaManager.gachaMemoryItem, Moci_GachaManager.gachaMemoryItemNum);
             } else if ("DEV_Item".equals(k)) {
                 cargo.addCommodity("Moci_Vorttear", 2000);
                 cargo.addCommodity("Moci_Mournscale", 500);
@@ -84,6 +86,23 @@ public class Moci_GachaCommand extends BaseCommandPlugin {
         }
 
         return true;
+    }
+
+    /** Revalidate the captured resource and unit cost for every explicit repeat click. */
+    private static void performDraw(InteractionDialogAPI dialog, CargoAPI cargo, int count, String resource, int unitCost) {
+        TextPanelAPI text = dialog.getTextPanel();
+        long required = (long) count * unitCost;
+        if (count <= 0 || unitCost <= 0 || required > Integer.MAX_VALUE || resource == null || cargo.getCommodityQuantity(resource) < required) {
+            text.addPara("抽奖资源不足，请重新选择抽奖次数。", Misc.getNegativeHighlightColor());
+            return;
+        }
+        Moci_GachaManager.gachaMemoryItem = resource;
+        Moci_GachaManager.gachaMemoryItemNum = unitCost;
+        Moci_GachaBatchReceipt receipt = Moci_GachaManager.getInstance().GachaWithDrawResults(cargo, text, count);
+        cargo.removeCommodity(resource, (int) required);
+        AddRemoveCommodity.addCommodityLossText(resource, (int) required, text);
+        if (count == 1) Moci_GachaRevealDialog.open(dialog, receipt.totals(), count);
+        else Moci_GachaBatchDialog.open(dialog, receipt, () -> performDraw(dialog, cargo, count, resource, unitCost));
     }
 
     private static String text(String key) {

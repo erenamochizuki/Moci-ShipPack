@@ -175,7 +175,7 @@ public class Moci_PlayerSkill1_old {
             stats.getTimeMult().modifyMult(id, 1.2f);
 
             // 播放音效 - 使用时间系统相关的音效
-            Global.getSoundPlayer().playSound("Moci_NT", 1.0f, 1.0f, entity.getLocation(),
+            Global.getSoundPlayer().playSound("moci_fx_nt", 1.0f, 1.0f, entity.getLocation(),
                     entity.getVelocity());
 
             if (player) {

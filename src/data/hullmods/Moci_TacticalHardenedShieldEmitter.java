@@ -15,23 +15,33 @@ import com.fs.starfarer.api.impl.campaign.ids.Stats;
  * 只由 {@link Moci_TacticalHullmods#applySelections} 以普通船插写入战机联队的 variant。
  * </p>
  */
-public class Moci_TacticalHardenedShieldEmitter extends BaseHullMod {
+public class Moci_TacticalHardenedShieldEmitter extends BaseHullMod implements Moci_TacticalHullmods.ParamTone {
 
     /** 护盾所受伤害降低比例。 */
     public static final float SHIELD_BONUS = 20f;
     /** 护盾被 EMP 电弧击穿概率倍率。 */
     public static final float PIERCE_MULT = 0.5f;
+    public static final float DISSIPATION_PENALTY = 20f;
 
     @Override
     public void applyEffectsBeforeShipCreation(HullSize hullSize, MutableShipStatsAPI stats, String id) {
         stats.getShieldDamageTakenMult().modifyMult(id, 1f - SHIELD_BONUS * 0.01f);
         stats.getDynamic().getStat(Stats.SHIELD_PIERCED_MULT).modifyMult(id, PIERCE_MULT);
+        if (hullSize == HullSize.FIGHTER) stats.getFluxDissipation().modifyMult(id, 1f - DISSIPATION_PENALTY * 0.01f);
     }
 
     @Override
     public String getDescriptionParam(int index, HullSize hullSize) {
         if (index == 0) return "" + (int) SHIELD_BONUS + "%";
+        if (index == 1) return Math.round((1f - PIERCE_MULT) * 100f) + "%";
+        if (index == 2) return (int) DISSIPATION_PENALTY + "%";
         return null;
+    }
+
+    /** 2：幅能耗散降低。 */
+    @Override
+    public boolean isNegativeParam(int index) {
+        return index == 2;
     }
 
     @Override

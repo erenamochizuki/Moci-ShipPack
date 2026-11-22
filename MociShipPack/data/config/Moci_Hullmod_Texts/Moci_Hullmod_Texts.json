@@ -375,10 +375,10 @@
     "name": "阿尔法核心AI系统",
     "description": {
       "core_cost": "1个{core_name}",
-      "install": "安装时消耗{core_cost}，随机获得一名苍蓝舰载AI。",
+      "install": "装配需要{core_cost}，永久内置后随机唤醒一名苍钢系 AI。",
       "install_highlights": [
         "{core_cost}",
-        "随机获得一名苍蓝舰载AI"
+        "永久内置后随机唤醒一名苍钢系 AI"
       ],
       "ai_fallback_name": "阿尔法舰载AI",
       "control": "{ai_name}将在机体未分配军官时接管舰船控制权，或在有军官时提供辅助加成。",
@@ -391,10 +391,10 @@
     "name": "欧米伽核心AI系统",
     "description": {
       "core_cost": "1个{core_name}",
-      "install": "安装时消耗{core_cost}，随机获得一名苍蓝舰载AI。",
+      "install": "装配需要{core_cost}，永久内置后唤醒苍钢系 AI。",
       "install_highlights": [
         "{core_cost}",
-        "随机获得一名苍蓝舰载AI"
+        "永久内置后唤醒苍钢系 AI"
       ],
       "ai_fallback_name": "欧米伽舰载AI",
       "control": "{ai_name}将在机体未分配军官时接管舰船控制权，或在有军官时提供辅助加成。",

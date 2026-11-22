@@ -1,6 +1,7 @@
 package data.hullmods;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
 import org.apache.log4j.Logger;
@@ -153,13 +154,9 @@ public class Moci_ShipboardAIConfigLoader {
         if (member == null || member.getVariant() == null) {
             return null;
         }
-        java.util.Collection<String> mods = member.getVariant().getHullMods();
-        if (mods == null || mods.isEmpty()) {
-            return null;
-        }
-
+        ShipVariantAPI variant = member.getVariant();
         for (Map.Entry<String, String> entry : HULLMOD_TO_AI_TYPE.entrySet()) {
-            if (mods.contains(entry.getKey())) {
+            if (Moci_ShipboardAISystemRegistry.isActive(variant, entry.getKey())) {
                 return entry.getValue();
             }
         }
@@ -787,6 +784,7 @@ public class Moci_ShipboardAIConfigLoader {
         HULLMOD_TO_AI_TYPE.put(Moci_HaroAISystem.HULLMOD_ID, Moci_HaroAISystem.AI_TYPE_ID);
         HULLMOD_TO_AI_TYPE.put(Moci_AlphaCoreAISystem.HULLMOD_ID, Moci_AlphaCoreAISystem.AI_TYPE_ID);
         HULLMOD_TO_AI_TYPE.put(Moci_OmegaCoreAISystem.HULLMOD_ID, Moci_OmegaCoreAISystem.AI_TYPE_ID);
+        for (Moci_ModelCore model : Moci_ModelCore.values()) HULLMOD_TO_AI_TYPE.put(model.hullmodId, model.baseType);
     }
 
     private static List<String> getDefaultSkillPool() {

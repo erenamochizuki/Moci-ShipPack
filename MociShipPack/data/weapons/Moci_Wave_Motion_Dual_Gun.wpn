@@ -67,5 +67,5 @@
     FIGHTER,
     SHIP
   ],
-  "fireSoundTwo": "Moci_WaveCannon_loop"
+  "fireSoundTwo": "moci_wpn_wave_cannon_loop"
 }

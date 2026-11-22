@@ -82,6 +82,6 @@
       125
     ]
   },
-	"fireSoundOne":"Moci_bodybeam_charge",
-	"fireSoundTwo":"Moci_bodybeam_fire",
+	"fireSoundOne":"moci_wpn_body_beam_charge",
+	"fireSoundTwo":"moci_wpn_body_beam_fire",
 }

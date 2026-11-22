@@ -564,7 +564,7 @@ public class Moci_HSITunnelController_new_RX93 implements EveryFrameWeaponEffect
                             
                             // 播放传送音效
                             /*
-                            Global.getSoundPlayer().playSound("Moci_bit_blink", 1f, 0.7f,
+                            Global.getSoundPlayer().playSound("moci_wpn_bit_blink", 1f, 0.7f,
                                     drone.getLocation(), drone.getVelocity());
 
                              */

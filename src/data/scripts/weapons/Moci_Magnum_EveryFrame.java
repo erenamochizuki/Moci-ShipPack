@@ -27,7 +27,7 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
  */
 public class Moci_Magnum_EveryFrame implements EveryFrameWeaponEffectPlugin {
     /** 马格南开火音效。 */
-    private static final String FIRE_SOUND_ID = "Moci_Magnum_03";
+    private static final String FIRE_SOUND_ID = "moci_wpn_magnum_03";
 
     // ==================== 散热烟雾参数 ====================
     /** 是否启用散热烟雾。 */

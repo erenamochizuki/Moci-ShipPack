@@ -3,6 +3,7 @@ package data.campaign;
 import com.fs.starfarer.api.PluginPick;
 import com.fs.starfarer.api.campaign.AICoreOfficerPlugin;
 import com.fs.starfarer.api.campaign.BaseCampaignPlugin;
+import data.hullmods.Moci_ModelCore;
 
 /**
  * Moci AI核心战役插件
@@ -17,6 +18,9 @@ public class Moci_AICoreOfficerCampaignPlugin extends BaseCampaignPlugin {
 
     @Override
     public PluginPick<AICoreOfficerPlugin> pickAICoreOfficerPlugin(String commodityId) {
+        if (Moci_ModelCore.forItem(commodityId) != null) {
+            return new PluginPick<AICoreOfficerPlugin>(new Moci_ModelAICoreOfficerPlugin(), PickPriority.MOD_SPECIFIC);
+        }
         
         if ("Moci_AICore_Haro".equals(commodityId)) {
             return new PluginPick<AICoreOfficerPlugin>(new Moci_HaroAICorePlugin(), PickPriority.MOD_SPECIFIC);

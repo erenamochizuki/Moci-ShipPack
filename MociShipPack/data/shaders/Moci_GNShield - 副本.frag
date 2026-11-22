@@ -47,17 +47,17 @@ void main() {
 
     if (type <= 0.5) {
         col.w = 0.3;
-        float life = state.x; // 0到1的扩散动画进度
-        float shieldRadius = state.y; // 扩散带目标半径，决定最远扩散到哪里
-        float quadRadius = state.z; // 当前护盾quad的半径，用于把UV距离换算成世界距离
-        float combinedBaseAlpha = state.w; // 当前护盾整体透明度
+        float life = state.x; // 0-to-1 spread animation progress
+        float shieldRadius = state.y; // target radius of the spread band; how far it reaches
+        float quadRadius = state.z; // radius of the current shield quad; converts UV distance to world distance
+        float combinedBaseAlpha = state.w; // overall alpha of the current shield
 
-        // Java侧会把fragUV对应到承载护盾的quad半径，这里再按护盾半径推进扩散带。
-        float dist = length((fragUV - 0.5) * 2.0) * quadRadius; // 当前像素到护盾中心的世界距离
-        float bandSize = max(1.0, clamp(shieldRadius * 0.2, 12.0, 48.0) * ((life < 0.1) ? life * 10.0 : 1.0)); // 扩散带宽度
+        // The Java side maps fragUV onto the shield quad radius; the spread band advances by shield radius here.
+        float dist = length((fragUV - 0.5) * 2.0) * quadRadius; // world distance from this pixel to the shield center
+        float bandSize = max(1.0, clamp(shieldRadius * 0.2, 12.0, 48.0) * ((life < 0.1) ? life * 10.0 : 1.0)); // spread band width
 
-        float effectiveLife = life; // 把前半程映射为外扩、后半程映射为回收
-        float brightness = 1.0; // 回收阶段略微提亮，避免视觉上太闷
+        float effectiveLife = life; // first half maps to expansion, second half to retraction
+        float brightness = 1.0; // slightly brighter during retraction so it does not look dull
         if (life <= 0.5) {
             effectiveLife = life * 2.0;
         } else {
@@ -65,7 +65,7 @@ void main() {
             brightness = 1.3;
         }
 
-        float startDist = effectiveLife * shieldRadius; // 扩散带起始位置
+        float startDist = effectiveLife * shieldRadius; // spread band start position
         alpha = sin(3.1415926 * (dist - startDist) / bandSize);
         if (dist < startDist || dist > startDist + bandSize) {
             alpha = 0.0;

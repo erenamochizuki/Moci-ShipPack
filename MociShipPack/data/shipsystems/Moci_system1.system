@@ -29,8 +29,8 @@
 	"soundFilterGainHF":0.5,
 
 	"fadeActivationSoundOnChargedown":true,
-	"useSound":"Moci_System1_Active",
-	"loopSound":"Moci_System1_Loop",
+	"useSound":"moci_sys_system1_active",
+	"loopSound":"moci_sys_system1_loop",
 	"deactivateSound":"system_temporalshell_off",
 	"outOfUsesSound":"gun_out_of_ammo",
 	

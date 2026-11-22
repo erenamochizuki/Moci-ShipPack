@@ -24,6 +24,7 @@ public final class Moci_FilmShieldIntegration {
      */
     public static boolean omniPerceptionAIEnabled() { return bool("Moci_gnShieldOmniPerceptionAI",false); }
     public static boolean shouldRender(ShipAPI ship,int fighters) {
+        if(ship.isDoNotRender() || data.shipsystems.scripts.Moci_MassDrive.hidesArrivalHull(ship)) return false;
         if(!ship.isFighter()) return true;
         boolean skip=bool("Moci_gnShieldSkipFighter",true),limit=bool("Moci_gnShieldEnableLimit",false);
         return !ship.isFighter()||(!skip&&(!limit||fighters<=integer("Moci_gnShieldFighterLimit",150)));

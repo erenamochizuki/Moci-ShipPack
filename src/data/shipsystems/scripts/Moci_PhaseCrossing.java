@@ -905,7 +905,7 @@ public class Moci_PhaseCrossing extends BaseShipSystemScript {
                         EXPLODE_COLOR, EXPLODE_COLOR);
                 explosionSpec.setDamageType(DamageType.ENERGY); // 设置为能量伤害
                 explosionSpec.setUseDetailedExplosion(true); // 启用详细爆炸效果
-                explosionSpec.setSoundSetId("Moci_WarpSound"); // 音效
+                explosionSpec.setSoundSetId("moci_sys_warp_01"); // 音效
 
                 // 在记录的位置生成爆炸
                 engine.spawnDamagingExplosion(explosionSpec, ship, this.recordedLocation);

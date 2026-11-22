@@ -18,7 +18,7 @@ public final class UnicornMagnumPulseOnFire implements OnFireEffectPlugin,OnHitE
         Vector2f at=projectile.getSpawnLocation(),inherited=weapon.getShip().getVelocity();
         engine.addHitParticle(at,inherited,42,1,.12f,new Color(255,255,255,220));engine.addSmoothParticle(at,inherited,90,.9f,.19f,new Color(53,208,255,180));
         engine.addNebulaSmokeParticle(at,inherited,15,2.5f,.1f,.1f,.7f,new Color(120,120,120,100));
-        if(Global.getSoundPlayer()!=null)Global.getSoundPlayer().playSound("Moci_Magnum_03",1,1,at,inherited);
+        if(Global.getSoundPlayer()!=null)Global.getSoundPlayer().playSound("moci_wpn_magnum_03",1,1,at,inherited);
         List<Map<String,Object>> rows=new ArrayList<>();Object old=weapon.getShip().getCustomData().get(KEY);
         if(old instanceof List<?> list)for(Object value:list)if(value instanceof Map<?,?> map){Map<String,Object> copy=new LinkedHashMap<>();map.forEach((k,v)->copy.put(String.valueOf(k),v));rows.add(copy);}
         if(rows.size()>=128)rows.remove(0);rows.add(Map.of("engineTime",engine.getTotalElapsedTime(false),"weapon",weapon.getId(),"slot",weapon.getSlot().getId(),"nativeClass",projectile.getClass().getName(),"damage",projectile.getDamage().getDamage(),"spawn",List.of(at.x,at.y),"firePoint",List.of(weapon.getFirePoint(0).x,weapon.getFirePoint(0).y)));

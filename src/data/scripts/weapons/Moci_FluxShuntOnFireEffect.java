@@ -64,7 +64,7 @@ public class Moci_FluxShuntOnFireEffect implements OnFireEffectPlugin {
             DistortionShader.addDistortion(ripple);
 
             ship.getFluxTracker().decreaseFlux(120f);
-            Global.getSoundPlayer().playSound("Moci_HearyEnergy_2", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
+            Global.getSoundPlayer().playSound("moci_wpn_heavy_energy_02", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
         } else if (ship.getFluxTracker().getCurrFlux() >= 4000f) {
             engine.spawnProjectile(ship, projectile.getWeapon(), "Moci_excelsiorcannon_40", projectile.getLocation(), weapon.getCurrAngle(),
                     ship.getVelocity());
@@ -91,7 +91,7 @@ public class Moci_FluxShuntOnFireEffect implements OnFireEffectPlugin {
             engine.addSmoothParticle(projectile.getLocation(), ship.getVelocity(), 350f, 0.4f, 0.1f, COLOR_3);
 
             ship.getFluxTracker().decreaseFlux(100f);
-            Global.getSoundPlayer().playSound("Moci_HearyEnergy_1", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
+            Global.getSoundPlayer().playSound("moci_wpn_heavy_energy_01", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
         } else if (ship.getFluxTracker().getCurrFlux() >= 2400f) {
             engine.spawnProjectile(ship, projectile.getWeapon(), "Moci_excelsiorcannon_24", projectile.getLocation(), weapon.getCurrAngle(),
                     ship.getVelocity());
@@ -110,7 +110,7 @@ public class Moci_FluxShuntOnFireEffect implements OnFireEffectPlugin {
             engine.addSmoothParticle(projectile.getLocation(), ship.getVelocity(), 300f, 0.3f, 0.075f, COLOR_3);
 
             ship.getFluxTracker().decreaseFlux(80f);
-            Global.getSoundPlayer().playSound("Moci_Weapon2Sound", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
+            Global.getSoundPlayer().playSound("moci_wpn_weapon_02", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
         } else if (ship.getFluxTracker().getCurrFlux() >= 1200f) {
             engine.spawnProjectile(ship, projectile.getWeapon(), "Moci_excelsiorcannon_12", projectile.getLocation(), weapon.getCurrAngle(),
                     ship.getVelocity());
@@ -128,7 +128,7 @@ public class Moci_FluxShuntOnFireEffect implements OnFireEffectPlugin {
             engine.spawnExplosion(projectile.getLocation(), ship.getVelocity(), COLOR_2, 125f, 0.1f);
 
             ship.getFluxTracker().decreaseFlux(60f);
-            Global.getSoundPlayer().playSound("Moci_Weapon2Sound", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
+            Global.getSoundPlayer().playSound("moci_wpn_weapon_02", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
         } else if (ship.getFluxTracker().getCurrFlux() >= 400f) {
             engine.spawnProjectile(ship, projectile.getWeapon(), "Moci_excelsiorcannon_4", projectile.getLocation(), weapon.getCurrAngle(),
                     ship.getVelocity());
@@ -136,13 +136,13 @@ public class Moci_FluxShuntOnFireEffect implements OnFireEffectPlugin {
             engine.spawnExplosion(projectile.getLocation(), ship.getVelocity(), COLOR_2, 100f, 0.075f);
 
             ship.getFluxTracker().decreaseFlux(40f);
-            Global.getSoundPlayer().playSound("Moci_Weapon1Sound", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
+            Global.getSoundPlayer().playSound("moci_wpn_weapon_01", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
         } else {
             engine.spawnProjectile(ship, projectile.getWeapon(), "Moci_excelsiorcannon_0", projectile.getLocation(), weapon.getCurrAngle(),
                     ship.getVelocity());
 
             ship.getFluxTracker().decreaseFlux(20f);
-            Global.getSoundPlayer().playSound("Moci_Weapon1Sound", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
+            Global.getSoundPlayer().playSound("moci_wpn_weapon_01", 1f, 1f, new Vector2f(projectile.getLocation()), ZERO);
         }
 
         engine.removeEntity(projectile);

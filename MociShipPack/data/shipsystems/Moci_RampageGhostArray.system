@@ -1,0 +1,19 @@
+{
+	"id":"Moci_RampageGhostArray",
+	"type":"STAT_MOD",
+	"aiType":"CUSTOM",
+	"aiScript":"data.shipsystems.scripts.ai.Moci_RampageGhostArrayAI",
+
+	"statsScript":"data.shipsystems.scripts.Moci_RampageGhostArrayStats",
+
+	# no runScriptWhileIdle here: the script relies on unapply() to restore collision class and alpha
+
+	"fadeActivationSoundOnChargedown":true,
+	"useSound":"system_entropy",
+	"loopSound":"system_entropy_loop",
+	"deactivateSound":"system_entropy_off",
+	"outOfUsesSound":"gun_out_of_ammo",
+
+	"aiHints":{
+	}
+}

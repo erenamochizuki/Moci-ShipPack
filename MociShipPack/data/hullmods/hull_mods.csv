@@ -227,6 +227,11 @@ I立场,Moci_IField,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_IField,阻止来自�
 ,,,,,,,,,,,,,,,,,,,
 99系统,Moci_System99,,,独行轻骑兵,special,特殊,,,TRUE,,0,0,0,0,data.hullmods.Moci_System99,99系统将在机体没有分配军官时接管舰船的控制。,99系统将在机体没有分配军官时接管舰船的控制。,,graphics/portraits/ai_pilot/Moci_system99.png
 哈罗AI系统,Moci_HaroAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_HaroAISystem,哈罗AI系统可在舰船无军官时接管舰船控制，并在有军官时提供辅助词条。,哈罗AI系统可在舰船无军官时接管舰船控制，并在有军官时提供辅助词条。,,graphics/portraits/Moci_haro_Base.png
+ChatGPT 舰载AI系统,Moci_ChatGPTAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_ModelAISystem,消耗一枚对应核心安装 ChatGPT Luna。稳健的系统调度与火控协调。船插内置后才生成军官；无舰长时接管舰船，有舰长时提供辅助。,呼号「和弦」。稳健的系统调度与火控协调。,,graphics/portraits/ai_pilot/Moci_ai_core_ChatGpt_lite.png
+Claude 舰载AI系统,Moci_ClaudeAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_ModelAISystem,消耗一枚对应核心安装 Claude Haiku。谨慎的点防护卫与损管支援。船插内置后才生成军官；无舰长时接管舰船，有舰长时提供辅助。,呼号「守约」。谨慎的点防护卫与损管支援。,,graphics/portraits/ai_pilot/Moci_ai_core_Claude_lite.png
+DeepSeek 舰载AI系统,Moci_DeepSeekAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_ModelAISystem,消耗一枚对应核心安装 DeepSeek Flash。稳健的实弹校准与射程测绘。船插内置后才生成军官；无舰长时接管舰船，有舰长时提供辅助。,呼号「潜标」。稳健的实弹校准与射程测绘。,,graphics/portraits/ai_pilot/Moci_ai_core_Deepseek_lite.png
+Gemini 舰载AI系统,Moci_GeminiAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_ModelAISystem,消耗一枚对应核心安装 Gemini Hydrogen。谨慎的导弹火力与机库协同。船插内置后才生成军官；无舰长时接管舰船，有舰长时提供辅助。,呼号「双子」。谨慎的导弹火力与机库协同。,,graphics/portraits/ai_pilot/Moci_ai_core_Gemini_lite.png
+Grok 舰载AI系统,Moci_GrokAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_ModelAISystem,消耗一枚对应核心安装 Grok Fast。激进的高速侧击与零幅机动。船插内置后才生成军官；无舰长时接管舰船，有舰长时提供辅助。,呼号「逆火」。激进的高速侧击与零幅机动。,,graphics/portraits/ai_pilot/Moci_ai_core_Grok_lite.png
 阿尔法舰载AI系统,Moci_AlphaCoreAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_AlphaCoreAISystem,,,,graphics/icons/cargo/ai_core_alpha.png
 欧米伽舰载AI系统,Moci_OmegaCoreAISystem,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_OmegaCoreAISystem,,,,graphics/icons/cargo/ai_omega_core.png
 波动炮核心修复协议,Moci_YamatoRepairProtocol,,,独行轻骑兵,special,特殊,,TRUE,,,0,0,0,0,data.hullmods.Moci_YamatoRepairProtocol,安装后将舰体替换为对应的修复型号并自动移除该船插。,安装后将舰体替换为修复型号并自动移除。,,graphics/hullmods/Moci_Yamato_repair.png
@@ -237,11 +242,11 @@ I立场,Moci_IField,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_IField,阻止来自�
 ,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,
 航空中队管理,Moci_air_squadron_manager,,,MOCI武库,no_build_in,战机,,TRUE,,,0,0,0,0,data.hullmods.Moci_AirSquadronManager,允许在情报界面的航空中队管理中逐机库调整适用联队的武器装配。无需军官；自动化舰船无法安装；卸下后于退出改装及市场界面时安全恢复原型并返还额外武器。,在情报界面按母舰管理航空中队装配。,,graphics/hullmods/Moci_fighter_expand.png
-强化护盾,moci_tactical_hardened_shield,0,,,"moci_tactical,moci_tactical_defense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalHardenedShieldEmitter,降低 %s 护盾所受伤害，并降低护盾被 EMP 电弧击穿的概率。,降低护盾所受伤害。,,graphics/hullmods/hardened_shields.png
-扩展弹仓,moci_tactical_expanded_magazines,0,,,"moci_tactical,moci_tactical_offense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalExpandedMagazines,提高实弹武器和能量武器 %s 的备弹量。,提高实弹/能量武器的备弹量。,,graphics/hullmods/expanded_magazines2.png
-扩展发射架,moci_tactical_expanded_missile_racks,0,,,"moci_tactical,moci_tactical_offense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalExpandedMissileRacks,提高导弹武器 %s 备弹量。,提高导弹武器的备弹量。,,graphics/hullmods/expanded_missile_racks.png
+强化护盾,moci_tactical_hardened_shield,0,,,"moci_tactical,moci_tactical_defense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalHardenedShieldEmitter,护盾所受伤害降低 %s ，被 EMP 电弧击穿的概率降低 %s ；战机的幅能耗散降低 %s 。,护盾更坚固，但幅能耗散较慢。,,graphics/hullmods/hardened_shields.png
+扩展弹仓,moci_tactical_expanded_magazines,0,,,"moci_tactical,moci_tactical_offense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalExpandedMagazines,实弹和能量武器的备弹量提高 %s ，转动速度降低 %s ，后坐力增加 %s 。,实弹和能量武器载弹更多但转动较慢、后坐力更高。,,graphics/hullmods/expanded_magazines2.png
+扩展发射架,moci_tactical_expanded_missile_racks,0,,,"moci_tactical,moci_tactical_offense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalExpandedMissileRacks,导弹备弹量提高 %s ，战机的最大结构值降低 %s 。,导弹载量更大，但战机结构更脆弱。,,graphics/hullmods/expanded_missile_racks.png
 先进光学器件,moci_tactical_advanced_optics,0,,,"moci_tactical,moci_tactical_offense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalAdvancedOptics,提高 %s 光束武器射程，降低 %s 光束转动速度。,提高光束武器射程。,,graphics/hullmods/advanced_optics.png
-重型装甲,moci_tactical_heavy_armor,0,,,"moci_tactical,moci_tactical_defense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalHeavyArmor,提高 %s 装甲值。,提高装甲值。,,graphics/hullmods/heavy_armor.png
+重型装甲,moci_tactical_heavy_armor,0,,,"moci_tactical,moci_tactical_defense",,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_TacticalHeavyArmor,装甲值增加 %s ；战机的最高速度、加速度、减速度、最大转向速率和转向加速度均降低 %s 。,装甲更厚，但战机速度和机动性下降。,,graphics/hullmods/heavy_armor.png
 精神力高速机动,Moci_fw_xi_high_mobility,5,,精神力试制武装,restricted,机动,0,,true,,0,0,0,0,xi.arsenal.XiAgilityHullmod,本型基础航速220、加速度260、减速度360、转速80度每秒、转向加速度240；装配点120、框架船坞散热口与电容上限各40。米飞开启后航速增加220至440、转速增加95；加速3.2倍、减速3.6倍、转向加速度3.6倍。原有船插与技能继续生效。,高速横移与快速起停回转。,,graphics/hullmods/auxilliary_thrusters.png
 重装直线机动,Moci_fw_penelope_high_mobility,5,,精神力试制武装,restricted,机动,0,,true,,0,0,0,0,xi.arsenal.PenelopeAgilityHullmod,本型基础航速220、加速度200、减速度110、转速40度每秒、转向加速度100；米飞开启后航速增加170至390、转速增加15；加速1.5倍、减速1.08倍、转向加速度1.2倍。原生照射与离散光束弹伤害额外降低35%；五发短照射米加炮与64枚导弹三波齐射侧重持续火力；回转与急停弱于柯西。原有船插与技能继续生效。,重装火力试验机：五发米加炮及光束抗性。,,graphics/hullmods/auxilliary_thrusters.png
 全周天驾驶舱,moci_panoramic_cockpit,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_PanoramicCockpit,全周天座舱告警：敌对舰载机进入接近距离、或来袭导弹锁定本舰时会给出本地座舱提示音；只有装了本船插的舰船有该音频、没有写死的舰船名单。,全周天驾驶舱座舱告警.,,

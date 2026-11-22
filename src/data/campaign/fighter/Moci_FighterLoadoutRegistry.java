@@ -7,6 +7,7 @@ import java.beans.MethodDescriptor;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.invoke.VarHandle;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ModSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.loading.FighterWingSpecAPI;
+import com.fs.starfarer.api.loading.WeaponSpecAPI;
 
 /**
  * 原版战机变体表 / 联队规格表的运行时写入封装：变体在 com.fs.starfarer.loading.B（键 HullVariantSpec.getHullVariantId()），
@@ -59,6 +61,8 @@ public class Moci_FighterLoadoutRegistry {
     private static boolean variantPutTakesFlag = false;
     private static MethodHandle wingPut;             // (String, FighterWingSpec)void
     private static MethodHandle wingSpecConstructor; // ()FighterWingSpec
+    private static Class<?> nativeWeaponSpec;
+    private static VarHandle rawWeaponOp;
 
     private static boolean wingFieldHandlesResolved = false;
     private static boolean wingFieldHandlesAvailable = false;
@@ -109,6 +113,12 @@ public class Moci_FighterLoadoutRegistry {
             wingSpecConstructor = MethodHandles.lookup()
                     .findConstructor(wingSpecClass, MethodType.methodType(void.class));
 
+            // 0.98 rounds even getOrdnancePointCost(null). Read the same float its setter writes,
+            // including runtime changes made by other mods, before applying our own ceiling.
+            nativeWeaponSpec = Class.forName("com.fs.starfarer.loading.specs.BaseWeaponSpec");
+            rawWeaponOp = MethodHandles.privateLookupIn(nativeWeaponSpec, MethodHandles.lookup())
+                    .findVarHandle(nativeWeaponSpec, "\u00f8\u00d30000", float.class);
+
             available = true;
             unavailableReason = null;
         } catch (ReflectiveOperationException | LinkageError | SecurityException ex) {
@@ -119,6 +129,11 @@ public class Moci_FighterLoadoutRegistry {
             logWarn("战机改装注册入口初始化失败：" + unavailableReason);
         }
         return available;
+    }
+
+    static float rawWeaponOp(WeaponSpecAPI spec) {
+        return nativeWeaponSpec != null && nativeWeaponSpec.isInstance(spec)
+                ? (float) rawWeaponOp.get(spec) : spec.getOrdnancePointCost(null);
     }
 
     /** 在候选名里找签名（MethodType 含返回值）完全匹配的 public static 方法。 */

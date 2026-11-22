@@ -2,6 +2,7 @@
   "Moci_ShipboardAIIntel": {
     "ui": {
       "tooltip_missing_config": "舰载AI配置缺失。",
+      "tooltip_install_pending": "尚未内置，可以撤销安装。内置后才会生成 AI 军官。",
       "tooltip_section_ai": "舰载AI",
       "tooltip_label_name": "名称: {value}",
       "tooltip_label_level": "等级: {current} / {max}",

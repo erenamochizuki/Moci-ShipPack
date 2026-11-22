@@ -24,6 +24,9 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import data.scripts.util.Moci_TextLoader;
+import data.campaign.gacha.Moci_GachaReward;
+import data.campaign.gacha.Moci_GachaBatchReceipt;
+import java.util.List;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -490,9 +493,23 @@ public class Moci_GachaManager {
     }
 
     public void Gacha(CargoAPI cargo, @NotNull TextPanelAPI text, int time) {
+        GachaWithResults(cargo, text, time);
+    }
+
+    /** Settles once, retaining the legacy text log and returning an immutable presentation receipt. */
+    public List<Moci_GachaReward> GachaWithResults(CargoAPI cargo, @NotNull TextPanelAPI text, int time) {
+        return GachaWithDrawResults(cargo, text, time).totals();
+    }
+
+    public Moci_GachaBatchReceipt GachaWithDrawResults(CargoAPI cargo, @NotNull TextPanelAPI text, int time) {
+        List<Moci_GachaReward> settled = new ArrayList<>();
+        if (time <= 0) return new Moci_GachaBatchReceipt(List.of(), List.of());
+        List<Moci_GachaData> rolled = new ArrayList<>();
+        Map<Moci_GachaData, List<Integer>> slotQuantities = new IdentityHashMap<>();
+        Map<Moci_GachaData, Moci_GachaReward> grantedByEntry = new IdentityHashMap<>();
         String id;
         boolean rewardReceived = false;
-        Map<Moci_GachaData, Integer> resultMap = new HashMap<>();
+        Map<Moci_GachaData, Integer> resultMap = new LinkedHashMap<>();
         int noSSR = getNoSSRNum();
         
         // 记录抽卡次数用于发放兑奖券
@@ -520,6 +537,7 @@ public class Moci_GachaManager {
             }
             if (dataMap.containsKey(id)) {
                 Moci_GachaData data = dataMap.get(id);
+                rolled.add(data);
                 int num = 1;
                 if (resultMap.containsKey(data)) {
                     num += resultMap.get(data);
@@ -535,6 +553,7 @@ public class Moci_GachaManager {
                 }
                 Gacha_Recorder.put(id, record);
             } else {
+                rolled.add(null);
                 text.addPara(formatText("gacha.error.invalid_pool_item", mapOf("id", id)));
                 removeItem(id, false);
             }
@@ -547,31 +566,42 @@ public class Moci_GachaManager {
             for (Moci_GachaData data : resultMap.keySet()) {
                 int i = resultMap.get(data);
                 int num = 0;
+                List<Integer> quantities = new ArrayList<>();
                 while (i > 0) {
                     i--;
-                    num += data.getItemValue();
+                    int value = data.getItemValue();
+                    quantities.add(value);
+                    num += value;
                 }
+                slotQuantities.put(data, quantities);
+                int granted = 0;
+                String receiptType = data.type.name(), receiptItem = data.itemID, receiptName = data.name, portrait = null, receiptParam = data.param;
                 if (data.type == GachaType.Commodity) {
                     AddRemoveCommodity.addCommodityGainText(data.itemID, num, text);
                     cargo.addCommodity(data.itemID, num);
                     rewardReceived |= num > 0;
+                    granted = num;
                 } else if (data.type == GachaType.Credits) {
                     cargo.getCredits().add(num);
                     rewardReceived |= num > 0;
+                    granted = num;
                     AddRemoveCommodity.addCreditsGainText(num, text);
                 } else if (data.type == GachaType.Weapon) {
                     cargo.addWeapons(data.itemID, num);
                     rewardReceived |= num > 0;
+                    granted = num;
                     AddRemoveCommodity.addWeaponGainText(data.itemID, num, text);
                 } else if (data.type == GachaType.Fighter) {
                     cargo.addFighters(data.itemID, num);
                     rewardReceived |= num > 0;
+                    granted = num;
                     AddRemoveCommodity.addFighterGainText(data.itemID, num, text);
                 } else if (data.type == GachaType.SpecialItem) {
                     SpecialItemData specialItem = new SpecialItemData(data.itemID, data.param);
                     AddRemoveCommodity.addItemGainText(specialItem, num, text);
                     cargo.addSpecial(specialItem, num);
                     rewardReceived |= num > 0;
+                    granted = num;
                 } else if (data.type == GachaType.ShipID) {
                     log.debug("抽卡获得舰船: ID=" + data.id + ", ItemID=" + data.itemID + ", 稀有度=" + data.rare);
                     if (Global.getSettings().getHullSpec(data.itemID) != null) {
@@ -579,6 +609,7 @@ public class Moci_GachaManager {
                         if (variantId != null) {
                             cargo.getFleetData().addFleetMember(variantId);
                             rewardReceived = true;
+                            granted = 1; receiptParam = variantId;
                             log.debug("成功生成舰船: HullID=" + data.itemID + ", VariantID=" + variantId);
                         } else {
                             text.addPara(formatText("gacha.error.missing_variant", mapOf("id", data.itemID)));
@@ -621,6 +652,7 @@ public class Moci_GachaManager {
                         AddRemoveCommodity.addCommodityGainText(pickedId, 1, text);
                         cargo.addCommodity(pickedId, 1);
                         rewardReceived = true;
+                        granted = 1; receiptType = "Commodity"; receiptItem = pickedId; receiptName = coreType;
                         log.info("转换为AI核心完成: " + coreType + ", 物品ID=" + pickedId);
                     } else {
                         officerData officerInfo = officers.get(pickedId);
@@ -635,11 +667,18 @@ public class Moci_GachaManager {
                         Global.getSector().getPlayerFleet().getFleetData().addOfficer(officer);
                         rewardReceived = true;
                         AddRemoveCommodity.addOfficerGainText(officer, text);
+                        granted = 1; receiptName = officer.getNameString(); portrait = officer.getPortraitSprite();
                         officers.remove(pickedId);
                         log.info("军官已添加到舰队，从池中移除: " + pickedId);
                     }
                 } else {
                     text.addPara(formatText("gacha.error.unknown_prize_type", mapOf("id", data.id)));
+                }
+                if (granted > 0) {
+                    Moci_GachaReward reward = new Moci_GachaReward(data.id, receiptName, receiptType, receiptItem,
+                            receiptParam, granted, data.rare, portrait);
+                    settled.add(reward);
+                    grantedByEntry.put(data, reward);
                 }
                 if (data.text != null && !data.text.isEmpty()) {
                     if ("SSR".equals(data.rare)) {
@@ -676,10 +715,36 @@ public class Moci_GachaManager {
         // 发放兑奖券（基于消耗的珠子类型）
         if (gachaMemoryItem != null && totalDraws > 0) {
             grantTicketsAfterGacha(cargo, text, gachaMemoryItem, totalDraws);
+            int tickets = calculateTicketsFromPearl(gachaMemoryItem) * totalDraws;
+            if (tickets > 0) {
+                boolean ticketRegistered = Global.getSettings().getCommoditySpec("Moci_GachaTicket") != null;
+                settled.add(new Moci_GachaReward("draw_bonus", ticketRegistered ? "附赠兑奖券" : "兑奖券折算星币",
+                        ticketRegistered ? "Commodity" : "Credits", ticketRegistered ? "Moci_GachaTicket" : "credits",
+                        null, ticketRegistered ? tickets : tickets * 100, "BONUS", null));
+            }
         }
         if (rewardReceived) {
             Moci_CampaignFeedback.playRewardReceived();
         }
+        List<Moci_GachaBatchReceipt.Draw> slots = new ArrayList<>();
+        Map<Moci_GachaData, Integer> offsets = new IdentityHashMap<>();
+        for (int n = 0; n < totalDraws; n++) {
+            Moci_GachaData data = n < rolled.size() ? rolled.get(n) : null;
+            Moci_GachaReward aggregate = grantedByEntry.get(data), reward = null;
+            String message = "该次未获得可发放奖励";
+            if (aggregate != null) {
+                int offset = offsets.getOrDefault(data, 0);
+                offsets.put(data, offset + 1);
+                // Preserve legacy grouped ship/officer grants. Never invent a second delivery in the UI.
+                boolean groupedUnique = data.type == GachaType.ShipID || data.type == GachaType.OFFICER;
+                int quantity = groupedUnique ? (offset == 0 ? aggregate.quantity() : 0) : slotQuantities.get(data).get(offset);
+                if (quantity > 0) reward = new Moci_GachaReward(aggregate.id(), aggregate.name(), aggregate.type(),
+                        aggregate.itemId(), aggregate.param(), quantity, aggregate.rarity(), aggregate.portrait());
+                else message = groupedUnique ? "本批同类奖励已合并结算" : "该次发放数量为零";
+            }
+            slots.add(new Moci_GachaBatchReceipt.Draw(n + 1, reward, message));
+        }
+        return new Moci_GachaBatchReceipt(slots, settled);
     }
 
     public boolean hasItem(String id) {

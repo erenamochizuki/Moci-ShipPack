@@ -86,14 +86,15 @@ public class Moci_ShipboardAIManager {
     }
 
     public static ShipboardAIData getDataByMember(FleetMemberAPI member) {
-        if (member == null) {
+        if (!Moci_ShipboardAIConfigLoader.hasShipboardAISystem(member)) {
             return null;
         }
         return getDataMap().get(member.getId());
     }
 
     public static ShipboardAIData getOrCreateData(FleetMemberAPI member) {
-        if (member == null || !Moci_ShipboardAIConfigLoader.hasShipboardAISystem(member)) {
+        String installedType = Moci_ShipboardAIConfigLoader.resolveAiTypeForMember(member);
+        if (installedType == null) {
             return null;
         }
         Map<String, ShipboardAIData> dataMap = getDataMap();
@@ -101,11 +102,15 @@ public class Moci_ShipboardAIManager {
         ShipboardAIData data = dataMap.get(memberId);
         if (data != null) {
             canonicalizeAiTypeIds(data);
+            if (installedType.equals(data.currentAiTypeId) && Moci_RandomAICoreSystemBase.isRandomCoreType(installedType)) {
+                String selected = Moci_RandomAICoreSystemBase.resolveInitialType(installedType);
+                if (!assignAiType(member, data, selected, true)) return null;
+            }
             ensureDataIntegrity(member, data);
             return data;
         }
 
-        String aiTypeId = Moci_ShipboardAIConfigLoader.resolveAiTypeForMember(member);
+        String aiTypeId = Moci_RandomAICoreSystemBase.resolveInitialType(installedType);
         Moci_ShipboardAIConfigLoader.AITypeDefinition type = Moci_ShipboardAIConfigLoader.getAiType(aiTypeId);
         if (type == null) {
             return null;
@@ -238,7 +243,10 @@ public class Moci_ShipboardAIManager {
     }
 
     public static boolean assignAiType(FleetMemberAPI member, String aiTypeId, boolean keepProgress) {
-        ShipboardAIData data = getOrCreateData(member);
+        return assignAiType(member, getOrCreateData(member), aiTypeId, keepProgress);
+    }
+
+    private static boolean assignAiType(FleetMemberAPI member, ShipboardAIData data, String aiTypeId, boolean keepProgress) {
         if (data == null || aiTypeId == null || aiTypeId.trim().isEmpty()) {
             return false;
         }

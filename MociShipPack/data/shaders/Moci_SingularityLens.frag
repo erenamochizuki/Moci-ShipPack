@@ -32,9 +32,14 @@ void main(){
     vec2 c = center * texSize;
     float r = length(px - c);
 
+    // Corners of the bounding quad lie outside the lens; skip them.
+    if (r > rMaxPx + 1.0) discard;
+
     vec3 base = texture2D(srcTex, uv).rgb;
     float fade = clamp(darkAlpha, 0.0, 1.0);
-    if (r <= rsPx) {
+    // ~2px anti-aliased horizon edge: solid horizon color inside, blends into the lens outside.
+    float horizonMask = 1.0 - smoothstep(rsPx - 1.0, rsPx + 1.0, r);
+    if (horizonMask >= 0.999) {
         vec3 outRGB = mix(base, horizonColor, fade);
         gl_FragColor = vec4(outRGB, 1.0);
         return;
@@ -66,5 +71,6 @@ void main(){
     float coreTakeover = smoothstep(rsPx + innerFeather * 0.2, rsPx + innerFeather * 0.6, r);
     float strength = clamp(max(lensW, 1.0 - coreTakeover) * fade, 0.0, 1.0);
     vec3 outRGB = mix(base, rgb, strength);
+    outRGB = mix(outRGB, horizonColor, horizonMask * fade);
     gl_FragColor = vec4(outRGB, 1.0);
 }

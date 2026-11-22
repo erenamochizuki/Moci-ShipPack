@@ -7,6 +7,6 @@
   "flameoutOnImpactChance": 0,
   "clampTurnRateAfter": true,
   "clampMaxSpeedAfter": false,
-  "useSound": "moci_minovsky_start_penelope",
+  "useSound": "moci_sys_minovsky_start_penelope",
   "fadeActivationSoundOnChargedown": true
 }

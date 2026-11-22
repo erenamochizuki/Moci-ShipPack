@@ -32,6 +32,6 @@
   "barrelMode": "ALTERNATING",
   "autocharge": true,
   "animationType": "NONE",
-  "fireSoundOne": "Moci_Charge_02",
-  "fireSoundTwo": "Moci_HearyEnergy_1"
+  "fireSoundOne": "moci_wpn_charge_02",
+  "fireSoundTwo": "moci_wpn_heavy_energy_01"
 }

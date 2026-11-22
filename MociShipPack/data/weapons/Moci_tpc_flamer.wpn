@@ -26,5 +26,5 @@
     "unaffectedByProjectileSpeedBonuses":true,
     "noImpactSounds":true,
 	"projectileSpecId":"Moci_tpc4_shot",  # projectile that will be fired
-	"fireSoundTwo":"Moci_Flamerhot",
+	"fireSoundTwo":"moci_wpn_flamer_shot",
 }

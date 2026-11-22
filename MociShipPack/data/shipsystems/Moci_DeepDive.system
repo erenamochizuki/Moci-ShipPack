@@ -34,7 +34,7 @@
 	"shipAlpha":1, # handled in stats script
 	#"shipAlpha":0.25,
 	
-	"useSound":"Moci_deepdive",
+	"useSound":"moci_sys_deep_dive",
 	#"deactivateSound":"system_phase_cloak_deactivate",
 	"deactivateSound":"system_phase_cloak_deactivate",
 	"outOfUsesSound":"system_phase_cloak_collision",

@@ -60,5 +60,5 @@
     MISSILE_FF,
     MISSILE_NO_FF
   ],
-  #"fireSoundTwo": "Moci_Magnum_01"
+  #"fireSoundTwo": "moci_wpn_magnum_01"
 }

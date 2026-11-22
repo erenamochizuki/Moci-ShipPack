@@ -14,21 +14,24 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 
 /**
- * 通讯头像：清晰底图上间歇叠加轻微重影、局部错位和噪点，无扫描线。
+ * 通讯头像：打开页面时播放双段干扰，短暂停顿后扫描一次；随后间歇重复。
  * 作为头像容器插件使用；底图仍由原 UI 绘制，取不到贴图时也能正常显示、点击。
  * 顶点限制在头像内，不改父列表的 scissor，也不消费输入。
  */
 public final class Moci_UIPortraitSignal extends BaseCustomUIPanelPlugin {
     private static final Logger LOG = Global.getLogger(Moci_UIPortraitSignal.class);
-    private static final long T0 = System.nanoTime();
     private static final float BURST_SECONDS = 0.38f;
+    private static final double SCAN_DELAY = 0.1;
+    private static final double SCAN_SECONDS = 0.9;
     private static final int ATTRIB_BITS = GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT
             | GL11.GL_CURRENT_BIT | GL11.GL_TEXTURE_BIT | GL11.GL_LIGHTING_BIT;
 
     private final String path;
     private final int seed;
     private final double period;
-    private final double offset;
+    private final double burstGap;
+    private long firstRenderNanos;
+    private boolean started;
     private final Moci_UIScanFrame frame;
     private PositionAPI position;
     private SpriteAPI sprite;
@@ -39,7 +42,7 @@ public final class Moci_UIPortraitSignal extends BaseCustomUIPanelPlugin {
         this.path = path;
         seed = path == null ? 0 : path.hashCode();
         period = 4.8 + noise(seed) * 2.4;
-        offset = noise(seed + 1) * period;
+        burstGap = 0.1 + noise(seed + 1) * 0.2;
         frame = new Moci_UIScanFrame(base).setScanning(false);
     }
 
@@ -49,16 +52,31 @@ public final class Moci_UIPortraitSignal extends BaseCustomUIPanelPlugin {
     }
 
     @Override public void render(float alphaMult) {
+        renderAtTime(alphaMult, System.nanoTime());
+    }
+
+    private void renderAtTime(float alphaMult, long now) {
         if (position == null) return;
         float w = position.getWidth(), h = position.getHeight();
         float a = clamp01(alphaMult);
         if (!Float.isFinite(w) || !Float.isFinite(h) || w <= 2f || h <= 2f || a <= 0f) return;
-        // 进程时钟使暂停时仍有通讯效果，切换页面也不会从头播放；各头像错开干扰。
-        double time = (System.nanoTime() - T0) / 1.0e9 + offset;
+        // 首次可见绘制才起计时：UI 构建耗时和透明过渡不会跳过加载动画。
+        // 使用实时时钟，游戏暂停时也播放；每次新建页面都会从第一段开始。
+        if (!started) {
+            firstRenderNanos = now;
+            started = true;
+        }
+        double time = Math.max(0.0, (now - firstRenderNanos) / 1.0e9);
         double phase = time % period;
-        if (phase < BURST_SECONDS && sprite() != null) {
-            float strength = (float) Math.sin(phase / BURST_SECONDS * Math.PI);
+        double secondStart = BURST_SECONDS + burstGap;
+        double burstPhase = phase < secondStart ? phase : phase - secondStart;
+        if (burstPhase < BURST_SECONDS && sprite() != null) {
+            float strength = (float) Math.sin(burstPhase / BURST_SECONDS * Math.PI);
             drawSignal(position.getX(), position.getY(), w, h, a, strength, (int) (time * 24));
+        }
+        double scanPhase = phase - (secondStart + BURST_SECONDS + SCAN_DELAY);
+        if (scanPhase >= 0.0 && scanPhase < SCAN_SECONDS) {
+            frame.renderScanOnce(alphaMult, (float) (scanPhase / SCAN_SECONDS));
         }
         frame.render(alphaMult);
     }

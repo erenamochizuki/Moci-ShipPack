@@ -7,7 +7,7 @@ import com.fs.starfarer.api.combat.ShipAPI.HullSize;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
 
 /** 战术改装（火力组）：先进光学器件；沿用原版 advancedoptics 的普通效果及与高散射增幅器的互斥规则。 */
-public class Moci_TacticalAdvancedOptics extends BaseHullMod {
+public class Moci_TacticalAdvancedOptics extends BaseHullMod implements Moci_TacticalHullmods.ParamTone {
     public static final float BEAM_RANGE_BONUS = 200f;
     public static final float BEAM_TURN_PENALTY = 30f;
 
@@ -19,6 +19,10 @@ public class Moci_TacticalAdvancedOptics extends BaseHullMod {
         if (index == 0) return "" + (int) BEAM_RANGE_BONUS;
         if (index == 1) return (int) BEAM_TURN_PENALTY + "%";
         return null;
+    }
+    /** 1：光束转动速度降低。 */
+    @Override public boolean isNegativeParam(int index) {
+        return index == 1;
     }
     @Override public boolean isApplicableToShip(ShipAPI ship) {
         return ship != null && !ship.getVariant().hasHullMod(HullMods.HIGH_SCATTER_AMP);

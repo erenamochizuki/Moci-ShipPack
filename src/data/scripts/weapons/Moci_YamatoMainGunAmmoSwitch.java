@@ -249,7 +249,7 @@ public class Moci_YamatoMainGunAmmoSwitch implements EveryFrameWeaponEffectPlugi
             // 高爆弹特效：橙红色闪光 + 浓密烟雾 + 火花
 
             // 播放高爆弹音效
-            Global.getSoundPlayer().playSound("Moci_Yamato_maingun_02", 1f, 1f, 
+            Global.getSoundPlayer().playSound("moci_wpn_yamato_maingun_02", 1f, 1f, 
                     weapon.getLocation(), weapon.getShip().getVelocity());
 
             // 闪光
@@ -302,7 +302,7 @@ public class Moci_YamatoMainGunAmmoSwitch implements EveryFrameWeaponEffectPlugi
             // 普通弹特效：蓝白色闪光 + 轻烟雾
 
             // 播放动能弹音效
-            Global.getSoundPlayer().playSound("Moci_Yamato_maingun_01", 1f, 1f, 
+            Global.getSoundPlayer().playSound("moci_wpn_yamato_maingun_01", 1f, 1f, 
                     weapon.getLocation(), weapon.getShip().getVelocity());
 
             // 闪光

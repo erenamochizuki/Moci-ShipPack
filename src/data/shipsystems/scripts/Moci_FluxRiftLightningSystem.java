@@ -110,7 +110,7 @@ public class Moci_FluxRiftLightningSystem extends BaseShipSystemScript {
                     EMP_DAMAGE, false, false, ship, true);
         }
 
-        Global.getSoundPlayer().playSound("Moci_Lightting", 1f, 0.6f, from, ship.getVelocity());
+        Global.getSoundPlayer().playSound("moci_fx_lightning", 1f, 0.6f, from, ship.getVelocity());
         return true;
     }
 

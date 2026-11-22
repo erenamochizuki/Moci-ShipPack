@@ -31,7 +31,9 @@ public final class Moci_FighterLoadoutLifecycle {
     private static final String LOG_PREFIX = "Moci-AirSquadron|lifecycle|";
     /** persistent data 里存内嵌注册库 JSON 的键。 */
     public static final String CATALOG_KEY = "moci_fighter_loadout_catalog";
+    private static final String PRICE_REVIEWED = "moci_fighter_weapon_op_review_v1";
     private static final List<String> notices = new ArrayList<>();
+    private static boolean pricingReviewReady;
 
     private Moci_FighterLoadoutLifecycle() {}
 
@@ -122,7 +124,7 @@ public final class Moci_FighterLoadoutLifecycle {
 
     /** 读档（含读 autosave/中途读档）：内嵌副本回灌 → 注册定义 → 安装市场守卫；任何一步失败都不挡后面的步骤。 */
     public static void onGameLoad(boolean newGame) {
-        synchronized (notices) { notices.clear(); }
+        synchronized (notices) { notices.clear(); pricingReviewReady = false; }
         int restored = 0;
         int definitions = -1;
         try {
@@ -146,6 +148,17 @@ public final class Moci_FighterLoadoutLifecycle {
             addNotice("航空中队管理：从存档内嵌副本恢复了 " + restored + " 条自定义联队定义");
         }
         try {
+            SectorAPI sector = Global.getSector();
+            if (sector != null && !Boolean.TRUE.equals(sector.getPersistentData().get(PRICE_REVIEWED))
+                    && definitions >= 0 && Moci_FighterLoadoutService.isAvailable()) {
+                boolean complete = newGame || definitions == 0 || Moci_FighterPricingReview.check(sector,
+                        Moci_FighterLoadoutLifecycle::addNotice);
+                synchronized (notices) { pricingReviewReady = complete; markReviewedWhenDelivered(); }
+            }
+        } catch (RuntimeException | LinkageError ex) {
+            log().warn(LOG_PREFIX + "cannot finish fighter OP review; will retry on next load", ex);
+        }
+        try {
             Moci_FighterMarketGuard.install();
         } catch (RuntimeException | LinkageError ex) {
             // 引擎读档钩子的最后一步：守卫装不上只记录，不能让读档中断。
@@ -158,7 +171,17 @@ public final class Moci_FighterLoadoutLifecycle {
     /** 协调器在安全的时机取一条待显示的提示；没有则返回 null。 */
     public static String pollNotice() {
         synchronized (notices) {
-            return notices.isEmpty() ? null : notices.remove(0);
+            String notice = notices.isEmpty() ? null : notices.remove(0);
+            markReviewedWhenDelivered();
+            return notice;
+        }
+    }
+
+    // A save taken before the campaign UI can show the warning must still warn on reload.
+    private static void markReviewedWhenDelivered() {
+        if (pricingReviewReady && notices.isEmpty()) {
+            Global.getSector().getPersistentData().put(PRICE_REVIEWED, true);
+            pricingReviewReady = false;
         }
     }
 

@@ -194,7 +194,7 @@
       "arc": 360,
       "angle": 0,
       "locations": [6, 47],
-      "renderOrderMod": 6
+      "renderOrderMod": 16
     },
     {
       "id": "WING_LB_COVER",
@@ -204,7 +204,7 @@
       "arc": 360,
       "angle": 0,
       "locations": [-32, 49],
-      "renderOrderMod": 6
+      "renderOrderMod": 16
     },
     {
       "id": "WING_RF_COVER",
@@ -214,7 +214,7 @@
       "arc": 360,
       "angle": 0,
       "locations": [6, -47],
-      "renderOrderMod": 6
+      "renderOrderMod": 16
     },
     {
       "id": "WING_RB_COVER",
@@ -224,7 +224,7 @@
       "arc": 360,
       "angle": 0,
       "locations": [-32, -49],
-      "renderOrderMod": 6
+      "renderOrderMod": 16
     },
     {
       "id": "HEAD_SOURCE",

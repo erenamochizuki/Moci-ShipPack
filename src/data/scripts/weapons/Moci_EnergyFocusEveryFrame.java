@@ -147,7 +147,7 @@ public class Moci_EnergyFocusEveryFrame implements EveryFrameWeaponEffectPlugin 
 
         // 播放轻度蓄力音效
         Global.getSoundPlayer().playSound(
-                "Moci_WaveCannon_charge_light",
+                "moci_wpn_wave_cannon_charge_light",
                 1.0f,
                 1.0f,
                 weapon.getLocation(),
@@ -424,7 +424,7 @@ public class Moci_EnergyFocusEveryFrame implements EveryFrameWeaponEffectPlugin 
         if (!chargeHeavyPlayed && level >= 0.5f) {
             chargeHeavyPlayed = true;
             Global.getSoundPlayer().playSound(
-                    "Moci_WaveCannon_charge_heavy",
+                    "moci_wpn_wave_cannon_charge_heavy",
                     1.0f,
                     1.0f,
                     firePoint,
@@ -436,7 +436,7 @@ public class Moci_EnergyFocusEveryFrame implements EveryFrameWeaponEffectPlugin 
             loopSoundPlayed = true;
             // 播放循环音效，音调根据当前充能等级
             Global.getSoundPlayer().playLoop(
-                    "Moci_WaveCannon_loop",
+                    "moci_wpn_wave_cannon_loop",
                     weapon.getShip(),
                     1.0f,
                     1.0f + level * 0.3f,
@@ -458,7 +458,7 @@ public class Moci_EnergyFocusEveryFrame implements EveryFrameWeaponEffectPlugin 
         if (level >= 0.8f) {
             // 高蓄力 - 播放重型开火音效
             Global.getSoundPlayer().playSound(
-                    "Moci_WaveCannon_shot_heavy",
+                    "moci_wpn_wave_cannon_shot_heavy",
                     1.0f,
                     0.9f + level * 0.2f,
                     firePoint,
@@ -466,7 +466,7 @@ public class Moci_EnergyFocusEveryFrame implements EveryFrameWeaponEffectPlugin 
         } else {
             // 低蓄力 - 播放轻型开火音效
             Global.getSoundPlayer().playSound(
-                    "Moci_WaveCannon_shot_light",
+                    "moci_wpn_wave_cannon_shot_light",
                     1.0f,
                     1.0f,
                     firePoint,
@@ -488,7 +488,7 @@ public class Moci_EnergyFocusEveryFrame implements EveryFrameWeaponEffectPlugin 
 
         // 播放结束音效
         Global.getSoundPlayer().playSound(
-                "Moci_WaveCannon_end",
+                "moci_wpn_wave_cannon_end",
                 1.0f,
                 1.0f,
                 firePoint,

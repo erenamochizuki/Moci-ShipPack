@@ -21,6 +21,6 @@
 	"pixelsPerTexel":5.0,
 	"pierceSet":[PROJECTILE_FF,PROJECTILE_NO_FF,PROJECTILE_FIGHTER,MISSILE_FF,MISSILE_NO_FF],
 	#"fireSoundOne":"phase_beam_intro",
-	"fireSoundOne":"Moci_RX93v2_bitbeam",
+	"fireSoundOne":"moci_wpn_rx93v2_bit_beam",
 	"fireSoundTwo":"kinetic_blaster_fire",	
 }

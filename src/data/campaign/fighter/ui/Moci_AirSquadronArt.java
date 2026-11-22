@@ -36,6 +36,9 @@ public final class Moci_AirSquadronArt {
     private final Map<String, float[]> hullCenters = new HashMap<>();
     private final Map<String, Boolean> barrelsBelow = new HashMap<>();
     private final Map<String, float[]> visibleBounds = new HashMap<>();
+    private final Map<String, String> previewEffects = new HashMap<>();
+    private JSONObject shieldArmDeclarations;
+    private boolean shieldArmDeclarationsLoaded;
 
     public static final class Model {
         final List<Layer> layers;
@@ -66,6 +69,14 @@ public final class Moci_AirSquadronArt {
         }
         void render(Moci_AirSquadronLayout.Transform transform, float alpha, Color tint) {
             for (Layer layer : layers) layer.render(transform, alpha, tint);
+        }
+        /** Reusable campaign presentation: include the complete hull, built-ins and modules. */
+        /** Visible pixel bounds of the complete static assembly, before any presentation scaling. */
+        public float nativeWidth() { return maxX - minX; }
+        public float nativeHeight() { return maxY - minY; }
+        public float aspectRatio() { return (maxX - minX) / Math.max(1f, maxY - minY); }
+        public void renderCentered(float cx, float cy, float width, float height, float alpha, Color tint) {
+            render(fit(cx - width / 2f, cy - height / 2f, width, height), alpha, tint);
         }
         /** Fit the visible model into a centered fraction of the frame, preserving its aspect ratio. */
         public void addToPanel(CustomPanelAPI parent, float width, float height, float contentFraction) {
@@ -106,14 +117,21 @@ public final class Moci_AirSquadronArt {
 
     public Model build(ShipVariantAPI variant) {
         List<Layer> layers = new ArrayList<>();
-        appendVariant(layers, variant, 0, 0, 0, Collections.newSetFromMap(new IdentityHashMap<>()), true);
+        appendVariant(layers, variant, 0, 0, 0, Collections.newSetFromMap(new IdentityHashMap<>()), true, false);
         return new Model(layers);
     }
 
     /** Ship overview: decorations and built-in weapons; editable fighter previews use build instead. */
     public Model buildShipPreview(ShipVariantAPI variant) {
         List<Layer> layers = new ArrayList<>();
-        appendVariant(layers, variant, 0, 0, 0, Collections.newSetFromMap(new IdentityHashMap<>()), false);
+        appendVariant(layers, variant, 0, 0, 0, Collections.newSetFromMap(new IdentityHashMap<>()), false, false);
+        return new Model(layers);
+    }
+
+    /** Reward art has no combat callbacks: omit only parts hidden by known decorative controllers. */
+    public Model buildRewardPreview(ShipVariantAPI variant) {
+        List<Layer> layers = new ArrayList<>();
+        appendVariant(layers, variant, 0, 0, 0, Collections.newSetFromMap(new IdentityHashMap<>()), true, true);
         return new Model(layers);
     }
 
@@ -126,7 +144,7 @@ public final class Moci_AirSquadronArt {
     }
 
     private void appendVariant(List<Layer> layers, ShipVariantAPI variant, float ox, float oy, float angle, Set<ShipVariantAPI> ancestors,
-                               boolean includeFittedWeapons) {
+                               boolean includeFittedWeapons, boolean hideDecoratedSources) {
         if (variant == null || !ancestors.add(variant)) return;
         ShipHullSpecAPI hull = variant.getHullSpec();
         SpriteAPI hullSprite = sprite(hull.getSpriteName());
@@ -143,6 +161,7 @@ public final class Moci_AirSquadronArt {
             String weaponId = variant.getWeaponId(slot.getId());
             if (weaponId != null && !weaponId.isEmpty()) fitted.put(slot.getId(), weaponId);
         }
+        Set<String> hidden = hideDecoratedSources ? hiddenPreviewSlots(slots, fitted) : Set.of();
         slots.sort(Comparator.comparingDouble((WeaponSlotAPI slot) -> {
             String id = fitted.get(slot.getId());
             WeaponSpecAPI spec = id == null ? null : weapon(id);
@@ -158,7 +177,7 @@ public final class Moci_AirSquadronArt {
             String id = fitted.get(slot.getId());
             boolean visibleWeapon = includeFittedWeapons || slot.isDecorative() || slot.isBuiltIn()
                     || hull.getBuiltInWeapons().containsKey(slot.getId());
-            if (!slot.isHidden() && visibleWeapon && id != null && !id.isEmpty()) {
+            if (!slot.isHidden() && !hidden.contains(slot.getId()) && visibleWeapon && id != null && !id.isEmpty()) {
                 appendWeapon(layers, weapon(id), !slot.isHardpoint(), px, py, angle + slot.getAngle());
             }
             ShipVariantAPI module = modules == null || !modules.containsKey(slot.getId()) ? null : variant.getModuleVariant(slot.getId());
@@ -170,10 +189,59 @@ public final class Moci_AirSquadronArt {
                 float anchorY = anchor == null ? 0 : anchor.x;
                 px -= anchorX * (float) Math.cos(ma) - anchorY * (float) Math.sin(ma);
                 py -= anchorX * (float) Math.sin(ma) + anchorY * (float) Math.cos(ma);
-                appendVariant(layers, module, px, py, moduleAngle, ancestors, includeFittedWeapons);
+                appendVariant(layers, module, px, py, moduleAngle, ancestors, includeFittedWeapons, hideDecoratedSources);
             }
         }
         ancestors.remove(variant);
+    }
+
+    private Set<String> hiddenPreviewSlots(List<WeaponSlotAPI> slots, Map<String, String> fitted) {
+        Set<String> hidden = new java.util.HashSet<>();
+        for (WeaponSlotAPI slot : slots) {
+            if (!slot.isDecorative()) continue;
+            String weaponId = fitted.get(slot.getId());
+            if (weaponId == null) continue;
+            String effect = previewEffects.computeIfAbsent(weaponId, this::previewEffect);
+            boolean hideSource, hideFollow;
+            // Explicit callback contracts, never a blanket rule for *_SOURCE mounts.
+            switch (effect) {
+                case "data.scripts.weapons.Moci_MechProjDecoWeaponEffect",
+                     "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_Zaku",
+                     "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide" -> {
+                    hideSource = true; hideFollow = true;
+                }
+                case "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide",
+                     "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm" -> {
+                    hideSource = false; hideFollow = true;
+                }
+                default -> { continue; }
+            }
+            String sourceId = slot.getId() + "_SOURCE";
+            if (hideSource) hidden.add(sourceId);
+            boolean followLinked = fitted.containsKey(sourceId)
+                    || (effect.endsWith("_Zaku") && fitted.containsKey(slot.getId() + "_TYPE"));
+            if (hideFollow && followLinked) hidden.add(slot.getId() + "_FOLLOW");
+        }
+        return hidden;
+    }
+
+    private String previewEffect(String weaponId) {
+        JSONObject json = loadJson("data/weapons/" + weaponId + ".wpn");
+        String effect = json == null ? "" : json.optString("everyFrameEffect", "");
+        if (!"xi.arsenal.AdaptiveShieldArmEffects".equals(effect)) return effect;
+        // Use the same explicit originalEffect declaration as the combat wrapper.
+        if (!shieldArmDeclarationsLoaded) {
+            shieldArmDeclarations = loadJson("data/config/adaptive_shield_guard.json");
+            shieldArmDeclarationsLoaded = true;
+        }
+        JSONArray declarations = shieldArmDeclarations == null ? null : shieldArmDeclarations.optJSONArray("weapons");
+        if (declarations != null) for (int i = 0; i < declarations.length(); i++) {
+            JSONObject row = declarations.optJSONObject(i);
+            if (row != null && row.optBoolean("wrapper", false) && weaponId.equals(row.optString("weaponId"))) {
+                return row.optString("originalEffect", "");
+            }
+        }
+        return "";
     }
 
     private void appendWeapon(List<Layer> layers, WeaponSpecAPI weapon, boolean turret, float x, float y, float angle) {

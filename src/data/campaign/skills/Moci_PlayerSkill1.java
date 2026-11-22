@@ -340,7 +340,7 @@ public class Moci_PlayerSkill1 {
                     // 使用距离平方避免平方根运算
                     float distSq = MathUtils.getDistanceSquared(shipLoc, t.getLocation());
                     if (distSq <= ENEMY_RANGE_SQ) {
-                        Global.getSoundPlayer().playSound("Moci_NT", 1.0f, 0.7f, shipLoc,
+                        Global.getSoundPlayer().playSound("moci_fx_nt", 1.0f, 0.7f, shipLoc,
                                 ship.getVelocity());
                         activate(player);
                         return;
@@ -369,7 +369,7 @@ public class Moci_PlayerSkill1 {
                     
                     // 检查导弹伤害阈值
                     if (missile.getDamageAmount() >= MISSILE_DAMAGE_THRESHOLD) {
-                        Global.getSoundPlayer().playSound("Moci_NT", 1.0f, 1.0f, shipLoc,
+                        Global.getSoundPlayer().playSound("moci_fx_nt", 1.0f, 1.0f, shipLoc,
                                 ship.getVelocity());
                         activate(player);
                         return;
@@ -400,7 +400,7 @@ public class Moci_PlayerSkill1 {
                     
                     // 检查弹丸伤害阈值
                     if (p.getDamageAmount() >= PROJECTILE_DAMAGE_THRESHOLD) {
-                        Global.getSoundPlayer().playSound("Moci_NT", 1.0f, 1.0f, shipLoc,
+                        Global.getSoundPlayer().playSound("moci_fx_nt", 1.0f, 1.0f, shipLoc,
                                 ship.getVelocity());
                         activate(player);
                         return;

@@ -20,6 +20,13 @@ public class Moci_MechProjDecoWeaponEffect_shield_arm_Hide extends Moci_MechProj
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
         // 调用父类的基础功能
         super.advance(amount, engine, weapon);
+
+        if (engine == null) return;
+        if (engine.isPaused()) {
+            // 父类维护 FOLLOW；此处只维护已有 SOURCE，不同步开火点。
+            hideSourceWeapon();
+            return;
+        }
         
         // 如果找到了SOURCE武器，则进行开火点同步和隐藏
         if (source != null) {

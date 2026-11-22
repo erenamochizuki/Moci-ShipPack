@@ -4,6 +4,7 @@ moci_combatSquadHeader,CombatSquad 机师系统,Header,CombatSquad 机师系统,
 Moci_enablePilotSystem,启用机师系统,Boolean,true,,是否启用CombatSquad机师系统。关闭后僚机将没有军官。,,,CombatSquad
 Moci_SquadRecallKey,编队集结键,Keycode,0,,作战小队队长机的子系统「编队集结」：打断全部僚机的当前行动并召回至本舰身旁，冷却 60 秒。保持未绑定（0）时由 MagicLib 自动分配子系统热键（见战斗 HUD 的「编队集结 [键]」）；设置后改用这里的键。下一场战斗生效。,,,CombatSquad
 Moci_useDynamicPilots,自定义作战小队,Boolean,true,,开启后允许为舰长军官建立并自定义专属作战小队；关闭后使用舰船配置中的默认小队，不创建军官专属编队。,,,CombatSquad
+Moci_reduceModelPortraitMotion,减少大模型头像动态,Boolean,false,,仅影响舰载 AI 详情页。开启后跳过首次显像，最终形态默认展示静帧；点击头像仍可播放或暂停。,,,CombatSquad
 ,,,,,,,,
 moci_gnShieldHeader,GN护盾性能优化,Header,GN护盾性能优化,,,,,GNShield
 Moci_gnShieldSkipFighter,禁用舰载机特效,Boolean,true,,关闭舰载机的GN护盾视觉特效以提升性能。主力舰特效不受影响。,,,GNShield

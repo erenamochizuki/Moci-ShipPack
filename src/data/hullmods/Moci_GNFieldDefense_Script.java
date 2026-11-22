@@ -18,6 +18,7 @@ import com.fs.starfarer.api.combat.DamageAPI;
 import com.fs.starfarer.api.combat.DamageType;
 import com.fs.starfarer.api.combat.DamagingProjectileAPI;
 import com.fs.starfarer.api.combat.EmpArcEntityAPI;
+import com.fs.starfarer.api.combat.ShieldAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipCommand;
 import com.fs.starfarer.api.combat.ShipwideAIFlags;
@@ -49,6 +50,7 @@ public class Moci_GNFieldDefense_Script implements DamageTakenModifier, Advancea
 
     // 上一帧状态记录
     private float lastFrameHitpoint = 0;
+    private boolean closedHitPending;
     private boolean lastFramePhaseCloakActive = false;
     private boolean lastFrameSystemActive = true;
 
@@ -126,10 +128,22 @@ public class Moci_GNFieldDefense_Script implements DamageTakenModifier, Advancea
 
     // ========== 伤害处理 ==========
 
+    private boolean isFieldEnabled() {
+        if (!SHIELD_CONTROL) return true;
+        ShieldAPI nativeShield = ship.getShield();
+        return nativeShield == null || nativeShield.isOn() || ship.getFluxTracker().isOverloadedOrVenting();
+    }
+
     @Override
     public String modifyDamageTaken(Object param, CombatEntityAPI target,
             DamageAPI damage, Vector2f point, boolean shieldHit) {
         damage.getModifier().unmodify(KEY);
+
+        if (!isFieldEnabled()) {
+            // The engine applies this hit after the callback. Capture it before the next restore.
+            closedHitPending = true;
+            return null;
+        }
 
         // 检查护盾是否被击破
         if (shield.isShieldBroken()) {
@@ -141,16 +155,7 @@ public class Moci_GNFieldDefense_Script implements DamageTakenModifier, Advancea
             return null;
         }
 
-        // 如果有原版护盾控制，检查是否激活
-        // 如果没有原版护盾，GN力场防御系统始终激活
-        if (SHIELD_CONTROL) {
-            // 有原版护盾：只在护盾开启或过载时工作
-            if (ship.getShield() != null && !ship.getShield().isOn() &&
-                    !(ship.getFluxTracker().isOverloadedOrVenting())) {
-                return null;
-            }
-        }
-        // 没有原版护盾：始终工作，不需要额外检查
+        if (closedHitPending) saveArmorAndHull(); // Reopened and hit again before advance.
 
         // 特殊处理：爆炸伤害减免
         if (param == null) {
@@ -288,28 +293,14 @@ public class Moci_GNFieldDefense_Script implements DamageTakenModifier, Advancea
             }
         }
 
-        // 装甲保护：护盾未被击破且护盾值足够就保护
-        boolean shouldRetain = !shield.isShieldBroken() && shield.getShieldLevel() >= 0.05f;
-
-        if (shouldRetain) {
-            if (ship.getFluxTracker().isOverloadedOrVenting()) {
-                if (!isShieldBlockWhileVenting()) {
-                    retainArmor();
-                    if (ship.getHitpoints() < lastFrameHitpoint) {
-                        ship.setHitpoints(lastFrameHitpoint);
-                    }
-                    lastFrameHitpoint = ship.getHitpoints();
-                }
-            } else {
-                retainArmor();
-                if (ship.getHitpoints() < lastFrameHitpoint) {
-                    ship.setHitpoints(lastFrameHitpoint);
-                }
-                lastFrameHitpoint = ship.getHitpoints();
+        if (isFieldEnabled() && !closedHitPending && !shield.isShieldBroken() && shield.getShieldLevel() >= 0.05f
+                && (!ship.getFluxTracker().isOverloadedOrVenting() || !isShieldBlockWhileVenting())) {
+            retainArmor();
+            if (ship.getHitpoints() < lastFrameHitpoint) {
+                ship.setHitpoints(lastFrameHitpoint);
             }
         }
-        saveArmor();
-        lastFrameHitpoint = ship.getHitpoints();
+        saveArmorAndHull();
 
         // 记录系统状态
         lastFrameSystemActive = ship.getSystem() != null && ship.getSystem().isOn();
@@ -573,6 +564,12 @@ public class Moci_GNFieldDefense_Script implements DamageTakenModifier, Advancea
     // ========== 装甲保护 ==========
 
     private float[][] armorGridCopy = null;
+
+    private void saveArmorAndHull() {
+        saveArmor();
+        lastFrameHitpoint = ship.getHitpoints();
+        closedHitPending = false;
+    }
 
     public void retainArmor() {
         if (armorGridCopy == null) {

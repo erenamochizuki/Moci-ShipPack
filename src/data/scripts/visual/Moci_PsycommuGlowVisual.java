@@ -442,7 +442,8 @@ public class Moci_PsycommuGlowVisual extends BaseCombatLayeredRenderingPlugin {
 	}
 
 	private Vector2f getSpriteCenterOffset(SpriteAPI sprite) {
-		if (sprite == null) {
+		// renderAtCenter uses the geometric center on both axes if either pivot is unset.
+		if (sprite == null || sprite.getCenterX() == -1f || sprite.getCenterY() == -1f) {
 			return new Vector2f();
 		}
 

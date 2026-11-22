@@ -217,7 +217,7 @@ public class Moci_SuperTimporalStats extends BaseShipSystemScript {
 	 */
 	private void playActivationSound(ShipAPI ship) {
 		// 播放鲸鸣音效
-		Global.getSoundPlayer().playSound("Moci_Whales_call", 1f, 0.5f,
+		Global.getSoundPlayer().playSound("moci_sys_whales_call", 1f, 0.5f,
 				ship.getLocation(), ship.getVelocity());
 	}
 

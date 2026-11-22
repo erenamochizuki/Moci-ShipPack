@@ -243,7 +243,7 @@ public class Moci_Weapon1Effect implements EveryFrameWeaponEffectPlugin {
                                 new Color(138, 209, 255, 255) // 爆炸颜色
                         );
                         engine.spawnDamagingExplosion(spec, ship, loc);
-                        Global.getSoundPlayer().playSound("Moci_Light_1", 1f, 1f, loc, new Vector2f());
+                        Global.getSoundPlayer().playSound("moci_wpn_light_01", 1f, 1f, loc, new Vector2f());
                     }
                     mineLoc.clear();
                     targets.clear();

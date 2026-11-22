@@ -68,7 +68,8 @@ public abstract class Moci_ShipboardAISystemBase extends BaseHullMod {
         if (ship.getFleetMember() == null) {
             return;
         }
-        if (!Moci_ShipboardAIConfigLoader.hasShipboardAISystem(ship.getFleetMember())) {
+        if (!Moci_ShipboardAISystemRegistry.isActive(ship.getVariant(), getHullmodId())
+                || !Moci_ShipboardAISystemRegistry.isActive(ship.getFleetMember().getVariant(), getHullmodId())) {
             return;
         }
         handlePlayerControlTransition(ship);

@@ -38,6 +38,7 @@ import com.fs.starfarer.api.loading.WeaponSlotAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.loading.WeaponGroupSpec;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.MutableValue;
 import data.hullmods.Moci_TacticalHullmods;
 
 /** Single-carrier transactions. Global prototypes and cargo LPC stacks are never edited. */
@@ -228,25 +229,44 @@ public final class Moci_FighterLoadoutService {
     public static Moci_FighterRefitBudget.Budget refitBudgetForTacticals(String wingId,
             Map<String, String> loadout, List<String> tacticalHullmods) {
         FighterWingSpecAPI prototype = getWingSpec(getBaseWingId(wingId));
+        return refitBudget(prototype, loadout, tacticalHullmods, true);
+    }
+
+    private static Moci_FighterRefitBudget.Budget refitBudget(FighterWingSpecAPI prototype,
+            Map<String, String> loadout, List<String> tacticalHullmods, boolean chargeWeaponOp) {
         if (prototype == null || prototype.getVariant() == null || loadout == null) {
             throw new IllegalArgumentException("原型联队规格或装配缺失");
         }
-        int points = Moci_TacticalHullmods.normalize(tacticalHullmods).size() * Moci_FighterRefitBudget.TACTICAL_POINTS;
+        int points = 0;
+        boolean applyPolicy = Moci_FighterLoadoutEligibility.getFailure() == null;
+        for (String id : Moci_TacticalHullmods.normalize(tacticalHullmods)) {
+            if (tacticalIssue(id, prototype, applyPolicy) == null) points += Moci_FighterRefitBudget.TACTICAL_POINTS;
+        }
         for (WeaponSlotAPI slot : getEditableSlots(prototype)) {
             String id = loadout.get(slot.getId());
             String original = prototype.getVariant().getWeaponId(slot.getId());
             if (id == null || id.isEmpty() || id.equals(original)) continue;
             WeaponSpecAPI spec = weapon(id);
             if (spec == null || spec.getSize() == null) throw new IllegalArgumentException("武器尺寸不可用：" + id);
-            int cost = switch (spec.getSize()) {
-                case SMALL -> Moci_FighterRefitBudget.SMALL_POINTS;
-                case MEDIUM -> Moci_FighterRefitBudget.MEDIUM_POINTS;
-                case LARGE -> Moci_FighterRefitBudget.LARGE_POINTS;
-            };
+            int cost = chargeWeaponOp ? Moci_FighterRefitBudget.weaponPoints(spec, original)
+                    : Moci_FighterRefitBudget.sizeFloor(spec.getSize());
             points = Math.addExact(points, cost);
         }
         // A null stats argument reads raw wing-spec OP; custom wings always resolve back to their prototype.
         return new Moci_FighterRefitBudget.Budget(prototype.getOpCost(null), points);
+    }
+
+    /** Detached old-price twin for the save audit: carrier OP modifiers see the same ID, role and tags. */
+    static FighterWingSpecAPI legacyPricedWing(String id) {
+        Moci_FighterLoadoutSpec spec = Moci_FighterLoadoutStore.get(id);
+        FighterWingSpecAPI current = getWingSpec(id);
+        if (spec == null || current == null || definitionIssues.containsKey(id)) return null;
+        FighterWingSpecAPI prototype = getWingSpec(spec.getBaseWingId());
+        float oldOp = refitBudget(prototype, spec.getLoadout(), getTacticalHullmods(id), false).opCost();
+        if (oldOp >= current.getOpCost(null)) return null;
+        FighterWingSpecAPI legacy = copyWing(spec, prototype, oldOp);
+        if (legacy == null) throw new IllegalStateException("无法核对联队旧 OP：" + id);
+        return legacy;
     }
     public static List<String> getTacticalHullmods(String wingId) {
         Moci_FighterLoadoutSpec spec = Moci_FighterLoadoutStore.get(wingId);
@@ -838,37 +858,18 @@ public final class Moci_FighterLoadoutService {
             FleetMemberAPI member = findMember(fresh.memberId);
             // 先按当前预览把市场武器买进玩家货舱，让后续装配事务能像普通库存一样消耗它们；
             // 任何一步失败都必须把已发生的购买完整退回市场并退还信用点。
-            List<Purchase> bought = new ArrayList<>();
+            PurchaseRollback purchases = new PurchaseRollback();
+            String issue;
             try {
-                String purchaseIssue = makePurchases(fresh.purchases, bought);
-                if (purchaseIssue != null) { undoPurchases(bought); return purchaseIssue; }
-                if (fresh.targetSpec != null) {
-                    if (!Moci_FighterLoadoutStore.persist(fresh.targetSpec)) {
-                        undoPurchases(bought);
-                        return Moci_FighterLoadoutStore.describeFailure();
-                    }
-                    String issue = registerDefinition(fresh.targetSpec);
-                    if (issue != null) { undoPurchases(bought); return issue; }
-                } else if (isCustomWingId(fresh.sourceWingId) && !Moci_FighterLoadoutStore.verifyDurableCatalog()) {
-                    undoPurchases(bought);
-                    return Moci_FighterLoadoutStore.describeFailure();
-                }
-                ShipVariantAPI before = member.getVariant();
-                ShipVariantAPI next = isolatedVariant(before, member.getId());
-                next.setWingId(fresh.bayIndex, fresh.targetWingId);
-                if (!fresh.targetWingId.equals(next.getWingId(fresh.bayIndex))) {
-                    undoPurchases(bought);
-                    return "该机库拒绝替换联队";
-                }
-                String result = transact(member, before, next, fresh.consume, fresh.returns);
-                if (result != null) { undoPurchases(bought); return result; }
+                issue = makePurchases(fresh.purchases, purchases);
+                if (issue == null) issue = installRefit(fresh, member);
             } catch (RuntimeException ex) {
-                // 事务回滚：采购开始后任何一步抛出，都先把已买的武器退回市场、退还信用点，再交给外层入口。
-                undoPurchases(bought);
-                throw ex;
+                Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "fighter refit failed", ex);
+                issue = "换装提交失败";
             }
+            if (issue != null) return purchases.abort(issue);
             // 采购与装配事务都成功后才上报成交；这两步在回滚范围之外，绝不撤销已完成的换装。
-            reportPurchases(bought);
+            reportPurchases(fresh.purchases);
             logAppliedVariant(fresh);
             return null;
         } catch (RuntimeException ex) {
@@ -876,6 +877,21 @@ public final class Moci_FighterLoadoutService {
             Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "fighter refit could not be prepared", ex);
             return "换装准备失败，已保留原装配和库存";
         } finally { busy = false; }
+    }
+
+    private static String installRefit(RefitPlan plan, FleetMemberAPI member) {
+        if (plan.targetSpec != null) {
+            if (!Moci_FighterLoadoutStore.persist(plan.targetSpec)) return Moci_FighterLoadoutStore.describeFailure();
+            String issue = registerDefinition(plan.targetSpec);
+            if (issue != null) return issue;
+        } else if (isCustomWingId(plan.sourceWingId) && !Moci_FighterLoadoutStore.verifyDurableCatalog()) {
+            return Moci_FighterLoadoutStore.describeFailure();
+        }
+        ShipVariantAPI before = member.getVariant();
+        ShipVariantAPI next = isolatedVariant(before, member.getId());
+        next.setWingId(plan.bayIndex, plan.targetWingId);
+        if (!plan.targetWingId.equals(next.getWingId(plan.bayIndex))) return "该机库拒绝替换联队";
+        return transact(member, before, next, plan.consume, plan.returns);
     }
 
     /**
@@ -918,7 +934,7 @@ public final class Moci_FighterLoadoutService {
      * {@link #reportPurchases(List)} 补报，失败回滚的采购绝不会被上报。
      * 返回 null 表示成功，否则返回可显示的中文原因。
      */
-    private static String makePurchases(List<Purchase> lines, List<Purchase> done) {
+    private static String makePurchases(List<Purchase> lines, PurchaseRollback rollback) {
         if (lines == null || lines.isEmpty()) return null;
         CargoAPI player = playerCargo();
         if (player == null) return "货舱不可用";
@@ -926,7 +942,10 @@ public final class Moci_FighterLoadoutService {
         for (Purchase p : lines) total += (long) p.unitPrice() * p.count();
         // 单价与数量都是非负 int：总额不超过 int 时每一笔也不超过，下面逐笔直接相乘。
         if (total > Integer.MAX_VALUE) return "购买价格溢出，已取消";
-        if (playerCredits() < total) return "信用点不足，请重新确认";
+        MutableValue credits = player.getCredits();
+        float balance = credits.get();
+        if (!Float.isFinite(balance)) return "信用点数据异常，请重新确认";
+        if (total > 0 && (double) balance < total) return "信用点不足，请重新确认";
         for (Purchase p : lines) {
             // 预览到提交之间玩家可能退出市场界面或改变交易模式，提交前必须再核对一次。
             if (!Moci_FighterMarketAccess.isTradable(p.submarket())
@@ -937,18 +956,28 @@ public final class Moci_FighterLoadoutService {
                 return "市场库存已改变，请重新确认";
             }
         }
-        for (Purchase p : lines) {
-            try {
-                p.submarket().getCargo().removeWeapons(p.weaponId(), p.count());
-                player.addWeapons(p.weaponId(), p.count());
-                player.getCredits().subtract(p.unitPrice() * p.count());
-                done.add(p);
-            } catch (RuntimeException ex) {
-                // 事务回滚：货舱/信用点操作在中途失败时，退回本次已完成的所有购买再报告失败。
-                undoPurchases(done);
-                Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "市场购买失败，已回退", ex);
-                return "购买失败，已退回信用点";
+        rollback.credits = credits;
+        rollback.startingBalance = balance;
+        try {
+            for (Purchase purchase : lines) {
+                CargoAPI market = purchase.submarket().getCargo();
+                String id = purchase.weaponId();
+                int count = purchase.count();
+                int marketBefore = rollback.rememberQuantity(market, id);
+                int playerAfter = Math.addExact(rollback.rememberQuantity(player, id), count);
+                if (marketBefore < count) return "市场库存已改变，请重新确认";
+                int cost = Math.multiplyExact(purchase.unitPrice(), count);
+                float balanceAfter = credits.get() - cost;
+                market.removeWeapons(id, count);
+                if (quantity(market, id) != marketBefore - count) throw new IllegalStateException("市场扣货不符：" + id);
+                player.addWeapons(id, count);
+                if (quantity(player, id) != playerAfter) throw new IllegalStateException("玩家入货不符：" + id);
+                if (cost != 0) credits.subtract(cost);
+                if (credits.get() != balanceAfter) throw new IllegalStateException("采购扣款不符：" + id);
             }
+        } catch (RuntimeException ex) {
+            Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "市场购买失败", ex);
+            return "市场购买失败";
         }
         return null;
     }
@@ -959,26 +988,41 @@ public final class Moci_FighterLoadoutService {
         return fleet == null ? null : fleet.getCargo();
     }
 
-    /**
-     * 把已完成的购买原路退回：货舱扣掉、市场加回、信用点退还。
-     * 回滚不是成交，因此这里绝不上报任何市场交易。
-     */
-    private static void undoPurchases(List<Purchase> done) {
-        if (done == null || done.isEmpty()) return;
-        CargoAPI player = playerCargo();
-        if (player == null) return;
-        for (int i = done.size() - 1; i >= 0; i--) {
-            Purchase p = done.get(i);
-            try {
-                player.removeWeapons(p.weaponId(), p.count());
-                p.submarket().getCargo().addWeapons(p.weaponId(), p.count());
-                player.getCredits().add((float) ((long) p.unitPrice() * p.count()));
-            } catch (RuntimeException ex) {
-                // 回滚中的回滚：一笔退不回去也要继续退其余各笔，并留下错误日志供人工核对。
-                Global.getLogger(Moci_FighterLoadoutService.class).error(LOG_PREFIX + "购买回退失败：" + p.weaponId(), ex);
-            }
+    private static final class PurchaseRollback {
+        private final Map<CargoAPI, Map<String, Integer>> startingStock = new IdentityHashMap<>();
+        private MutableValue credits;
+        private float startingBalance;
+
+        int rememberQuantity(CargoAPI cargo, String id) {
+            int current = quantity(cargo, id);
+            startingStock.computeIfAbsent(cargo, ignored -> new LinkedHashMap<>()).putIfAbsent(id, current);
+            return current;
         }
-        done.clear();
+
+        String abort(String reason) {
+            if (credits == null) return reason;
+            boolean restored = true;
+            for (var stock : startingStock.entrySet()) {
+                for (var weapon : stock.getValue().entrySet()) {
+                    restored &= restoreQuantity(stock.getKey(), weapon.getKey(), weapon.getValue());
+                }
+            }
+            try {
+                if (credits.get() != startingBalance) credits.set(startingBalance);
+            } catch (RuntimeException ex) {
+                Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "采购余额恢复失败", ex);
+            }
+            try {
+                restored &= credits.get() == startingBalance;
+            } catch (RuntimeException ex) {
+                Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "采购余额无法核实", ex);
+                restored = false;
+            }
+            if (restored) return reason + "；采购库存与信用点已恢复";
+            failure = "采购回滚未能完成，已进入只读保护；请保留当前存档并查看日志";
+            Global.getLogger(Moci_FighterLoadoutService.class).error(LOG_PREFIX + failure);
+            return failure;
+        }
     }
 
     /** 装配事务成功后的补报：逐笔上报实际成交；上报失败只记日志，不回滚已完成的换装。 */
@@ -1169,17 +1213,7 @@ public final class Moci_FighterLoadoutService {
                     restored = member.getVariant() == before;
                 }
                 for (Snapshot snapshot : snapshots) for (Map.Entry<String, Integer> entry : snapshot.amounts.entrySet()) {
-                    try {
-                        int current = quantity(snapshot.cargo, entry.getKey());
-                        int difference = entry.getValue() - current;
-                        if (difference > 0) snapshot.cargo.addWeapons(entry.getKey(), difference);
-                        else if (difference < 0) snapshot.cargo.removeWeapons(entry.getKey(), -difference);
-                    } catch (RuntimeException rollbackFailure) {
-                        // 回滚中的回滚：一条库存补不回去也要继续补其余各条，结果由下面的读回判定。
-                        Global.getLogger(Moci_FighterLoadoutService.class)
-                                .error(LOG_PREFIX + "inventory rollback operation failed", rollbackFailure);
-                    }
-                    if (rollbackQuantity(snapshot.cargo, entry.getKey()) != entry.getValue()) restored = false;
+                    restored &= restoreQuantity(snapshot.cargo, entry.getKey(), entry.getValue());
                 }
             }
             if (!restored) failure = "装配事务回滚未能完成，已进入只读保护；请保留当前存档并查看日志";
@@ -1188,10 +1222,22 @@ public final class Moci_FighterLoadoutService {
             return restored ? "换装提交失败，母舰与各来源库存已恢复" : failure;
         }
     }
-    /** 回滚读回用：数量异常时返回 -1，快照里的数量都是合法的非负整数，所以 -1 一定判为未恢复。 */
-    private static int rollbackQuantity(CargoAPI cargo, String id) {
-        float value = cargo.getQuantity(CargoAPI.CargoItemType.WEAPONS, id);
-        return validQuantity(value) ? (int) value : -1;
+    private static boolean restoreQuantity(CargoAPI cargo, String id, int expected) {
+        try {
+            int difference = expected - quantity(cargo, id);
+            if (difference > 0) cargo.addWeapons(id, difference);
+            else if (difference < 0) cargo.removeWeapons(id, -difference);
+        } catch (RuntimeException ex) {
+            Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "库存恢复操作异常：" + id, ex);
+        }
+        try {
+            int actual = quantity(cargo, id);
+            if (actual == expected) return true;
+            Global.getLogger(Moci_FighterLoadoutService.class).error(LOG_PREFIX + id + " 库存应为 " + expected + "，实际 " + actual);
+        } catch (RuntimeException ex) {
+            Global.getLogger(Moci_FighterLoadoutService.class).error(LOG_PREFIX + "库存无法核实：" + id, ex);
+        }
+        return false;
     }
     private static String validateSource(String id) {
         Moci_FighterLoadoutSpec source = Moci_FighterLoadoutStore.get(id);
@@ -1273,13 +1319,11 @@ public final class Moci_FighterLoadoutService {
             applyCustomFighterTags(variant);
             if (!Moci_FighterLoadoutRegistry.registerVariant(variant)) return "战机变体注册失败";
         }
+        // Invalid saved weapons already fall back to stock; keep the prototype OP for this read-only recovery.
+        float opCost = metadataIssue == null ? refitBudget(prototype, spec.getLoadout(), tacticals, true).opCost()
+                : prototype.getOpCost(null);
         FighterWingSpecAPI wing = getWingSpec(spec.getWingId());
         if (wing == null) {
-            // Definitions that no longer fit (e.g. a weapon spec was removed) already fall back to prototype weapons above;
-            // retain the original OP for that read-only fallback instead of rejecting recovery.
-            float opCost = metadataIssue == null
-                    ? refitBudgetForTacticals(spec.getBaseWingId(), spec.getLoadout(), tacticals).opCost()
-                    : prototype.getOpCost(null);
             wing = copyWing(spec, prototype, opCost);
             if (wing == null) return "联队规格复制失败：自动装配分类或来源模组信息无法继承";
             if (!Moci_FighterLoadoutRegistry.registerWing(spec.getWingId(), wing)) return "联队规格注册失败";
@@ -1299,15 +1343,10 @@ public final class Moci_FighterLoadoutService {
         }
         applyCustomFighterTags(registeredVariant);
         applyCustomFighterTags(wing);
-        Moci_ScveSnapshotBridge.noteWingRegistered(wing);
-        if (metadataIssue == null) {
-            // Existing saved definitions keep their IDs, but receive the current derived OP rule on load.
-            float opCost = refitBudgetForTacticals(spec.getBaseWingId(), spec.getLoadout(), tacticals).opCost();
-            if (Float.compare(wing.getOpCost(null), opCost) != 0) {
-                wing.setOpCost(opCost);
-                Moci_ScveSnapshotBridge.noteWingRegistered(wing);
-            }
+        if (metadataIssue == null && Float.compare(wing.getOpCost(null), opCost) != 0) {
+            wing.setOpCost(opCost);
         }
+        Moci_ScveSnapshotBridge.noteWingRegistered(wing);
         return metadataIssue;
     }
     private static FighterWingSpecAPI copyWing(Moci_FighterLoadoutSpec spec, FighterWingSpecAPI prototype, float opCost) {

@@ -24,9 +24,8 @@ import com.fs.starfarer.api.ui.PositionAPI;
  * <p>base 只取 RGB，alpha 忽略；传 null 用航空中队扫描线的青绿色。再传一个副色时，所有图形按位置在两色之间渐变，
  * 渐变方向绕圆心缓慢旋转。</p>
  *
- * <p>另有三层按阶段逐步出现（detail 1 = 初始阶段，没有这三层）：detail ≥ 2 起有径向射出的光线，detail ≥ 3 起有一道道向外涌的
- * 海浪粒子，detail ≥ 4 起有少量向外飞的数字，detail ≥ 4 且满级时数字为满量。光线和数字可以略微飞出 outer，但到面板边缘为止。
- * 三层都只用固定长度的数组，运行中不创建对象。</p>
+ * <p>detail ≥ 2 起有径向光线，detail ≥ 3 起有海浪粒子。专属层二选一：奈因保留向外飞的数字，
+ * 苍钢系在最终阶段显示一圈六边形流光，满级显示两圈；其他 AI 只有通用背景。</p>
  */
 public class Moci_UIPulseRings extends BaseCustomUIPanelPlugin {
     // ===================== 可调参数 =====================
@@ -92,8 +91,8 @@ public class Moci_UIPulseRings extends BaseCustomUIPanelPlugin {
     //   detail 1（初始）：只有原来的圆环、弧、刻度、线路
     //   detail 2 起：加光线            ← 改 RAY_MIN_DETAIL
     //   detail 3 起：加海浪粒子        ← 改 WAVE_MIN_DETAIL
-    //   detail 4 起：加少量数字        ← 改 DIGIT_MIN_DETAIL，数量比例改 DIGIT_PARTIAL_RATIO
-    //   detail 4 且满级：数字满量      ← 满量的多少改 DIGIT_INTERVAL_MIN / MAX（间隔越短越多）
+    //   奈因：detail 4 起半量数字，满级满量；生成频率见 DIGIT_INTERVAL_MIN / MAX。
+    //   苍钢：最终档一圈流光；若满级前到不了第 4 档，则在满级前一级出现。满级一律两圈。
     // 想整层关掉：把对应的 *_ENABLED 改成 false。想调亮度：改各层的 *_ALPHA。
     // 两种颜色在 Moci_CombatSquadDialog 的 AI_FX（主色）和 AI_FX_2（副色）里，按阶段各一组。
     // 改完需要重新打包 JAR 才生效。
@@ -155,7 +154,7 @@ public class Moci_UIPulseRings extends BaseCustomUIPanelPlugin {
     /** 光线最亮处的透明度（加色混合）。 */
     private static final float RAY_ALPHA = 0.6f;
 
-    // ---------- 向外射出的数字（detail ≥ DIGIT_MIN_DETAIL 时少量出现，同时满级才满量） ----------
+    // ---------- 奈因专属：向外射出的数字（detail ≥ DIGIT_MIN_DETAIL 时少量出现，同时满级才满量） ----------
     /** 数字总开关：false 则任何阶段都不出现数字。 */
     private static final boolean DIGIT_ENABLED = true;
     /** 从第几阶段开始有数字（detail 1 = 初始阶段）。没到这个阶段时，即使满级也没有数字。 */
@@ -226,6 +225,25 @@ public class Moci_UIPulseRings extends BaseCustomUIPanelPlugin {
         }
     }
 
+    enum Signature {
+        NONE(0), NINE_DIGITS(0), ARP_HALF(1), ARP_FULL(2);
+
+        final int hexTracks;
+
+        Signature(int hexTracks) {
+            this.hexTracks = hexTracks;
+        }
+
+        static Signature forAI(String aiTypeId, int level, int levelCap, boolean finalStage) {
+            if ("Moci_Nine".equals(aiTypeId)) return NINE_DIGITS;
+            if (aiTypeId == null || !aiTypeId.startsWith("Moci_ARP_")) return NONE;
+            if (level >= levelCap) return ARP_FULL;
+            return finalStage || level == levelCap - 1 ? ARP_HALF : NONE;
+        }
+    }
+
+    private final Signature signature;
+    private float hexPhase;
     private final float colorR, colorG, colorB;
     /** 渐变副色；没传副色时等于主色，即不渐变。 */
     private final float color2R, color2G, color2B;
@@ -316,6 +334,11 @@ public class Moci_UIPulseRings extends BaseCustomUIPanelPlugin {
 
     /** secondary 是渐变的副色，只取 RGB；传 null 则整体保持 base 单色。 */
     public Moci_UIPulseRings(Color base, Color secondary) {
+        this(base, secondary, Signature.NONE);
+    }
+
+    Moci_UIPulseRings(Color base, Color secondary, Signature signature) {
+        this.signature = signature;
         if (base != null) {
             colorR = base.getRed() / 255f;
             colorG = base.getGreen() / 255f;
@@ -395,13 +418,9 @@ public class Moci_UIPulseRings extends BaseCustomUIPanelPlugin {
         return WAVE_ENABLED && detail >= WAVE_MIN_DETAIL;
     }
 
-    /**
-     * 数字量（生成频率的倍数）：没到 DIGIT_MIN_DETAIL 阶段一律 0（不出现，满级也不例外）；
-     * 到了该阶段，未满级为 DIGIT_PARTIAL_RATIO，满级为 1（满量）。
-     * 想让「满级但没到该阶段」的 AI 也有数字，把第一行的条件改成 detail < DIGIT_MIN_DETAIL && !maxLevel。
-     */
+    /** 奈因沿用原数字节奏：最终阶段半量，最终阶段且满级时满量；其他 AI 不生成也不绘制数字。 */
     private float digitAmount() {
-        if (!DIGIT_ENABLED || detail < DIGIT_MIN_DETAIL) return 0f;
+        if (!DIGIT_ENABLED || signature != Signature.NINE_DIGITS || detail < DIGIT_MIN_DETAIL) return 0f;
         return maxLevel ? 1f : DIGIT_PARTIAL_RATIO;
     }
 
@@ -419,6 +438,7 @@ public class Moci_UIPulseRings extends BaseCustomUIPanelPlugin {
     @Override public void advance(float amount) {
         if (!(amount > 0f)) return; // 0、负数、NaN 都不走
         float dt = Math.min(amount, MAX_STEP);
+        if (signature.hexTracks > 0) hexPhase = (hexPhase + dt / Moci_UIArpHexFlow.PERIOD) % 1f;
         ringPhase = (ringPhase + dt / RING_LIFE) % 1f;
         arcA = wrapDeg(arcA + dt * ARC_A_SPEED);
         arcB = wrapDeg(arcB + dt * ARC_B_SPEED);
@@ -647,11 +667,13 @@ public class Moci_UIPulseRings extends BaseCustomUIPanelPlugin {
             drawArc(cx, cy, rm, arcB, ARC_B_STEPS, ARC_B_SPEED > 0f, a);
             if (detail > 0) drawCircuits(cx, cy, ri, ro, a);
             if (maxLevel) drawMaxLevelParticles(cx, cy, ri, ro, a);
-            // 5) 海浪粒子、射出的光线和数字：都用加色混合，各自一到两个批次画完
+            // 5) 海浪、光线和专属特效都画在立绘和信息签下面。
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
             if (wavesActive()) drawWaves(ri, ro, a);
             if (raysActive()) drawRays(ri, ro, a);
             if (digitAmount() > 0f) drawDigits(ri, ro, a);
+            if (signature.hexTracks > 0) Moci_UIArpHexFlow.draw(cx, cy, ro, Math.min(boxL, boxR),
+                    hexPhase, signature.hexTracks, a, pointScale);
         } finally {
             GL11.glPopAttrib();
         }

@@ -31,9 +31,19 @@ public class Moci_MechProjDecoWeaponEffect_noHide implements EveryFrameWeaponEff
     // ========== 互斥控制标记（根据槽位动态判断） ==========
     private String bladeSwingActiveKey = null; // 根据槽位ID动态设置
 
+    /** Refresh only already-bound hidden sprites; safe during pause and in delegating subclasses. */
+    protected void maintainHiddenWeapons() {
+        hideFollowWeapon();
+    }
+
     @Override
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
-        if (engine == null || engine.isPaused()) {
+        if (engine == null) {
+            return;
+        }
+        if (engine.isPaused()) {
+            // 暂停期间只维护已绑定武器的隐藏，不初始化、不推进动作。
+            maintainHiddenWeapons();
             return;
         }
         //初始化

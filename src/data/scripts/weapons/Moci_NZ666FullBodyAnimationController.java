@@ -5,24 +5,24 @@ import com.fs.starfarer.api.combat.EveryFrameWeaponEffectPlugin;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 
+import java.util.List;
+
 /**
  * NZ-666 movement controller for body, crotch and wing covers.
  */
 public class Moci_NZ666FullBodyAnimationController implements EveryFrameWeaponEffectPlugin {
     private static final String FRONT_SEQUENCE = "FRONT";
     private static final String BACK_SEQUENCE = "BACK";
-    private static final int LEG_DEFAULT_FRAME = 4;
+    static final int NEUTRAL_MOVEMENT_FRAME = 4;
     private static final int BODY_DEFAULT_FRAME = 1;
     private static final int CROTCH_DEFAULT_FRAME = 1;
-    private static final int WING_COVER_DEFAULT_FRAME = 0;
     private static final int MOVEMENT_MAX_FRAME_TARGET = 8;
-    private static final int WING_FORWARD_FRAME = 8;
 
     private boolean initialized = false;
-    private int legDefaultFrame = LEG_DEFAULT_FRAME;
+    private int legDefaultFrame = NEUTRAL_MOVEMENT_FRAME;
     private int movementMaxFrame = MOVEMENT_MAX_FRAME_TARGET;
     private String currentSequence = null;
-    private int currentFrame = LEG_DEFAULT_FRAME;
+    private int currentFrame = NEUTRAL_MOVEMENT_FRAME;
     private float timer = 0f;
 
     @Override
@@ -41,7 +41,7 @@ public class Moci_NZ666FullBodyAnimationController implements EveryFrameWeaponEf
         if (!initialized) {
             int maxFrame = Math.max(0, weapon.getAnimation().getNumFrames() - 1);
             movementMaxFrame = Math.min(MOVEMENT_MAX_FRAME_TARGET, maxFrame);
-            legDefaultFrame = Math.min(LEG_DEFAULT_FRAME, movementMaxFrame);
+            legDefaultFrame = Math.min(NEUTRAL_MOVEMENT_FRAME, movementMaxFrame);
             currentFrame = legDefaultFrame;
             initialized = true;
         }
@@ -106,56 +106,31 @@ public class Moci_NZ666FullBodyAnimationController implements EveryFrameWeaponEf
     private void syncOtherParts(ShipAPI ship, int legFrame) {
         int bodyFrame = Math.max(0, Math.min(3, legFrame / 2));
         int crotchFrame = Math.max(0, Math.min(2, legFrame / 3));
-        int wingCoverFrame = Math.max(0, Math.min(WING_FORWARD_FRAME, Math.round(legFrame * (WING_FORWARD_FRAME / 8f))));
 
         if (legFrame == legDefaultFrame) {
             bodyFrame = BODY_DEFAULT_FRAME;
             crotchFrame = CROTCH_DEFAULT_FRAME;
-            wingCoverFrame = WING_COVER_DEFAULT_FRAME;
         }
 
-        updateWeaponAnimation(ship, "BODY", bodyFrame);
-        updateWeaponAnimation(ship, "CROTCH", crotchFrame);
-        updateWingCoverAnimation(ship, "WING_LF", wingCoverFrame);
-        updateWingCoverAnimation(ship, "WING_LB", wingCoverFrame);
-        updateWingCoverAnimation(ship, "WING_RF", wingCoverFrame);
-        updateWingCoverAnimation(ship, "WING_RB", wingCoverFrame);
-    }
-
-    private void updateWeaponAnimation(ShipAPI ship, String slotId, int frame) {
+        List<ShipAPI> children = ship.getChildModulesCopy();
         for (WeaponAPI weapon : ship.getAllWeapons()) {
-            if (weapon.getSlot() != null && slotId.equals(weapon.getSlot().getId())) {
-                setSafeFrame(weapon, frame);
-                return;
+            if (weapon.getSlot() == null) continue;
+            switch (weapon.getSlot().getId()) {
+                case "BODY":
+                    setSafeFrame(weapon, bodyFrame);
+                    break;
+                case "CROTCH":
+                    setSafeFrame(weapon, crotchFrame);
+                    break;
+                case "WING_LF_COVER":
+                case "WING_LB_COVER":
+                case "WING_RF_COVER":
+                case "WING_RB_COVER":
+                    if (weapon.getEffectPlugin() instanceof Moci_NZ666WingCoverEffect cover) {
+                        cover.setMovementFrame(weapon, children, legFrame);
+                    }
+                    break;
             }
-        }
-    }
-
-    private void updateWingCoverAnimation(ShipAPI ship, String moduleSlotId, int frame) {
-        WeaponAPI cover = null;
-        for (WeaponAPI weapon : ship.getAllWeapons()) {
-            if (weapon.getSlot() != null && (moduleSlotId + "_COVER").equals(weapon.getSlot().getId())) {
-                cover = weapon;
-                break;
-            }
-        }
-        if (cover == null || cover.getAnimation() == null) {
-            return;
-        }
-
-        ShipAPI module = null;
-        for (ShipAPI child : ship.getChildModulesCopy()) {
-            if (child != null && child.getStationSlot() != null
-                    && moduleSlotId.equals(child.getStationSlot().getId())) {
-                module = child;
-                break;
-            }
-        }
-
-        if (module == null || !module.isAlive() || module.isHulk() || module.getHitpoints() <= 0f) {
-            setSafeFrame(cover, Math.max(0, cover.getAnimation().getNumFrames() - 1));
-        } else {
-            setSafeFrame(cover, frame);
         }
     }
 

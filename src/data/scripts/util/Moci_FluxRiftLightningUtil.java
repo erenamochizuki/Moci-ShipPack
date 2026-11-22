@@ -59,7 +59,7 @@ public final class Moci_FluxRiftLightningUtil {
                     EMP_DAMAGE, false, false, ship, true);
         }
 
-        Global.getSoundPlayer().playSound("Moci_Lightting", 1f, 0.6f, from, ship.getVelocity());
+        Global.getSoundPlayer().playSound("moci_fx_lightning", 1f, 0.6f, from, ship.getVelocity());
     }
 
     private static void spawnStartSpark(CombatEngineAPI engine, ShipAPI ship, Vector2f from) {

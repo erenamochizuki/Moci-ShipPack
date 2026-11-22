@@ -13,7 +13,7 @@
 	"renderCopyDuringTeleport":false,
 	
 	"fadeActivationSoundOnChargedown":false,
-	"useSound":"Moci_displacer_active",
+	"useSound":"moci_sys_displacer_active_01",
 	"outOfUsesSound":"gun_out_of_ammo",
 	
 	"aiHints":{

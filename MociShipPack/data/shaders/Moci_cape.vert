@@ -10,9 +10,9 @@ layout (std140, binding = 0) uniform BUtilGlobalData
 uniform mat4 modelMatrix;
 uniform vec2 size;  // x: length, y: width
 uniform float time;
-uniform float foldCount;  // 褶皱数量
-uniform float foldSpeed;  // 卷动速度
-uniform float inertia;    // 惯性/质量
+uniform float foldCount;  // number of folds
+uniform float foldSpeed;  // scroll speed
+uniform float inertia;    // inertia / mass
 
 out vec2 fragUV;
 out float waveOffset;
@@ -20,23 +20,23 @@ out float waveOffset;
 void main() {
     fragUV = max(vertex, vec2(0.0));
     
-    // 计算沿披风长度的位置 (0=前端, 1=末端)
+    // Position along the cape length (0 = front, 1 = tail)
     float lengthPos = fragUV.x;
     
-    // 基于惯性的延迟效果 - 末端延迟更多
+    // Inertia-based delay - the tail lags more
     float delay = lengthPos * inertia;
     float delayedTime = time - delay;
     
-    // 褶皱波动效果
+    // Fold wave effect
     float wave = sin(lengthPos * foldCount * 3.14159 + delayedTime * foldSpeed) * 0.1;
-    wave *= lengthPos; // 前端波动小，末端波动大
+    wave *= lengthPos; // small wave at the front, large at the tail
     
-    // 横向波动（模拟飘动）
+    // Lateral wave (simulates fluttering)
     float sideWave = sin(delayedTime * foldSpeed * 0.5 + lengthPos * 2.0) * lengthPos * 0.05;
     
     waveOffset = wave;
     
-    // 应用变形
+    // Apply deformation
     vec2 deformedVertex = vertex;
     deformedVertex.x += wave;
     deformedVertex.y += sideWave;

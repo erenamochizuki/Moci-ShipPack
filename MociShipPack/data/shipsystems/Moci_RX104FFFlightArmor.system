@@ -5,7 +5,7 @@
     "aiScript": "data.shipsystems.scripts.ai.Moci_LateralThrustAI2",
     "statsScript": "data.shipsystems.scripts.Moci_RX104FFFlightArmorStats",
     "runScriptWhileIdle": true,
-    "useSound": "Moci_Yamato_ET_System",
+    "useSound": "moci_sys_yamato_et",
     "outOfUsesSound": "gun_out_of_ammo",
     "aiHints": {
         "activeSpeedIncrease": 150,

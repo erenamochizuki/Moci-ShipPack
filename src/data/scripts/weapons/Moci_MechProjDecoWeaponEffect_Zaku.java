@@ -32,7 +32,13 @@ public class Moci_MechProjDecoWeaponEffect_Zaku implements EveryFrameWeaponEffec
 
     @Override
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
-        if (engine == null || engine.isPaused()) {
+        if (engine == null) {
+            return;
+        }
+        if (engine.isPaused()) {
+            // 暂停期间只维护已绑定武器的隐藏，不初始化、不推进动作。
+            hideSourceWeapon();
+            hideFollowWeapon();
             return;
         }
         //初始化

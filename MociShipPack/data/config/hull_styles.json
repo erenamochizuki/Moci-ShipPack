@@ -337,7 +337,7 @@
 		"fluxVentFringeColor":[255,125,115,255],
 		"fluxVentTextureSheet":"graphics/fx/nebula_colorless.png", # V排外圈材质
 		"fluxVentRadialTexture":"graphics/fx/radial_fx.png", # V排内圈材质
-		"engineLoopSet":"Moci_engine_loop", # 引擎音效
+		"engineLoopSet":"moci_fx_engine_loop", # 引擎音效
 		"engineAccelerateSet":"engine_accelerate",# 零幅能加速瞬间音效
 		"empLoopSet":"emp_loop",# 过载后的随机音效
 		"fluxLoopSet":"flux_loop",# V排循环音效
@@ -378,7 +378,7 @@
 		"fluxVentFringeColor":[116,209,154,255],# V排外圈颜色
 		"fluxVentTextureSheet":"graphics/fx/Moci_nebula_colorless.png", # V排外圈材质
 		"fluxVentRadialTexture":"graphics/fx/radial_fx.png", # V排内圈材质
-		"engineLoopSet":"moci_minovsky_loop_xi", # 引擎音效
+		"engineLoopSet":"moci_fx_minovsky_loop_xi", # 引擎音效
 		"engineAccelerateSet":"engine_accelerate",# 零幅能加速瞬间音效
 		"empLoopSet":"emp_loop",# 过载后的随机音效
 		"fluxLoopSet":"flux_loop",# V排循环音效
@@ -419,7 +419,7 @@
 		"fluxVentFringeColor":[116,209,154,255],# V排外圈颜色
 		"fluxVentTextureSheet":"graphics/fx/Moci_nebula_colorless.png", # V排外圈材质
 		"fluxVentRadialTexture":"graphics/fx/radial_fx.png", # V排内圈材质
-		"engineLoopSet":"moci_minovsky_loop_penelope", # 引擎音效
+		"engineLoopSet":"moci_fx_minovsky_loop_penelope", # 引擎音效
 		"engineAccelerateSet":"engine_accelerate",# 零幅能加速瞬间音效
 		"empLoopSet":"emp_loop",# 过载后的随机音效
 		"fluxLoopSet":"flux_loop",# V排循环音效

@@ -45,6 +45,7 @@ import data.campaign.fighter.Moci_FighterLoadoutService.BayEntry;
 import data.campaign.fighter.Moci_FighterLoadoutService.RefitPlan;
 import data.campaign.fighter.Moci_FighterLoadoutService.WeaponAvailability;
 import data.campaign.fighter.Moci_FighterRefitBudget.Budget;
+import data.campaign.fighter.Moci_FighterRefitBudget;
 import data.campaign.intel.Moci_CombatSquadManagerIntel;
 import data.hullmods.Moci_TacticalHullmods;
 
@@ -212,6 +213,11 @@ public final class Moci_AirSquadronDialog {
         @Override public CustomUIPanelPlugin getCustomPanelPlugin() { return this; }
         @Override public float getNoiseAlpha() { return 0f; }
 
+        /** 自绘点击区域（联队卡片、战术改装图标、预览图部位标记、武器格子）不经过原生按钮，需要手动补原版按钮音效。 */
+        private static void playClickSound() {
+            Global.getSoundPlayer().playUISound("ui_button_pressed", 1f, 1f);
+        }
+
         private void request(Action action) {
             // Native controls can report more than one click during a frame. Handle one transaction at a time.
             if (pending == null && !closing && !applying) pending = action;
@@ -307,7 +313,7 @@ public final class Moci_AirSquadronDialog {
 
         private void refreshCarrier(int preferredBay) {
             carrier = Moci_FighterLoadoutService.findMember(memberId);
-            carrierPreview = carrier == null ? null : art.buildShipPreview(carrier.getVariant());
+            carrierPreview = carrier == null ? null : art.build(carrier.getVariant());
             bays = carrier == null ? List.of() : Moci_FighterLoadoutService.collectBays(carrier);
             bayPreviews.keySet().removeIf(id -> bays.stream().noneMatch(bay -> Objects.equals(id, bay.wingId())));
             BayEntry next = null;
@@ -735,7 +741,11 @@ public final class Moci_AirSquadronDialog {
                 float cardWidth = w - 24f;
                 float iconWidth = Math.min(94f, cardWidth * 0.40f);
                 Moci_AirSquadronCanvas cardPlugin = new Moci_AirSquadronCanvas(art.weaponIcon(null), false, chosen,
-                        0, 0, () -> { if (!confirmation.isPending()) request(new Action("bay", bay)); });
+                        0, 0, () -> {
+                            if (confirmation.isPending()) return;
+                            playClickSound();
+                            request(new Action("bay", bay));
+                        });
                 cardPlugin.clipViewport(() -> list.getExternalScroller() == null ? column.getPosition()
                         : list.getExternalScroller().getPosition());
                 CustomPanelAPI card = column.createCustomPanel(cardWidth, 100f, cardPlugin);
@@ -865,7 +875,11 @@ public final class Moci_AirSquadronDialog {
                     slotButtons.put(slot.getId(), box);
                     if (chosen) box.highlight();
                     preview.marker(slot.getId(), slot.getLocation().x, slot.getLocation().y, box.getPosition(),
-                            () -> { if (slotInteractionEnabled()) request(new Action("slot", slot.getId())); });
+                            () -> {
+                                if (!slotInteractionEnabled()) return;
+                                playClickSound();
+                                request(new Action("slot", slot.getId()));
+                            });
                 }
                 // getEditableSlots() already filters fixed, system, and decorative slots.
                 // 内置机库可见、可点选，但锁定只读；其他不能换武器的联队显示服务层给出的理由。
@@ -916,7 +930,8 @@ public final class Moci_AirSquadronDialog {
                     Action action = new Action("tactical", id);
                     // 已在草稿里的项即使后来变得不可用也要能点掉，所以「已选」同样启用图标。
                     Moci_AirSquadronWeaponTile tile = new Moci_AirSquadronWeaponTile(icon, null, chosen, 2f * TACTICAL_ICON_SCALE,
-                            () -> (available || chosen) && tacticalInteractionEnabled(), () -> request(action), groupColor);
+                            () -> (available || chosen) && tacticalInteractionEnabled(),
+                            () -> { playClickSound(); request(action); }, groupColor);
                     clipIcon(tile, viewport, parent);
                     CustomPanelAPI iconPanel = row.createCustomPanel(slot, slot, tile);
                     // Direct child: the native tooltip attaches to this same icon, with no overlay or extra inset.
@@ -981,6 +996,9 @@ public final class Moci_AirSquadronDialog {
                     int rows = (weapons.size() + columns - 1) / columns;
                     float gridHeight = Math.max(tileSize, rows * (tileSize + gap));
                     CustomPanelAPI grid = parent.createCustomPanel(gridWidth, gridHeight, null);
+                    FighterWingSpecAPI base = Moci_FighterLoadoutService.getWingSpec(
+                            Moci_FighterLoadoutService.getBaseWingId(selected.wingId()));
+                    String original = base == null || base.getVariant() == null ? null : base.getVariant().getWeaponId(slotId);
                     for (int index = 0; index < weapons.size(); index++) {
                         WeaponAvailability availability = weapons.get(index);
                         String id = availability.spec().getWeaponId();
@@ -995,12 +1013,13 @@ public final class Moci_AirSquadronDialog {
                         Action tileAction = new Action("weapon", new WeaponChoice(slotId, id));
                         Moci_AirSquadronWeaponTile tilePlugin = new Moci_AirSquadronWeaponTile(
                                 weaponIcons.computeIfAbsent(id, art::weaponIcon), fill, chosen, 4f,
-                                () -> weaponsContent == parent && slotInteractionEnabled(), () -> request(tileAction));
+                                () -> weaponsContent == parent && slotInteractionEnabled(),
+                                () -> { playClickSound(); request(tileAction); });
                         clipIcon(tilePlugin, list, weaponsParent);
                         CustomPanelAPI image = grid.createCustomPanel(tileSize, tileSize, tilePlugin);
                         // One 48 x 48 component owns background, border, tooltip and click bounds.
                         grid.addComponent(image).inTL(tileX, tileY);
-                        list.addTooltipTo(new WeaponTooltip(availability), image, TooltipMakerAPI.TooltipLocation.LEFT, false);
+                        list.addTooltipTo(new WeaponTooltip(availability, original), image, TooltipMakerAPI.TooltipLocation.LEFT, false);
                     }
                     list.addCustom(grid, 5f);
                 }
@@ -1152,25 +1171,56 @@ public final class Moci_AirSquadronDialog {
         return new Color(0, 0, 0, 0);
     }
 
-    /** 「战术改装」图标悬停提示：名称、船插说明、当前选择状态。 */
-    /** 取船插说明里会被替换进文本的参数（如「20%」「×2」），用于与原版一样做金色高亮。 */
-    private static List<String> descriptionParams(HullModSpecAPI spec) {
-        List<String> params = new ArrayList<>();
-        if (spec == null) return params;
-        try {
-            com.fs.starfarer.api.combat.HullModEffect effect = spec.getEffect();
-            if (effect == null) return params;
-            for (int index = 0; index < 8; index++) {
-                String value = effect.getDescriptionParam(index, ShipAPI.HullSize.FIGHTER);
-                if (value == null) break;
-                if (!value.isEmpty() && !params.contains(value)) params.add(value);
+    /** 船插说明里依次替换进 %s 的参数（保留重复值）及各自的高亮色。 */
+    private record DescriptionParams(String[] values, Color[] colors) {
+        boolean isEmpty() { return values.length == 0; }
+    }
+
+    /**
+     * 按 %s 的顺序取船插说明参数（如「20%」），不去重：同一数值可能在正面和负面效果里各出现一次，
+     * 去重会让后一处失去高亮。效果类实现 {@link Moci_TacticalHullmods.ParamTone} 时，
+     * 负面参数用 negativeHighlight，其余用原版金色。
+     */
+    private static DescriptionParams descriptionParams(HullModSpecAPI spec) {
+        List<String> values = new ArrayList<>();
+        List<Color> colors = new ArrayList<>();
+        if (spec != null) {
+            try {
+                com.fs.starfarer.api.combat.HullModEffect effect = spec.getEffect();
+                Moci_TacticalHullmods.ParamTone tone = effect instanceof Moci_TacticalHullmods.ParamTone t ? t : null;
+                for (int index = 0; effect != null && index < 8; index++) {
+                    String value = effect.getDescriptionParam(index, ShipAPI.HullSize.FIGHTER);
+                    if (value == null) break;
+                    values.add(value);
+                    colors.add(tone != null && tone.isNegativeParam(index)
+                            ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor());
+                }
+            } catch (RuntimeException ex) {
+                // 保留：参数来自船插效果类自己的代码，没有 API 能事先确认它不会抛；
+                // 悬停提示由引擎直接调用，不经过窗口的 guarded 保护，失败时只放弃高亮。
+                values.clear();
+                colors.clear();
             }
-        } catch (RuntimeException ex) {
-            // 保留：参数来自船插效果类自己的代码，没有 API 能事先确认它不会抛；
-            // 悬停提示由引擎直接调用，不经过窗口的 guarded 保护，失败时只放弃高亮。
-            params.clear();
         }
-        return params;
+        return new DescriptionParams(values.toArray(new String[0]), colors.toArray(new Color[0]));
+    }
+
+    /**
+     * 用 hull_mods.csv 的原始格式文本按位置代入参数并逐个上色（与原版改装页一致）。
+     * 保留 catch：格式文本的 %s 个数与参数个数不符时 String.format 会抛，没有 API 能事先判断；
+     * 返回 false 时由调用方退回无高亮的展开文本。
+     */
+    private static boolean addHighlightedDescription(TooltipMakerAPI tip, HullModSpecAPI spec) {
+        String format = spec == null ? null : hullmodText(spec::getDescriptionFormat);
+        DescriptionParams params = descriptionParams(spec);
+        if (format == null || params.isEmpty()) return false;
+        try {
+            String.format(format, (Object[]) params.values());
+        } catch (RuntimeException ex) {
+            return false;
+        }
+        tip.addPara(format, 6f, params.colors(), params.values());
+        return true;
     }
 
     /** 船插说明：优先取引擎展开参数后的文本，失败或为空时退回 hull_mods.csv 里的原始格式文本。 */
@@ -1207,17 +1257,12 @@ public final class Moci_AirSquadronDialog {
         @Override public void createTooltip(TooltipMakerAPI tip, boolean expanded, Object param) {
             tip.addTitle(tacticalName(id));
             HullModSpecAPI spec = Moci_TacticalHullmods.spec(id);
-            String description = tacticalDescription(spec);
             // 只展示船插本身的名称与说明（与原版改装页一致），不写任何实现细节或操作提示。
-            // 说明里的数值参数按原版改装页的样式高亮成金色，避免玩家读到一串纯白文本。
-            if (description != null && !description.isBlank()) {
-                List<String> params = descriptionParams(spec);
+            // 正面数值高亮金色、负面数值高亮 negativeHighlight，避免玩家读到一串纯白文本。
+            if (!addHighlightedDescription(tip, spec)) {
+                String description = tacticalDescription(spec);
                 // 已展开的说明可能含有百分号，不能再交给格式化重载处理。
-                LabelAPI label = tip.addPara(description, 6f);
-                if (!params.isEmpty()) {
-                    label.setHighlight(params.toArray(new String[0]));
-                    label.setHighlightColor(Misc.getHighlightColor());
-                }
+                if (description != null && !description.isBlank()) tip.addPara(description, 6f);
             }
             if (unavailableReason != null || !Moci_FighterLoadoutService.isTacticalHullmodAvailable(id)) {
                 tip.addPara(unavailableReason == null ? "当前不可用。" : unavailableReason, WARNING, 6f);
@@ -1292,7 +1337,10 @@ public final class Moci_AirSquadronDialog {
 
     private static final class WeaponTooltip implements TooltipMakerAPI.TooltipCreator {
         private final WeaponAvailability availability;
-        private WeaponTooltip(WeaponAvailability availability) { this.availability = availability; }
+        private final String original;
+        private WeaponTooltip(WeaponAvailability availability, String original) {
+            this.availability = availability; this.original = original;
+        }
         @Override public boolean isTooltipExpandable(Object param) { return false; }
         @Override public float getTooltipWidth(Object param) { return 310f; }
         @Override public void createTooltip(TooltipMakerAPI tip, boolean expanded, Object param) {
@@ -1302,6 +1350,7 @@ public final class Moci_AirSquadronDialog {
             tip.addPara(spec.getSize() + " / " + spec.getType() + " / " + spec.getDamageType(), 6f);
             // 说明里的每个数字都要可读：非 0 用高亮金，0 用蓝色，避免在同一行里混色。
             para(tip, "射程 ", Math.round(spec.getMaxRange()));
+            para(tip, "本槽改造值 ", Moci_FighterRefitBudget.weaponPoints(spec, original));
             para(tip, "货舱 ", availability.cargo(), "仓库 ", availability.storage(),
                     "市场 ", availability.market(), "黑市 ", availability.blackMarket());
             if (availability.market() > 0 || availability.blackMarket() > 0) {

@@ -136,19 +136,19 @@ public class Moci_WaveMotionGunChargeEffect implements EveryFrameWeaponEffectPlu
         // 1. ChargeLevel达到0.1时播放充能音效
         if (chargeLevel >= 0.1f && !hasPlayedChargeSound) {
             hasPlayedChargeSound = true;
-            Global.getSoundPlayer().playSound("Moci_WaveCannon_charge_heavy", 1.0f, 1.0f, weapon.getLocation(), weapon.getShip().getVelocity());
+            Global.getSoundPlayer().playSound("moci_wpn_wave_cannon_charge_heavy", 1.0f, 1.0f, weapon.getLocation(), weapon.getShip().getVelocity());
         }
         
         // 2. ChargeLevel达到1.0时播放发射音效
         if (chargeLevel >= 1.0f && !hasPlayedShotSound) {
             hasPlayedShotSound = true;
-            Global.getSoundPlayer().playSound("Moci_WaveCannon_shot_heavy", 1.0f, 1.0f, weapon.getLocation(), weapon.getShip().getVelocity());
+            Global.getSoundPlayer().playSound("moci_wpn_wave_cannon_shot_heavy", 1.0f, 1.0f, weapon.getLocation(), weapon.getShip().getVelocity());
         }
         
         // 3. ChargeLevel从1.0降到0.99以下时播放结束音效（光束发射完毕）
         if (chargeLevel < 0.99f && hasPlayedShotSound && !hasPlayedEndSound) {
             hasPlayedEndSound = true;
-            Global.getSoundPlayer().playSound("Moci_WaveCannon_end", 1.0f, 1.0f, weapon.getLocation(), weapon.getShip().getVelocity());
+            Global.getSoundPlayer().playSound("moci_wpn_wave_cannon_end", 1.0f, 1.0f, weapon.getLocation(), weapon.getShip().getVelocity());
         }
         
         // 4. ChargeLevel归零时重置所有标志

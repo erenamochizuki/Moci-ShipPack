@@ -1,12 +1,12 @@
 {
-	"id":"Moci_system2",
+	"id":"Moci_RampageGhost",
 	"type":"STAT_MOD",
 	"aiType":"ENTROPY_AMPLIFIER",
 	
-	"statsScript":"data.shipsystems.scripts.Moci_System2Effect",
+	"statsScript":"data.shipsystems.scripts.Moci_RampageGhostStats",
 
 	#"runScriptWhilePaused":true, # only for the player's ship
-	"runScriptWhileIdle":true, # unapply() never gets called
+	"runScriptWhileIdle":true, # unapply() never gets called; the script needs idle frames for the return blink
 		
 	"fadeActivationSoundOnChargedown":true,
 	"useSound":"system_entropy",

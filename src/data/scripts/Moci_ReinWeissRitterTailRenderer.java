@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import org.lwjgl.util.vector.Vector2f;
 
+import data.scripts.util.Moci_Util;
+
 // 代码作者 原型系统-alpha
 
 public class Moci_ReinWeissRitterTailRenderer implements CombatLayeredRenderingPlugin {
@@ -15,6 +17,9 @@ public class Moci_ReinWeissRitterTailRenderer implements CombatLayeredRenderingP
   private SpriteAPI spriteS, spriteM, spriteL;
   private float lengthS, lengthM, lengthL;
   private Map<ShipAPI, TailState> tailStates;
+  /** 每帧复用：这艘船当前显示的残影 */
+  private final List<Moci_Util.ShipCopyRenderer.ShipCopy> shipCopies = new ArrayList<>();
+  private final Vector2f copyPosition = new Vector2f();
 
   public Moci_ReinWeissRitterTailRenderer(
       SpriteAPI spriteS,
@@ -80,19 +85,42 @@ public class Moci_ReinWeissRitterTailRenderer implements CombatLayeredRenderingP
         if (state.segments.isEmpty()) {
           continue;
         }
-        for (int i = state.segments.size() - 1; i >= 0; i--) {
-          SegmentData segment = state.segments.get(i);
-          if (segment == null) continue;
-          SpriteAPI sprite = getSegmentSprite(i);
-          if (sprite == null) continue;
-          sprite.setAngle(segment.angle - 90f);
-          sprite.setColor(ship.getSpriteAPI().getColor());
-          float alpha = viewport.getAlphaMult() * ship.getSpriteAPI().getAlphaMult();
-          sprite.setAlphaMult(alpha);
-          sprite.renderAtCenter(segment.position.x, segment.position.y);
-          if (i == 0 || i == state.segments.size() - 1) {}
+        float baseAlpha = viewport.getAlphaMult() * ship.getSpriteAPI().getAlphaMult();
+        // 本体的尾巴跟随本体的透明度：本体隐匿(extraAlphaMult = 0)时不能留在原地
+        renderTail(ship, state, null, baseAlpha * ship.getExtraAlphaMult() * ship.getExtraAlphaMult2());
+        // 残影(闪现的副本、列阵的残影)各画一条尾巴，透明度用残影自己的
+        shipCopies.clear();
+        Moci_Util.collectShipCopies(ship, shipCopies);
+        for (int c = 0; c < shipCopies.size(); c++) {
+          Moci_Util.ShipCopyRenderer.ShipCopy copy = shipCopies.get(c);
+          renderTail(ship, state, copy, baseAlpha * Math.min(1f, copy.alpha));
         }
+        shipCopies.clear();
       }
+    }
+  }
+
+  /** 画一条尾巴。copy 为 null 时画在本体上，否则把每一节换算到该残影的位置和朝向上 */
+  private void renderTail(
+      ShipAPI ship, TailState state, Moci_Util.ShipCopyRenderer.ShipCopy copy, float alpha) {
+    if (!(alpha > 0f)) return;
+    float angleOffset = copy != null ? copy.facing - ship.getFacing() : 0f;
+    for (int i = state.segments.size() - 1; i >= 0; i--) {
+      SegmentData segment = state.segments.get(i);
+      if (segment == null) continue;
+      SpriteAPI sprite = getSegmentSprite(i);
+      if (sprite == null) continue;
+      float x = segment.position.x;
+      float y = segment.position.y;
+      if (copy != null) {
+        Moci_Util.transformToShipCopy(ship, copy, segment.position, copyPosition);
+        x = copyPosition.x;
+        y = copyPosition.y;
+      }
+      sprite.setAngle(segment.angle + angleOffset - 90f);
+      sprite.setColor(ship.getSpriteAPI().getColor());
+      sprite.setAlphaMult(alpha);
+      sprite.renderAtCenter(x, y);
     }
   }
 

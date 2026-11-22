@@ -67,5 +67,5 @@
     MISSILE_FF,
     MISSILE_NO_FF
   ],
-  "fireSoundTwo": "Moci_Yamato_ET_Maingun"
+  "fireSoundTwo": "moci_wpn_yamato_et_maingun"
 }

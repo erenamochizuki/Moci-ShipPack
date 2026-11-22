@@ -10,7 +10,6 @@ import java.util.HashSet; // 导入哈希集合，用于存储已知模组
 import java.util.Map; // 导入映射接口，用于声明系统配置映射
 import java.util.Set; // 导入集合接口，用于声明已知模组集合
 import com.fs.starfarer.api.Global; // 导入全局类，用于访问游戏全局状态
-import com.fs.starfarer.api.combat.BaseHullMod; // 导入基础船体模组类，作为本类的父类
 import com.fs.starfarer.api.combat.MutableShipStatsAPI; // 导入可变船只统计API，用于修改船只属性
 import com.fs.starfarer.api.combat.ShipAPI; // 导入船只API，用于操作船只对象
 import com.fs.starfarer.api.combat.ShipHullSpecAPI; // 导入船体规格API，用于修改船体规格
@@ -25,13 +24,18 @@ import data.scripts.util.Moci_TextLoader;
  * 这个类负责管理飞龙级战舰的战术系统切换功能
  * 继承自BaseHullMod，实现了船体模组的基本功能
  */
-public class Moci_Pa_HiryuSystemSwitcher extends BaseHullMod { // 定义飞龙系统切换器类，继承自BaseHullMod
+public class Moci_Pa_HiryuSystemSwitcher extends Moci_Pa_HiryuSystemHullMod {
   private static final String TEXT_ID = "Moci_conditional_system_change";
   private static final String GLOBAL_DATA_KEY = "moci_hiryu_system_data"; // 定义全局数据键，用于在游戏全局数据中存储飞龙系统数据
   private static final Map<String, SystemConfig> SYSTEM_CONFIGS = new HashMap<>(); // 定义系统配置映射，用于存储不同系统的配置信息
 
   private static String text(String key) {
     return Moci_TextLoader.getText(TEXT_ID, key);
+  }
+
+  @Override
+  public int getDisplaySortOrder() {
+    return ACTIVE_MODE_ORDER + 1;
   }
 
   static { // 静态初始化块，在类加载时执行一次

@@ -31,6 +31,14 @@ public final class Moci_TacticalHullmods {
     public static final String OFFENSE_TAG = "moci_tactical_offense";
     public enum Group { DEFENSE, OFFENSE }
 
+    /**
+     * 战术改装效果类实现此接口，声明说明文本里哪些 %s 参数是负面效果；
+     * UI 据此把负面数值高亮成 negativeHighlight，其余保持原版金色。未实现的船插全部按正面处理。
+     */
+    public interface ParamTone {
+        boolean isNegativeParam(int index);
+    }
+
     /** 战术改装：强化护盾。 */
     public static final String HARDENED_SHIELD = "moci_tactical_hardened_shield";
     /** 战术改装：扩展弹仓。 */

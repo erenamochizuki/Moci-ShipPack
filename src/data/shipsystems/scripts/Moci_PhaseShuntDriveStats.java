@@ -145,7 +145,7 @@ public class Moci_PhaseShuntDriveStats extends BaseShipSystemScript {
         if (state == State.OUT) {
             if (activated) {
                 activated = false;
-                Global.getSoundPlayer().playSound("Moci_Lightting", 1f, 0.25f + (float) Math.sqrt(total) / 30f, ship.getLocation(), ZERO);
+                Global.getSoundPlayer().playSound("moci_fx_lightning", 1f, 0.25f + (float) Math.sqrt(total) / 30f, ship.getLocation(), ZERO);
             }
         }
     }

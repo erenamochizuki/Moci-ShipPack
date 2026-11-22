@@ -174,7 +174,7 @@ public class Moci_UIScanFrame extends BaseCustomUIPanelPlugin {
         GL11.glPushAttrib(ATTRIB_BITS);
         try {
             begin2D();
-            if (scanning) drawScan(x, y, w, h, a);
+            if (scanning) drawScan(x, y, w, h, a, phase);
 
             // 细边框：内缩半个像素，整条线落在面板里面。
             GL11.glColor4f(borderR, borderG, borderB, a * BORDER_ALPHA);
@@ -191,10 +191,26 @@ public class Moci_UIScanFrame extends BaseCustomUIPanelPlugin {
         }
     }
 
-    private void drawScan(float x, float y, float w, float h, float a) {
+    /** 按调用方进度仅绘制一趟扫描；不改变持续扫描开关、计时或边框。 */
+    public void renderScanOnce(float alphaMult, float progress) {
+        if (position == null || !Float.isFinite(progress) || progress < 0f || progress >= 1f) return;
+        float x = position.getX(), y = position.getY();
+        float w = position.getWidth(), h = position.getHeight(), a = clamp01(alphaMult);
+        if (!Float.isFinite(x) || !Float.isFinite(y) || !Float.isFinite(w) || !Float.isFinite(h)
+                || w <= 2f || h <= 2f || a <= 0f) return;
+        GL11.glPushAttrib(ATTRIB_BITS);
+        try {
+            begin2D();
+            drawScan(x, y, w, h, a, progress);
+        } finally {
+            GL11.glPopAttrib();
+        }
+    }
+
+    private void drawScan(float x, float y, float w, float h, float a, float progress) {
         // 屏幕坐标 y 向上，扫描线从顶边 (y + h) 往下走。
         // 比参考多走一个拖尾长度：拖尾完全走出底边才回到顶部，回卷时拖尾不会突然消失；一轮仍是 1 / SCAN_SPEED 秒。
-        float center = y + h - phase * (h + TRAIL_LENGTH);
+        float center = y + h - progress * (h + TRAIL_LENGTH);
         float top = y + h - 1f;
         float bottom = y + 1f;
         float near = Math.max(bottom, center);

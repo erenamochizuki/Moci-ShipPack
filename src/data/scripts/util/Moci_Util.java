@@ -11,20 +11,223 @@ import org.lazywizard.lazylib.CollisionUtils;
 import org.lazywizard.lazylib.MathUtils;
 import org.dark.shaders.light.LightShader;
 import org.dark.shaders.light.StandardLight;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector2f;
+import data.scripts.weapons.render.Moci_ShaderManager;
 
+import javax.imageio.ImageIO;
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 /**
  * 通用工具类
  * 提供各种实用方法
  */
 public class Moci_Util {
+	// 战斗特效：draw 方法在 render 中调用，spawn 方法在 advance 中按战斗秒限频调用。
+	/** 一次生成并复用整圈轮廓；不同实例不会互相改写形状。 */
+	public static final class ScorchContour {
+		private final FloatBuffer samples = BufferUtils.createFloatBuffer(96);
+		private final float[] broad = new float[96], jagged = new float[96];
+		private final float[] waveSin = new float[96], waveCos = new float[96];
+		private float lastMix, lastSin, lastCos;
+		private ScorchContour(float seed, int blocks, float depth, float chips, float roughness) {
+			int n = Math.max(2, Math.min(12, blocks));
+			float relief = Math.max(0f, Math.min(.70f, depth));
+			float detail = Math.max(0f, Math.min(.25f, chips));
+			roughness = Math.max(0f, Math.min(1f, roughness));
+			// 先分出不等长的弧段，各段独立决定外肩高度及末端缺口，避免变成规则花瓣。
+			Random rng=new Random(0x3de4ab79L*Float.floatToIntBits(seed));
+			double[] edge=new double[n+1], shoulder=new double[n], notch=new double[n], turn=new double[n];
+			for (int j=0;j<n;j++) {
+				edge[j+1]=edge[j]+.48+1.22*rng.nextDouble();
+				shoulder[j]=.14+.85*rng.nextDouble(); notch[j]=.18+.85*rng.nextDouble();
+				turn[j]=.48+.26*rng.nextDouble();
+			}
+			double phase=rng.nextDouble();
+			for (int i=0; i<96; i++) {
+				double a=i*Math.PI/48, pos=((i/96.0+phase)%1)*edge[n];
+				int j=0; while (j+1<n && pos>=edge[j+1]) j++;
+				double u=(pos-edge[j])/(edge[j+1]-edge[j]);
+				double top=shoulder[j]+.12*Math.sin(2*a-seed);
+				double body=u<turn[j] ? top-(top+notch[j])*softStep(1-u/turn[j])
+						: top-(top+notch[(j+1)%n])*softStep((u-turn[j])/(1-turn[j]));
+				double bite=Math.max(0, Math.sin((n+3)*a+1.6*seed+.45*Math.sin(3*a))-.52)/.48;
+				broad[i]=(float)(1+relief*body-detail*bite*bite);
+				jagged[i]=(float)(1+roughness*v2Edge(i/96.0+.5,seed));
+				// 两组绕整圈闭合的长波；角度项只算一次，各段有不同的运动方向，不会整圈一起缩放。
+				waveSin[i]=(float)(.65*Math.cos(3*a+seed)+.35*Math.cos(5*a-seed));
+				waveCos[i]=(float)(.65*Math.sin(3*a+seed)+.35*Math.sin(5*a-seed));
+				samples.put(broad[i]);
+			}
+			samples.flip();
+		}
+		// 将肩部压平、让缺口较窄；相邻弧段的端点共用同一个谷底。
+		private static double softStep(double t) { t=Math.max(0,(t-.34)/.66); return t*t*(3-2*t); }
+		// v2 的原始闭环噪声：大尺度起伏上叠两层细纹，再在 11 个不等高的位置局部加尖齿。
+		private static double v2Edge(double u,double seed) {
+			double w=u+.10*loopNoise(u,5,seed+.7), cell=(u-Math.floor(u))*11;
+			int id=(int)cell;
+			double tooth=Math.max(0,1-Math.abs(cell-id-.5-.20*knot(id,seed+5.4))/(.21+.08*knot(id,seed+9.3)));
+			return .39*loopNoise(w,6,seed)+.22*loopNoise(w,13,seed+2.1)+.095*loopNoise(w,31,seed+4.2)+.30*knot(id,seed+3.6)*tooth*tooth;
+		}
+		private static double knot(int i,double seed) {
+			double h=Math.sin(i*91.731+seed*19.321)*4375.19;
+			return (h-Math.floor(h))*2-1;
+		}
+		private static double loopNoise(double u,int n,double seed) {
+			double p=(u-Math.floor(u))*n; int i=(int)p; double v=p-i, a=knot(i,seed);
+			return a+(knot((i+1)%n,seed)-a)*(.45*v+.55*v*v*(3-2*v));
+		}
+		/** mix：0 为 v3 整块，1 为 v2 碎齿；age：战斗秒；amount：相对当前半径的最大形变；hz：每战斗秒的周期数。 */
+		public void setAppearance(float mix,float age,float amount,float hz) {
+			mix=Math.max(0f,Math.min(1f,mix));
+			float s=0f,c=0f;
+			if (amount>0f && hz>0f) {
+				double t=2*Math.PI*age*hz, scale=.5*Math.min(.35f,amount);
+				s=(float)(scale*Math.sin(t)); c=(float)(scale*(Math.cos(t)-1));
+			}
+			if (mix==lastMix && s==lastSin && c==lastCos) return;
+			for (int i=0;i<96;i++) {
+				float base=mix==1f ? jagged[i] : broad[i]+(jagged[i]-broad[i])*mix;
+				samples.put(i,Math.max(.02f,base+s*waveSin[i]+c*waveCos[i]));
+			}
+			lastMix=mix; lastSin=s; lastCos=c;
+		}
+		/** 单位半径采样，0..95 顺序为从正 X 逆时针绕一周。 */
+		public float radiusAt(int index) { return samples.get(Math.floorMod(index,96)); }
+	}
+	/** seed 为单次演出的固定种子；blocks 为主瓣数，depth、chips 均为相对半径的变形幅度。 */
+	public static ScorchContour createScorchContour(float seed,int blocks,float depth,float chips) {
+		return createScorchContour(seed,blocks,depth,chips,.80f);
+	}
+	/** 前四项与原方法相同；roughness 只影响 v2 端，0 为圆、0.80 为旧版默认值、1 为最大起伏。 */
+	public static ScorchContour createScorchContour(float seed,int blocks,float depth,float chips,float roughness) {
+		return new ScorchContour(seed,blocks,depth,chips,roughness);
+	}
+	/** 绘制扩张中的暗心与整圈焦边；radius 为当前世界半径，band 为相对半径的焦带宽度。 */
+	public static void drawScorchRim(Vector2f center,float radius,float angle,float alpha,ScorchContour shape,float band,Color tint) {
+		if (shape!=null) ProjectedFx.draw(0,center,radius,angle,alpha,tint,shape,Math.max(.01f,Math.min(.5f,band)),0,0,0);
+	}
+	/** 绘制横闪与竖芒；size 为世界尺寸，angle 为长轴角度，alpha 为当前亮度。 */
+	public static void drawCrossFlare(Vector2f center,float size,float angle,float alpha,Color tint) {
+		ProjectedFx.draw(1,center,size,angle,alpha,tint,null,0,0,0,0);
+	}
+	/** 独立椭圆门圈；aspect 为全开时短轴/长轴，opening 为开度，time 为战斗秒。 */
+	public static void drawPortalRim(Vector2f center,float radius,float facing,float alpha,Color tint,float aspect,float opening,float time,float seed) {
+		if (opening>0) ProjectedFx.draw(2,center,radius,facing,alpha,tint,null,Math.max(.01f,Math.min(1f,aspect)),Math.min(1f,opening),time,seed);
+	}
+	private static final class ProjectedFx {
+		private static int program, mode, params, color, contour;
+		private static boolean tried;
+		private static void load() {
+			if (tried) return;
+			tried=true;
+			program=Moci_ShaderManager.getInstance().createShader("data/shaders/Moci_NebulaGate.vert","data/shaders/Moci_NebulaGate.frag","Moci_Util_projectedFx");
+			if (program==0) return;
+			mode=GL20.glGetUniformLocation(program,"mode"); params=GL20.glGetUniformLocation(program,"params");
+			color=GL20.glGetUniformLocation(program,"tint"); contour=GL20.glGetUniformLocation(program,"contour[0]");
+			if (mode<0 || params<0 || color<0 || contour<0) {
+				Global.getLogger(Moci_Util.class).warn("Projected FX shader missing uniforms; using fallback");
+				program=0;
+			}
+		}
+		static void draw(int kind,Vector2f center,float size,float angle,float alpha,Color tint,ScorchContour shape,float x,float y,float time,float seed) {
+			if (center==null || tint==null || !(size>0 && alpha>0) || tint.getAlpha()==0) return;
+			load(); boolean gl2=GLContext.getCapabilities().OpenGL20;
+			int previous=gl2?GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM):0;
+			float opacity=Math.min(1,alpha)*tint.getAlpha()/255f;
+			GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS); GL11.glMatrixMode(GL11.GL_MODELVIEW); GL11.glPushMatrix();
+			try {
+				GL11.glTranslatef(center.x,center.y,0); GL11.glRotatef(angle,0,0,1); GL11.glScalef(size,size,1);
+				GL11.glDisable(GL11.GL_TEXTURE_2D); GL11.glDisable(GL11.GL_DEPTH_TEST); GL11.glDisable(GL11.GL_ALPHA_TEST);
+				GL11.glDisable(GL11.GL_CULL_FACE); GL11.glEnable(GL11.GL_BLEND);
+				if (program!=0) {
+					GL11.glBlendFunc(GL11.GL_ONE,GL11.GL_ONE_MINUS_SRC_ALPHA); GL20.glUseProgram(program);
+					GL20.glUniform1i(mode,kind); GL20.glUniform4f(params,x,y,time,seed);
+					GL20.glUniform4f(color,tint.getRed()/255f,tint.getGreen()/255f,tint.getBlue()/255f,opacity);
+					if (shape!=null) GL20.glUniform4(contour,shape.samples);
+					GL11.glBegin(GL11.GL_QUADS); GL11.glVertex2f(-2.5f,-2); GL11.glVertex2f(2.5f,-2);
+					GL11.glVertex2f(2.5f,2); GL11.glVertex2f(-2.5f,2); GL11.glEnd();
+				} else {
+					if (gl2) GL20.glUseProgram(0);
+					GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE_MINUS_SRC_ALPHA);
+					GL11.glColor4f(tint.getRed()/255f,tint.getGreen()/255f,tint.getBlue()/255f,opacity);
+					if (kind==1) {
+						GL11.glBegin(GL11.GL_LINES); GL11.glVertex2f(-1.5f,0); GL11.glVertex2f(1.5f,0); GL11.glVertex2f(0,-.45f); GL11.glVertex2f(0,.45f); GL11.glEnd();
+					} else {
+						GL11.glBegin(kind==0?GL11.GL_QUAD_STRIP:GL11.GL_LINE_LOOP);
+						for (int i=0;i<=(kind==0?96:95);i++) {
+							double a=i*Math.PI/48,c=Math.cos(a),s=Math.sin(a);
+							if (kind==0) { float r=shape.radiusAt(i),inner=Math.max(0f,r-x); GL11.glVertex2d(c*inner,s*inner); GL11.glVertex2d(c*r,s*r); }
+							else GL11.glVertex2d(c*x*(.18644+.81356*y),s*(.01+.99*y));
+						}
+						GL11.glEnd();
+					}
+				}
+			} finally { if (gl2) GL20.glUseProgram(previous); GL11.glPopMatrix(); GL11.glPopAttrib(); }
+		}
+	}
+
+	/** 范围与直径均为基准半径的倍数；寿命用秒，径向/切向速度用每秒位置偏移比例。 */
+	public record NebulaPuffStyle(float innerRadius,float outerRadius,float minDiameter,float maxDiameter,
+			float endSize,float minLife,float maxLife,float radialDrift,float swirl,float fadeIn,float hold) {}
+	/** 生成一团烟；spread 只控制烟心分布，不缩小烟团，因而中心也能相互覆盖。angle 用弧度。 */
+	public static void spawnNebulaPuff(CombatEngineAPI engine,Vector2f center,float radius,float spread,float angle,
+			Random random,NebulaPuffStyle style,Color color) {
+		if (engine==null || center==null || style==null || random==null || color==null || !(radius>0)) return;
+		float r=radius*Math.max(0,spread)*(style.innerRadius+(style.outerRadius-style.innerRadius)*random.nextFloat());
+		float dx=r*(float)Math.cos(angle),dy=r*(float)Math.sin(angle);
+		float diameter=radius*(style.minDiameter+(style.maxDiameter-style.minDiameter)*random.nextFloat());
+		float life=style.minLife+(style.maxLife-style.minLife)*random.nextFloat();
+		if (!(diameter>0 && life>0)) return;
+		engine.addNebulaSmokeParticle(new Vector2f(center.x+dx,center.y+dy),new Vector2f(dx*style.radialDrift-dy*style.swirl,dy*style.radialDrift+dx*style.swirl),
+				diameter,style.endSize,style.fadeIn,style.hold,life,color);
+	}
+	/** 瞬时视觉电弧；保留旧调用。empTip 控制是否立即叠加原版终点粒子。 */
+	public static void spawnVisualLightning(CombatEngineAPI engine,Vector2f from,Vector2f to,float width,Color fringe,Color core,boolean empTip) {
+		if (engine==null || from==null || to==null || !(width>0)) return;
+		engine.spawnEmpArcVisual(from,null,to,null,width,fringe,core);
+		if (empTip) com.fs.starfarer.api.impl.combat.RealityDisruptorChargeGlow.spawnEMPParticles(
+				com.fs.starfarer.api.impl.combat.RealityDisruptorChargeGlow.EMPArcHitType.DEST_NO_TARGET,null,to,null);
+	}
+	/** 0.98 运动电弧；speed 为世界单位/战斗秒。返回到达耗时，未生成则为 0，不自带终点粒子。 */
+	public static float spawnVisualLightning(CombatEngineAPI engine,Vector2f from,Vector2f to,float width,Color fringe,Color core,float speed) {
+		if (engine==null || from==null || to==null || !(width>0 && speed>0) || !Float.isFinite(speed)) return 0f;
+		float dx=to.x-from.x,dy=to.y-from.y;
+		float travel=(float)Math.hypot(dx,dy)/speed;
+		if (!(travel>0) || !Float.isFinite(travel)) return 0f;
+		EmpArcEntityAPI.EmpArcParams p=new EmpArcEntityAPI.EmpArcParams();
+		p.movementDurOverride=travel;
+		p.brightSpotFullFraction=.18f; p.brightSpotFadeFraction=.22f; // 移动亮芯、渐隐尾部占整条弧的比例
+		p.nonBrightSpotMinBrightness=0f; p.flamesOutMissiles=false;
+		EmpArcEntityAPI arc=engine.spawnEmpArcVisual(from,null,to,null,width,fringe,core,p);
+		if (arc==null) return 0f;
+		arc.setRenderGlowAtStart(false); arc.setRenderGlowAtEnd(false);
+		arc.setSingleFlickerMode(true); // 只有带 true 的重载会启用亮段传播
+		return travel;
+	}
 	public static final String TAG_NO_RECOIL = "NO_RECOIL";
 	public static final String TAG_HIDE_RECOIL = "HIDE_RECOIL";
 	public static final String TAG_FOLLOW_RECOIL = "FOLLOW_RECOIL";
@@ -2005,6 +2208,882 @@ public class Moci_Util {
 				.setColor(color).setLifetime(0.5f, duration, 0.5f));
 	}
 
+	// ==================== 原版闪现(Phase Skimmer)效果复用 ====================
+	// 原版 DISPLACER / TELEPORTER 系统的三件事的脚本版：
+	//   1. 残像交叉淡化(renderCopyDuringTeleport)  2. jitter 抖散  3. 镜头补偿后的平滑追随
+	// 用于系统 type 不是 DISPLACER / TELEPORTER、由脚本自己改 ship.getLocation() 的场合。
+	//   SkimmerBlink blink = new SkimmerBlink(ship);        // 每艘船持有一个实例
+	//   blink.begin(dest, facingAtDest, 0.25f, 0.25f);      // 发起一次闪现(原版充能/收尾各 0.25 秒)
+	//   if (blink.advance(amount)) { /* 这一帧刚完成瞬移 */ }  // 每帧调用
+	//   blink.cancel();                                     // 中断时恢复外观
+	// 说明文档：docs/Moci_Util_闪现效果使用说明.md
+
+	/** 原版闪现(displacer.system)的 jitter 颜色 */
+	public static final Color SKIMMER_JITTER_COLOR = new Color(100, 165, 255, 155);
+	/** 原版镜头补偿的距离上限；瞬移距离达到该值时原版直接硬切镜头 */
+	public static final float SKIMMER_CAMERA_MAX_DISTANCE = 2000f;
+	private static boolean skimmerCameraBridgeFailed = false;
+
+	/**
+	 * 一次"原版闪现"的状态机：IN 阶段本体留在原地淡到半透明、目的地淡入残像；
+	 * IN 结束的那一帧瞬移并补偿镜头；OUT 阶段本体在新位置恢复不透明、原位置残像淡出。
+	 * 公开字段可在 begin() 之前随时修改。
+	 * 注意：进行中会每帧改写 setExtraAlphaMult / setCopyLocation，不要与其他改写这两项的效果同时使用。
+	 */
+	public static class SkimmerBlink {
+		public enum Phase { IDLE, IN, OUT }
+
+		/** jitter 颜色；为 null 时不显示 jitter */
+		public Color jitterColor = SKIMMER_JITTER_COLOR;
+		/** jitter 强度倍率：1 为原版闪现的强度，0 为完全关闭(只剩残像交叉淡化) */
+		public float jitterIntensity = 1f;
+		/** jitter 份数：船体贴图被额外画多少份 */
+		public int jitterCopies = 10;
+		/** jitter 最大偏移 = jitterRange + jitterRangeRadiusFraction * 碰撞半径 */
+		public float jitterRange = 0f;
+		public float jitterRangeRadiusFraction = 0.5f;
+		/** 是否显示残像并让本体半透明；false 时只保留 jitter、瞬移和镜头补偿 */
+		public boolean renderCopy = true;
+		/** 瞬移的是玩家舰船时，是否像原版一样补偿镜头 */
+		public boolean compensateCamera = true;
+		/** 进行中是否处于相位状态(原版闪现为 true)。本身带相位线圈的船不要开启 */
+		public boolean phased = false;
+		/** 瞬移瞬间的速度倍率：原版 DISPLACER 为 1，TELEPORTER 为 0.5 */
+		public float velocityMultOnTeleport = 1f;
+
+		private final ShipAPI ship;
+		private final Object jitterKey = new Object();
+		private final Vector2f destination = new Vector2f();
+		private final Vector2f origin = new Vector2f();
+		private Phase phase = Phase.IDLE;
+		private float elapsed = 0f;
+		private float inDuration = 0f;
+		private float outDuration = 0f;
+		private boolean hasDestinationFacing = false;
+		private float destinationFacing = 0f;
+		private float originFacing = 0f;
+		/** 引擎副本当前的位置/朝向/透明度，公布给 collectShipCopies() 供尾巴等外部渲染跟随 */
+		private final ShipCopyRenderer.ShipCopy engineCopy = new ShipCopyRenderer.ShipCopy();
+
+		public SkimmerBlink(ShipAPI ship) {
+			this.ship = ship;
+		}
+
+		/**
+		 * 发起一次闪现。上一次还在 IN 阶段(尚未瞬移)时拒绝并返回 false；
+		 * 上一次在 OUT 阶段时直接收尾并开始新的一次。
+		 *
+		 * @param dest         目的地，坐标会被复制
+		 * @param facingAtDest 落地后的朝向；null 表示保持原朝向
+		 * @param inSeconds    瞬移前的时长，原版 0.25
+		 * @param outSeconds   瞬移后的时长，原版 0.25
+		 */
+		public boolean begin(Vector2f dest, Float facingAtDest, float inSeconds, float outSeconds) {
+			if (ship == null || dest == null) return false;
+			if (!Float.isFinite(dest.x) || !Float.isFinite(dest.y)) return false;
+			if (phase == Phase.IN) return false;
+			if (phase == Phase.OUT) restoreShip();
+			destination.set(dest);
+			hasDestinationFacing = facingAtDest != null && Float.isFinite(facingAtDest);
+			destinationFacing = hasDestinationFacing ? facingAtDest : 0f;
+			inDuration = Float.isFinite(inSeconds) ? Math.max(0f, inSeconds) : 0f;
+			outDuration = Float.isFinite(outSeconds) ? Math.max(0f, outSeconds) : 0f;
+			elapsed = 0f;
+			phase = Phase.IN;
+			return true;
+		}
+
+		/** IN 阶段内修正目的地(例如目标移动了)；其他阶段无效 */
+		public void setDestination(Vector2f dest) {
+			if (phase != Phase.IN || dest == null) return;
+			if (!Float.isFinite(dest.x) || !Float.isFinite(dest.y)) return;
+			destination.set(dest);
+		}
+
+		/**
+		 * 每帧调用一次。
+		 *
+		 * @return 仅在这一帧完成了瞬移时返回 true，此时 ship.getLocation() 已是新位置
+		 */
+		public boolean advance(float amount) {
+			if (phase == Phase.IDLE || ship == null) return false;
+			CombatEngineAPI engine = Global.getCombatEngine();
+			if (engine == null || !ship.isAlive() || !engine.isEntityInPlay(ship)) {
+				cancel();
+				return false;
+			}
+
+			boolean teleported = false;
+			elapsed += Math.max(0f, amount);
+			if (phase == Phase.IN && elapsed >= inDuration) {
+				origin.set(ship.getLocation());
+				originFacing = ship.getFacing();
+				ship.getLocation().set(destination);
+				if (hasDestinationFacing) ship.setFacing(destinationFacing);
+				if (velocityMultOnTeleport != 1f) ship.getVelocity().scale(velocityMultOnTeleport);
+				if (compensateCamera) compensateCameraForTeleport(ship, origin, destination);
+				elapsed = Math.min(elapsed - inDuration, outDuration);
+				phase = Phase.OUT;
+				teleported = true;
+			}
+			if (phase == Phase.OUT && elapsed >= outDuration) {
+				restoreShip();
+				phase = Phase.IDLE;
+				return teleported;
+			}
+
+			float level = getLevel();
+			if (renderCopy) {
+				if (phase == Phase.IN) {
+					float shipAlpha = 1f - level * 0.5f;
+					ship.setExtraAlphaMult(shipAlpha);
+					engineCopy.location.set(destination);
+					engineCopy.facing = hasDestinationFacing ? destinationFacing : ship.getFacing();
+					engineCopy.alpha = 1f - shipAlpha;
+				} else {
+					ship.setExtraAlphaMult(1f - level * 0.5f);
+					engineCopy.location.set(origin);
+					engineCopy.facing = originFacing;
+					engineCopy.alpha = level * 0.5f;
+				}
+				ship.setCopyLocation(engineCopy.location, engineCopy.alpha, engineCopy.facing);
+				ship.setCustomData(SHIP_ENGINE_COPY_KEY, engineCopy);
+			}
+			if (jitterColor != null && jitterCopies > 0 && jitterIntensity > 0f) {
+				ship.setJitter(jitterKey, jitterColor, level * jitterIntensity, jitterCopies, 0f,
+						jitterRange + jitterRangeRadiusFraction * ship.getCollisionRadius());
+			}
+			if (phased) ship.setPhased(true);
+			return teleported;
+		}
+
+		/** 立即中止：不瞬移，恢复透明度并清掉残像。已经瞬移过的不会回退 */
+		public void cancel() {
+			if (phase == Phase.IDLE) return;
+			restoreShip();
+			phase = Phase.IDLE;
+		}
+
+		public Phase getPhase() {
+			return phase;
+		}
+
+		public boolean isBusy() {
+			return phase != Phase.IDLE;
+		}
+
+		/** 当前强度 0..1：IN 阶段从 0 升到 1，OUT 阶段从 1 降到 0 */
+		public float getLevel() {
+			if (phase == Phase.IN) return inDuration > 0f ? Math.min(1f, elapsed / inDuration) : 1f;
+			if (phase == Phase.OUT) return outDuration > 0f ? Math.max(0f, 1f - elapsed / outDuration) : 0f;
+			return 0f;
+		}
+
+		/** 目的地的活引用，仅供读取 */
+		public Vector2f getDestination() {
+			return destination;
+		}
+
+		private void restoreShip() {
+			if (ship == null) return;
+			if (renderCopy) {
+				ship.setExtraAlphaMult(1f);
+				ship.setCopyLocation(null, 1f, ship.getFacing());
+				ship.removeCustomData(SHIP_ENGINE_COPY_KEY);
+			}
+			if (phased) ship.setPhased(false);
+		}
+	}
+
+	/**
+	 * 原版闪现的镜头补偿：玩家舰船瞬移后镜头中心保持不动，再用平时鼠标平移的缓动滑向新位置。
+	 * 在把 ship.getLocation() 改到 to 之后的同一帧调用。
+	 * 与原版条件一致：只对玩家舰船生效；锁定目标视角、跟随其他实体、镜头被外部接管，
+	 * 或瞬移距离达到 SKIMMER_CAMERA_MAX_DISTANCE 时不处理。
+	 * 依赖混淆方法名，游戏版本变化导致失效时只记录一次日志并退化为不补偿(镜头硬切)。
+	 *
+	 * @return 是否做了补偿
+	 */
+	public static boolean compensateCameraForTeleport(ShipAPI ship, Vector2f from, Vector2f to) {
+		if (skimmerCameraBridgeFailed || ship == null || from == null || to == null) return false;
+		CombatEngineAPI engine = Global.getCombatEngine();
+		if (engine == null || ship != engine.getPlayerShip()) return false;
+		CombatUIAPI ui = engine.getCombatUI();
+		if (ui == null || ui.getEntityToFollowV2() != null) return false;
+		ViewportAPI viewport = engine.getViewport();
+		if (viewport != null && viewport.isExternalControl()) return false;
+		float dx = from.x - to.x;
+		float dy = from.y - to.y;
+		if (!Float.isFinite(dx) || !Float.isFinite(dy)) return false;
+		if (dx * dx + dy * dy >= SKIMMER_CAMERA_MAX_DISTANCE * SKIMMER_CAMERA_MAX_DISTANCE) return false;
+		try {
+			return SkimmerCameraBridge.shiftViewOffset(ui, dx, dy);
+		} catch (Throwable error) {
+			skimmerCameraBridgeFailed = true;
+			Global.getLogger(Moci_Util.class).error(
+					"[Moci_Skimmer] 镜头补偿不可用(混淆方法名与当前游戏版本不匹配)，已退化为不补偿", error);
+			return false;
+		}
+	}
+
+	/**
+	 * 镜头偏移量的访问桥。对应 0.98a：战斗界面(CombatState)的 getViewMouseOffset() 返回的对象
+	 * 保存"镜头中心相对玩家舰船的偏移"，其 Ö00000() 返回当前偏移的活引用，
+	 * Õ00000() 把偏移标记为"正在移动"，让它开始向鼠标决定的目标值缓动。
+	 * 全部通过 MethodHandle 按名字查找，源码里不直接引用混淆类：
+	 * 那些类的签名里带有名为 new 之类的包，IDE 的编译器解析不了，直接引用会让整个 Moci_Util 报错。
+	 * 名字对不上时查找会抛异常，由 compensateCameraForTeleport 捕获。
+	 */
+	private static final class SkimmerCameraBridge {
+		private static final String OFFSET_INTERFACE = "com.fs.starfarer.combat.L";
+		private static final String GET_CURRENT_OFFSET = "Ö00000";
+		private static final String MARK_MOVING = "Õ00000";
+
+		private static Class<?> uiClass = null;
+		private static MethodHandle isViewOnTarget = null;
+		private static MethodHandle getViewMouseOffset = null;
+		private static Class<?> offsetClass = null;
+		private static MethodHandle getCurrentOffset = null;
+		private static MethodHandle markMoving = null;
+
+		static boolean shiftViewOffset(Object combatUI, float dx, float dy) throws Throwable {
+			MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+			if (uiClass != combatUI.getClass()) {
+				Class<?> type = combatUI.getClass();
+				Class<?> offsetInterface = Class.forName(OFFSET_INTERFACE);
+				isViewOnTarget = lookup.findVirtual(type, "isViewOnTarget", MethodType.methodType(boolean.class));
+				getViewMouseOffset = lookup.findVirtual(type, "getViewMouseOffset",
+						MethodType.methodType(offsetInterface));
+				uiClass = type;
+			}
+			if ((boolean) isViewOnTarget.invoke(combatUI)) return false;
+			Object offset = getViewMouseOffset.invoke(combatUI);
+			if (offset == null) return false;
+			if (offsetClass != offset.getClass()) {
+				Class<?> type = offset.getClass();
+				getCurrentOffset = lookup.findVirtual(type, GET_CURRENT_OFFSET, MethodType.methodType(Vector2f.class));
+				markMoving = lookup.findVirtual(type, MARK_MOVING, MethodType.methodType(void.class));
+				offsetClass = type;
+			}
+			Vector2f current = (Vector2f) getCurrentOffset.invoke(offset);
+			if (current == null) return false;
+			current.x += dx;
+			current.y += dy;
+			markMoving.invoke(offset);
+			return true;
+		}
+	}
+
+	// ---------- 多个整船残影 ----------
+	// 引擎自带的 setCopyLocation 每艘船只有一个副本。ShipCopyRenderer 用同样的手法
+	// (临时改位置/朝向/透明度后再调一次舰船自己的 render)画任意多个，武器、引擎、jitter 都在。
+	//   ShipCopyRenderer renderer = Moci_Util.createShipCopyRenderer(ship);
+	//   ShipCopyRenderer.ShipCopy copy = renderer.addCopy();
+	//   copy.location.set(x, y); copy.facing = 90f; copy.alpha = 0.5f;   // 每帧随意改
+	//   renderer.removeCopy(copy);   // 或 renderer.clear()
+	//   renderer.expire();           // 不再需要时移除插件
+
+	private static boolean shipCopyBridgeFailed = false;
+	/** 舰船 customData 的键：当前挂在这艘船上的 ShipCopyRenderer */
+	public static final String SHIP_COPY_RENDERER_KEY = "Moci_ShipCopyRenderer";
+	/** 舰船 customData 的键：SkimmerBlink 正在显示的引擎副本(ShipCopy) */
+	public static final String SHIP_ENGINE_COPY_KEY = "Moci_ShipEngineCopy";
+
+	/**
+	 * 把这艘船当前显示的所有残影(ShipCopyRenderer 的副本 + SkimmerBlink 的引擎副本)追加到 out。
+	 * 给"自己画、不走舰船 render"的外部渲染用(例如纯白骑士的尾巴)：
+	 * 这些东西引擎不会替它们在副本上再画一遍，需要自己照着副本的位置/朝向/透明度各画一份。
+	 * 配套的两个约定：
+	 *   1. 本体那一份的透明度要乘上 ship.getExtraAlphaMult()，否则本体隐藏时它还留在原地；
+	 *   2. 副本那一份用 copy.alpha 代替 ship.getExtraAlphaMult()，位置用 transformToShipCopy() 换算。
+	 */
+	public static void collectShipCopies(ShipAPI ship, List<ShipCopyRenderer.ShipCopy> out) {
+		if (ship == null || out == null) return;
+		java.util.Map<String, Object> data = ship.getCustomData();
+		if (data == null) return;
+		Object renderer = data.get(SHIP_COPY_RENDERER_KEY);
+		if (renderer instanceof ShipCopyRenderer && ((ShipCopyRenderer) renderer).isWorking()) {
+			out.addAll(((ShipCopyRenderer) renderer).getCopies());
+		}
+		Object engineCopy = data.get(SHIP_ENGINE_COPY_KEY);
+		if (engineCopy instanceof ShipCopyRenderer.ShipCopy) {
+			out.add((ShipCopyRenderer.ShipCopy) engineCopy);
+		}
+	}
+
+	/**
+	 * 把"相对本体的世界坐标"换算到副本上：先绕本体转过(副本朝向 - 本体朝向)，再平移到副本位置。
+	 * 角度类的量直接加上 copy.facing - ship.getFacing() 即可。
+	 *
+	 * @param worldPoint 本体上的某个世界坐标(不会被修改)
+	 * @param out        结果写到这里并返回
+	 */
+	public static Vector2f transformToShipCopy(ShipAPI ship, ShipCopyRenderer.ShipCopy copy, Vector2f worldPoint,
+			Vector2f out) {
+		double delta = Math.toRadians(copy.facing - ship.getFacing());
+		float cos = (float) Math.cos(delta);
+		float sin = (float) Math.sin(delta);
+		float dx = worldPoint.x - ship.getLocation().x;
+		float dy = worldPoint.y - ship.getLocation().y;
+		out.set(copy.location.x + dx * cos - dy * sin, copy.location.y + dx * sin + dy * cos);
+		return out;
+	}
+
+	/**
+	 * 在舰船所在的各渲染层里把整艘船额外画若干份。副本只是画面，没有碰撞和任何逻辑。
+	 * 副本的透明度独立于本体：本体 setExtraAlphaMult(0) 隐藏时副本照常显示。
+	 * 与引擎自带的 setCopyLocation 不同，画完后会恢复舰船的 combinedAlphaMult，
+	 * 读这个值的外部渲染(自定义推进器、GraphicsLib 光照)不会在本体位置按副本的亮度显形。
+	 * 舰船死亡或离场后自动失效。
+	 */
+	public static class ShipCopyRenderer extends BaseCombatLayeredRenderingPlugin {
+		/** 一个副本；字段可随时修改，下一帧生效 */
+		public static class ShipCopy {
+			public final Vector2f location = new Vector2f();
+			public float facing = 0f;
+			/** 0..1，代替本体的 extraAlphaMult */
+			public float alpha = 1f;
+			/** 自身扭曲的强度 0..1：0 = 不扭曲，1 = 按渲染器的 warp 参数扭曲到最大。只扭曲这个副本的画面 */
+			public float warp = 0f;
+		}
+
+		/** 自身扭曲的参数，对这个渲染器的所有副本生效；各副本用 ShipCopy.warp 控制强弱 */
+		public final LocalWarpParams warpParams = new LocalWarpParams();
+		/** 扭曲范围的半径，按舰船碰撞半径的倍数。要大到能罩住整个船体画面(含突出的武器) */
+		public float warpExtentRadiusMult = 2.2f;
+
+		private final ShipAPI ship;
+		private final List<ShipCopy> copies = new ArrayList<>();
+		private final EnumSet<CombatEngineLayers> activeLayers;
+		private boolean expired = false;
+
+		public ShipCopyRenderer(ShipAPI ship) {
+			this.ship = ship;
+			EnumSet<CombatEngineLayers> layers = EnumSet.noneOf(CombatEngineLayers.class);
+			if (ship != null && ship.getActiveLayers() != null) layers.addAll(ship.getActiveLayers());
+			// 敌我识别圈只属于本体
+			layers.remove(CombatEngineLayers.FF_INDICATORS_LAYER);
+			this.activeLayers = layers;
+			if (ship != null) ship.setCustomData(SHIP_COPY_RENDERER_KEY, this);
+		}
+
+		public ShipCopy addCopy() {
+			ShipCopy copy = new ShipCopy();
+			if (ship != null) {
+				copy.location.set(ship.getLocation());
+				copy.facing = ship.getFacing();
+			}
+			copies.add(copy);
+			return copy;
+		}
+
+		public void removeCopy(ShipCopy copy) {
+			copies.remove(copy);
+		}
+
+		public void clear() {
+			copies.clear();
+		}
+
+		public List<ShipCopy> getCopies() {
+			return copies;
+		}
+
+		/** 移除插件；之后需要重新 createShipCopyRenderer */
+		public void expire() {
+			expired = true;
+			copies.clear();
+			if (ship != null && ship.getCustomData() != null
+					&& ship.getCustomData().get(SHIP_COPY_RENDERER_KEY) == this) {
+				ship.removeCustomData(SHIP_COPY_RENDERER_KEY);
+			}
+		}
+
+		/** 副本的自身扭曲(ShipCopy.warp)是否可用；不可用时 warp 被忽略，副本照常显示 */
+		public boolean isWarpAvailable() {
+			return isWorking() && isLocalWarpAvailable();
+		}
+
+		/** 多副本渲染是否可用；false 表示引擎渲染方法与当前游戏版本不匹配，调用方应退回 setCopyLocation */
+		public boolean isWorking() {
+			return !shipCopyBridgeFailed && !expired;
+		}
+
+		@Override
+		public void advance(float amount) {
+			if (expired) return;
+			CombatEngineAPI engine = Global.getCombatEngine();
+			if (engine == null || ship == null || !ship.isAlive() || !engine.isEntityInPlay(ship)) {
+				expire();
+				return;
+			}
+			// 宿主实体跟着舰船，引擎才不会把插件当成屏幕外的东西裁掉
+			if (entity != null) setAuroraHostLocation(entity, ship.getLocation());
+		}
+
+		@Override
+		public void render(CombatEngineLayers currLayer, ViewportAPI viewport) {
+			if (expired || shipCopyBridgeFailed || copies.isEmpty() || viewport == null) return;
+			try {
+				ShipCopyBridge.render(ship, currLayer, viewport, this);
+			} catch (Throwable error) {
+				shipCopyBridgeFailed = true;
+				Global.getLogger(Moci_Util.class).error(
+						"[Moci_ShipCopy] 多副本渲染不可用(引擎渲染方法与当前游戏版本不匹配)，已停用", error);
+			}
+		}
+
+		@Override
+		public float getRenderRadius() {
+			// 副本可以离舰船很远，是否在屏幕内由舰船自己的 render 逐个判断
+			return 1000000f;
+		}
+
+		@Override
+		public EnumSet<CombatEngineLayers> getActiveLayers() {
+			return activeLayers;
+		}
+
+		@Override
+		public boolean isExpired() {
+			return expired;
+		}
+	}
+
+	/** 为舰船创建多副本渲染器；无战斗引擎或 ship 为 null 时返回 null */
+	public static ShipCopyRenderer createShipCopyRenderer(ShipAPI ship) {
+		CombatEngineAPI engine = Global.getCombatEngine();
+		if (engine == null || ship == null) return null;
+		ShipCopyRenderer plugin = new ShipCopyRenderer(ship);
+		CombatEntityAPI host = engine.addLayeredRenderingPlugin(plugin);
+		setAuroraHostLocation(host, ship.getLocation());
+		return plugin;
+	}
+
+	/**
+	 * 调用引擎舰船实现类的三参数 render(layer, viewport, boolean)，公开 API 里没有它。
+	 * 做法与引擎画传送副本时完全相同(Ship.render 两参数版本的后半段)：
+	 * 临时改位置、朝向、extraAlphaMult，调三参数的 render，再改回去。
+	 *
+	 * 比引擎多做一步：render 会把舰船的 combinedAlphaMult 留在"最后画的那一份"的透明度上，
+	 * 而 Moci_EngineRender、GraphicsLib 光照等外部渲染都读 getCombinedAlphaMult()。
+	 * 不恢复的话，本体隐藏时它们会按副本的亮度在本体位置画出推进器和轮廓(穿帮)。
+	 * 所以画完后把 combinedAlphaMult 写回原值；该字段是私有的，用私有 MethodHandle 写。
+	 *
+	 * 全部通过 MethodHandle 查找，源码里不直接引用引擎实现类；对不上时查找抛异常，由调用方捕获。
+	 */
+	private static final class ShipCopyBridge {
+		private static final String SHIP_CLASS = "com.fs.starfarer.combat.entities.Ship";
+		private static final String COMBINED_ALPHA_FIELD = "combinedAlphaMult";
+
+		private static Class<?> shipClass = null;
+		private static Class<?> viewportClass = null;
+		private static MethodHandle renderShip = null;
+		private static MethodHandle setCombinedAlpha = null;
+
+		static void render(final ShipAPI ship, final CombatEngineLayers layer, final ViewportAPI viewport,
+				ShipCopyRenderer owner) throws Throwable {
+			List<ShipCopyRenderer.ShipCopy> copies = owner.copies;
+			if (shipClass != ship.getClass() || viewportClass != viewport.getClass()) {
+				renderShip = MethodHandles.publicLookup().findVirtual(ship.getClass(), "render",
+						MethodType.methodType(void.class, CombatEngineLayers.class, viewport.getClass(), boolean.class));
+				// 私有字段只能在声明它的类上查找
+				Class<?> declaring = ship.getClass();
+				while (declaring != null && !SHIP_CLASS.equals(declaring.getName())) declaring = declaring.getSuperclass();
+				if (declaring == null) throw new NoSuchFieldException(COMBINED_ALPHA_FIELD);
+				setCombinedAlpha = MethodHandles.privateLookupIn(declaring, MethodHandles.lookup())
+						.findSetter(declaring, COMBINED_ALPHA_FIELD, float.class);
+				shipClass = ship.getClass();
+				viewportClass = viewport.getClass();
+			}
+
+			Vector2f location = ship.getLocation();
+			float x = location.x;
+			float y = location.y;
+			float facing = ship.getFacing();
+			float alpha = ship.getExtraAlphaMult();
+			float combinedAlpha = ship.getCombinedAlphaMult();
+			try {
+				for (int i = 0; i < copies.size(); i++) {
+					ShipCopyRenderer.ShipCopy copy = copies.get(i);
+					if (!(copy.alpha > 0f)) continue;
+					location.set(copy.location);
+					ship.setFacing(copy.facing);
+					float copyAlpha = Math.min(1f, copy.alpha);
+					if (copy.warp > 0.001f && isLocalWarpAvailable()) {
+						// 扭曲的副本：先按完全不透明画进离屏纹理，贴回屏幕时再乘上副本的透明度
+						float halfSize = ship.getCollisionRadius() * owner.warpExtentRadiusMult;
+						if (!viewport.isNearViewport(copy.location, halfSize)) continue;
+						ship.setExtraAlphaMult(1f);
+						float time = Global.getCombatEngine().getTotalElapsedTime(false);
+						boolean drawn = renderLocalWarp(new LocalWarpContent() {
+							@Override
+							public void draw() throws Throwable {
+								renderShip.invoke(ship, layer, viewport, true);
+							}
+						}, copy.location, halfSize, copyAlpha, Math.min(1f, copy.warp), time, owner.warpParams);
+						if (drawn) continue;
+					}
+					ship.setExtraAlphaMult(copyAlpha);
+					renderShip.invoke(ship, layer, viewport, true);
+				}
+			} finally {
+				location.set(x, y);
+				ship.setFacing(facing);
+				ship.setExtraAlphaMult(alpha);
+				setCombinedAlpha.invoke(ship, combinedAlpha);
+			}
+		}
+	}
+
+	// ---------- 只扭曲一段画面自身的"局部扭曲" ----------
+	// GraphicsLib 的 WaveDistortion 是屏幕空间的：范围内的背景、别的船、弹丸一起被扭曲。
+	// 这里的做法不同：把要扭曲的那段画面先单独画进一张离屏纹理，再把这张纹理贴到一张会变形的网格上画回屏幕。
+	// 只有这段画面自己变形，背景和其他东西完全不受影响；也不依赖 GraphicsLib 的着色器开关。
+	// ShipCopyRenderer 已接好：给 ShipCopy.warp 赋 0..1 即可。其他画面要用，直接调 renderLocalWarp()。
+
+	/** 局部扭曲的形状参数。三种变形可以叠加，各自乘上调用时给的强度 */
+	public static class LocalWarpParams {
+		/** 向中心收缩的程度 0..1：0 = 不收缩，0.8 = 中心附近的画面被吸到原来两成的范围里 */
+		public float pinch = 0.6f;
+		/** 中心处的最大旋转角(度)，越靠外转得越少，形成漩涡。负数反向旋转 */
+		public float twistDegrees = 120f;
+		/** 沿半径方向来回起伏的幅度(单位)，形成向外扩散的涟漪。0 = 没有涟漪 */
+		public float rippleAmplitude = 12f;
+		/** 从中心到边缘有几圈涟漪 */
+		public float rippleWaves = 2.5f;
+		/** 涟漪向外扩散的快慢(弧度/秒) */
+		public float rippleSpeed = 12f;
+		/** 变形网格每边的格数。越多越平滑、越费性能；扭转角很大时需要调高 */
+		public int gridCells = 18;
+	}
+
+	/** 要被扭曲的那段绘制。在当前的世界坐标变换下照常画即可 */
+	public interface LocalWarpContent {
+		void draw() throws Throwable;
+	}
+
+	private static boolean localWarpFailed = false;
+	private static boolean localWarpChecked = false;
+	private static int localWarpFbo = 0;
+	private static int localWarpTexture = 0;
+	private static int localWarpWidth = 0;
+	private static int localWarpHeight = 0;
+	private static final FloatBuffer LOCAL_WARP_MODELVIEW = BufferUtils.createFloatBuffer(16);
+	private static final FloatBuffer LOCAL_WARP_PROJECTION = BufferUtils.createFloatBuffer(16);
+	private static final IntBuffer LOCAL_WARP_VIEWPORT = BufferUtils.createIntBuffer(16);
+	private static final FloatBuffer LOCAL_WARP_WINDOW = BufferUtils.createFloatBuffer(3);
+
+	/** 局部扭曲是否可用：需要 OpenGL 3.0 的帧缓冲对象，且之前没有出过错 */
+	public static boolean isLocalWarpAvailable() {
+		if (localWarpFailed) return false;
+		try {
+			return GLContext.getCapabilities().OpenGL30;
+		} catch (Throwable noContext) {
+			return false;
+		}
+	}
+
+	/**
+	 * 把 content 画的东西扭曲后显示。在渲染回调里、世界坐标变换下调用。
+	 * 变形只发生在以 center 为中心、边长 2 * halfSize 的正方形内，边缘处变形为 0，所以与外面没有接缝；
+	 * content 画到正方形以外的部分会被裁掉。
+	 *
+	 * @param alpha    整体透明度 0..1。content 自己应按完全不透明来画
+	 * @param strength 扭曲强度 0..1，乘到 params 的各项上
+	 * @param time     当前时间(秒)，只用于涟漪的相位
+	 * @return true = 已处理(包括完全在屏幕外、什么都不用画的情况)；false = 不可用，调用方应自己照常画 content
+	 */
+	public static boolean renderLocalWarp(LocalWarpContent content, Vector2f center, float halfSize, float alpha,
+			float strength, float time, LocalWarpParams params) throws Throwable {
+		if (!isLocalWarpAvailable() || content == null || center == null || params == null) return false;
+		if (!(halfSize > 0f)) return false;
+		try {
+			return renderLocalWarpImpl(content, center, halfSize, alpha, strength, time, params);
+		} catch (LocalWarpUnsupported unsupported) {
+			localWarpFailed = true;
+			Global.getLogger(Moci_Util.class).error("[Moci_LocalWarp] 局部扭曲不可用，已停用：" + unsupported.getMessage());
+			return false;
+		}
+	}
+
+	private static final class LocalWarpUnsupported extends Exception {
+		LocalWarpUnsupported(String message) {
+			super(message);
+		}
+	}
+
+	private static boolean renderLocalWarpImpl(LocalWarpContent content, Vector2f center, float halfSize, float alpha,
+			float strength, float time, LocalWarpParams params) throws Throwable {
+		// 世界坐标 -> 窗口像素 的仿射关系：取中心点和两个单位方向各投影一次
+		LOCAL_WARP_MODELVIEW.clear();
+		LOCAL_WARP_PROJECTION.clear();
+		LOCAL_WARP_VIEWPORT.clear();
+		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, LOCAL_WARP_MODELVIEW);
+		GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, LOCAL_WARP_PROJECTION);
+		GL11.glGetInteger(GL11.GL_VIEWPORT, LOCAL_WARP_VIEWPORT);
+		float[] origin = projectToWindow(center.x, center.y);
+		float[] alongX = projectToWindow(center.x + 1f, center.y);
+		float[] alongY = projectToWindow(center.x, center.y + 1f);
+		if (origin == null || alongX == null || alongY == null) return false;
+		float xToWinX = alongX[0] - origin[0];
+		float xToWinY = alongX[1] - origin[1];
+		float yToWinX = alongY[0] - origin[0];
+		float yToWinY = alongY[1] - origin[1];
+
+		int targetWidth = LOCAL_WARP_VIEWPORT.get(0) + LOCAL_WARP_VIEWPORT.get(2);
+		int targetHeight = LOCAL_WARP_VIEWPORT.get(1) + LOCAL_WARP_VIEWPORT.get(3);
+		if (targetWidth <= 0 || targetHeight <= 0) return false;
+
+		// 正方形在窗口里占的矩形，只清空和绘制这一块
+		float extentX = halfSize * (Math.abs(xToWinX) + Math.abs(yToWinX));
+		float extentY = halfSize * (Math.abs(xToWinY) + Math.abs(yToWinY));
+		int left = Math.max(0, (int) Math.floor(origin[0] - extentX) - 2);
+		int bottom = Math.max(0, (int) Math.floor(origin[1] - extentY) - 2);
+		int right = Math.min(targetWidth, (int) Math.ceil(origin[0] + extentX) + 2);
+		int top = Math.min(targetHeight, (int) Math.ceil(origin[1] + extentY) + 2);
+		if (right <= left || top <= bottom) return true;
+
+		ensureLocalWarpTarget(targetWidth, targetHeight);
+
+		boolean firstUse = !localWarpChecked;
+		if (firstUse) {
+			// 清掉别处遗留的 GL 错误标记，下面只检查自己这一轮有没有出错
+			for (int i = 0; i < 16 && GL11.glGetError() != GL11.GL_NO_ERROR; i++) {
+			}
+		}
+
+		// 第一步：把 content 画进离屏纹理
+		int previousFramebuffer = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
+		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+		try {
+			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, localWarpFbo);
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			GL11.glScissor(left, bottom, right - left, top - bottom);
+			GL11.glClearColor(0f, 0f, 0f, 0f);
+			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+			content.draw();
+		} finally {
+			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, previousFramebuffer);
+			GL11.glPopAttrib();
+		}
+
+		// 第二步：把纹理贴到变形网格上画回屏幕。纹理里的颜色已经乘过透明度，所以用预乘混合
+		int cells = Math.max(2, Math.min(64, params.gridCells));
+		float clampedAlpha = Math.max(0f, Math.min(1f, alpha));
+		float clampedStrength = Math.max(0f, Math.min(1f, strength));
+		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+		try {
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, localWarpTexture);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			GL11.glColor4f(clampedAlpha, clampedAlpha, clampedAlpha, clampedAlpha);
+			float step = 2f * halfSize / cells;
+			float[] upper = new float[2];
+			float[] lower = new float[2];
+			for (int row = 0; row < cells; row++) {
+				float y0 = -halfSize + row * step;
+				float y1 = y0 + step;
+				GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
+				for (int col = 0; col <= cells; col++) {
+					float x = -halfSize + col * step;
+					warpOffset(x, y1, halfSize, clampedStrength, time, params, upper);
+					warpOffset(x, y0, halfSize, clampedStrength, time, params, lower);
+					// 贴图坐标取"变形前"的位置，顶点画在"变形后"的位置，画面就跟着网格变形
+					GL11.glTexCoord2f((origin[0] + x * xToWinX + y1 * yToWinX) / localWarpWidth,
+							(origin[1] + x * xToWinY + y1 * yToWinY) / localWarpHeight);
+					GL11.glVertex2f(center.x + upper[0], center.y + upper[1]);
+					GL11.glTexCoord2f((origin[0] + x * xToWinX + y0 * yToWinX) / localWarpWidth,
+							(origin[1] + x * xToWinY + y0 * yToWinY) / localWarpHeight);
+					GL11.glVertex2f(center.x + lower[0], center.y + lower[1]);
+				}
+				GL11.glEnd();
+			}
+		} finally {
+			GL11.glPopAttrib();
+		}
+
+		if (firstUse) {
+			localWarpChecked = true;
+			int error = GL11.glGetError();
+			if (error != GL11.GL_NO_ERROR) {
+				throw new LocalWarpUnsupported("OpenGL 报错 0x" + Integer.toHexString(error));
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * 网格上相对中心为 (x, y) 的点变形后的相对位置，写入 out。
+	 * 影响力在中心为 1，到正方形的内切圆边缘降为 0，所以边缘和四角不动。
+	 */
+	private static void warpOffset(float x, float y, float halfSize, float strength, float time,
+			LocalWarpParams params, float[] out) {
+		out[0] = x;
+		out[1] = y;
+		float distance = (float) Math.sqrt(x * x + y * y);
+		float normalized = distance / halfSize;
+		if (strength <= 0f || normalized >= 1f || distance < 0.001f) return;
+		float falloff = 1f - normalized * normalized;
+		float influence = falloff * falloff;
+
+		// 收缩：越靠近中心被吸得越狠
+		float scale = 1f - strength * Math.max(0f, Math.min(0.95f, params.pinch)) * influence;
+		// 涟漪：沿半径方向起伏，相位随时间向外推
+		float ripple = strength * params.rippleAmplitude * falloff
+				* (float) Math.sin(normalized * params.rippleWaves * 2f * Math.PI - time * params.rippleSpeed);
+		float radius = distance * scale + ripple;
+		// 漩涡：中心转得多，边缘不转
+		double angle = Math.atan2(y, x) + Math.toRadians(strength * params.twistDegrees * influence);
+		out[0] = radius * (float) Math.cos(angle);
+		out[1] = radius * (float) Math.sin(angle);
+	}
+
+	private static float[] projectToWindow(float x, float y) {
+		LOCAL_WARP_MODELVIEW.rewind();
+		LOCAL_WARP_PROJECTION.rewind();
+		LOCAL_WARP_VIEWPORT.rewind();
+		LOCAL_WARP_WINDOW.clear();
+		if (!GLU.gluProject(x, y, 0f, LOCAL_WARP_MODELVIEW, LOCAL_WARP_PROJECTION, LOCAL_WARP_VIEWPORT,
+				LOCAL_WARP_WINDOW)) {
+			return null;
+		}
+		return new float[] { LOCAL_WARP_WINDOW.get(0), LOCAL_WARP_WINDOW.get(1) };
+	}
+
+	/** 建立(或在窗口尺寸变化后重建)离屏纹理和帧缓冲。全局只有一份，所有局部扭曲轮流使用 */
+	private static void ensureLocalWarpTarget(int width, int height) throws LocalWarpUnsupported {
+		if (localWarpFbo != 0 && width == localWarpWidth && height == localWarpHeight) return;
+		int previousFramebuffer = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
+		int previousTexture = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+		try {
+			if (localWarpTexture == 0) localWarpTexture = GL11.glGenTextures();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, localWarpTexture);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA,
+					GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+
+			if (localWarpFbo == 0) localWarpFbo = GL30.glGenFramebuffers();
+			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, localWarpFbo);
+			GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D,
+					localWarpTexture, 0);
+			int status = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
+			if (status != GL30.GL_FRAMEBUFFER_COMPLETE) {
+				throw new LocalWarpUnsupported("帧缓冲不完整，状态 0x" + Integer.toHexString(status));
+			}
+			localWarpWidth = width;
+			localWarpHeight = height;
+		} finally {
+			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, previousFramebuffer);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, previousTexture);
+		}
+	}
+
+	/**
+	 * 瞬移落点是否可用，判定与原版闪现一致：在地图内，且不与任何非战机舰船(含残骸)或小行星重叠。
+	 * 同一空间站/模块舰的其他部分不算障碍。
+	 */
+	public static boolean isTeleportSpotFree(ShipAPI ship, Vector2f point) {
+		CombatEngineAPI engine = Global.getCombatEngine();
+		if (engine == null || ship == null || point == null) return false;
+		if (!Float.isFinite(point.x) || !Float.isFinite(point.y)) return false;
+		if (Math.abs(point.x) > engine.getMapWidth() * 0.5f) return false;
+		if (Math.abs(point.y) > engine.getMapHeight() * 0.5f) return false;
+
+		float radius = ship.getCollisionRadius();
+		for (ShipAPI other : engine.getShips()) {
+			if (other == ship || other.isFighter() || other.isShuttlePod()) continue;
+			if (other.getParentStation() == ship || ship.getParentStation() == other) continue;
+			if (ship.getParentStation() != null && other.getParentStation() == ship.getParentStation()) continue;
+			float limit = other.getCollisionRadius() + radius;
+			if (MathUtils.getDistanceSquared(point, other.getLocation()) < limit * limit) return false;
+		}
+		for (CombatEntityAPI asteroid : engine.getAsteroids()) {
+			float limit = asteroid.getCollisionRadius() + radius;
+			if (MathUtils.getDistanceSquared(point, asteroid.getLocation()) < limit * limit) return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 为期望落点找一个可用位置，搜索方式与原版闪现一致：
+	 * 期望点可用就直接用，否则以碰撞半径为步长向外 10 圈、每圈 30 度一格，取第一个可用点。
+	 *
+	 * @return 新的坐标对象；全部被占时返回期望点的副本，desired 为 null 时返回 null
+	 */
+	public static Vector2f findFreeTeleportSpot(ShipAPI ship, Vector2f desired) {
+		if (desired == null) return null;
+		Vector2f result = new Vector2f(desired);
+		if (ship == null || isTeleportSpotFree(ship, result)) return result;
+		float radius = Math.max(1f, ship.getCollisionRadius());
+		for (int ring = 1; ring <= 10; ring++) {
+			for (float angle = 0f; angle < 360f; angle += 30f) {
+				Vector2f candidate = MathUtils.getPointOnCircumference(desired, radius * ring, angle);
+				if (isTeleportSpotFree(ship, candidate)) return candidate;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 匀速直线假设下的拦截时间。弹体继承射手速度时(原版弹体都继承)必须传入 shooterVel。
+	 *
+	 * @param from        弹体出膛位置
+	 * @param shooterVel  射手速度；弹体不继承速度时传 null
+	 * @param projSpeed   弹体自身速度
+	 * @return 命中所需秒数；追不上目标或参数非法时返回 -1
+	 */
+	public static float getInterceptTime(Vector2f from, Vector2f shooterVel, float projSpeed,
+			Vector2f targetLoc, Vector2f targetVel) {
+		if (from == null || targetLoc == null || !(projSpeed > 0f)) return -1f;
+		float dx = targetLoc.x - from.x;
+		float dy = targetLoc.y - from.y;
+		float vx = (targetVel != null ? targetVel.x : 0f) - (shooterVel != null ? shooterVel.x : 0f);
+		float vy = (targetVel != null ? targetVel.y : 0f) - (shooterVel != null ? shooterVel.y : 0f);
+
+		// |d + v t| = s t  =>  (v.v - s^2) t^2 + 2 (d.v) t + d.d = 0
+		float a = vx * vx + vy * vy - projSpeed * projSpeed;
+		float b = 2f * (dx * vx + dy * vy);
+		float c = dx * dx + dy * dy;
+		if (c <= 0f) return 0f;
+
+		float time;
+		if (Math.abs(a) < 0.001f) {
+			// 相对速度大小恰好等于弹速：方程退化为一次
+			if (b >= 0f) return -1f;
+			time = -c / b;
+		} else {
+			float disc = b * b - 4f * a * c;
+			if (disc < 0f) return -1f;
+			float root = (float) Math.sqrt(disc);
+			float t1 = (-b - root) / (2f * a);
+			float t2 = (-b + root) / (2f * a);
+			float min = Math.min(t1, t2);
+			float max = Math.max(t1, t2);
+			time = min > 0f ? min : max;
+		}
+		return time > 0f && Float.isFinite(time) ? time : -1f;
+	}
+
+	/**
+	 * 匀速直线假设下应当瞄准的世界坐标：炮口对准该点开火，弹体与目标同时到达。
+	 * 弹体继承射手速度时返回点不是实际命中点，而是"炮口应指向的点"，直接用它算开火角即可。
+	 *
+	 * @return 新的坐标对象；追不上目标或参数非法时返回 null
+	 */
+	public static Vector2f getInterceptPoint(Vector2f from, Vector2f shooterVel, float projSpeed,
+			Vector2f targetLoc, Vector2f targetVel) {
+		float time = getInterceptTime(from, shooterVel, projSpeed, targetLoc, targetVel);
+		if (time < 0f) return null;
+		float vx = (targetVel != null ? targetVel.x : 0f) - (shooterVel != null ? shooterVel.x : 0f);
+		float vy = (targetVel != null ? targetVel.y : 0f) - (shooterVel != null ? shooterVel.y : 0f);
+		return new Vector2f(targetLoc.x + vx * time, targetLoc.y + vy * time);
+	}
+
 	private static void reportRingError(String message, Throwable error) {
 		if (ringErrorReports >= 5) return;
 		ringErrorReports++;
@@ -2016,5 +3095,1299 @@ public class Moci_Util {
 		if (auroraErrorReports >= AURORA_MAX_ERROR_REPORTS) return;
 		auroraErrorReports++;
 		Global.getLogger(Moci_Util.class).error("[Moci_Aurora] " + message, error);
+	}
+
+	// ==================== 着陆 / 起飞动画 ====================
+	//
+	// 原版 ShipAPI.beginLandingAnimation / setAnimatedLaunch / abortLanding 的可控复刻，实现在 Moci_LandingAnimation。
+	// 原版固定「2 秒悬停 + 1 秒下沉」「1 秒上升 + 3 秒阴影」，且会被原版 AI 或母舰死亡自动打断；
+	// 这里各段时长、缩放下限、透明度曲线、阴影颜色 / 方向 / 距离、收盾 / 停火 / 锁指令 / 碰撞都可以配置，
+	// 状态由 Moci_LandingAnimation 自己持有，支持暂停、变速、中途反向、落定后保持和回调。
+	//
+	// 注意：这套动画不设置原版的 isLanding 标记，ship.isLanding() / isFinishedLanding() 始终为 false，
+	// 请用下面的 isLandingAnimated / isLandedAnimated / isLiftingOffAnimated 判断；
+	// 也不要对同一艘船混用原版的 beginLandingAnimation / setAnimatedLaunch。
+	//
+	// 用法：
+	//   // 1) 原版默认参数：着陆，落定后保持不可见，之后手动起飞
+	//   Moci_Util.beginLandingAnimation(ship, carrier);
+	//   if (Moci_Util.isLandedAnimated(ship)) Moci_Util.beginLaunchAnimation(ship, carrier);
+	//
+	//   // 2) 自定义参数 + 回调
+	//   Moci_Util.beginLandingAnimation(ship, carrier, Moci_Util.landingAnimationParams()
+	//       .setLandingTimes(0.6f, 0.8f)                      // 悬停 0.6 秒 + 下沉 0.8 秒
+	//       .setMinScale(0.3f)                                // 缩到 30%（原版 50%）
+	//       .setShadow(new Color(0, 0, 0, 140), 160f, 250f)   // 阴影更浓、更远、偏向左下
+	//       .setCallback(new Moci_LandingAnimation.Callback() {
+	//           public void onLanded(Moci_LandingAnimation anim) { /* 开始整备 */ }
+	//       }));
+	//
+	//   // 3) 中途中止（从当前进度反向起飞）/ 立即还原
+	//   Moci_Util.abortLandingAnimation(ship);
+	//   Moci_Util.cancelLandingAnimation(ship);
+	//
+	// 暂停、变速、拖动进度、剩余时间等见 getLandingAnimation(ship) 返回的对象。
+
+	/** 新建一份着陆 / 起飞动画参数，默认值全部等同原版 */
+	public static Moci_LandingAnimation.Params landingAnimationParams() {
+		return new Moci_LandingAnimation.Params();
+	}
+
+	/**
+	 * 开始着陆动画（原版参数；这艘船之前用过自定义参数时沿用那一份）。
+	 *
+	 * @param ship 着陆的舰船
+	 * @param carrier 母舰，决定阴影裁剪范围和「母舰丢失自动中止」；可以为 null（此时不画阴影）
+	 * @return 动画对象；ship 为 null 时返回 null
+	 */
+	public static Moci_LandingAnimation beginLandingAnimation(ShipAPI ship, ShipAPI carrier) {
+		return Moci_LandingAnimation.land(ship, carrier, null);
+	}
+
+	/**
+	 * 开始着陆动画（自定义参数）。已经在着陆 / 已落定时只更新母舰和参数，不重新计时。
+	 *
+	 * @param params 参数，见 landingAnimationParams()；null = 沿用上一次的
+	 */
+	public static Moci_LandingAnimation beginLandingAnimation(ShipAPI ship, ShipAPI carrier, Moci_LandingAnimation.Params params) {
+		return Moci_LandingAnimation.land(ship, carrier, params);
+	}
+
+	/**
+	 * 开始起飞动画。已落定的舰船从完全沉入开始；着陆中途调用则从当前进度反向。
+	 *
+	 * @param carrier 母舰（阴影裁剪用），可以为 null
+	 * @return 动画对象；ship 为 null 时返回 null
+	 */
+	public static Moci_LandingAnimation beginLaunchAnimation(ShipAPI ship, ShipAPI carrier) {
+		return Moci_LandingAnimation.launch(ship, carrier, null);
+	}
+
+	/** 开始起飞动画（自定义参数），params 为 null 时沿用上一次的 */
+	public static Moci_LandingAnimation beginLaunchAnimation(ShipAPI ship, ShipAPI carrier, Moci_LandingAnimation.Params params) {
+		return Moci_LandingAnimation.launch(ship, carrier, params);
+	}
+
+	/**
+	 * 中止着陆并从当前进度反向起飞（对应原版 abortLanding），会触发 onLandingAborted 回调。
+	 *
+	 * @return 是否确实中止了一次着陆
+	 */
+	public static boolean abortLandingAnimation(ShipAPI ship) {
+		Moci_LandingAnimation anim = Moci_LandingAnimation.get(ship);
+		return anim != null && anim.abortLanding();
+	}
+
+	/** 立即结束着陆 / 起飞动画并还原舰船的透明度、缩放和碰撞，不播放过渡 */
+	public static void cancelLandingAnimation(ShipAPI ship) {
+		Moci_LandingAnimation anim = Moci_LandingAnimation.get(ship);
+		if (anim != null) anim.cancel();
+	}
+
+	/** 取舰船的着陆 / 起飞动画对象（暂停、变速、查询进度用）；从未播放过时返回 null */
+	public static Moci_LandingAnimation getLandingAnimation(ShipAPI ship) {
+		return Moci_LandingAnimation.get(ship);
+	}
+
+	/** 是否有着陆 / 起飞动画在进行（含落定后的保持阶段） */
+	public static boolean isLandingAnimationActive(ShipAPI ship) {
+		return Moci_LandingAnimation.isAnimating(ship);
+	}
+
+	/** 着陆中或已落定，对应原版 ship.isLanding() */
+	public static boolean isLandingAnimated(ShipAPI ship) {
+		Moci_LandingAnimation anim = Moci_LandingAnimation.get(ship);
+		return anim != null && anim.isLanding();
+	}
+
+	/** 着陆动画已播完、处于落定状态，对应原版 ship.isFinishedLanding() */
+	public static boolean isLandedAnimated(ShipAPI ship) {
+		Moci_LandingAnimation anim = Moci_LandingAnimation.get(ship);
+		return anim != null && anim.isLanded();
+	}
+
+	/** 起飞中且尚未恢复原大小（此时无碰撞、不可操控），对应原版 ship.isLiftingOff() */
+	public static boolean isLiftingOffAnimated(ShipAPI ship) {
+		Moci_LandingAnimation anim = Moci_LandingAnimation.get(ship);
+		return anim != null && anim.isLiftingOff();
+	}
+
+	// ==================== 冲击波环(BlastWave)特效 ====================
+	//
+	// 一个从中心往外扩的发光圆环，仿 EVE Online 震荡炸弹的冲击波。纯画面，没有任何伤害判定。
+	//
+	// 它是怎么画出来的（只想调参可以跳过）：
+	//   1. 画一个圆环。环的外半径按「半径曲线」随时间变大，环宽 = 外半径 × thickness。
+	//   2. 环上的发光纹理 = 三张贴图相乘：两张火焰纹理沿着圆周往相反方向慢慢滚动，第三张负责「外缘亮、内缘暗」的渐变。
+	//      纹理在径向被拉得很长，所以看起来是一根根往外放射的拉丝。
+	//   3. 整个环的亮度按「亮度曲线」随时间变化（默认：一闪最亮 → 变暗 → 约 2 秒再闪一次 → 约 3.3 秒熄灭，4 秒移除）。
+	//   4. 柔光(bloom)：把环加宽再用模糊过的纹理画一遍，叠在下面。
+	//   5. 折射(refraction)：把环底下的屏幕画面截下来，按法线贴图偏移一下再贴回去，看起来像热浪扭曲。默认很弱，0 = 关闭。
+	// 组合爆炸里的底光、火球、云壳、斜波不是这个环，见下方 BlastSphere / ShockBlast 部分。
+	//
+	// 贴图版权：graphics/fx/blastwave/ 下的 firetile_02a、firemask_01a、lasergradient_01f、warptunnel4_n、radial_hole_01
+	// 均来自 EVE Online，版权归 CCP Games 所有，经作者确认后在本 mod 中使用。
+	//
+	// 用法：
+	//   Moci_Util.spawnBlastWave(point, 400f, new Color(150, 225, 255));       // 外半径扩到 400，约 4 秒
+	//   Moci_Util.spawnBlastWave(new Moci_Util.BlastWaveParams().setCenter(point)
+	//       .setRadius(0f, 400f).setDuration(2.5f).setColor(color, 3.0f)
+	//       .setBloom(1.1f, 3.5f, 1.0f).setRefraction(12f, 0.35f));
+	// 显卡不支持 OpenGL 2.0 或着色器编译失败时，特效直接不画（日志前缀 [Moci_BlastWave]，只记一次），不会影响别的东西。
+
+	public static final String BLASTWAVE_VERT = "data/shaders/Moci_blastwave.vert";
+	public static final String BLASTWAVE_GLOW_FRAG = "data/shaders/Moci_blastwave_glow.frag";
+	public static final String BLASTWAVE_REFRACT_FRAG = "data/shaders/Moci_blastwave_refract.frag";
+	public static final String BLASTSPHERE_FRAG = "data/shaders/Moci_blastsphere.frag";
+	/** 以下五张贴图来自 EVE Online，版权归 CCP Games 所有 */
+	public static final String BLASTWAVE_TEX_FINE = "graphics/fx/blastwave/firetile_02a.png";
+	public static final String BLASTWAVE_TEX_BAND = "graphics/fx/blastwave/firemask_01a.png";
+	public static final String BLASTWAVE_TEX_MASK = "graphics/fx/blastwave/lasergradient_01f.png";
+	public static final String BLASTWAVE_TEX_NORMAL = "graphics/fx/blastwave/warptunnel4_n.png";
+	public static final String BLASTWAVE_TEX_AMPLITUDE = "graphics/fx/blastwave/radial_hole_01.png";
+
+	/**
+	 * 默认半径曲线，每行 {曲线秒, 值, 入切线, 出切线}。
+	 * 值是相对的：以曲线终点（= 亮度曲线最后一行的时间）那一刻的值为 100%，对应 endRadius。
+	 * 效果：1 秒到 endRadius 的 50%，2 秒 78%，3 秒 90%，4 秒 100%，先快后慢。
+	 */
+	public static final float[][] BLASTWAVE_RADIUS_CURVE = {
+			{ -0.0041f, 0f, 0f, 3.3753f },
+			{ 2.0f, 4.6315f, 0.7119f, 0.7201f },
+			{ 6.9763f, 6.8589f, 0f, 0f } };
+	/**
+	 * 默认亮度曲线，每行 {曲线秒, 值, 入切线, 出切线}。值以整条曲线的最大值（2.0）为 100%。
+	 * 效果：0.06 秒前不亮 → 0.08 秒瞬间最亮 → 1.8 秒降到 26% → 2.0 秒回升到 49%（第二次闪）→ 约 3.3 秒熄灭。
+	 * 最后一行的时间（3.9914）同时决定了「曲线终点」，见 BlastWaveParams.duration。
+	 * 倒数第二行的出切线是负的，曲线会在 3.99 秒之前就掉到 0 以下，低于 0 的部分按 0 处理，所以实际约 3.3 秒就黑了。
+	 */
+	public static final float[][] BLASTWAVE_BRIGHTNESS_CURVE = {
+			{ -0.0025f, 0f, 0f, 0f },
+			{ 0.0572f, 0f, 0f, 0f },
+			{ 0.0784f, 2.0f, 0f, 0f },
+			{ 1.7960f, 0.5160f, 0f, 0f },
+			{ 1.9999f, 0.9841f, 0f, -1.7431f },
+			{ 3.9914f, 0f, 0f, 0f } };
+
+
+	/**
+	 * 冲击波环的参数。半径都是世界单位。
+	 * 特效生成后改这里的字段仍然会生效（每帧都会重新读），只有 layer 是创建时读一次。
+	 *
+	 * 【时间是怎么算的】
+	 * 曲线里写的时间叫「曲线秒」。程序把亮度曲线最后一行的时间当作曲线终点，
+	 * 再把整条曲线等比拉伸 / 压缩到 duration 秒里播完。
+	 * 默认终点是 3.9914、duration 是 4，所以曲线秒 ≈ 真实秒；把 duration 改成 2，所有东西就快一倍。
+	 */
+	public static class BlastWaveParams {
+		/** true = 环自己的发光纹理会带一点热浪般的抖动（只扭自己，不扭背景，几乎不费性能） */
+		public boolean distortOwnLight;
+		/** 组合爆炸内部用：斜波的随机相位，由 spawnShockBlast 填写 */
+		private float frontPhase;
+		/** 三道斜波（组合爆炸用）。null = 只画正面环 */
+		public TiltedFronts fronts;
+		/** 三道斜波的整体亮度倍率，0 = 不画斜波（不影响正面环） */
+		public float tiltedFrontStrength = 0f;
+		/** 斜波开关，按二进制位：1 = 第一道(low)，2 = 第二道(steep)，4 = 第三道(cross)；7 = 三道都画，5 = 只画第一、三道 */
+		public int tiltedFrontMask = 7;
+		/** 环的中心（固定位置） */
+		public final Vector2f center = new Vector2f();
+		/** 设置后中心每帧跟着这个实体走（比如以舰船为中心的系统脉冲）；它没了就停在最后位置把剩下的播完 */
+		public CombatEntityAPI anchor = null;
+		/** 一共播多少秒，到点自动移除。曲线会等比拉伸到这个时长里，见类注释 */
+		public float duration = 4.0f;
+		/** 环的外半径从 startRadius 扩到 endRadius。中间怎么扩由 radiusCurve 决定，曲线终点时正好等于 endRadius */
+		public float startRadius = 0f;
+		public float endRadius = 350f;
+		/** 环宽 = 外半径 × thickness。0.36 = 内边缘在外半径的 64% 处；环越扩越宽 */
+		public float thickness = 0.36f;
+		/**
+		 * 半径曲线 / 亮度曲线。每行 {曲线秒, 值, 入切线, 出切线}，时间必须从小到大。
+		 * 值是相对的：半径曲线以终点那一刻的值为 100%；亮度曲线以最大值为 100%。所以整体乘个倍数不会有变化，只看形状。
+		 * 入 / 出切线 = 曲线在这一点左边 / 右边的斜率，0 = 在这点放平；都填 0 时每两点之间是一段两头慢中间快的 S 形。
+		 */
+		public float[][] radiusCurve = BLASTWAVE_RADIUS_CURVE;
+		public float[][] brightnessCurve = BLASTWAVE_BRIGHTNESS_CURVE;
+
+		/** false = 不画发光（只剩折射扭曲） */
+		public boolean glow = true;
+		/** 环的颜色。alpha 也参与计算，相当于亮度倍率 */
+		public Color color = new Color(158, 255, 251);
+		/** 最亮时的亮度倍率（亮度曲线到 100% 时）。越大越亮、越容易过曝发白 */
+		public float intensity = 3.0f;
+		/** 环本身的轻微模糊，0 = 最锐利，越大越糊 */
+		public float sharpBlur = 0.6f;
+		/** 柔光：强度（0 = 关闭）、模糊程度、往外多溢出多宽（单位是环宽，1.0 = 外面再多出一个环宽） */
+		public float bloomStrength = 1.1f;
+		public float bloomBlur = 3.5f;
+		public float bloomSpread = 1.0f;
+		/**
+		 * 第一张火焰纹理(firetile)：绕圈方向重复几次、径向重复几次、每秒绕圈滚动多少、每秒径向滚动多少。
+		 * 绕圈次数会自动取整（不然接缝处会断开）。径向次数很小，所以纹理被拉成放射状的长丝。
+		 */
+		public float fineScaleU = 5f, fineScaleV = 0.15f, fineScrollU = 0.05f, fineScrollV = 0.10f;
+		/** 第二张火焰纹理(firemask)：含义同上，绕圈方向和第一张反着滚 */
+		public float bandScaleU = 7f, bandScaleV = 0.01f, bandScrollU = -0.05f, bandScrollV = 0.05f;
+
+		/** 折射：背后画面最多被推开多少世界单位（环扩到 endRadius 时的值，随环变小 / 变暗而减弱）。0 = 关闭，也最省性能 */
+		public float refractStrength = 4f;
+		/** 折射方向：0 = 乱抖（热浪感），1 = 统一往外推（像透镜鼓包） */
+		public float refractRadialPush = 0f;
+		/** 折射的抖动有多「横」，越大越横向；一般不用动 */
+		public float refractFlatten = 10f;
+		/** 色散：红蓝通道错开的程度（彩边效果），0 = 关闭 */
+		public float refractChroma = 0f;
+		/** 折射用的法线纹理：重复次数与每秒滚动，含义同 fineScale 那组 */
+		public float normalScaleU = 3f, normalScaleV = 3f, normalScrollU = 0.05f, normalScrollV = -0.05f;
+
+		public CombatEngineLayers layer = CombatEngineLayers.ABOVE_SHIPS_AND_MISSILES_LAYER;
+
+		public BlastWaveParams setCenter(Vector2f loc) {
+			if (loc != null) center.set(loc);
+			return this;
+		}
+
+		public BlastWaveParams setAnchor(CombatEntityAPI anchor) {
+			this.anchor = anchor;
+			if (anchor != null && anchor.getLocation() != null) center.set(anchor.getLocation());
+			return this;
+		}
+
+		public BlastWaveParams setRadius(float startRadius, float endRadius) {
+			this.startRadius = startRadius;
+			this.endRadius = endRadius;
+			return this;
+		}
+
+		public BlastWaveParams setDuration(float duration) {
+			this.duration = duration;
+			return this;
+		}
+
+		public BlastWaveParams setThickness(float thickness) {
+			this.thickness = thickness;
+			return this;
+		}
+
+		/** 替换半径 / 亮度曲线；传 null 保持原样 */
+		public BlastWaveParams setCurves(float[][] radiusCurve, float[][] brightnessCurve) {
+			if (radiusCurve != null && radiusCurve.length > 0) this.radiusCurve = radiusCurve;
+			if (brightnessCurve != null && brightnessCurve.length > 0) this.brightnessCurve = brightnessCurve;
+			return this;
+		}
+
+		public BlastWaveParams setColor(Color color, float intensity) {
+			if (color != null) this.color = color;
+			this.intensity = intensity;
+			return this;
+		}
+
+		public BlastWaveParams setGlow(boolean glow) {
+			this.glow = glow;
+			return this;
+		}
+
+		public BlastWaveParams setSharpBlur(float sharpBlur) {
+			this.sharpBlur = sharpBlur;
+			return this;
+		}
+
+		public BlastWaveParams setBloom(float strength, float blur, float spread) {
+			bloomStrength = strength;
+			bloomBlur = blur;
+			bloomSpread = spread;
+			return this;
+		}
+
+		public BlastWaveParams setFineTexture(float scaleU, float scaleV, float scrollU, float scrollV) {
+			fineScaleU = scaleU;
+			fineScaleV = scaleV;
+			fineScrollU = scrollU;
+			fineScrollV = scrollV;
+			return this;
+		}
+
+		public BlastWaveParams setBandTexture(float scaleU, float scaleV, float scrollU, float scrollV) {
+			bandScaleU = scaleU;
+			bandScaleV = scaleV;
+			bandScrollU = scrollU;
+			bandScrollV = scrollV;
+			return this;
+		}
+
+		public BlastWaveParams setNormalTexture(float scaleU, float scaleV, float scrollU, float scrollV) {
+			normalScaleU = scaleU;
+			normalScaleV = scaleV;
+			normalScrollU = scrollU;
+			normalScrollV = scrollV;
+			return this;
+		}
+
+		/** strength 为 0 时关闭折射（也省掉屏幕拷贝） */
+		public BlastWaveParams setRefraction(float strength, float radialPush) {
+			refractStrength = strength;
+			refractRadialPush = radialPush;
+			return this;
+		}
+
+		public BlastWaveParams setRefractFlatten(float flatten) {
+			refractFlatten = flatten;
+			return this;
+		}
+
+		public BlastWaveParams setChroma(float chroma) {
+			refractChroma = chroma;
+			return this;
+		}
+
+		public BlastWaveParams setLayer(CombatEngineLayers layer) {
+			if (layer != null) this.layer = layer;
+			return this;
+		}
+
+		public Vector2f getCenterLoc() {
+			if (anchor != null && anchor.getLocation() != null) return anchor.getLocation();
+			return center;
+		}
+
+		/** 实际时长（秒），太小会被抬到 0.05 */
+		public float getEffectiveDuration() {
+			return Math.max(0.05f, duration);
+		}
+
+		/** 曲线终点 = 亮度曲线最后一行的时间。半径曲线比它长的部分不会播（默认半径曲线写到 6.98，实际只播到 3.99） */
+		public float getCurveLife() {
+			float[][] keys = brightnessCurve;
+			float life = keys != null && keys.length > 0 ? keys[keys.length - 1][0] : 1f;
+			return life > 0f ? life : 1f;
+		}
+
+		/**
+		 * 已经播了 elapsed 秒时，环的外半径（世界单位）。
+		 * = startRadius + (endRadius - startRadius) × (半径曲线当前值 / 半径曲线终点值)。
+		 * 画面和冲击波伤害都用这个，保证两边对得上。
+		 */
+		public float getOuterRadiusAt(float elapsed) {
+			float progress = Math.max(0f, Math.min(1f, elapsed / getEffectiveDuration()));
+			float life = getCurveLife();
+			float end = evalBlastWaveCurve(radiusCurve, life);
+			float s = end != 0f ? evalBlastWaveCurve(radiusCurve, progress * life) / end : progress;
+			return Math.max(0f, startRadius + (endRadius - startRadius) * s);
+		}
+
+		/** 已经播了 elapsed 秒时，环的内半径（世界单位）= 外半径 × (1 - thickness)，thickness 限制在 0.02～0.98 */
+		public float getInnerRadiusAt(float elapsed) {
+			float t = Math.max(0.02f, Math.min(0.98f, thickness));
+			return getOuterRadiusAt(elapsed) * (1f - t);
+		}
+	}
+
+	/**
+	 * 读曲线：给一个时间 t，返回曲线在这一刻的值。keys 每行 {时间, 值, 入切线, 出切线}。
+	 * 两个关键点之间用三次 Hermite 插值（就是「经过这两个点、并且在两端的斜率分别等于切线」的平滑曲线）。
+	 * t 早于第一行就返回第一行的值，晚于最后一行就返回最后一行的值。
+	 */
+	public static float evalBlastWaveCurve(float[][] keys, float t) {
+		if (keys == null || keys.length == 0) return 0f;
+		if (t <= keys[0][0]) return keys[0][1];
+		int last = keys.length - 1;
+		if (t >= keys[last][0]) return keys[last][1];
+		for (int i = 0; i < last; i++) {
+			float[] a = keys[i], b = keys[i + 1];
+			if (t > b[0]) continue;
+			float d = b[0] - a[0];
+			if (!(d > 0f)) return b[1];
+			float u = (t - a[0]) / d, u2 = u * u, u3 = u2 * u;
+			return a[1] * (2f * u3 - 3f * u2 + 1f) + b[1] * (-2f * u3 + 3f * u2)
+					+ a[3] * d * (u3 - 2f * u2 + u) + b[2] * d * (u3 - u2);
+		}
+		return keys[last][1];
+	}
+
+	/** 冲击波环的战斗渲染插件，由 spawnBlastWave 创建；也可以在外部查询进度或提前结束 */
+	public static class BlastWavePlugin extends BaseCombatLayeredRenderingPlugin {
+		private final BlastWaveParams params;
+		private final EnumSet<CombatEngineLayers> activeLayers;
+		private final float seedU = (float) Math.random();
+		private final float seedV = (float) Math.random();
+		private float elapsed = 0f;
+		private boolean expired = false;
+
+		public BlastWavePlugin(BlastWaveParams params) {
+			super(params != null && params.layer != null ? params.layer : CombatEngineLayers.ABOVE_SHIPS_AND_MISSILES_LAYER);
+			this.params = params != null ? params : new BlastWaveParams();
+			this.activeLayers = EnumSet.of(layer);
+		}
+
+		@Override
+		public void init(CombatEntityAPI entity) {
+			super.init(entity);
+			syncHostLocation();
+		}
+
+		@Override
+		public void advance(float amount) {
+			if (expired) return;
+			CombatEngineAPI engine = Global.getCombatEngine();
+			if (engine == null || engine.isPaused() || !(amount > 0f) || !Float.isFinite(amount)) return;
+			elapsed += amount;
+			if (params.anchor != null && (params.anchor.isExpired() || !engine.isEntityInPlay(params.anchor))) {
+				// 锚点离场：停在最后位置继续播完
+				params.center.set(params.anchor.getLocation());
+				params.anchor = null;
+			}
+			if (elapsed >= getDuration()) expired = true;
+			syncHostLocation();
+		}
+
+		@Override
+		public void render(CombatEngineLayers currLayer, ViewportAPI viewport) {
+			if (expired) return;
+			float alpha = viewport != null ? viewport.getAlphaMult() : 1f;
+			if (!(alpha > .001f)) return;
+			float level = getBrightness() * alpha;
+			if (!(level > .001f) && !(params.tiltedFrontStrength > 0f && params.fronts != null && getCurveTime() < params.fronts.endTime)) return;
+			BlastWaveGL.render(this, level, alpha);
+		}
+
+		@Override
+		public float getRenderRadius() {
+			float r = Math.max(params.startRadius, params.endRadius);
+			float extent = r * (1f + Math.max(0f, params.bloomSpread) * Math.max(0f, params.thickness)) + Math.abs(params.refractStrength);
+			if (params.fronts != null && params.tiltedFrontStrength > 0f && (params.tiltedFrontMask & 7) != 0)
+				extent = Math.max(extent, params.endRadius * params.fronts.maxScale);
+			return extent + 50f;
+		}
+
+		@Override
+		public EnumSet<CombatEngineLayers> getActiveLayers() {
+			return activeLayers;
+		}
+
+		@Override
+		public boolean isExpired() {
+			return expired;
+		}
+
+		public void expireNow() {
+			expired = true;
+		}
+
+		public BlastWaveParams getParams() {
+			return params;
+		}
+
+		/** 播放进度 0..1 */
+		public float getProgress() {
+			return Math.max(0f, Math.min(1f, elapsed / getDuration()));
+		}
+
+		/** 当前播到曲线的第几「曲线秒」（= 进度 × 曲线终点时间） */
+		public float getCurveTime() {
+			return getProgress() * curveLife();
+		}
+
+		/** 当前外半径（世界单位）= startRadius + (endRadius - startRadius) × (半径曲线当前值 / 半径曲线终点值) */
+		public float getOuterRadius() {
+			return params.getOuterRadiusAt(elapsed);
+		}
+
+		/** 当前亮度 0..1 = 亮度曲线当前值 / 亮度曲线最大值（低于 0 按 0） */
+		public float getBrightness() {
+			float[][] keys = params.brightnessCurve;
+			float peak = 0f;
+			if (keys != null) for (float[] k : keys) peak = Math.max(peak, k[1]);
+			if (!(peak > 0f)) return 0f;
+			return Math.max(0f, Math.min(1f, evalBlastWaveCurve(keys, getCurveTime()) / peak));
+		}
+
+		private float getDuration() {
+			return params.getEffectiveDuration();
+		}
+
+		private float curveLife() {
+			return params.getCurveLife();
+		}
+
+		private void syncHostLocation() {
+			if (entity != null && entity.getLocation() != null) entity.getLocation().set(params.getCenterLoc());
+		}
+	}
+
+	/** 在战斗中生成冲击波环；引擎自动推进、渲染和移除；无战斗引擎时返回 null */
+	public static BlastWavePlugin spawnBlastWave(BlastWaveParams params) {
+		CombatEngineAPI engine = Global.getCombatEngine();
+		if (engine == null) return null;
+		BlastWavePlugin plugin = new BlastWavePlugin(params);
+		CombatEntityAPI host = engine.addLayeredRenderingPlugin(plugin);
+		if (host != null && host.getLocation() != null) host.getLocation().set(plugin.getParams().getCenterLoc());
+		return plugin;
+	}
+
+	/** 固定位置冲击波环：原版曲线和时长（约 4 秒），外半径扩张到 radius */
+	public static BlastWavePlugin spawnBlastWave(Vector2f center, float radius, Color color) {
+		return spawnBlastWave(new BlastWaveParams().setCenter(center).setRadius(0f, radius).setColor(color, 3.0f));
+	}
+
+	// ---------- 球形发光层(BlastSphere)与组合爆炸(ShockBlast) ----------
+	//
+	// 组合爆炸 = 上面的冲击波环 + 三道斜波 + 三个「球形发光层」（底光 haze、火球 fireball、云壳 shell）。纯画面，没有伤害判定。
+	//
+	// 球形层有两种画法，用的是同一个 BlastSphereParams：
+	//   1. 走 spawnShockBlast 时：用 3D 云纹理画（Moci_ShockVolumeMaterial + Moci_shockvolume.frag），
+	//      这时只有下面标了【组合爆炸会用】的字段有效，其余字段（rimGain、textureAmount、edgeNoise、各种纹理缩放…）改了也没反应。
+	//   2. 单独调 spawnBlastSphere，或者显卡不支持 3D 纹理时：用简单的平面贴图假装成球，所有字段都有效。
+	//
+	// 用法：
+	//   Moci_Util.spawnShockBlast(point, params); // params 每次都要新建一份，参考 Moci_TorpedoOnHitEffect.createBlastParams
+	//   Moci_Util.spawnBlastSphere(new Moci_Util.BlastSphereParams()...);        // 单独画一层
+
+	/**
+	 * 球形发光层的参数。半径都是世界单位。
+	 * 特效生成后改这里的字段仍然会生效（每帧都会重新读），只有 layer 是创建时读一次。
+	 *
+	 * 【大小随时间】半径 = startRadius + (endRadius - startRadius) × (1 - (1 - 进度)^expansionPower)，进度 = 已播秒数 / duration
+	 * 【亮度随时间】亮度 = 淡入 × 淡出
+	 *     淡入：前 fadeIn 秒从 0 涨到 1
+	 *     淡出：进度到 fadeStart 之前保持 1；之后 = (1 - 剩余比例)^fadePower，到 duration 时归 0
+	 *     换算成秒：满亮停留 = duration × fadeStart - fadeIn；淡出用时 = duration × (1 - fadeStart)
+	 */
+	public static class BlastSphereParams {
+		/** 组合爆炸内部用：0 = 普通球形层；1/2/3 = 用 3D 云纹理画底光/火球/云壳，由 spawnShockBlast 填写 */
+		private int volumePart;
+		/** 组合爆炸内部用：云纹理的随机相位，由 spawnShockBlast 填写 */
+		private float volumeSeed;
+		/** 【组合爆炸会用】中心（固定位置），spawnShockBlast 会自动填 */
+		public final Vector2f center = new Vector2f();
+		/** 设置后中心每帧跟着这个实体走；它没了就停在最后位置把剩下的播完 */
+		public CombatEntityAPI anchor = null;
+		/** 【组合爆炸会用】一共存在多少秒，到点直接消失 */
+		public float duration = 1.5f;
+		/**
+		 * 【组合爆炸会用】半径从 startRadius 长到 endRadius。这是球的外框，
+		 * 组合爆炸里肉眼看到的亮边大约在 0.9 倍处；底光(haze)是往外渐隐的雾，外面一半基本看不见
+		 */
+		public float startRadius = 10f;
+		public float endRadius = 200f;
+		/** 【组合爆炸会用】扩张的「先快后慢」程度：1 = 匀速；越大越是一开始就几乎涨到位、后面慢慢挪 */
+		public float expansionPower = 2f;
+		/** 【组合爆炸会用】淡入秒数：从全黑亮到最亮用几秒 */
+		public float fadeIn = 0.05f;
+		/** 【组合爆炸会用】开始变暗的时间点，是「占 duration 的比例」不是秒（0.2 = 播到 20% 开始变暗，0 = 一出现就开始变暗） */
+		public float fadeStart = 0.2f;
+		/** 【组合爆炸会用】变暗曲线：1 = 匀速变暗；大于 1 = 先暗得快、后面拖长尾巴；小于 1 = 一直挺亮、最后猛地消失 */
+		public float fadePower = 1.5f;
+
+		/** 【组合爆炸会用】整体亮度倍率 */
+		public float intensity = 1.5f;
+		/**
+		 * 【组合爆炸会用 rimColor】暗部颜色。组合爆炸里是云团较暗的部分；单独画时是球的边缘光。
+		 * 颜色的 alpha 也参与计算，相当于亮度倍率。底光(haze)不用这个颜色。
+		 * rimGain / rimPower 只在单独画时有效：边缘光的强度、以及边缘光有多「贴边」（越大越只亮在最外圈）
+		 */
+		public Color rimColor = new Color(125, 200, 255);
+		public float rimGain = 1f;
+		public float rimPower = 2.5f;
+		/**
+		 * 【组合爆炸会用 coreColor】亮部颜色。组合爆炸里是云团亮的部分 + 中心辉光，底光(haze)只用它。
+		 * coreGain / corePower 只在单独画时有效：中心光的强度、以及中心光有多集中（越小中心越「满」，越大越只亮在正中）
+		 */
+		public Color coreColor = new Color(140, 205, 255);
+		public float coreGain = 0.3f;
+		public float corePower = 1f;
+		/** 以下全部只在单独画时有效。贴图参与程度 0..1（0 = 纯色光球）、贴图模糊程度 */
+		public float textureAmount = 0.6f;
+		public float textureBlur = 1f;
+		/** 边缘羽化宽度（占半径的比例）、轮廓扰动（0 = 正圆，0.3~0.5 = 翻滚的云团边缘） */
+		public float edgeSoftness = 0.07f;
+		public float edgeNoise = 0f;
+		/** 两张球面贴图的重复次数与每秒滚动 */
+		public float fineScaleU = 1.6f, fineScaleV = 1.6f, fineScrollU = 0.05f, fineScrollV = 0.09f;
+		public float bandScaleU = 1.2f, bandScaleV = 1.2f, bandScrollU = -0.06f, bandScrollV = 0.04f;
+
+		public CombatEngineLayers layer = CombatEngineLayers.ABOVE_SHIPS_AND_MISSILES_LAYER;
+
+		public BlastSphereParams setCenter(Vector2f loc) {
+			if (loc != null) center.set(loc);
+			return this;
+		}
+
+		public BlastSphereParams setAnchor(CombatEntityAPI anchor) {
+			this.anchor = anchor;
+			if (anchor != null && anchor.getLocation() != null) center.set(anchor.getLocation());
+			return this;
+		}
+
+		public BlastSphereParams setRadius(float startRadius, float endRadius) {
+			this.startRadius = startRadius;
+			this.endRadius = endRadius;
+			return this;
+		}
+
+		public BlastSphereParams setDuration(float duration) {
+			this.duration = duration;
+			return this;
+		}
+
+		public BlastSphereParams setExpansionPower(float expansionPower) {
+			this.expansionPower = expansionPower;
+			return this;
+		}
+
+		public BlastSphereParams setFade(float fadeIn, float fadeStart, float fadePower) {
+			this.fadeIn = fadeIn;
+			this.fadeStart = fadeStart;
+			this.fadePower = fadePower;
+			return this;
+		}
+
+		public BlastSphereParams setColors(Color rimColor, Color coreColor, float intensity) {
+			if (rimColor != null) this.rimColor = rimColor;
+			if (coreColor != null) this.coreColor = coreColor;
+			this.intensity = intensity;
+			return this;
+		}
+
+		public BlastSphereParams setRim(float gain, float power) {
+			rimGain = gain;
+			rimPower = power;
+			return this;
+		}
+
+		public BlastSphereParams setCore(float gain, float power) {
+			coreGain = gain;
+			corePower = power;
+			return this;
+		}
+
+		public BlastSphereParams setTexture(float amount, float blur) {
+			textureAmount = amount;
+			textureBlur = blur;
+			return this;
+		}
+
+		public BlastSphereParams setEdge(float softness, float noise) {
+			edgeSoftness = softness;
+			edgeNoise = noise;
+			return this;
+		}
+
+		public BlastSphereParams setFineTexture(float scaleU, float scaleV, float scrollU, float scrollV) {
+			fineScaleU = scaleU;
+			fineScaleV = scaleV;
+			fineScrollU = scrollU;
+			fineScrollV = scrollV;
+			return this;
+		}
+
+		public BlastSphereParams setBandTexture(float scaleU, float scaleV, float scrollU, float scrollV) {
+			bandScaleU = scaleU;
+			bandScaleV = scaleV;
+			bandScrollU = scrollU;
+			bandScrollV = scrollV;
+			return this;
+		}
+
+		public BlastSphereParams setLayer(CombatEngineLayers layer) {
+			if (layer != null) this.layer = layer;
+			return this;
+		}
+
+		public Vector2f getCenterLoc() {
+			if (anchor != null && anchor.getLocation() != null) return anchor.getLocation();
+			return center;
+		}
+	}
+
+	/** 球形发光层的战斗渲染插件，由 spawnBlastSphere 创建 */
+	public static class BlastSpherePlugin extends BaseCombatLayeredRenderingPlugin {
+		private final BlastSphereParams params;
+		private final EnumSet<CombatEngineLayers> activeLayers;
+		private final float seedU = (float) Math.random();
+		private final float seedV = (float) Math.random();
+		private float elapsed = 0f;
+		private boolean expired = false;
+
+		public BlastSpherePlugin(BlastSphereParams params) {
+			super(params != null && params.layer != null ? params.layer : CombatEngineLayers.ABOVE_SHIPS_AND_MISSILES_LAYER);
+			this.params = params != null ? params : new BlastSphereParams();
+			this.activeLayers = EnumSet.of(layer);
+		}
+
+		@Override
+		public void init(CombatEntityAPI entity) {
+			super.init(entity);
+			syncHostLocation();
+		}
+
+		@Override
+		public void advance(float amount) {
+			if (expired) return;
+			CombatEngineAPI engine = Global.getCombatEngine();
+			if (engine == null || engine.isPaused() || !(amount > 0f) || !Float.isFinite(amount)) return;
+			elapsed += amount;
+			if (params.anchor != null && (params.anchor.isExpired() || !engine.isEntityInPlay(params.anchor))) {
+				params.center.set(params.anchor.getLocation());
+				params.anchor = null;
+			}
+			if (elapsed >= Math.max(0.05f, params.duration)) expired = true;
+			syncHostLocation();
+		}
+
+		@Override
+		public void render(CombatEngineLayers currLayer, ViewportAPI viewport) {
+			if (expired) return;
+			float level = getBrightness() * (viewport != null ? viewport.getAlphaMult() : 1f);
+			if (!(level > 0.001f)) return;
+			BlastWaveGL.renderSphere(this, level);
+		}
+
+		@Override
+		public float getRenderRadius() {
+			return Math.max(params.startRadius, params.endRadius) * (1f + Math.max(0f, params.edgeNoise)) + 50f;
+		}
+
+		@Override
+		public EnumSet<CombatEngineLayers> getActiveLayers() {
+			return activeLayers;
+		}
+
+		@Override
+		public boolean isExpired() {
+			return expired;
+		}
+
+		public void expireNow() {
+			expired = true;
+		}
+
+		public BlastSphereParams getParams() {
+			return params;
+		}
+
+		public float getProgress() {
+			return Math.max(0f, Math.min(1f, elapsed / Math.max(0.05f, params.duration)));
+		}
+
+		public float getRadius() {
+			float eased = 1f - (float) Math.pow(1f - getProgress(), Math.max(0.05f, params.expansionPower));
+			return Math.max(0f, params.startRadius + (params.endRadius - params.startRadius) * eased);
+		}
+
+		public float getBrightness() {
+			float attack = params.fadeIn > 0f ? Math.min(1f, elapsed / params.fadeIn) : 1f;
+			float p = getProgress();
+			float start = Math.max(0f, Math.min(0.999f, params.fadeStart));
+			float decay = p <= start ? 1f
+					: (float) Math.pow(Math.max(0f, 1f - (p - start) / (1f - start)), Math.max(0.05f, params.fadePower));
+			return attack * decay;
+		}
+
+		private void syncHostLocation() {
+			if (entity != null && entity.getLocation() != null) entity.getLocation().set(params.getCenterLoc());
+		}
+	}
+
+	/** 在战斗中生成一层球形发光；无战斗引擎时返回 null */
+	public static BlastSpherePlugin spawnBlastSphere(BlastSphereParams params) {
+		CombatEngineAPI engine = Global.getCombatEngine();
+		if (engine == null) return null;
+		BlastSpherePlugin plugin = new BlastSpherePlugin(params);
+		CombatEntityAPI host = engine.addLayeredRenderingPlugin(plugin);
+		if (host != null && host.getLocation() != null) host.getLocation().set(plugin.getParams().getCenterLoc());
+		return plugin;
+	}
+
+	/**
+	 * 一道斜波：一个倾斜的椭圆波纹，假装是 3D 冲击波波面从斜角度看过去的样子。
+	 * 参数依次是：
+	 *   tint    颜色。alpha 越低越淡、也越透明
+	 *   angle   朝向：椭圆长轴在屏幕上的方向，单位弧度（0 = 水平，1.57 ≈ 竖直）。每次爆炸还会随机再偏 ±0.18 左右
+	 *   opening 开口：0～1，椭圆有多「圆」。1 = 正圆；越小越扁，越像侧着看到的一道弧
+	 *   scale   尺寸：相对组半径的大小。亮边大约在「组半径 × scale × 0.89」处；刚出现时只有七成大，约 1 秒内长满
+	 *   start / end      出现 / 结束时间，曲线秒（跟着所属冲击波环的时间走，见 BlastWaveParams 类注释）
+	 *   fadeIn / fadeOut 淡入 / 淡出用几秒。满亮停留 = end - start - fadeIn - fadeOut
+	 */
+	public static final class TiltedFront {
+		public Color tint;
+		public final float angle, opening, scale, start, end, fadeIn, fadeOut;
+		public TiltedFront(Color tint, float angle, float opening, float scale,
+		                  float start, float end, float fadeIn, float fadeOut) {
+			this.tint=tint; this.angle=angle; this.opening=opening; this.scale=scale;
+			this.start=start; this.end=end; this.fadeIn=fadeIn; this.fadeOut=fadeOut;
+		}
+	}
+
+	/**
+	 * 三道斜波的组合，挂在 BlastWaveParams.fronts 上。
+	 *   curve  三道共用的「组半径」曲线，每行 {曲线秒, 值, 入切线, 出切线}。
+	 *          值是冲击波环 endRadius 的倍数（2.0 = 两倍 endRadius），这里不做归一化，写多少就是多少倍
+	 *   crest  三道波亮边的高光色，alpha 越大亮边越偏向这个颜色
+	 *   low / steep / cross  三道斜波（名字只是习惯叫法，具体形状全看各自参数）
+	 * 全部斜波结束的时间 = 三道里最晚的 end。
+	 */
+	public static final class TiltedFronts {
+		public final TiltedFront low, steep, cross;
+		public Color crest;
+		private final float[][] curve;
+		private final float endTime, maxScale;
+		public TiltedFronts(float[][] curve, Color crest, TiltedFront low, TiltedFront steep, TiltedFront cross) {
+			if (curve == null || curve.length == 0 || low == null || steep == null || cross == null)
+				throw new IllegalArgumentException("A tilted group requires a radius curve and three fronts");
+			this.low=low; this.steep=steep; this.cross=cross; this.crest=crest;
+			this.endTime=Math.max(low.end,Math.max(steep.end,cross.end));
+			this.curve=new float[curve.length][];
+			float bound=0f;
+			for (int i=0; i<curve.length; i++) {
+				float[] k=curve[i];
+				if (k == null || k.length != 4 || (i>0 && !(k[0]>curve[i-1][0])))
+					throw new IllegalArgumentException("Expected ordered {time,value,in,out} keys");
+				this.curve[i]=k.clone();
+				bound=Math.max(bound,k[1]);
+				if (i==0) continue;
+				// 用三次贝塞尔控制点包住 Hermite 段，避免非单调曲线在屏幕边缘被提前裁掉。
+				float[] prev=curve[i-1]; float dt=(k[0]-prev[0])/3f;
+				bound=Math.max(bound,Math.max(prev[1]+prev[3]*dt,k[1]-k[2]*dt));
+			}
+			this.maxScale=bound;
+		}
+	}
+
+	/**
+	 * 组合爆炸的全部参数。每次爆炸都要 new 一份新的（特效会一直拿着它，共用会互相干扰）。
+	 * 哪层不想要就留 null，不画。
+	 */
+	public static final class ShockBlastParams {
+		/** 底光、火球、云壳 */
+		public BlastSphereParams haze, fireball, shell;
+		/** 正面冲击波环；斜波挂在 ring.fronts 上，ring 为 null 时斜波也不画 */
+		public BlastWaveParams ring;
+		/** 云纹理的花纹相位 0~1。NaN = 每次随机（每次爆炸长得不一样）；填固定值 = 每次一模一样 */
+		public float cloudPhase = Float.NaN;
+	}
+
+	/** spawnShockBlast 的返回值：四层各自的插件，可分别调参或提前结束；无战斗引擎时各项为 null */
+	public static class ShockBlast {
+		public BlastSpherePlugin haze;
+		public BlastSpherePlugin fireball;
+		public BlastSpherePlugin shell;
+		public BlastWavePlugin ring;
+	}
+
+	/** 在 center 生成组合爆炸：把 p 里不为 null 的层各自生成出来，中心统一设成 center，几层共用同一个随机花纹相位。 */
+	public static ShockBlast spawnShockBlast(Vector2f center, ShockBlastParams p) {
+		if (p == null) throw new IllegalArgumentException("Missing shock blast parameters");
+		ShockBlast out = new ShockBlast();
+		float seed = Float.isFinite(p.cloudPhase) ? p.cloudPhase % 1f : (float) Math.random();
+		if (p.haze != null) out.haze=volumeLayer(1,seed,p.haze.setCenter(center));
+		if (p.fireball != null) out.fireball=volumeLayer(2,seed,p.fireball.setCenter(center));
+		if (p.shell != null) out.shell=volumeLayer(3,seed,p.shell.setCenter(center));
+		if (p.ring != null) {
+			p.ring.frontPhase=seed;
+			out.ring=spawnBlastWave(p.ring.setCenter(center));
+		}
+		return out;
+	}
+
+	private static BlastSpherePlugin volumeLayer(int part, float seed, BlastSphereParams p) {
+		p.volumePart = part;
+		p.volumeSeed = seed;
+		return spawnBlastSphere(p);
+	}
+
+	/** 冲击波环的 GL 资源（着色器、贴图、环网格、屏幕拷贝）。全部懒加载，只在渲染线程访问，整个游戏进程共用一份 */
+	private static final class BlastWaveGL {
+		private static final int SEGMENTS = 160;
+		private static boolean initTried = false;
+		private static boolean failed = false;
+		private static boolean mipmapped = false;
+		private static boolean refractFailed = false;
+		private static boolean refractChecked = false;
+		private static int glowProgram = 0;
+		private static int refractProgram = 0;
+		private static int sphereProgram = 0;
+		private static int[] glowLoc;
+		private static int[] refractLoc;
+		private static int[] sphereLoc;
+		private static int fineTex = 0;
+		private static int bandTex = 0;
+		private static int maskTex = 0;
+		private static int normalTex = 0;
+		private static int ampTex = 0;
+		private static int ringVbo = 0;
+		private static int ringVertexCount = 0;
+		private static int sceneTex = 0;
+		private static int sceneW = 0;
+		private static int sceneH = 0;
+		private static final int SAVED_UNITS = 5;
+		private static final FloatBuffer MODELVIEW = BufferUtils.createFloatBuffer(16);
+		private static final FloatBuffer PROJECTION = BufferUtils.createFloatBuffer(16);
+		private static final IntBuffer VIEWPORT = BufferUtils.createIntBuffer(16);
+		private static final FloatBuffer WINDOW = BufferUtils.createFloatBuffer(3);
+		private static final IntBuffer SAVED_TEXTURES = BufferUtils.createIntBuffer(16);
+
+		private static void render(BlastWavePlugin plugin, float level, float viewportAlpha) {
+			if (!ensureInit()) return;
+			BlastWaveParams p = plugin.getParams();
+			float outer = plugin.getOuterRadius();
+			if (!(outer > 0.5f)) return;
+			float thickness = Math.max(0.02f, Math.min(0.98f, p.thickness));
+			float inner = outer * (1f - thickness);
+			Vector2f c = p.getCenterLoc();
+			float time = plugin.elapsed;
+
+			beginDraw();
+			try {
+				float age = plugin.getCurveTime();
+				if (p.glow && p.fronts != null && p.tiltedFrontStrength > 0f && (p.tiltedFrontMask & 7) != 0 && age < p.fronts.endTime) {
+					float reach = p.endRadius * evalBlastWaveCurve(p.fronts.curve, age);
+					if (reach > 0f) Moci_ShockVolumeMaterial.draw(4,p.frontPhase,age,c,reach,p.color,Color.WHITE,
+							p.tiltedFrontStrength*viewportAlpha,ringVertexCount,p.tiltedFrontMask,p.fronts);
+				}
+				// 先画发光（泛光在下、清晰层在上），再做折射：发光会跟着折射场流动，与原版"折射自己的发光缓冲"一致
+				if (p.glow && p.intensity > 0f && p.color != null) {
+					drawGlow(p, plugin, c, inner, outer, time, level);
+				}
+				if (p.refractStrength != 0f && !refractFailed) {
+					float strength = p.refractStrength * (p.endRadius > 0f ? outer / p.endRadius : 1f) * level;
+					drawRefraction(p, plugin, c, inner, outer, time, strength);
+				}
+			} catch (RuntimeException e) {
+				failed = true;
+				Global.getLogger(Moci_Util.class).error("[Moci_BlastWave] 渲染异常，冲击波环已停用", e);
+			} finally {
+				endDraw();
+			}
+		}
+
+		private static void renderSphere(BlastSpherePlugin plugin, float level) {
+			if (!ensureInit()) return;
+			BlastSphereParams p = plugin.getParams();
+			float radius = plugin.getRadius();
+			if (!(radius > 0.5f) || !(p.intensity > 0f)) return;
+			Vector2f c = p.getCenterLoc();
+
+			beginDraw();
+			try {
+				if (p.volumePart != 0 && Moci_ShockVolumeMaterial.draw(p.volumePart, p.volumeSeed, plugin.elapsed,
+						c, radius, p.rimColor, p.coreColor, p.intensity * level, ringVertexCount, 0, null)) return;
+				int[] l = sphereLoc;
+				GL20.glUseProgram(sphereProgram);
+				GL20.glUniform2f(l[0], c.x, c.y);
+				GL20.glUniform2f(l[1], 0f, radius);
+				GL20.glUniform4f(l[2], p.fineScaleU, p.fineScaleV, p.fineScrollU, p.fineScrollV);
+				GL20.glUniform4f(l[3], p.bandScaleU, p.bandScaleV, p.bandScrollU, p.bandScrollV);
+				GL20.glUniform2f(l[4], plugin.seedU, plugin.seedV);
+				GL20.glUniform1f(l[5], plugin.elapsed);
+				float k = p.intensity * level;
+				setColor(l[6], p.rimColor, k * Math.max(0f, p.rimGain));
+				setColor(l[7], p.coreColor, k * Math.max(0f, p.coreGain));
+				GL20.glUniform4f(l[8], p.rimPower, p.corePower, p.textureAmount, Math.max(0.001f, p.edgeSoftness));
+				GL20.glUniform1f(l[9], mipmapped ? Math.max(0f, p.textureBlur) : 0f);
+				GL20.glUniform1f(l[10], Math.max(0f, p.edgeNoise));
+				GL20.glUniform1i(l[11], 0);
+				GL20.glUniform1i(l[12], 1);
+				GL13.glActiveTexture(GL13.GL_TEXTURE0);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, fineTex);
+				GL13.glActiveTexture(GL13.GL_TEXTURE1);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, bandTex);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+				GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, ringVertexCount);
+			} catch (RuntimeException e) {
+				failed = true;
+				Global.getLogger(Moci_Util.class).error("[Moci_BlastWave] 球形发光层渲染异常，冲击波特效已停用", e);
+			} finally {
+				endDraw();
+			}
+		}
+
+		private static void setColor(int location, Color color, float k) {
+			if (color == null) {
+				GL20.glUniform3f(location, 0f, 0f, 0f);
+				return;
+			}
+			float a = k * color.getAlpha() / 255f;
+			GL20.glUniform3f(location, color.getRed() / 255f * a, color.getGreen() / 255f * a, color.getBlue() / 255f * a);
+		}
+
+		private static int savedProgram, savedArrayBuffer, savedActive;
+
+		/** 保存会被改动的 GL 状态，绑定环面网格。必须与 endDraw 成对调用（单线程，不可嵌套） */
+		private static void beginDraw() {
+			savedProgram = GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM);
+			savedArrayBuffer = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+			savedActive = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
+			SAVED_TEXTURES.clear();
+			for (int i = 0; i < SAVED_UNITS; i++) {
+				GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
+				SAVED_TEXTURES.put(GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D));
+			}
+			GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+			GL11.glPushClientAttrib(GL11.GL_CLIENT_VERTEX_ARRAY_BIT);
+			GL11.glDisable(GL11.GL_DEPTH_TEST);
+			GL11.glDisable(GL11.GL_CULL_FACE);
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, ringVbo);
+			GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+			GL11.glVertexPointer(2, GL11.GL_FLOAT, 0, 0L);
+		}
+
+		private static void endDraw() {
+			GL11.glPopClientAttrib();
+			GL11.glPopAttrib();
+			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, savedArrayBuffer);
+			GL20.glUseProgram(savedProgram);
+			for (int i = 0; i < SAVED_UNITS; i++) {
+				GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, SAVED_TEXTURES.get(i));
+			}
+			GL13.glActiveTexture(savedActive);
+		}
+
+		private static void drawGlow(BlastWaveParams p, BlastWavePlugin plugin, Vector2f c, float inner, float outer,
+				float time, float level) {
+			int[] l = glowLoc;
+			GL20.glUseProgram(glowProgram);
+			GL20.glUniform4f(l[2], wrapScale(p.fineScaleU), p.fineScaleV, p.fineScrollU, p.fineScrollV);
+			GL20.glUniform4f(l[3], wrapScale(p.bandScaleU), p.bandScaleV, p.bandScrollU, p.bandScrollV);
+			GL20.glUniform2f(l[4], p.distortOwnLight ? 0f : plugin.seedU, p.distortOwnLight ? 0f : plugin.seedV);
+			GL20.glUniform1f(l[5], time);
+			GL20.glUniform1i(l[8], 0);
+			GL20.glUniform1i(l[9], 1);
+			GL20.glUniform1i(l[10], 2);
+			GL20.glUniform1i(l[11], 3);
+			GL20.glUniform1i(l[12], 4);
+			GL20.glUniform1f(l[13], p.distortOwnLight ? level : 0f);
+			if (p.distortOwnLight) {
+				GL13.glActiveTexture(GL13.GL_TEXTURE3);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, normalTex);
+				GL13.glActiveTexture(GL13.GL_TEXTURE4);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, ampTex);
+			}
+			GL20.glUniform2f(l[0], c.x, c.y);
+			GL13.glActiveTexture(GL13.GL_TEXTURE0);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, fineTex);
+			GL13.glActiveTexture(GL13.GL_TEXTURE1);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, bandTex);
+			GL13.glActiveTexture(GL13.GL_TEXTURE2);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, maskTex);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+			float k = p.intensity * level * (p.color.getAlpha() / 255f);
+			float r = p.color.getRed() / 255f * k, g = p.color.getGreen() / 255f * k, b = p.color.getBlue() / 255f * k;
+
+			// 泛光：环向内外加宽，ringUV.y 映射回原环的 V，所有贴图取模糊的 mip 层级。没有 mipmap 时模糊不了，直接跳过
+			if (mipmapped && p.bloomStrength > 0f) {
+				float width = outer - inner;
+				float spread = Math.max(0f, p.bloomSpread);
+				float innerB = Math.max(0f, inner - width * 0.3f);
+				float outerB = outer + width * spread;
+				float s = Math.max(0f, p.bloomStrength);
+				GL20.glUniform2f(l[1], innerB, outerB);
+				GL20.glUniform3f(l[6], r * s, g * s, b * s);
+				GL20.glUniform4f(l[7], Math.max(0f, p.bloomBlur), (outerB - innerB) / width, (innerB - inner) / width,
+						Math.max(0.0001f, spread));
+				GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, ringVertexCount);
+			}
+
+			GL20.glUniform2f(l[1], inner, outer);
+			GL20.glUniform3f(l[6], r, g, b);
+			GL20.glUniform4f(l[7], mipmapped ? Math.max(0f, p.sharpBlur) : 0f, 1f, 0f, 0.0001f);
+			GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, ringVertexCount);
+		}
+
+		private static void drawRefraction(BlastWaveParams p, BlastWavePlugin plugin, Vector2f c, float inner, float outer,
+				float time, float strengthWorld) {
+			// 世界 -> 窗口像素：按当前变换投影中心和一个单位向量（战斗视角不旋转）
+			MODELVIEW.clear();
+			PROJECTION.clear();
+			VIEWPORT.clear();
+			GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, MODELVIEW);
+			GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, PROJECTION);
+			GL11.glGetInteger(GL11.GL_VIEWPORT, VIEWPORT);
+			float[] origin = project(c.x, c.y);
+			float[] alongX = project(c.x + 1f, c.y);
+			if (origin == null || alongX == null) return;
+			float pxPerUnit = Math.abs(alongX[0] - origin[0]);
+			float offsetPx = Math.abs(strengthWorld) * pxPerUnit;
+			if (!(offsetPx > 0.05f)) return;
+			float chroma = Math.max(-1f, Math.min(1f, p.refractChroma));
+
+			int vpX = VIEWPORT.get(0), vpY = VIEWPORT.get(1), vpW = VIEWPORT.get(2), vpH = VIEWPORT.get(3);
+			int texW = vpX + vpW, texH = vpY + vpH;
+			if (vpW <= 0 || vpH <= 0) return;
+			// 只拷贝环的外接矩形，外扩最大偏移，保证采样点都落在本帧拷贝里
+			float extent = outer * pxPerUnit + offsetPx * (1f + Math.abs(chroma)) + 2f;
+			int left = Math.max(vpX, (int) Math.floor(origin[0] - extent));
+			int bottom = Math.max(vpY, (int) Math.floor(origin[1] - extent));
+			int right = Math.min(texW, (int) Math.ceil(origin[0] + extent));
+			int top = Math.min(texH, (int) Math.ceil(origin[1] + extent));
+			if (right <= left || top <= bottom) return;
+
+			boolean firstUse = !refractChecked;
+			if (firstUse) {
+				for (int i = 0; i < 16 && GL11.glGetError() != GL11.GL_NO_ERROR; i++) {
+				}
+			}
+
+			GL13.glActiveTexture(GL13.GL_TEXTURE0);
+			ensureSceneTexture(texW, texH);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, sceneTex);
+			GL11.glCopyTexSubImage2D(GL11.GL_TEXTURE_2D, 0, left, bottom, left, bottom, right - left, top - bottom);
+			GL13.glActiveTexture(GL13.GL_TEXTURE1);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, normalTex);
+			GL13.glActiveTexture(GL13.GL_TEXTURE2);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, ampTex);
+
+			int[] l = refractLoc;
+			GL20.glUseProgram(refractProgram);
+			GL20.glUniform2f(l[0], c.x, c.y);
+			GL20.glUniform2f(l[1], inner, outer);
+			GL20.glUniform4f(l[2], wrapScale(p.normalScaleU), p.normalScaleV, p.normalScrollU, p.normalScrollV);
+			// 原版振幅贴图：原始 UV + 静态相位 (0, 1)，Repeat 下等于原 UV
+			GL20.glUniform4f(l[3], 1f, 1f, 0f, 1f);
+			GL20.glUniform2f(l[4], plugin.seedV, plugin.seedU);
+			GL20.glUniform1f(l[5], time);
+			GL20.glUniform2f(l[6], 1f / sceneW, 1f / sceneH);
+			GL20.glUniform1f(l[7], strengthWorld < 0f ? -offsetPx : offsetPx);
+			GL20.glUniform1f(l[8], Math.max(0.01f, p.refractFlatten));
+			GL20.glUniform1f(l[9], Math.max(0f, Math.min(1f, p.refractRadialPush)));
+			GL20.glUniform1f(l[10], chroma);
+			GL20.glUniform1i(l[11], 0);
+			GL20.glUniform1i(l[12], 1);
+			GL20.glUniform1i(l[13], 2);
+			// 直接覆盖：振幅在环的内外边缘为 0，此处取到的就是原像素
+			GL11.glDisable(GL11.GL_BLEND);
+			GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, ringVertexCount);
+
+			if (firstUse) {
+				refractChecked = true;
+				int error = GL11.glGetError();
+				if (error != GL11.GL_NO_ERROR) {
+					refractFailed = true;
+					Global.getLogger(Moci_Util.class).error("[Moci_BlastWave] 屏幕拷贝折射报 OpenGL 错误 0x"
+							+ Integer.toHexString(error) + "，已停用折射，只保留发光");
+				}
+			}
+		}
+
+		/** U 方向缩放取整（至少 1），保证 u 从 1 回到 0 时纹理坐标正好差整数，绕圈无缝 */
+		private static float wrapScale(float scaleU) {
+			return Math.max(1f, Math.round(Math.abs(scaleU))) * Math.signum(scaleU == 0f ? 1f : scaleU);
+		}
+
+		private static float[] project(float x, float y) {
+			MODELVIEW.rewind();
+			PROJECTION.rewind();
+			VIEWPORT.rewind();
+			WINDOW.clear();
+			if (!GLU.gluProject(x, y, 0f, MODELVIEW, PROJECTION, VIEWPORT, WINDOW)) return null;
+			return new float[] { WINDOW.get(0), WINDOW.get(1) };
+		}
+
+		private static boolean ensureInit() {
+			if (failed) return false;
+			if (initTried) return true;
+			initTried = true;
+			try {
+				Moci_ShaderManager shaders = Moci_ShaderManager.getInstance();
+				if (!shaders.isOpenGL20Supported()) throw new IllegalStateException("OpenGL 2.0 不可用");
+				glowProgram = shaders.createShader(BLASTWAVE_VERT, BLASTWAVE_GLOW_FRAG, "Moci_blastwave_glow");
+				refractProgram = shaders.createShader(BLASTWAVE_VERT, BLASTWAVE_REFRACT_FRAG, "Moci_blastwave_refract");
+				sphereProgram = shaders.createShader(BLASTWAVE_VERT, BLASTSPHERE_FRAG, "Moci_blastsphere");
+				if (glowProgram == 0 || refractProgram == 0 || sphereProgram == 0) {
+					throw new IllegalStateException("着色器编译或链接失败，详见 [MOCI_SHADER] 日志");
+				}
+				sphereLoc = locations(sphereProgram, "center", "radii", "fineXform", "bandXform", "seed", "time",
+						"rimColor", "coreColor", "shape", "texBias", "edgeNoise", "fineTex", "bandTex");
+				glowLoc = locations(glowProgram, "center", "radii", "fineXform", "bandXform", "seed", "time", "color",
+						"bloom", "fineTex", "bandTex", "maskTex", "warpTex", "holeTex", "selfWarp");
+				refractLoc = locations(refractProgram, "center", "radii", "normalXform", "ampXform", "seed", "time",
+						"invSceneSize", "offsetPx", "flatten", "radialPush", "chroma", "sceneTex", "normalTex", "ampTex");
+
+				mipmapped = GLContext.getCapabilities().OpenGL30;
+				int previousTexture = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+				try {
+					fineTex = loadRepeatTexture(BLASTWAVE_TEX_FINE, false);
+					bandTex = loadRepeatTexture(BLASTWAVE_TEX_BAND, false);
+					// 截面渐变 V 方向不能回绕：否则模糊层级会把外缘最亮的一行渗到内缘，形成一圈亮线
+					maskTex = loadRepeatTexture(BLASTWAVE_TEX_MASK, true);
+					normalTex = loadRepeatTexture(BLASTWAVE_TEX_NORMAL, false);
+					ampTex = loadRepeatTexture(BLASTWAVE_TEX_AMPLITUDE, false);
+				} finally {
+					GL11.glBindTexture(GL11.GL_TEXTURE_2D, previousTexture);
+				}
+
+				// 环面网格：(u, v)，u 绕圈 0..1（首尾各一份顶点），v 内圈 0 / 外圈 1
+				ringVertexCount = (SEGMENTS + 1) * 2;
+				FloatBuffer ring = BufferUtils.createFloatBuffer(ringVertexCount * 2);
+				for (int i = 0; i <= SEGMENTS; i++) {
+					float u = i / (float) SEGMENTS;
+					ring.put(u).put(0f).put(u).put(1f);
+				}
+				ring.flip();
+				int previousBuffer = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+				ringVbo = GL15.glGenBuffers();
+				GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, ringVbo);
+				GL15.glBufferData(GL15.GL_ARRAY_BUFFER, ring, GL15.GL_STATIC_DRAW);
+				GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, previousBuffer);
+				return true;
+			} catch (Throwable e) {
+				failed = true;
+				Global.getLogger(Moci_Util.class).error("[Moci_BlastWave] 初始化失败，冲击波环已停用", e);
+				return false;
+			}
+		}
+
+		private static int[] locations(int program, String... names) {
+			int[] out = new int[names.length];
+			for (int i = 0; i < names.length; i++) out[i] = GL20.glGetUniformLocation(program, names[i]);
+			return out;
+		}
+
+		/** 自己加载贴图：线性 RGBA8（不做 sRGB 解码）、U Repeat、V Repeat 或钳制、不翻 Y，有 OpenGL 3.0 时生成 mipmap */
+		private static int loadRepeatTexture(String path, boolean clampV) throws IOException {
+			BufferedImage image;
+			InputStream in = Global.getSettings().openStream(path);
+			try {
+				image = ImageIO.read(in);
+			} finally {
+				in.close();
+			}
+			if (image == null) throw new IOException("无法解码贴图 " + path);
+			int w = image.getWidth(), h = image.getHeight();
+			int[] argb = image.getRGB(0, 0, w, h, null, 0, w);
+			ByteBuffer pixels = BufferUtils.createByteBuffer(w * h * 4);
+			for (int value : argb) {
+				pixels.put((byte) (value >> 16)).put((byte) (value >> 8)).put((byte) value).put((byte) (value >>> 24));
+			}
+			pixels.flip();
+			int id = GL11.glGenTextures();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, clampV ? GL12.GL_CLAMP_TO_EDGE : GL11.GL_REPEAT);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER,
+					mipmapped ? GL11.GL_LINEAR_MIPMAP_LINEAR : GL11.GL_LINEAR);
+			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, w, h, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+			if (mipmapped) GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+			return id;
+		}
+
+		/** 屏幕拷贝纹理与窗口像素一一对应（含视口偏移），尺寸变化时重建 */
+		private static void ensureSceneTexture(int w, int h) {
+			if (sceneTex != 0 && sceneW == w && sceneH == h) return;
+			if (sceneTex == 0) sceneTex = GL11.glGenTextures();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, sceneTex);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, w, h, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE,
+					(ByteBuffer) null);
+			sceneW = w;
+			sceneH = h;
+		}
 	}
 }

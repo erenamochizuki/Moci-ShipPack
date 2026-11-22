@@ -1,5 +1,8 @@
 package data.campaign.fighter;
 
+import com.fs.starfarer.api.combat.WeaponAPI.WeaponSize;
+import com.fs.starfarer.api.loading.WeaponSpecAPI;
+
 /** Refit points are compared with the prototype's unmodified wing OP, never the carrier's stats. */
 public final class Moci_FighterRefitBudget {
     public static final int TACTICAL_POINTS = 5;
@@ -8,6 +11,17 @@ public final class Moci_FighterRefitBudget {
     public static final int LARGE_POINTS = 20;
 
     private Moci_FighterRefitBudget() {}
+
+    static int sizeFloor(WeaponSize size) {
+        return switch (size) { case SMALL -> SMALL_POINTS; case MEDIUM -> MEDIUM_POINTS; case LARGE -> LARGE_POINTS; };
+    }
+
+    public static int weaponPoints(WeaponSpecAPI spec, String originalWeaponId) {
+        if (spec == null || spec.getWeaponId().equals(originalWeaponId)) return 0;
+        double raw = Moci_FighterLoadoutRegistry.rawWeaponOp(spec);
+        if (!Double.isFinite(raw) || raw > Integer.MAX_VALUE) throw new IllegalArgumentException("武器 OP 无效：" + spec.getWeaponId());
+        return Math.max(sizeFloor(spec.getSize()), (int) Math.ceil(raw));
+    }
 
     public record Budget(float baseOp, int usedPoints) {
         public Budget {

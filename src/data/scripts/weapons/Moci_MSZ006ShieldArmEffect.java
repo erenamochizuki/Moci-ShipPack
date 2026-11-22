@@ -31,7 +31,12 @@ public class Moci_MSZ006ShieldArmEffect implements EveryFrameWeaponEffectPlugin 
 
     @Override
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
-        if (engine == null || engine.isPaused() || weapon == null) {
+        if (engine == null || weapon == null) {
+            return;
+        }
+        if (engine.isPaused()) {
+            // 暂停期间只维护已绑定武器的隐藏，不初始化、不推进动作。
+            hideFollowWeapon();
             return;
         }
 

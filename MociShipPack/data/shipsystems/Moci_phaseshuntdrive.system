@@ -13,7 +13,7 @@
 
 	"fadeActivationSoundOnChargedown":false,
 
-	"useSound":"Moci_displacer_active2",
+	"useSound":"moci_sys_displacer_active_02",
 
     "aiHints":{
         "activeSpeedIncrease":0,

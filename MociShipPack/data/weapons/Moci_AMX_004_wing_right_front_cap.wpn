@@ -22,5 +22,5 @@
   ],
   "barrelMode": "LINKED",
   "animationType": "NONE",
-  "fireSoundTwo": "Moci_MissileFire_1"
+  "fireSoundTwo": "moci_wpn_missile_fire_01"
 }

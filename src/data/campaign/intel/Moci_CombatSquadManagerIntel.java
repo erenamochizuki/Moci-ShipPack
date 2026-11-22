@@ -2101,27 +2101,32 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             return;
         }
         float rowHeight = 116f;
-        float imageSize = 80f;
-        float buttonWidth = Math.min(120f, Math.max(80f, width * 0.16f));
-        float textX = imageSize * 2f + 24f;
-        float textWidth = Math.max(100f, width - textX - buttonWidth - 28f);
-        float buttonX = width - buttonWidth - 12f;
+        // 与编队列表一致：舰船图纯显示，军官头像作为点击入口
+        float shipX = 4f;
+        float officerX = shipX + IMAGE_WIDTH + SHIP_COMMANDER_GAP;
+        float textX = officerX + IMAGE_WIDTH + IMAGE_DESC_GAP;
+        float textWidth = Math.max(100f, width - textX - 16f);
         CustomPanelAPI rows = panel.createCustomPanel(width - 8f, rowHeight * carriers.size(), null);
         float y = 4f;
         for (FleetMemberAPI ship : carriers) {
             List<Object> action = new ArrayList<>();
             action.add("open_air_squadron");
             action.add(ship.getId());
-            TooltipMakerAPI shipClick = rows.createUIElement(imageSize, imageSize, false);
-            shipClick.addAreaCheckbox("", action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(),
-                    Misc.getBrightPlayerColor(), imageSize, imageSize, 0f).setEnabled(available);
-            rows.addUIElement(shipClick).inTL(4f, y);
-            rows.addUIElement(createFleetMemberImageForPanel(rows, ship, imageSize, imageSize)).inTL(4f, y);
 
+            // 舰船图像（纯显示，与编队列表相同）
+            rows.addUIElement(createFleetMemberImageForPanel(rows, ship, IMAGE_WIDTH, ENTRY_HEIGHT)).inTL(shipX, y);
+
+            // 军官头像（点击进入航空中队管理）：areaCheckbox 在下，头像图片居中，悬停框盖在最上且不吃事件
+            TooltipMakerAPI officerClick = rows.createUIElement(IMAGE_WIDTH, ENTRY_HEIGHT, false);
+            officerClick.addAreaCheckbox("", action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(),
+                    Misc.getBrightPlayerColor(), IMAGE_WIDTH, ENTRY_HEIGHT, 0f).setEnabled(available);
+            rows.addUIElement(officerClick).inTL(officerX, y);
             PersonAPI captain = ship.getCaptain();
             PersonAPI portrait = captain != null ? captain : Global.getSector().getPlayerPerson();
-            if (portrait != null) rows.addUIElement(createPersonImageForPanel(rows, portrait, imageSize, imageSize))
-                    .inTL(imageSize + 12f, y);
+            if (portrait != null) rows.addUIElement(createPersonImageForPanel(rows, portrait, IMAGE_WIDTH, ENTRY_HEIGHT))
+                    .inTL(officerX, y);
+            // +5：图片是 tooltip 的第一个流式元素，引擎把它右移 5px，框按图片实际位置对齐
+            if (available) data.campaign.intel.ui.Moci_UIHoverFrame.attach(rows, officerX + 5f, y, IMAGE_WIDTH, ENTRY_HEIGHT);
             String captainName = captain != null && !captain.isDefault() ? captain.getNameString() : "未分配军官";
             TooltipMakerAPI details = rows.createUIElement(textWidth, rowHeight - 8f, true);
             details.addPara(ship.getShipName(), Misc.getHighlightColor(), 0f);
@@ -2144,9 +2149,6 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 details.addPara("装配服务暂不可用，舰船及库存保持原状。", Misc.getGrayColor(), 4f);
             }
             rows.addUIElement(details).inTL(textX, y);
-            TooltipMakerAPI button = rows.createUIElement(buttonWidth, 28f, false);
-            button.addButton("管理中队", action, buttonWidth, 28f, 0f).setEnabled(available);
-            rows.addUIElement(button).inTL(buttonX, y + 26f);
             y += rowHeight;
         }
         info.addCustom(rows, 12f);

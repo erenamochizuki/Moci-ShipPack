@@ -28,9 +28,6 @@ public class Moci_GravityCannonEffect implements OnFireEffectPlugin, OnHitEffect
     // 武器实例
     private WeaponAPI weapon;
     private boolean initialized = false;
-    
-    protected CombatEntityAPI chargeGlowEntity;
-    protected Moci_GravityCannonChargeGlow chargeGlowPlugin;
 
     @Override
     public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
@@ -62,8 +59,8 @@ public class Moci_GravityCannonEffect implements OnFireEffectPlugin, OnHitEffect
             if (!renderer.isTracked(projectile)) {
                 renderer.trackProjectile(projectile);
             }
-            // 初始半径10px，每秒增长2px（像素制）
-            renderer.configurePixelRadius(projectile, 10f, 2f);
+            // 初始半径10，每秒增长2（世界单位）
+            renderer.configureRadius(projectile, 10f, 2f);
             LOG.info("[MOCI_SINGULARITY] projectile fired & tracked id=" + projectile.getProjectileSpecId());
         }
 
@@ -75,7 +72,8 @@ public class Moci_GravityCannonEffect implements OnFireEffectPlugin, OnHitEffect
             MissileAPI missile = (MissileAPI)projectile;
             missile.setMine(true);
             missile.setNoMineFFConcerns(true);
-            missile.setMineExplosionRange(Moci_GravityCannonChargeGlow.MAX_ARC_RANGE + 50.0F);
+            // 以地雷身份告知 AI 规避；范围与引力作用半径一致，之后由 ChargeGlow 随质量增长更新
+            missile.setMineExplosionRange(Moci_GravityCannonChargeGlow.GRAVITY_RANGE_BASE * Moci_GravityCannonChargeGlow.AI_AVOID_RANGE_MULT);
             missile.setMinePrimed(true);
             missile.setUntilMineExplosion(0.0F);
         }

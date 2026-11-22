@@ -225,7 +225,7 @@ public class Moci_PhaseCrossing_Simple extends BaseShipSystemScript {
                         EXPLODE_COLOR, EXPLODE_COLOR);
                 explosionSpec.setDamageType(com.fs.starfarer.api.combat.DamageType.ENERGY);
                 explosionSpec.setUseDetailedExplosion(true);
-                explosionSpec.setSoundSetId("Moci_WarpSound");
+                explosionSpec.setSoundSetId("moci_sys_warp_01");
                 
                 engine.spawnDamagingExplosion(explosionSpec, ship, this.recordedLocation);
                 

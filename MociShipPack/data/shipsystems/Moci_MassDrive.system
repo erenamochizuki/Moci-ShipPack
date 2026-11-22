@@ -1,0 +1,14 @@
+{
+    "id":"Moci_MassDrive",
+    "type":"ENGINE_MOD",
+    "aiType":"NONE",
+    "statsScript":"data.shipsystems.scripts.Moci_MassDrive",
+    "engineActivateHiddenNozzles":false,
+    "flameoutOnImpactChance":0,
+    "clampTurnRateAfter":true,
+    "clampMaxSpeedAfter":true,
+    "alwaysAccelerate":true,
+    "loopSound":"system_travel_drive_loop",
+    "outOfUsesSound":"engine_disabled",
+    "aiHints":{"averageSpeedIncrease":600}
+}

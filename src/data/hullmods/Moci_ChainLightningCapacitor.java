@@ -260,7 +260,7 @@ public class Moci_ChainLightningCapacitor extends BaseHullMod {
                 nextEmpDamage *= retain;
             }
 
-            Global.getSoundPlayer().playSound("Moci_Lightting", 1f, 0.85f, ship.getLocation(), ship.getVelocity());
+            Global.getSoundPlayer().playSound("moci_fx_lightning", 1f, 0.85f, ship.getLocation(), ship.getVelocity());
         }
 
         private void fireArcAndDamage(CombatEngineAPI engine, Vector2f from, CombatEntityAPI fromAnchor,

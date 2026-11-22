@@ -172,7 +172,7 @@ public class Moci_ChargeBeam_EveryFrameOmni implements EveryFrameWeaponEffectPlu
             } else if (weapon.getChargeLevel() > level) {
                 // 开始蓄力 - 播放音效（只播放一次）
                 Global.getSoundPlayer().playSound(
-                    "Moci_BeamCharge",
+                    "moci_wpn_beam_charge",
                     1f,
                     1f,
                     firePoint,

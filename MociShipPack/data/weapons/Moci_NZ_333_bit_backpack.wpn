@@ -73,5 +73,5 @@
   ],
   "barrelMode": "ALTERNATING",
   "animationType": "NONE",
-  "fireSoundTwo": "Moci_bit_launch"
+  "fireSoundTwo": "moci_wpn_bit_launch"
 }

@@ -142,7 +142,7 @@ public class Moci_Axe_BeamEffect implements BeamEffectPlugin {
         if (attackPhase != 0 && target != null && beam.getBrightness() > 0.9f
                 && effectInterval.intervalElapsed() && MagicRender.screenCheck(0.2f, beam.getTo())
                 && soundPlayedThisBurst.add(target)) {
-            Global.getSoundPlayer().playSound("Moci_BeamSabre_Hit", 1f, 0.5f, beam.getTo(), new Vector2f());
+            Global.getSoundPlayer().playSound("moci_wpn_beam_sabre_hit", 1f, 0.5f, beam.getTo(), new Vector2f());
         }
     }
 

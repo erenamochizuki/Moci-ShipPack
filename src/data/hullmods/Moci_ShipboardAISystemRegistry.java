@@ -21,12 +21,16 @@ import java.util.Set;
  */
 public final class Moci_ShipboardAISystemRegistry {
 
-    private static final List<String> MANAGED_HULLMOD_IDS = Arrays.asList(
+    private static final List<String> MANAGED_HULLMOD_IDS = new ArrayList<>(Arrays.asList(
             Moci_System99.HULLMOD_ID,
             Moci_HaroAISystem.HULLMOD_ID,
             Moci_AlphaCoreAISystem.HULLMOD_ID,
             Moci_OmegaCoreAISystem.HULLMOD_ID
-    );
+    ));
+
+    static {
+        for (Moci_ModelCore model : Moci_ModelCore.values()) MANAGED_HULLMOD_IDS.add(model.hullmodId);
+    }
 
     private static final Map<String, String> LEGACY_AI_TYPE_IDS = createLegacyAiTypeMap();
 
@@ -35,6 +39,24 @@ public final class Moci_ShipboardAISystemRegistry {
 
     public static List<String> getManagedHullmodIds() {
         return new ArrayList<>(MANAGED_HULLMOD_IDS);
+    }
+
+    public static boolean isInstallableSystem(String hullmodId) {
+        return Moci_HaroAISystem.HULLMOD_ID.equals(hullmodId)
+                || Moci_AlphaCoreAISystem.HULLMOD_ID.equals(hullmodId)
+                || Moci_OmegaCoreAISystem.HULLMOD_ID.equals(hullmodId)
+                || Moci_ModelCore.forHullmod(hullmodId) != null;
+    }
+
+    public static boolean isPermanent(ShipVariantAPI variant, String hullmodId) {
+        return isBuiltInByHull(variant, hullmodId) || (variant != null && variant.getPermaMods() != null
+                && variant.getPermaMods().contains(hullmodId));
+    }
+
+    public static boolean isActive(ShipVariantAPI variant, String hullmodId) {
+        if (variant == null || (variant.getSuppressedMods() != null && variant.getSuppressedMods().contains(hullmodId))) return false;
+        return isInstallableSystem(hullmodId) ? isPermanent(variant, hullmodId)
+                : variant.hasHullMod(hullmodId);
     }
 
     public static String getCanonicalAiTypeId(String aiTypeId) {
@@ -117,9 +139,6 @@ public final class Moci_ShipboardAISystemRegistry {
             }
         }
 
-        if (changed && Global.getSector() != null && Global.getSector().getPlayerFleet() != null) {
-            Global.getSector().getPlayerFleet().forceSync();
-        }
         return changed;
     }
 
@@ -150,6 +169,9 @@ public final class Moci_ShipboardAISystemRegistry {
             }
         }
 
+        for (String hullmodId : present) {
+            if (isPermanent(variant, hullmodId)) return hullmodId;
+        }
         if (preferredHullmodId != null && present.contains(preferredHullmodId)) {
             return preferredHullmodId;
         }

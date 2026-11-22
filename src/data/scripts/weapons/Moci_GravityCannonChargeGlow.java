@@ -86,6 +86,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
     private static final float ACCRETION_TRAIL_WIDTH_START = 2f;
     private static final float ACCRETION_TRAIL_WIDTH_END = 6.0f;
     private static final float ACCRETION_TRAIL_DURATION = 0.6f;
+    private static final float ACCRETION_TRAIL_FADE_OUT = 0.3f;
     
     // 生成数量（基于黑洞半径）
     private static final int ACCRETION_PARTICLE_COUNT_MIN = 3;   // 最小粒子数/帧
@@ -94,28 +95,36 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
     private static final int ACCRETION_TRAIL_COUNT_MAX = 3;      // 最大光线数/帧
     
     // 距离范围（基于黑洞半径的倍数）
-    private static final float ACCRETION_DISTANCE_MIN_MULT = 20.0f;  // 最小距离半径
-    private static final float ACCRETION_DISTANCE_MAX_MULT = 2.0f;  // 最大距离半径
+    private static final float ACCRETION_DISTANCE_MIN_MULT = 2.0f;   // 最小距离半径
+    private static final float ACCRETION_DISTANCE_MAX_MULT = 20.0f;  // 最大距离半径
     
     // === 引力效果参数 ===
-    private static final float DAMAGE_INTERVAL = 0.1F;  // 伤害应用间隔（秒）
+    private static final float DAMAGE_INTERVAL = 0.1F;  // 伤害应用间隔（秒）；引力本身逐帧施加
+    // 玩法用归一化质量上限（与渲染侧一致），防止"伤害→质量→范围/伤害"正反馈无限放大
+    private static final float MAX_GAMEPLAY_MASS_HAT = 25f;
     private static final float EFFECT_RANGE = 600F; // 效果范围（用于扭曲效果计算）
     
     // 引力作用半径计算
     public static final float GRAVITY_RANGE_BASE = 1350f; // 基础作用半径（缩小）
     public static final float GRAVITY_RANGE_MASS_MULT = 0.8f; // 质量增长系数（降低）
+    // AI 规避范围 = 引力作用半径 × 此倍率（通过地雷爆炸范围告知 AI；偏保守可调小）
+    public static final float AI_AVOID_RANGE_MULT = 1.0f;
     
     // 舰船引力强度
     public static final float SHIP_GRAVITY_BASE_STRENGTH = 350f; // 舰船基础引力强度
     public static final float SHIP_GRAVITY_MASS_MULT = 0.7f; // 质量放大系数
     public static final float SHIP_HULK_GRAVITY_MULT = 1.5f; // 残骸引力倍率
-    
+    // 导弹引力软化长度 = max(0.6*视界半径, 作用半径*此比例)（仅导弹使用；舰船保持原版公式）
+    public static final float MISSILE_GRAVITY_SOFTENING_FRAC = 0.1f;
+
     // 舰船质量衰减（大型舰船引力效果减弱）
     public static final float SHIP_MASS_DECAY_MIN = 2000f; // 最小质量（无衰减）
     public static final float SHIP_MASS_DECAY_MAX = 15000f; // 最大质量（完全无效）
     
     // === 投射物引力参数 ===
-    public static final float PROJECTILE_GRAVITY_MISSILE = 3000f; // 导弹引力强度
+    // 导弹引力强度：作用半径边缘处的加速度（速度/秒²），向内按软化核增强
+    // （半径一半处约 4 倍，靠近中心峰值约 38 倍）——越靠近越难逃
+    public static final float PROJECTILE_GRAVITY_MISSILE = 150f;
     public static final float PROJECTILE_GRAVITY_NORMAL = 10f; // 普通投射物引力强度
     public static final float PROJECTILE_GRAVITY_MASS_MULT = 1.2f; // 质量放大系数
     
@@ -245,10 +254,30 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
     private Vector2f dissipationCenter = new Vector2f(); // 保存扩散中心位置
     private float dissipationTimer = 0f;
     private float dissipationExpandDuration = 2f; // 动态扩散时间（fadeIn阶段，根据范围计算）
+    // 消散冲击伤害状态（与扭曲视觉解耦：视觉创建失败也照常结算伤害）
+    private boolean dissipationDamageActive = false;
+    private float dissipationFinalRadius = 0f;
+    private float dissipationBaseDamage = 0f;
+    private float dissipationMassHat = 0f;
+    private int dissipationSourceOwner = -1;
+    private ShipAPI dissipationSource = null;
+    private final java.util.Set<ShipAPI> dissipationHitShips = new java.util.HashSet<ShipAPI>();
+    private static final float DISSIPATION_START_RADIUS = 50f; // 扩散环起始半径
     private static final float DISSIPATION_BASE_EXPAND = 1.0f; // 基础扩散时间
     private static final float DISSIPATION_EXPAND_PER_1000 = 0.25f; // 每1000范围增加的扩散时间
     private static final float DISSIPATION_FADE_OUT = 0.5f; // 淡出时间（fadeOut阶段）
-    private static final float DISSIPATION_POWER = 0.6f;    // 扭曲强度
+    // 扭曲强度。BoxUtil 的扭曲位移约为 环半径 × 强度，环会扩散到引力作用半径（1350+），所以取值要小
+    private static final float DISSIPATION_POWER = 0.2f;
+    // 淡出曲线指数：强度 = 满强度 × 剩余进度^指数，>1 时末尾平滑收敛到 0，不会突然消失
+    private static final float DISSIPATION_FADE_OUT_CURVE = 2.0f;
+    // 环形状（均为相对环半径的比例，v=0 中心、v=1 外缘）。BoxUtil 遮罩：
+    //   内缘从 v = 内环硬度×挖空比例 升起，到 v = 挖空比例 完全不透明；
+    //   外缘从 v = 外环硬度 开始衰减，到 v = 1 归零。
+    // 当前取值：带宽约为半径的 19%（0.81~1.0），其中 0.9~0.95 为实心部分。
+    // 想让环更细：挖空比例和两个硬度都往 1 靠；想让边更柔：硬度往下调。
+    private static final float DISSIPATION_INNER_RATIO = 0.9f;     // 挖空比例
+    private static final float DISSIPATION_INNER_HARDNESS = 0.9f;  // 内环硬度
+    private static final float DISSIPATION_RING_HARDNESS = 0.95f;  // 外环硬度
     private static final float DISSIPATION_DAMAGE_MULT = 5.0f; // 伤害倍率
     
     public Moci_GravityCannonChargeGlow(WeaponAPI weapon) {
@@ -366,7 +395,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
             }
             
             // 更新扩散效果
-            if (dissipationDistortion != null) {
+            if (dissipationDamageActive) {
                 dissipationTimer += amount;
                 updateDissipationEffect(amount);
             }
@@ -378,11 +407,9 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                 // 禁用本地扭曲视觉，仅执行引力与潮汐逻辑
                 distortionRenderer.setActive(false);
 
-                // 应用引力/喷发效果：允许在坍塌/坍塌完成后继续推进喷发逻辑
+                // 引力逐帧施加（避免每 0.1 秒一次的速度跳变）；伤害/喷发等仍按 DAMAGE_INTERVAL 结算
                 this.gravityInterval.advance(amount);
-                if (this.gravityInterval.intervalElapsed()) {
-                    this.applyGravityEffects();
-                }
+                this.applyGravityEffects(amount, this.gravityInterval.intervalElapsed());
                 
                 // 生成汇聚粒子和光线效果
                 this.accretionInterval.advance(amount);
@@ -415,7 +442,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
         // 投射物不存在时，检查是否还有需要完成的效果
         if (this.proj == null) {
             // 如果有扩散效果正在进行，等待其完成
-            if (dissipationDistortion != null) {
+            if (dissipationDamageActive) {
                 return false;
             }
             // 否则可以回收
@@ -428,10 +455,12 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
         boolean collapsed = Moci_SingularityRenderer.getOrCreate().isCollapsed(this.proj);
         boolean visualsActive = finalRingActive || !activePulses.isEmpty();
         boolean projectileAlive = !isProjectileExpired(this.proj) && !this.proj.isFading();
-        boolean dissipationActive = dissipationDistortion != null;
-        
-        // 只要仍在充能、或弹体仍活、或（在开关开启时）处于坍塌并有视觉、或扩散效果正在进行，就不回收
-        if (projectileAlive || dissipationActive || 
+        boolean dissipationActive = dissipationDamageActive;
+        // 消散尚未触发（advance 会在弹体结束/蒸发时触发）：先不回收，避免因执行顺序漏掉消散冲击
+        boolean dissipationPending = !dissipationTriggered && !collapsing && !collapsed;
+
+        // 只要仍在充能、或弹体仍活、或（在开关开启时）处于坍塌并有视觉、或扩散效果正在进行/待触发，就不回收
+        if (projectileAlive || dissipationActive || dissipationPending || 
             ((collapseEffectsEnabled && collapsing) && visualsActive) || 
             ((collapseEffectsEnabled && collapsed) && visualsActive)) {
             return false;
@@ -731,6 +760,17 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
         return proj.isExpired() || proj.didDamage() || !Global.getCombatEngine().isEntityInPlay(proj);
     }
 
+    // 玩法用归一化质量（带上限）
+    private float getGameplayMassHat() {
+        float massValue = 0f;
+        try { massValue = Moci_SingularityRenderer.getOrCreate().getMassValue(this.proj); } catch (Throwable ignore) { }
+        return Math.min(MAX_GAMEPLAY_MASS_HAT, Math.max(0f, massValue) / 10000f);
+    }
+
+    private static float getGravityRadius(float mHat) {
+        return GRAVITY_RANGE_BASE * (1f + GRAVITY_RANGE_MASS_MULT * (float) Math.sqrt(Math.max(0f, mHat)));
+    }
+
     private static boolean isWeaponCharging(WeaponAPI weapon) {
         return weapon.getChargeLevel() > 0.0F && weapon.getCooldownRemaining() <= 0.0F;
     }
@@ -802,9 +842,11 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
     }
 
     /**
-     * 应用引力效果
+     * 应用引力效果。
+     * @param dt   本帧时长：引力（舰船/弹丸牵引）按 dt 连续施加
+     * @param tick 是否到达 DAMAGE_INTERVAL：EMP/潮汐伤害、喷发调度、扭曲特效、随机自旋只在 tick 时结算
      */
-    public void applyGravityEffects() {
+    public void applyGravityEffects(float dt, boolean tick) {
         if (this.proj == null || this.proj.isExpired() || !Global.getCombatEngine().isEntityInPlay(this.proj)) {
             // 投射物过期或不在战场，不再注册黑洞
             return;
@@ -821,13 +863,13 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
         // 向光束弯曲渲染器注册黑洞位置和半径
         // 光束弯曲功能已移除
 
-         // 添加扭曲效果
-         if (useShaderDistortion) {
+         // 添加扭曲效果（保持每 DAMAGE_INTERVAL 一次的节奏）
+         if (tick && useShaderDistortion) {
              addGravityDistortionEffect(center);
          }
  
          // 坍塌过程中的喷发：顺序触发 5 次；每次结束后需间隔 0.5s 再开始下一次（受开关控制）
-         if (collapseEffectsEnabled && Moci_SingularityRenderer.getOrCreate().isCollapsing(this.proj)) {
+         if (tick && collapseEffectsEnabled && Moci_SingularityRenderer.getOrCreate().isCollapsing(this.proj)) {
              if (!collapseStarted) { collapseStarted = true; pulsesTriggeredByTime = 0; pulseCooldown = 0f; }
              // 更新现有脉冲年龄，并清理完成的
              for (int i = activePulses.size() - 1; i >= 0; i--) {
@@ -848,7 +890,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
              if (!activePulses.isEmpty()) {
                  applyPulseContinuousDamage(activePulses, center, sourceOwner);
              }
-         } else {
+         } else if (tick && !(collapseEffectsEnabled && Moci_SingularityRenderer.getOrCreate().isCollapsing(this.proj))) {
              // 非坍塌状态，重置调度状态
              collapseStarted = false;
              pulsesTriggeredByTime = 0;
@@ -856,7 +898,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
          }
 
          // 坍塌完成：全方位喷发一次（受开关控制）
-         if (collapseEffectsEnabled && Moci_SingularityRenderer.getOrCreate().isCollapsed(this.proj)) {
+         if (tick && collapseEffectsEnabled && Moci_SingularityRenderer.getOrCreate().isCollapsed(this.proj)) {
             String token = Integer.toHexString(System.identityHashCode(this.proj));
             String key = "moci_singularity_erupt_full_" + token;
             if (Global.getCombatEngine().getCustomData().get(key) == null) {
@@ -884,14 +926,19 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
              return;
          }
 
-        // 质量基准与尺度
-        float massValue = Moci_SingularityRenderer.getOrCreate().getMassValue(this.proj);
-        float mHat = Math.max(0f, massValue) / 10000f;
+        // 质量基准与尺度（带上限）
+        float mHat = getGameplayMassHat();
         // 吞噬半径（世界）
         float rsWorld = Moci_SingularityRenderer.getOrCreate().getEventHorizonRadiusWorld(this.proj);
         float rSoft = rsWorld * 0.6f;
         // 作用半径（增强，并随质量增长更显著）
-        float R_world = GRAVITY_RANGE_BASE * (1f + GRAVITY_RANGE_MASS_MULT * (float)Math.sqrt(mHat));
+        float R_world = getGravityRadius(mHat);
+        // 弹丸逐帧牵引时，把原"每 DAMAGE_INTERVAL 一次"的量按帧时长折算
+        float tickFrac = dt / DAMAGE_INTERVAL;
+        // 让 AI 的地雷规避范围跟随引力作用半径（随质量增长同步扩大）
+        if (tick && this.proj instanceof MissileAPI) {
+            ((MissileAPI) this.proj).setMineExplosionRange(R_world * AI_AVOID_RANGE_MULT);
+        }
 
         // 使用Grid遍历优化性能（只检查作用范围内的舰船）
         List<ShipAPI> ships = Moci_Util.getShipsInRange(center, R_world);
@@ -902,6 +949,8 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
             if (target.isShuttlePod()) continue;
             // 过滤无敌单位（伤害倍率为0的单位）
             if (target.getMutableStats().getHullDamageTakenMult().getModifiedValue() <= 0f) continue;
+            // 过滤相位中的舰船（不受牵引与伤害）
+            if (target.isPhased()) continue;
 
             float distance = Misc.getDistance(center, target.getLocation());
             if (distance > R_world) continue;
@@ -922,14 +971,15 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                 applyPull = owner != sourceOwner; // 完好仅敌舰
             }
 
-            if (applyPull) {
+            if (applyPull && tick) {
+                // 保持原版：每 DAMAGE_INTERVAL 施加一次，越靠近中心牵引越强（黑洞内的强力牵引挤压效果）
                 float ratio = R_world / (distance + rSoft);
                 float K = SHIP_GRAVITY_BASE_STRENGTH;
                 float aM = SHIP_GRAVITY_MASS_MULT;
                 float dv = K * (1f + aM * (float)Math.sqrt(mHat)) * ratio * ratio * DAMAGE_INTERVAL;
                 // 对残骸提高牵拉强度，使其更快清场
                 if (isHulk) dv *= SHIP_HULK_GRAVITY_MULT;
-                applyGravitationalForce(target, center, dv);
+                applyGravitationalForce(target, center, dv, true);
                 
                 // 记录受影响的舰船（用于黑洞结束时的速度阻尼）
                 try {
@@ -951,13 +1001,19 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                 if ((isFighter || isHulk) && penetration >= FIGHTER_HULK_REMOVE_PENETRATION) {
                     float absorbedMass = Math.max(0f, target.getMaxHitpoints()) * ABSORBED_MASS_RATIO;
                     Moci_SingularityRenderer.getOrCreate().addMass(this.proj, absorbedMass);
-                    engine.removeEntity(target);
+                    if (isFighter && isAlive) {
+                        // 存活的舰载机用致死伤害击毁，保留击杀归属与母舰联队的补机流程
+                        engine.applyDamage(target, target.getLocation(), target.getHitpoints() * 10f + 1000f,
+                                DamageType.ENERGY, 0f, true, false, source, false);
+                    } else {
+                        engine.removeEntity(target);
+                    }
                     continue;
                 }
 
                 // 完好舰船：事件界限内造成强大的EMP伤害，穿透护盾
                 // 伤害随深入程度增强
-                if (isAlive && owner != sourceOwner) {
+                if (tick && isAlive && owner != sourceOwner) {
                     float baseEmpDps = EVENT_HORIZON_BASE_EMP_DPS;
                     float empScale = 1f + EVENT_HORIZON_MASS_SCALE * (float)Math.sqrt(mHat);
                     // 伤害随深入程度增强
@@ -965,8 +1021,8 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                     float empDps = baseEmpDps * empScale * penetrationMultiplier;
                     float empDamagePerTick = empDps * DAMAGE_INTERVAL;
 
-                    // 事件界限内：造成纯EMP伤害，微量实际伤害（1点）
-                    engine.applyDamage(target, target.getLocation(), 1f, DamageType.ENERGY, empDamagePerTick, true, false, source, true);
+                    // 事件界限内：造成纯EMP伤害，微量实际伤害（1点）；持续伤害不播放受击音效
+                    engine.applyDamage(target, target.getLocation(), 1f, DamageType.ENERGY, empDamagePerTick, true, false, source, false);
                     
                     // 吸收质量按造成的EMP伤害计入
                     Moci_SingularityRenderer.getOrCreate().addMass(this.proj, empDamagePerTick * 0.5f);
@@ -977,7 +1033,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                 float outerEdge = distance - target.getCollisionRadius(); // 舰体外缘到中心的距离
                 float span = Math.max(1e-3f, R_world - rsWorld);
                 float rFactor = 1f - Math.min(1f, Math.max(0f, (outerEdge - rsWorld) / span)); // R_world->0, rs->1
-                if (rFactor > 0f && applyPull) {
+                if (tick && rFactor > 0f && applyPull) {
                     // 仅对敌方活体生效（残骸不受潮汐伤害）
                     boolean harmful = (isAlive && owner != sourceOwner);
                     if (harmful) {
@@ -995,8 +1051,8 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                                 * sizeMult;
                         float totalEmpDamage = totalEmpDps * DAMAGE_INTERVAL;
                         
-                        // 造成纯EMP伤害，微量实际伤害（1点）
-                        engine.applyDamage(target, target.getLocation(), 1f, DamageType.ENERGY, totalEmpDamage, true, false, source, true);
+                        // 造成纯EMP伤害，微量实际伤害（1点）；持续伤害不播放受击音效
+                        engine.applyDamage(target, target.getLocation(), 1f, DamageType.ENERGY, totalEmpDamage, true, false, source, false);
                         
                         // 按较低比例计入质量
                         Moci_SingularityRenderer.getOrCreate().addMass(this.proj, totalEmpDamage * 0.1f);
@@ -1049,12 +1105,18 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                 // 所有投射物使用统一的强力引力公式（基于R_world，保证远距离有效）
                 // 引力加速度足够强，让投射物能够自然形成螺旋轨迹
                 float ratio = R_world / Math.max(1f, d + rSoft);
-                float K = isMissile ? PROJECTILE_GRAVITY_MISSILE : PROJECTILE_GRAVITY_NORMAL;
                 float aM = PROJECTILE_GRAVITY_MASS_MULT;
-                float acceleration = K * (1f + aM * (float)Math.sqrt(mHat)) * ratio * ratio / DAMAGE_INTERVAL;
-                
-                // 将加速度转换为本帧的速度变化（Δv = a * Δt）
-                float deltaV = acceleration * DAMAGE_INTERVAL;
+                float deltaV;
+                if (isMissile) {
+                    // 导弹：随距离衰减的软化核，边缘弱、越近越强，不再一进范围就被抓住
+                    float softP = Math.max(rSoft, R_world * MISSILE_GRAVITY_SOFTENING_FRAC);
+                    float denomP = d * d + softP * softP;
+                    float kernelP = R_world * R_world * d / (denomP * (float)Math.sqrt(denomP));
+                    deltaV = PROJECTILE_GRAVITY_MISSILE * (1f + aM * (float)Math.sqrt(mHat)) * kernelP * dt;
+                } else {
+                    // 普通弹丸：K·ratio² 为每 DAMAGE_INTERVAL 的速度增量，按本帧时长折算
+                    deltaV = PROJECTILE_GRAVITY_NORMAL * (1f + aM * (float)Math.sqrt(mHat)) * ratio * ratio * tickFrac;
+                }
                 
                 // 计算并应用引力加速度向量
                 // 引力速度单独累计，距离减速只作用于弹体自身的飞行分量。
@@ -1068,7 +1130,8 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                 if (ramp > PROJECTILE_TANGENT_DAMPING_THRESHOLD) {
                     float vr = v.x * dir.x + v.y * dir.y; // 径向分量
                     Vector2f vt = new Vector2f(v.x - dir.x * vr, v.y - dir.y * vr); // 切向分量
-                    float tangDamping = 1f - PROJECTILE_TANGENT_DAMPING_MAX * ramp;
+                    // 原为每 DAMAGE_INTERVAL 衰减一次，按帧时长折算为等效的指数衰减
+                    float tangDamping = (float)Math.pow(1f - PROJECTILE_TANGENT_DAMPING_MAX * ramp, tickFrac);
                     vt.scale(tangDamping);
                     v.x = dir.x * vr + vt.x;
                     v.y = dir.y * vr + vt.y;
@@ -1113,7 +1176,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                 // 视觉朝向调整：使用更平滑的曲线，不直接对准中心
                 // 只在靠近视界时才调整朝向，远处保持自然轨迹
                 try {
-                    applySmoothVisualOrientation(other, center, dir, d, rsWorld, R_world, ramp);
+                    applySmoothVisualOrientation(other, center, dir, d, rsWorld, R_world, ramp, tickFrac);
                 } catch (Throwable ignore) {}
             }
         }
@@ -1133,8 +1196,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
         Moci_SingularityRenderer renderer = Moci_SingularityRenderer.getOrCreate();
         Vector2f center = renderer.getCenterWorld(proj);
         if (center == null) center = proj.getLocation();
-        float mass = Math.max(0f, renderer.getMassValue(proj)) / 10000f;
-        float radius = GRAVITY_RANGE_BASE * (1f + GRAVITY_RANGE_MASS_MULT * (float) Math.sqrt(mass));
+        float radius = getGravityRadius(getGameplayMassHat());
         float core = renderer.getEventHorizonRadiusWorld(proj);
         float distance = Misc.getDistance(center, projectile.getLocation());
         return getProjectileSpeedMultiplier(distance, core, radius);
@@ -1153,14 +1215,14 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
     /**
      * 应用引力效果
      */
-    private void applyGravitationalForce(ShipAPI target, Vector2f center, float force) {
+    private void applyGravitationalForce(ShipAPI target, Vector2f center, float force, boolean applySpin) {
         if (target.getMass() <= 0f) return;
         
         // 基于质量的衰减因子
         // 调整衰减：2000质量以下不衰减，15000质量时几乎无效
         float massDecayFactor = 1.0f;
-        float minMassForDecay = 2000f;
-        float maxMassForDecay = 15000f;
+        float minMassForDecay = SHIP_MASS_DECAY_MIN;
+        float maxMassForDecay = SHIP_MASS_DECAY_MAX;
         
         if (target.getMass() > minMassForDecay) {
             if (target.getMass() >= maxMassForDecay) {
@@ -1196,7 +1258,8 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
         
         // 移除牵引粒子可视化，保持纯物理牵引
         
-        // 添加旋转效果 - 质量较小的船会旋转得更剧烈
+        // 添加旋转效果 - 质量较小的船会旋转得更剧烈（随机扰动，保持每 DAMAGE_INTERVAL 一次）
+        if (!applySpin) return;
         float angularImpulse = (float)Math.random() * 16f - 8f;
         // 质量越小的舰船，旋转效果越明显
         angularImpulse *= (1f + massScale * 3f);
@@ -1225,7 +1288,8 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                                               float distance,
                                               float rsWorld,
                                               float R_world,
-                                              float ramp) {
+                                              float ramp,
+                                              float tickFrac) {
         if (entity == null || center == null) return;
         
         Vector2f vel = entity.getVelocity();
@@ -1283,7 +1347,8 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
         // 计算角度差（最短路径）
         float desiredDelta = shortestRotationDeg(currentFacing, targetAngle);
         
-        // 使用lerp平滑过渡，产生指数衰减曲线而非多边形
+        // 使用lerp平滑过渡，产生指数衰减曲线而非多边形；lerpFactor 原为每 DAMAGE_INTERVAL 一次，按帧时长折算
+        lerpFactor = 1f - (float)Math.pow(1f - lerpFactor, tickFrac);
         float actualDelta = desiredDelta * lerpFactor;
         
         // 应用新朝向
@@ -1970,9 +2035,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
 
     // 持续EMP伤害：脉冲扇形
     private void applyPulseContinuousDamage(List<CollapsePulse> pulses, Vector2f center, int sourceOwner) {
-        float massValue = 0f;
-        try { massValue = Moci_SingularityRenderer.getOrCreate().getMassValue(this.proj); } catch (Throwable ignore) { }
-        float mHat = Math.max(0f, massValue) / 10000f;
+        float mHat = getGameplayMassHat();
         float empDpsScale = 1f + 1.6f * (float)Math.sqrt(mHat);
         List<ShipAPI> ships = engine.getShips();
         for (CollapsePulse p : pulses) {
@@ -1995,7 +2058,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                         float sizeMult = getTidalDamageSizeMult(target);
                         float empDps = PULSE_BASE_EMP_DPS * empDpsScale * p.getIntensityMult() * sizeMult;
                         float empDamage = empDps * DAMAGE_INTERVAL;
-                        engine.applyDamage(target, hr.point != null ? hr.point : target.getLocation(), 1f, DamageType.ENERGY, empDamage, true, false, this.weapon.getShip(), true);
+                        engine.applyDamage(target, hr.point != null ? hr.point : target.getLocation(), 1f, DamageType.ENERGY, empDamage, true, false, this.weapon.getShip(), false);
                     }
                 }
             }
@@ -2009,9 +2072,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
         float R = finalRingStartRadius + finalRingGrowthSpeed * age;
         float inner = Math.max(0f, R - finalRingThickness * 0.5f);
         // EMP伤害检测沿径向向外无限延伸，遇阻即止
-        float massValue = 0f;
-        try { massValue = Moci_SingularityRenderer.getOrCreate().getMassValue(this.proj); } catch (Throwable ignore) { }
-        float mHat = Math.max(0f, massValue) / 10000f;
+        float mHat = getGameplayMassHat();
         float empDpsScale = 1f + 1.4f * (float)Math.sqrt(mHat);
         List<ShipAPI> ships = engine.getShips();
         // 采样多角度，形成连续光幕并进行遮挡检测
@@ -2030,7 +2091,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                     float sizeMult = getTidalDamageSizeMult(target);
                     float empDps = RING_BASE_EMP_DPS * empDpsScale * sizeMult;
                     float empDamage = empDps * DAMAGE_INTERVAL / (float)RING_SEGMENTS * 2f; // 分摊到段
-                    engine.applyDamage(target, hr.point != null ? hr.point : target.getLocation(), 1f, DamageType.ENERGY, empDamage, true, false, this.weapon.getShip(), true);
+                    engine.applyDamage(target, hr.point != null ? hr.point : target.getLocation(), 1f, DamageType.ENERGY, empDamage, true, false, this.weapon.getShip(), false);
                 }
             }
         }
@@ -2039,94 +2100,88 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
     
 
     /**
-     * 触发黑洞消失扩散效果
+     * 触发黑洞消失扩散效果：伤害状态与扭曲视觉分开建立，视觉失败不影响伤害，也不再每帧重试。
      */
     private void triggerDissipationEffect(Vector2f center) {
         if (dissipationTriggered) return;
-        
+
         dissipationTriggered = true;
         dissipationTimer = 0f;
         dissipationCenter.set(center); // 保存中心位置
-        
+
+        // 1) 伤害状态：在触发瞬间锁定质量/半径/伤害（蒸发阶段质量会逐步衰减）
+        float mHat = getGameplayMassHat();
+        dissipationMassHat = mHat;
+        dissipationFinalRadius = getGravityRadius(mHat);
+        // 根据范围动态计算扩散时间（fadeIn阶段）：基础时间 + (范围/1000) * 系数，限制在 0.8~4 秒
+        dissipationExpandDuration = DISSIPATION_BASE_EXPAND + (dissipationFinalRadius / 1000f) * DISSIPATION_EXPAND_PER_1000;
+        dissipationExpandDuration = Math.max(0.8f, Math.min(4.0f, dissipationExpandDuration));
+        dissipationBaseDamage = this.proj != null ? this.proj.getDamageAmount() * DISSIPATION_DAMAGE_MULT : 0f;
+        dissipationSource = this.proj != null ? this.proj.getSource() : null;
+        dissipationSourceOwner = dissipationSource != null ? dissipationSource.getOwner() : this.weapon.getShip().getOwner();
+        dissipationHitShips.clear();
+        dissipationDamageActive = true;
+
+        // 2) 扭曲视觉
         try {
-            // 获取黑洞的最终质量和半径
-            float massValue = Moci_SingularityRenderer.getOrCreate().getMassValue(this.proj);
-            float eventHorizonRadius = Moci_SingularityRenderer.getOrCreate().getEventHorizonRadiusWorld(this.proj);
-            float mHat = Math.max(0f, massValue) / 10000f;
-            
-            // 计算最终扩散半径（引力作用范围）
-            float finalRadius = GRAVITY_RANGE_BASE * (1f + GRAVITY_RANGE_MASS_MULT * (float)Math.sqrt(mHat));
-            
-            // 根据范围动态计算扩散时间（fadeIn阶段）
-            // 基础时间 + (范围/1000) * 系数
-            dissipationExpandDuration = DISSIPATION_BASE_EXPAND + (finalRadius / 1000f) * DISSIPATION_EXPAND_PER_1000;
-            // 限制在合理范围内（0.8秒到4秒）
-            dissipationExpandDuration = Math.max(0.8f, Math.min(4.0f, dissipationExpandDuration));
-            
-            // 创建扩散扭曲实体
+            float finalRadius = dissipationFinalRadius;
             dissipationDistortion = new DistortionEntity();
             dissipationDistortion.setLocation(center.x, center.y);
-            
-            // 设置尺寸：环形波纹效果（像水中涟漪）
-            // fadeIn阶段：从小尺寸扩散到最大（这是扩散动画的主要阶段）
-            // full阶段：不需要（设置为0）
-            // fadeOut阶段：保持最大尺寸但逐渐淡出
-            float startSize = 50f; // 从50像素开始
-            dissipationDistortion.setSizeIn(startSize, startSize);      // fadeIn起始尺寸
-            dissipationDistortion.setSizeFull(finalRadius, finalRadius); // fadeIn结束尺寸（也是full阶段尺寸）
-            dissipationDistortion.setSizeOut(finalRadius, finalRadius);  // fadeOut保持最大尺寸
-            
-            // 设置扭曲强度
-            dissipationDistortion.setPowerIn(DISSIPATION_POWER);         // fadeIn阶段强度
-            dissipationDistortion.setPowerFull(DISSIPATION_POWER);       // full阶段强度
-            dissipationDistortion.setPowerOut(DISSIPATION_POWER * 0.3f); // fadeOut阶段减弱
-            
-            // 设置中间挖空效果 - 85%挖空形成清晰的环形
-            dissipationDistortion.setInnerIn(0.85f, 0.85f);    // fadeIn阶段挖空
-            dissipationDistortion.setInnerFull(0.85f, 0.85f);  // full阶段挖空
-            dissipationDistortion.setInnerOut(0.85f, 0.85f);   // fadeOut阶段挖空
-            
-            // 设置边缘硬度
-            dissipationDistortion.setRingHardness(0.6f);       // 外环硬度
-            dissipationDistortion.setInnerHardness(0.6f);      // 内环硬度
-            
-            // 设置时间参数：
-            // fadeIn = 动态扩散时间（扩散动画在这个阶段完成）
-            // full = 0（不需要保持阶段）
-            // fadeOut = 0.5秒（淡出）
-            dissipationDistortion.setGlobalTimer(dissipationExpandDuration, 0f, DISSIPATION_FADE_OUT);
-            
-            // 添加到渲染系统
-            CombatRenderingManager.addEntity(dissipationDistortion);
-            
-            // 播放消失音效
-            Global.getSoundPlayer().playSound("system_phase_cloak_activate", 1.0f, 0.6f, center, new Vector2f());
 
+            // 尺寸为半宽（即半径）：fadeIn 从起始半径扩散到最终半径，fadeOut 保持最大尺寸逐渐淡出
+            dissipationDistortion.setSizeIn(DISSIPATION_START_RADIUS, DISSIPATION_START_RADIUS);
+            dissipationDistortion.setSizeFull(finalRadius, finalRadius);
+            dissipationDistortion.setSizeOut(finalRadius, finalRadius);
+
+            // 设置扭曲强度
+            dissipationDistortion.setPowerIn(DISSIPATION_POWER);
+            dissipationDistortion.setPowerFull(DISSIPATION_POWER);
+            dissipationDistortion.setPowerOut(0f); // 淡出结束时强度归零，避免残留强度在最后一帧突然消失
+
+            // 中间挖空 + 边缘硬度决定环的粗细（见 DISSIPATION_INNER_RATIO 处的说明）
+            dissipationDistortion.setInnerIn(DISSIPATION_INNER_RATIO, DISSIPATION_INNER_RATIO);
+            dissipationDistortion.setInnerFull(DISSIPATION_INNER_RATIO, DISSIPATION_INNER_RATIO);
+            dissipationDistortion.setInnerOut(DISSIPATION_INNER_RATIO, DISSIPATION_INNER_RATIO);
+            dissipationDistortion.setRingHardness(DISSIPATION_RING_HARDNESS);
+            dissipationDistortion.setInnerHardness(DISSIPATION_INNER_HARDNESS);
+
+            // fadeIn = 扩散时间，full = 0，fadeOut = 淡出
+            dissipationDistortion.setFadeOutFactor(DISSIPATION_FADE_OUT_CURVE);
+            dissipationDistortion.setGlobalTimer(dissipationExpandDuration, 0f, DISSIPATION_FADE_OUT);
+
+            CombatRenderingManager.addEntity(dissipationDistortion);
         } catch (Throwable e) {
             LOG.error("[GRAVITY_CANNON_DEBUG] Failed to create dissipation effect", e);
-            dissipationTriggered = false;
+            dissipationDistortion = null;
         }
+
+        // 播放消失音效
+        Global.getSoundPlayer().playSound("system_phase_cloak_activate", 1.0f, 0.6f, center, new Vector2f());
     }
-    
+
     /**
-     * 更新扩散效果并造成伤害
+     * 更新扩散效果：伤害随扩散环前沿推进，环扫过舰船时对其结算一次
      */
     private void updateDissipationEffect(float amount) {
-        if (dissipationDistortion == null) {
+        if (!dissipationDamageActive) {
             return;
         }
-        
-        // 检查扩散效果是否结束 - 使用动态计算的扩散时间
+
         // 总时长 = fadeIn（扩散） + full（0） + fadeOut（淡出）
         float totalDuration = dissipationExpandDuration + 0f + DISSIPATION_FADE_OUT;
         if (dissipationTimer >= totalDuration) {
+            dissipationDamageActive = false;
             dissipationDistortion = null;
+            dissipationHitShips.clear();
+            dissipationSource = null;
             return;
         }
-        
-        // 在扩散开始时造成一次伤害（fadeIn阶段刚开始）
-        if (dissipationTimer >= 0.05f && dissipationTimer - amount < 0.05f) {
-            applyDissipationDamage();
+
+        // 扩散阶段：前沿半径与扭曲环同步线性扩张
+        float progress = Math.min(1f, dissipationTimer / Math.max(0.001f, dissipationExpandDuration));
+        float front = DISSIPATION_START_RADIUS + (dissipationFinalRadius - DISSIPATION_START_RADIUS) * progress;
+        if (dissipationTimer - amount < dissipationExpandDuration) {
+            applyDissipationDamage(front);
         }
     }
 
@@ -2138,65 +2193,55 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
     }
 
     /**
-     * 应用扩散伤害
+     * 应用扩散伤害：对前沿已扫过、尚未结算的敌方舰船各结算一次
      */
-    private void applyDissipationDamage() {
-        if (this.proj == null || dissipationDistortion == null) return;
-        
+    private void applyDissipationDamage(float frontRadius) {
+        if (!dissipationDamageActive || dissipationFinalRadius <= 0f) return;
+
         try {
-            Vector2f center = new Vector2f(dissipationCenter); // 使用保存的中心位置
-            ShipAPI source = this.proj.getSource();
-            int sourceOwner = source != null ? source.getOwner() : this.weapon.getShip().getOwner();
-            
-            // 获取黑洞的最终质量和半径
-            float massValue = Moci_SingularityRenderer.getOrCreate().getMassValue(this.proj);
-            float mHat = Math.max(0f, massValue) / 10000f;
-            float finalRadius = GRAVITY_RANGE_BASE * (1f + GRAVITY_RANGE_MASS_MULT * (float)Math.sqrt(mHat));
-            
-            // 计算基础伤害（基于质量）
-            float baseDamage = this.proj.getDamageAmount() * DISSIPATION_DAMAGE_MULT;
-            float baseEmpDamage = baseDamage * (1f + mHat * 0.5f);
-            
-            int shipsAffected = 0;
-            List<ShipAPI> ships = engine.getShips();
+            Vector2f center = dissipationCenter; // 使用保存的中心位置
+            float baseDamage = dissipationBaseDamage;
+            float baseEmpDamage = baseDamage * (1f + dissipationMassHat * 0.5f);
+
+            List<ShipAPI> ships = Moci_Util.getShipsInRange(center, frontRadius);
             for (ShipAPI target : ships) {
                 if (target == null) continue;
+                if (dissipationHitShips.contains(target)) continue;
                 if (target.isShuttlePod()) continue;
+                if (target.isPhased()) continue;
                 if (target.getMutableStats().getHullDamageTakenMult().getModifiedValue() <= 0f) continue;
-                
+
                 float distance = Misc.getDistance(center, target.getLocation());
-                if (distance > finalRadius) continue;
-                
+                if (distance > frontRadius || distance > dissipationFinalRadius) continue;
+
                 // 只对敌方单位造成伤害
-                if (target.getOwner() == sourceOwner) continue;
-                
-                shipsAffected++;
-                
+                if (target.getOwner() == dissipationSourceOwner) continue;
+
+                dissipationHitShips.add(target);
+
                 // 计算距离衰减（中心最强，边缘最弱）
-                float distanceFactor = 1f - (distance / finalRadius);
+                float distanceFactor = 1f - (distance / dissipationFinalRadius);
                 distanceFactor = distanceFactor * distanceFactor; // 二次衰减
-                
+
                 // 根据舰船尺寸调整伤害
                 float sizeMult = getTidalDamageSizeMult(target);
-                
-                // 计算最终伤害
+
                 float finalEmpDamage = baseEmpDamage * distanceFactor * sizeMult;
                 float finalEnergyDamage = baseDamage * distanceFactor * sizeMult;
-                
-                // 造成EMP伤害（穿盾）
+
+                // 造成EMP伤害（穿盾），一次性冲击保留受击音效
                 engine.applyDamage(
-                    target, 
-                    target.getLocation(), 
-                    finalEnergyDamage,  // 实际伤害
-                    DamageType.ENERGY, 
-                    finalEmpDamage,     // EMP伤害
-                    true,               // 穿盾
-                    false,              // 不是护盾伤害
-                    source, 
-                    true                // 显示伤害数字
+                    target,
+                    target.getLocation(),
+                    finalEnergyDamage,
+                    DamageType.ENERGY,
+                    finalEmpDamage,
+                    true,
+                    false,
+                    dissipationSource,
+                    true
                 );
-                
-                // 添加视觉效果
+
                 engine.addHitParticle(
                     target.getLocation(),
                     new Vector2f(),
@@ -2205,14 +2250,10 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
                     0.3f,
                     new Color(150, 150, 255, 200)
                 );
-                
             }
-            
-            if (shipsAffected > 0) {
-            }
-            
         } catch (Throwable e) {
             LOG.error("[GRAVITY_CANNON_DEBUG] Failed to apply dissipation damage", e);
+            dissipationDamageActive = false;
         }
     }
 
@@ -2221,8 +2262,6 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
      */
     private void addGravityDistortionEffect(Vector2f center) {
         try {
-            LOG.info("[GRAVITY_CANNON_DEBUG] Attempting to add ShaderLib distortion at: " + center);
-
             WaveDistortion wave = new WaveDistortion(center, new Vector2f(0f, 0f));
             wave.setIntensity(2.0f);
             wave.setSize(EFFECT_RANGE * 0.6f);
@@ -2231,7 +2270,6 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
             wave.fadeOutIntensity(0.5f);
 
             DistortionShader.addDistortion(wave);
-            LOG.info("[GRAVITY_CANNON_DEBUG] ShaderLib distortion added successfully");
         } catch (Exception e) {
             // 如果发生异常，记录并继续
             // 可能是ShaderLib未加载或其他原因
@@ -2494,7 +2532,7 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
         trail.submitNodes();
         
         // 定时器
-        trail.setGlobalTimer(0.0f, ACCRETION_TRAIL_DURATION, 0.3f);
+        trail.setGlobalTimer(0.0f, ACCRETION_TRAIL_DURATION, ACCRETION_TRAIL_FADE_OUT);
         
         // 添加到渲染系统
         CombatRenderingManager.addEntity(trail);
@@ -2519,12 +2557,14 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
             
             float progress = wrapper.age / wrapper.maxAge;
             
-            if (progress >= 1.0f || wrapper.trail.hasDelete()) {
+            // 延伸阶段 maxAge 结束后，再留出 BoxUtil 的淡出时间才删除，让淡出能完整播放
+            if (wrapper.age >= wrapper.maxAge + ACCRETION_TRAIL_FADE_OUT || wrapper.trail.hasDelete()) {
                 if (!wrapper.trail.hasDelete()) {
                     wrapper.trail.delete();
                 }
                 iterator.remove();
             } else {
+                progress = Math.min(1f, progress);
                 // 更新方向（光线逐渐延伸到中心）
                 Vector2f currentDirection = new Vector2f(
                     wrapper.fullDirection.x * progress,

@@ -1,6 +1,7 @@
 package data.campaign.intel.ui;
 
 import com.fs.starfarer.api.Global;
+import data.hullmods.Moci_ModelCore;
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.CustomVisualDialogDelegate;
@@ -358,6 +359,7 @@ public final class Moci_CombatSquadDialog {
         private int popupPilot = -1;
         private boolean learnMode;
         private String notice;
+        private String revealModelType;
         private Color noticeColor;
 
         private CustomPanelAPI root;
@@ -607,7 +609,12 @@ public final class Moci_CombatSquadDialog {
                 result(false);
                 return;
             }
-            result(Moci_ShipboardAIManagerIntel.performAIAction(action, ship, value));
+            Moci_ModelCore target = "evolve".equals(action) ? Moci_ModelCore.forType(value) : null;
+            Moci_ShipboardAIManager.ShipboardAIData before = target == null ? null : Moci_ShipboardAIManager.getDataByMember(ship);
+            boolean firstEvolution = before != null && target.baseType.equals(before.currentAiTypeId);
+            boolean success = Moci_ShipboardAIManagerIntel.performAIAction(action, ship, value);
+            if (success && firstEvolution) revealModelType = value;
+            result(success);
         }
 
         private void result(boolean ok) {
@@ -1045,10 +1052,12 @@ public final class Moci_CombatSquadDialog {
          */
         private void buildAIStage(CustomPanelAPI card, String aiTypeId, int level, Moci_ShipboardAIConfigLoader.AITypeDefinition type,
                                   String[][] tags) {
-            boolean nine = "Moci_Nine".equals(aiTypeId);
             // 特效阶段：AI 等级 1–3 / 4–6 / 7–9 / 10+ → grade 0 / 1 / 2 / 3，传给特效的 detail = grade + 1。
-            // 各阶段多出哪些特效（光线、海浪、数字）见 Moci_UIPulseRings 顶部的「阶段特效速查」；改分段等级就改这一行的 10、7、4。
+            // 通用背景沿用这四档；专属层另按当前 AI 和它自己的等级上限选择。
             int grade = level >= 10 ? 3 : level >= 7 ? 2 : level >= 4 ? 1 : 0;
+            Moci_UIPulseRings.Signature signature = Moci_UIPulseRings.Signature.forAI(
+                    aiTypeId, level, type.levelCap, grade == AI_FX.length - 1);
+            boolean nine = signature == Moci_UIPulseRings.Signature.NINE_DIGITS;
             Color fx = AI_FX[grade];
             float figureScale = nine ? NINE_FIGURE_SCALE : 1f;
             Moci_UILayout.Rect sr = layout.rect("aiStage");
@@ -1057,12 +1066,13 @@ public final class Moci_CombatSquadDialog {
             float cy = fr.y + fr.h / 2f;
             float inner = Math.min(fr.w, fr.h) * figureScale / 2f + 8f;
             float outer = Math.max(inner + 8f, Math.min(Math.min(cx, sr.w - cx), Math.min(cy, sr.h - cy)) - 4f);
-            CustomPanelAPI stage = panel(card, "aiStage", 0, new Moci_UIPulseRings(fx, AI_FX_2[grade])
+            Moci_ModelCore model = Moci_ModelCore.forType(aiTypeId);
+            CustomPanelAPI stage = panel(card, "aiStage", 0, model != null ? null : new Moci_UIPulseRings(fx, AI_FX_2[grade], signature)
                     .setCenter(cx, cy).setRadius(inner, outer).setDetail(grade + 1)
                     .setMaxLevel(level >= type.levelCap));
             Moci_ShipboardAIConfigLoader.IllustrationSpec art = illustrationOf(aiTypeId, level);
             if (art != null && art.hasBackdrop() && (!nine || SHOW_NINE_GEAR)) aiBackdrop(stage, art);
-            aiFigure(stage, art, type, figureScale);
+            aiFigure(stage, art, type, figureScale, model, level);
 
             Moci_UILayout.Rect lr = layout.rect("aiLines");
             Moci_UILeaderLines lines = new Moci_UILeaderLines(fx);
@@ -1088,7 +1098,7 @@ public final class Moci_CombatSquadDialog {
          * 录制器不调 renderBelow，反馈页面上看到的是静态首帧。
          */
         private void aiFigure(CustomPanelAPI stage, Moci_ShipboardAIConfigLoader.IllustrationSpec art,
-                              Moci_ShipboardAIConfigLoader.AITypeDefinition type, float scale) {
+                              Moci_ShipboardAIConfigLoader.AITypeDefinition type, float scale, Moci_ModelCore model, int level) {
             Moci_UILayout.Rect r = layout.rect("aiFigure");
             Moci_UIAnimatedSprite anim = art != null && art.hasSheet()
                     ? Moci_UIAnimatedSprite.sheet(art.sheet, art.cols, art.rows, art.frames, art.fps) : null;
@@ -1114,6 +1124,25 @@ public final class Moci_CombatSquadDialog {
             pin(still);
             box.addUIElement(t).inTL((r.w * scale - wh[0]) / 2f, (r.h * scale - wh[1]) / 2f);
             if (anim != null) anim.follow(still);
+            if (model == null) return;
+            UIComponentAPI lite = null;
+            boolean reduced = Moci_UIModelPortrait.reducedMotion();
+            boolean reveal = type.aiId.equals(revealModelType);
+            revealModelType = null;
+            if (reveal && !reduced) {
+                TooltipMakerAPI previous = box.createUIElement(wh[0], wh[1], false);
+                previous.addImage(Moci_ShipboardAIConfigLoader.getAiType(model.baseType).portrait, wh[0], wh[1], 0f);
+                lite = previous.getPrev();
+                pin(lite);
+                box.addUIElement(previous).inTL((r.w * scale - wh[0]) / 2f, (r.h * scale - wh[1]) / 2f);
+            }
+            boolean finalForm = type.isEvolved && !type.hasEvolutionRoute;
+            if (lite != null || finalForm) {
+                Moci_UILayout.Rect stageSize = layout.rect("aiStage");
+                CustomPanelAPI overlay = stage.createCustomPanel(stageSize.w, stageSize.h,
+                        new Moci_UIModelPortrait(model, still, lite, finalForm, level >= type.levelCap, reduced));
+                stage.addComponent(overlay).inTL(0f, 0f);
+            }
         }
 
         /**
