@@ -21,7 +21,10 @@ void main() {
         light=tint.rgb*(.43*crust+.90*exp(-abs(d)*70.0)+.28*exp(-abs(d)*14.0));
     } else if (mode==1) {
         float streak=exp(-abs(p.y)*82.0-abs(p.x)*2.7), spike=exp(-abs(p.x)*85.0-abs(p.y)*8.3);
-        float core=exp(-dot(p/vec2(.115,.056),p/vec2(.115,.056)));
+        // Flare mode: params.x is the core scale minus one (zero keeps the original look).
+        float coreScale=1.0+params.x;
+        vec2 coreUV=p/(vec2(.115,.056)*max(coreScale,.0001));
+        float core=coreScale>0.0 ? exp(-dot(coreUV,coreUV)) : 0.0;
         light=tint.rgb*(1.65*streak+.95*spike)+mix(tint.rgb,vec3(1.0),.82)*core;
     } else {
         vec2 e=p/vec2(params.x*(.18644+.81356*params.y),.01+.99*params.y);

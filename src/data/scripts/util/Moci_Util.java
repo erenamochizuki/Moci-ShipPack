@@ -132,7 +132,12 @@ public class Moci_Util {
 	}
 	/** 绘制横闪与竖芒；size 为世界尺寸，angle 为长轴角度，alpha 为当前亮度。 */
 	public static void drawCrossFlare(Vector2f center,float size,float angle,float alpha,Color tint) {
-		ProjectedFx.draw(1,center,size,angle,alpha,tint,null,0,0,0,0);
+		drawCrossFlare(center,size,angle,alpha,tint,1f,1f);
+	}
+	/** coreSize 只缩放中心亮芯（0~4），brightness 为整束光的亮度倍率；均为 1 时与原调用相同。 */
+	public static void drawCrossFlare(Vector2f center,float size,float angle,float alpha,Color tint,float coreSize,float brightness) {
+		if (!(brightness>0f) || !Float.isFinite(brightness) || !Float.isFinite(coreSize) || !Float.isFinite(size)) return;
+		ProjectedFx.draw(1,center,size,angle,alpha,tint,null,Math.max(0f, Math.min(4f,coreSize))-1f,brightness,0,0);
 	}
 	/** 独立椭圆门圈；aspect 为全开时短轴/长轴，opening 为开度，time 为战斗秒。 */
 	public static void drawPortalRim(Vector2f center,float radius,float facing,float alpha,Color tint,float aspect,float opening,float time,float seed) {
@@ -158,6 +163,7 @@ public class Moci_Util {
 			load(); boolean gl2=GLContext.getCapabilities().OpenGL20;
 			int previous=gl2?GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM):0;
 			float opacity=Math.min(1,alpha)*tint.getAlpha()/255f;
+			if (kind==1) opacity*=y; // 单独乘发光强度；焦边透明度和时间曲线不受影响
 			GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS); GL11.glMatrixMode(GL11.GL_MODELVIEW); GL11.glPushMatrix();
 			try {
 				GL11.glTranslatef(center.x,center.y,0); GL11.glRotatef(angle,0,0,1); GL11.glScalef(size,size,1);
@@ -175,7 +181,15 @@ public class Moci_Util {
 					GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE_MINUS_SRC_ALPHA);
 					GL11.glColor4f(tint.getRed()/255f,tint.getGreen()/255f,tint.getBlue()/255f,opacity);
 					if (kind==1) {
+						GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE);
 						GL11.glBegin(GL11.GL_LINES); GL11.glVertex2f(-1.5f,0); GL11.glVertex2f(1.5f,0); GL11.glVertex2f(0,-.45f); GL11.glVertex2f(0,.45f); GL11.glEnd();
+						if (x>-1f) {
+							// 无着色器时用中心亮、外围透明的椭圆近似亮芯。
+							GL11.glShadeModel(GL11.GL_SMOOTH); GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+							GL11.glColor4f(1,1,1,opacity); GL11.glVertex2f(0,0); GL11.glColor4f(1,1,1,0);
+							for (int i=0;i<=24;i++) { double a=i*Math.PI/12; GL11.glVertex2d(.115*(1+x)*Math.cos(a),.056*(1+x)*Math.sin(a)); }
+							GL11.glEnd();
+						}
 					} else {
 						GL11.glBegin(kind==0?GL11.GL_QUAD_STRIP:GL11.GL_LINE_LOOP);
 						for (int i=0;i<=(kind==0?96:95);i++) {
@@ -229,6 +243,189 @@ public class Moci_Util {
 		return travel;
 	}
 	public static final String TAG_NO_RECOIL = "NO_RECOIL";
+
+	/** A single short-lived plane: absolute birth time, then independent growth and decay in seconds. */
+	public record PetalPulse(float birth,float grow,float shrink,float degrees,float reach,float halfWidth,float bias,float opacity) {
+		public float end() { return birth+grow+shrink; }
+		public float envelope(float time) {
+			float age=time-birth;
+			if(age<=0 || age>=grow+shrink) return 0;
+			float u=age<grow ? age/grow : 1f-(age-grow)/shrink;
+			return u*u*(3f-2f*u);
+		}
+	}
+
+	/** Additive world-space FX batch. Only open inside a combat render callback. */
+	public static final class LightCanvas implements AutoCloseable {
+		private static final int N=72;
+		private static final float[] CX=new float[N+1],CY=new float[N+1];
+		static { for(int i=0;i<=N;i++){ CX[i]=(float)Math.cos(2*Math.PI*i/N); CY[i]=(float)Math.sin(2*Math.PI*i/N); } }
+		private final int program,unit;
+		private final boolean gl2=GLContext.getCapabilities().OpenGL20;
+		public LightCanvas() {
+			program=gl2 ? GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM) : 0;
+			unit=GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
+			GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+			if(gl2) GL20.glUseProgram(0);
+			for(int i=Math.min(8,GL11.glGetInteger(GL13.GL_MAX_TEXTURE_UNITS))-1;i>=0;i--) {
+				GL13.glActiveTexture(GL13.GL_TEXTURE0+i); GL11.glDisable(GL11.GL_TEXTURE_2D);
+			}
+			GL11.glDisable(GL11.GL_DEPTH_TEST); GL11.glDepthMask(false); GL11.glDisable(GL11.GL_LIGHTING);
+			GL11.glDisable(GL11.GL_ALPHA_TEST); GL11.glDisable(GL11.GL_CULL_FACE);
+			GL11.glEnable(GL11.GL_BLEND); GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE);
+			GL11.glShadeModel(GL11.GL_SMOOTH); GL11.glMatrixMode(GL11.GL_MODELVIEW); GL11.glPushMatrix();
+		}
+		@Override public void close() {
+			GL11.glPopMatrix(); GL11.glPopAttrib(); GL13.glActiveTexture(unit);
+			if(gl2) GL20.glUseProgram(program);
+		}
+		private static void color(Color c,float a) { GL11.glColor4f(c.getRed()/255f,c.getGreen()/255f,c.getBlue()/255f,Math.min(1f,a)*c.getAlpha()/255f); }
+		/** Soft band between inner/peak/outer radii. A zero peak makes a filled glow. 4 sides = diamond. */
+		public void band(Vector2f at,float inner,float peak,float outer,int sides,Color c,float alpha) {
+			if(alpha<=0 || outer<=0) return;
+			int n=sides==4?4:N, step=N/n;
+			GL11.glPushMatrix(); GL11.glTranslatef(at.x,at.y,0);
+			for(int half=0;half<2;half++) {
+				float r0=half==0?inner:peak,r1=half==0?peak:outer;
+				if(r1<=r0) continue;
+				GL11.glBegin(GL11.GL_QUAD_STRIP);
+				for(int i=0;i<=N;i+=step) {
+					color(c,half==0?0:alpha); GL11.glVertex2f(CX[i]*r0,CY[i]*r0);
+					color(c,half==0?alpha:0); GL11.glVertex2f(CX[i]*r1,CY[i]*r1);
+				}
+				GL11.glEnd();
+			}
+			GL11.glPopMatrix();
+		}
+		/** Local optical bloom and horizontal streak; no screen copy or optional shader is needed. */
+		public void lensBloom(Vector2f source,float radius,Color tint,float strength) {
+			if(radius<=0 || strength<=0) return;
+			GL11.glPushMatrix(); GL11.glTranslatef(source.x,source.y,0);
+			lensLobe(radius*3.55f,radius*2.75f,tint,strength*.24f);
+			lensLobe(radius*1.62f,radius*1.38f,tint,strength*.51f);
+			lensLobe(radius*3.85f,radius*.10f,tint,strength*.72f);
+			lensLobe(radius*2.60f,radius*.033f,Color.WHITE,strength*.90f);
+			lensLobe(radius*.52f,radius*.43f,Color.WHITE,strength);
+			GL11.glPopMatrix();
+		}
+		private static void lensLobe(float rx,float ry,Color tint,float alpha) {
+			GL11.glBegin(GL11.GL_TRIANGLE_FAN); color(tint,alpha); GL11.glVertex2f(0,0); color(tint,0);
+			for(int i=0;i<=N;i++) GL11.glVertex2f(rx*CX[i],ry*CY[i]);
+			GL11.glEnd();
+		}
+		/** Translucent pointed blades with independent rotation; angle is in degrees. */
+		public void petals(Vector2f at,int count,float angle,float length,float width,Color c,float alpha) {
+			if(alpha<=0 || count<1) return;
+			GL11.glPushMatrix(); GL11.glTranslatef(at.x,at.y,0); GL11.glRotatef(angle,0,0,1);
+			for(int i=0;i<count;i++) {
+				GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+				color(c,alpha); GL11.glVertex2f(length*.35f,0);
+				color(c,alpha*.22f); GL11.glVertex2f(0,0); GL11.glVertex2f(length*.47f,-width);
+				color(c,alpha*.55f); GL11.glVertex2f(length,width*.24f);
+				color(c,alpha*.13f); GL11.glVertex2f(length*.52f,width); GL11.glVertex2f(0,0);
+				GL11.glEnd(); GL11.glRotatef(360f/count,0,0,1);
+			}
+			GL11.glPopMatrix();
+		}
+		/** Render just the active window; repeated draws at the same simulation time are identical. */
+		public void pulsingPetals(Vector2f at,PetalPulse[] pulses,int first,int last,float angle,float time,
+				float radius,Color tint,float alpha) {
+			if (radius<=0 || alpha<=0) return;
+			for (int i=first;i<last;i++) {
+				PetalPulse p=pulses[i];
+				float k=p.envelope(time);
+				if (k<=0) continue;
+				float l=radius*p.reach()*k, w=radius*p.halfWidth()*k, bias=p.bias(), a=alpha*p.opacity()*Math.min(1f,k*2.4f);
+				GL11.glPushMatrix(); GL11.glTranslatef(at.x,at.y,0); GL11.glRotatef(angle+p.degrees(),0,0,1);
+				GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+				float cx=l*.17f, cy=w*bias;
+				color(tint,a*.87f); GL11.glVertex2f(cx,cy);
+				for (int j=0;j<=4;j++) petalEdge(j%4,l,w,bias,cx,cy,.82f,tint,a*.58f);
+				GL11.glEnd();
+				GL11.glBegin(GL11.GL_QUAD_STRIP);
+				for (int j=0;j<=4;j++) {
+					petalEdge(j%4,l,w,bias,cx,cy,.82f,tint,a*.58f);
+					petalEdge(j%4,l,w,bias,cx,cy,1.08f,tint,0);
+				}
+				GL11.glEnd(); GL11.glPopMatrix();
+			}
+		}
+		private static void petalEdge(int index,float l,float w,float bias,float cx,float cy,float scale,Color tint,float alpha) {
+			float x,y;
+			switch (index) {
+				case 0 -> { x=-l*.23f; y=-w*.38f; }
+				case 1 -> { x=l*(.40f+bias); y=-w; }
+				case 2 -> { x=l; y=0; }
+				default -> { x=l*(.42f-bias); y=w*.85f; }
+			}
+			color(tint,alpha); GL11.glVertex2f(cx+(x-cx)*scale,cy+(y-cy)*scale);
+		}
+		/** A parallel-sided light ribbon. The caller animates its width, not the end point. */
+		public void ribbon(Vector2f nozzle,float dx,float dy,float length,float halfWidth,Color c,float alpha) {
+			if(halfWidth<=0 || alpha<=0) return;
+			float x=nozzle.x,y=nozzle.y,ex=x+dx*length,ey=y+dy*length;
+			GL11.glBegin(GL11.GL_QUAD_STRIP);
+			for(int j=-1;j<=1;j++) {
+				float ox=-dy*halfWidth*j,oy=dx*halfWidth*j;
+				color(c,j==0?alpha:0); GL11.glVertex2f(x+ox,y+oy); GL11.glVertex2f(ex+ox,ey+oy);
+			}
+			GL11.glEnd();
+		}
+		/** Flat white/tinted silhouette uses the real texture alpha, including the current animation frame. */
+		public void echo(HullEcho echo,Vector2f at,float facing,float scale,Color tint,float alpha) {
+			if(echo==null || echo.surfaces.isEmpty() || alpha<=0 || scale<=0) return;
+			GL11.glPushMatrix();
+			try {
+				GL11.glTranslatef(at.x,at.y,0); GL11.glRotatef(facing-echo.facing,0,0,1); GL11.glScalef(scale,scale,1);
+				GL11.glEnable(GL11.GL_TEXTURE_2D); GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL11.GL_TEXTURE_ENV_MODE,GL13.GL_COMBINE);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL13.GL_COMBINE_RGB,GL11.GL_REPLACE);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL13.GL_SOURCE0_RGB,GL13.GL_PRIMARY_COLOR);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL13.GL_OPERAND0_RGB,GL11.GL_SRC_COLOR);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL13.GL_COMBINE_ALPHA,GL11.GL_MODULATE);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL13.GL_SOURCE0_ALPHA,GL11.GL_TEXTURE);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL13.GL_SOURCE1_ALPHA,GL13.GL_PRIMARY_COLOR);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL13.GL_OPERAND0_ALPHA,GL11.GL_SRC_ALPHA);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL13.GL_OPERAND1_ALPHA,GL11.GL_SRC_ALPHA);
+				for(var s:echo.surfaces) {
+					GL11.glBindTexture(GL11.GL_TEXTURE_2D,s.texture()); GL11.glPushMatrix();
+					GL11.glTranslatef(s.x()-echo.x,s.y()-echo.y,0); GL11.glRotatef(s.angle(),0,0,1);
+					float x=-s.centerX(),y=-s.centerY(),u=s.texX(),v=s.texY(),w=s.texWidth(),h=s.texHeight();
+					color(tint,s.alpha()*alpha); GL11.glBegin(GL11.GL_QUADS);
+					GL11.glTexCoord2f(u,v); GL11.glVertex2f(x,y);
+					GL11.glTexCoord2f(u+w,v); GL11.glVertex2f(x+s.width(),y);
+					GL11.glTexCoord2f(u+w,v+h); GL11.glVertex2f(x+s.width(),y+s.height());
+					GL11.glTexCoord2f(u,v+h); GL11.glVertex2f(x,y+s.height()); GL11.glEnd(); GL11.glPopMatrix();
+				}
+			} finally { GL11.glDisable(GL11.GL_TEXTURE_2D); GL11.glPopMatrix(); }
+		}
+	}
+	/** Reuse the assembly sampler used by the Zeta coating; no paths guessed and no live sprite resized. */
+	public static final class HullEcho {
+		private final float x,y,facing;
+		private final List<xi.arsenal.ZetaOverdriveCoating.Surface> surfaces;
+		public HullEcho(ShipAPI ship) {
+			x=ship.getLocation().x; y=ship.getLocation().y; facing=ship.getFacing();
+			surfaces=xi.arsenal.ZetaOverdriveCoating.snapshot(ship);
+		}
+		public boolean isEmpty() { return surfaces.isEmpty(); }
+	}
+	/** 飞溅粒子的半径、速度、大小和亮度均为最小值加随机增量；寿命用最短/最长秒数。 */
+	public record RadialLightStyle(float radiusMin,float radiusRandom,float speedMin,float speedRandom,
+			float sizeMin,float sizeRandom,float alphaMin,float alphaRandom,float minLife,float maxLife) {}
+	/** 兼容原调用：只指定寿命，其余沿用原有外观。 */
+	public static void spawnRadialLights(CombatEngineAPI engine,Vector2f at,float radius,int count,Color tint,Random rng,
+			float minLife,float maxLife) {
+		spawnRadialLights(engine,at,radius,count,tint,rng,new RadialLightStyle(.50f,.38f,.65f,1.6f,.065f,.17f,.65f,.35f,minLife,maxLife));
+	}
+	/** 向四周分散飞溅；粒子由引擎管理，调用方结束后仍按各自的寿命消散。 */
+	public static void spawnRadialLights(CombatEngineAPI engine,Vector2f at,float radius,int count,Color tint,Random rng,RadialLightStyle s) {
+		for(int i=0;i<count;i++) {
+			double a=2*Math.PI*(i+rng.nextFloat())/count; float x=(float)Math.cos(a),y=(float)Math.sin(a);
+			float r=radius*(s.radiusMin+s.radiusRandom*rng.nextFloat()),v=radius*(s.speedMin+s.speedRandom*rng.nextFloat());
+			engine.addHitParticle(new Vector2f(at.x+x*r,at.y+y*r),new Vector2f(x*v,y*v),
+					radius*(s.sizeMin+s.sizeRandom*rng.nextFloat()),s.alphaMin+s.alphaRandom*rng.nextFloat(),s.minLife+(s.maxLife-s.minLife)*rng.nextFloat(),tint);
+		}
+	}
 	public static final String TAG_HIDE_RECOIL = "HIDE_RECOIL";
 	public static final String TAG_FOLLOW_RECOIL = "FOLLOW_RECOIL";
 

@@ -20,9 +20,12 @@ import java.util.EnumSet;
 public final class Moci_MagnetohydrodynamicEngine extends Moci_AxisEngine {
     // ===== 光弧外观调参（以整张舰体贴图的高度为 1，前进、倒车和制动共用） =====
     // 宽度：沿扫动方向，从一侧透明边缘到另一侧的总厚度，含两侧柔边。取正值；0.064 = 舰高的 6.4%，改为 0.032 会细一半。
-    private static final float ARC_WIDTH = 0.064f;
+    public static final float ARC_WIDTH = 0.064f;
     // 弧度：两翼相对中央沿扫动方向落后的距离，并非角度。0 为直线，0.075 = 舰高的 7.5%，改为 0.12 更弯；取非负值，倒车自动翻转。
     private static final float ARC_CURVATURE = 0.075f;
+
+    /** 光带两翼相对于弧顶的纵向偏移；lateral 为横向位置（左 -1、中央 0、右 1）。跃迁显形与推进光带共用。 */
+    public static float ribbonOffset(float lateral) { return ARC_CURVATURE * lateral * lateral; }
 
     private boolean attempted;
 
@@ -284,7 +287,7 @@ public final class Moci_MagnetohydrodynamicEngine extends Moci_AxisEngine {
                 GL11.glBegin(GL11.GL_QUAD_STRIP);
                 for (int i = 0; i <= ARC_SEGMENTS; i++) {
                     float x = (float) i / ARC_SEGMENTS, lateral = 2f * x - 1f;
-                    float y = crest + ARC_CURVATURE * lateral * lateral;
+                    float y = crest + ribbonOffset(lateral);
                     // 倒车时只翻转光弧的位置和弯向，蒙版和法线仍取舰体原位。
                     if (sternToBow) y = 1f - y;
                     float u = u0 + x * du;

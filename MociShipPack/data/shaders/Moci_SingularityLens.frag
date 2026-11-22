@@ -10,7 +10,7 @@ uniform float accretionLens;
 varying vec2 v_uv;
 
 // Black hole cannon only: 1.00 = original bend, 0.00 = shadow without refraction.
-const float ACCRETION_LENS_STRENGTH = 1.25;
+const float ACCRETION_LENS_STRENGTH = 1.5;
 
 vec2 deflectToSourceUV(vec2 uv, float lensWeight){
     float thetaE = rs_rlens_strength.z;
@@ -71,7 +71,7 @@ void main(){
         vec2 samplePx = clamp(px + delta * travel, lo, hi);
         vec3 refracted = texture2D(srcTex, samplePx / texSize).rgb;
         float shadow = length((q - vec2(0.20, -0.18)) * vec2(0.96, 1.22));
-        float transmission = smoothstep(0.14, 1.02, shadow);
+        float transmission = smoothstep(0.22, 1.05, shadow);
         gl_FragColor = vec4(mix(base, refracted * transmission, fade), 1.0);
         return;
     }

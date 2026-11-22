@@ -19,10 +19,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
 /** 星岚门一次入场；旅行驱动提前关闭时仍让舰体完整驶出。 */
-final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin implements Moci_MassDrive.Pass {
-    // 烟雾色板，按红、绿、蓝、不透明度填写（0~255）：靛蓝、蓝紫、暗红、紫色。
-    private static final Color[] CLOUD = {new Color(53,79,163,122), new Color(84,95,186,108),
-            new Color(142,51,88,116), new Color(108,58,126,110)};
+final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
     private static final Color FRINGE = new Color(85,146,255,195), CORE = new Color(216,238,255,240); // 电弧外晕、亮芯
     // 星岚门闪电调参：粗细、传播速度和生成频率互不影响。
     private static final float MIN_GATE_RADIUS = 28f;          // 门半径下限，也是闪电开始加粗的起点（世界单位）
@@ -34,6 +31,12 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
     private static final float ARC_INTERVAL_AFTER_OPEN = .24f;  // 开始开门后的基础间隔（战斗秒）；越小越密
     private static final float ARC_INTERVAL_JITTER = .12f;      // 每次间隔额外随机增加 0 到此值（战斗秒）；设为 0 则固定间隔
     private static final Color SCORCH = new Color(80,109,222), FLASH = new Color(163,228,255), RIM = new Color(145,215,255); // 焦边、横闪、门圈
+    // 开场十字光斑：以下只改白蓝闪光，不改变外围焦边、烟雾、门圈或动画时间。
+    private static final float FLASH_SIZE_MULT = 1f;         // 两版共用的整体尺寸倍率（以门半径为基准）；1 为原尺寸，1.5 放大 50%，0 隐藏光斑
+    private static final float FLASH_CORE_SIZE_MULT = 1f;    // 两版的中心亮芯尺寸倍率（0~4）；2 使亮芯宽、高翻倍，不拉长十字光芒；0 仅留光芒
+    private static final float FLASH_BRIGHTNESS_MULT = 1f;   // 两版的光斑亮度倍率；0 熄灭，0.7 减弱，1 为原亮度，大于 1 增亮
+
+    private static float flashSizeMult(boolean ribbon) { return FLASH_SIZE_MULT*(ribbon ? Moci_FluxRibbonDrive.RIBBON_FLASH_SIZE_MULT : 1f); }
     // 焦边调参：只影响横闪周围的烧蚀轮廓，不改变横闪、烟雾或椭圆门沿。
     private static final float SCORCH_STYLE_START = 0.25f;              // 起始风格：0=v3 整块，1=v2 碎齿；0.25 表示在大块上混入四分之一旧轮廓
     private static final float SCORCH_STYLE_END = 0.75f; // 默认跟随起始值；另填 0~1，就会从起始风格平滑过渡到该值
@@ -48,13 +51,30 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
     private static final float SCORCH_RADIUS_END = .98f;             // 完全展开时的半径（门半径倍数）
     private static final float SCORCH_EXPAND_SECONDS = .59f;        // 整体扩张用时（战斗秒）；越小越快，0 直接使用结束半径；不延长淡出
     private static final float SCORCH_BAND = .18f;                   // 向内的焦带宽度占当前半径的比例（0.01~0.50），不改变轮廓形状
-    static final Moci_Util.NebulaPuffStyle PUFF = new Moci_Util.NebulaPuffStyle(
+    record SmokeSettings(float minDiameter,float maxDiameter,int perBurst,float chargeInterval,float emergeInterval,float closeInterval,Color... palette) {
+        SmokeSettings {
+            minDiameter=Math.max(0f,minDiameter); maxDiameter=Math.max(minDiameter,maxDiameter);
+            perBurst=Math.max(0,Math.min(16,perBurst));
+        }
+        float interval(float at) {
+            float seconds=at<OPEN ? chargeInterval : at<HANDOFF ? emergeInterval : closeInterval;
+            return Float.isFinite(seconds) ? Math.max(.01f,seconds) : .16f;
+        }
+        Moci_Util.NebulaPuffStyle style(float rate) { return new Moci_Util.NebulaPuffStyle(
             .10f, 1.35f,   // 烟心内、外半径（门半径倍数）；内圈靠近中心，外圈扩大云团范围
-            .90f, 1.48f,   // 单团初始最小、最大直径（门半径倍数）；调大这两个值可填缝
+            minDiameter, maxDiameter,
             1.75f,         // 消散时的直径倍率
-            1.35f, 1.85f,  // 最短、最长寿命（战斗秒）
-            .075f, .060f,  // 径向外漂、切向旋转速度（每秒相对烟心偏移的比例）
+            1.35f/rate, 1.85f/rate,  // 基础寿命换算为战斗秒
+            .075f*rate, .060f*rate,  // 径向外漂、切向旋转同步换速，保持漂移距离
             .22f, .20f);   // 淡入、保持亮度各占寿命的比例，剩余时段淡出
+        }
+        int emitBurst(CombatEngineAPI engine,Vector2f gate,float radius,float seed,int index,float at,Random random,Moci_Util.NebulaPuffStyle puff) {
+            if (palette.length==0) return index;
+            for (int i=0;i<perBurst;i++) emitSmoke(engine,gate,radius,seed,index++,at,random,puff,palette);
+            return index;
+        }
+    }
+    static SmokeSettings smokeSettings(boolean ribbon) { return ribbon ? Moci_FluxRibbonDrive.RIBBON_SMOKE : Moci_NebulaGate.GATE_SMOKE; }
     static Moci_Util.ScorchContour makeScorch(float seed) {
         return Moci_Util.createScorchContour(seed, // 这一次跃迁的固定种子；不会逐帧改变
                 SCORCH_BLOCKS,SCORCH_DEPTH,SCORCH_CHIPS, // v3 主块数、大块凹凸、小缺口
@@ -71,6 +91,12 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
     }
 
     private final CombatEngineAPI engine;
+    private final String transitKey;
+    private final boolean ribbon;
+    private final float speed;
+    private final SmokeSettings smoke;
+    private final Moci_Util.NebulaPuffStyle[] puffs;
+    private double ribbonElapsed;
     private final ShipAPI ship;
     private final ArrayList<Part> parts = new ArrayList<>();
     private final Vector2f dest;
@@ -86,6 +112,17 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
     private boolean released, expired, systemEnded;
 
     Moci_NebulaGateTransit(CombatEngineAPI engine, ShipAPI ship, Vector2f to) {
+        this(engine,ship,to,Moci_NebulaGate.EVENT,false,Moci_NebulaGate.ANIMATION_SPEED);
+    }
+    Moci_NebulaGateTransit(CombatEngineAPI engine, ShipAPI ship, Vector2f to,String key,boolean ribbon,float speed) {
+        this.transitKey=key; this.ribbon=ribbon; this.speed=speed;
+        smoke=smokeSettings(ribbon);
+        // 原生粒子的时钟是战斗秒：寿命和漂移速度一起换算，慢放时云团仍能衔接。
+        puffs=new Moci_Util.NebulaPuffStyle[ribbon?4:1];
+        for (int i=0;i<puffs.length;i++) {
+            float rate=ribbon ? Moci_FluxRibbonDrive.TIMING.rate(i) : speed;
+            puffs[i]=smoke.style(rate);
+        }
         this.engine = engine; this.ship = ship; this.dest = new Vector2f(to);
         facing = ship.getFacing(); double a = Math.toRadians(facing);
         axisX = (float)Math.cos(a); axisY = (float)Math.sin(a);
@@ -144,7 +181,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
         }
         void take() {
             held=true;
-            for (MutableStat stat : protection) stat.modifyMult(Moci_NebulaGate.EVENT,0f);
+            for (MutableStat stat : protection) stat.modifyMult(transitKey,0f);
             pin();
         }
         void pin() {
@@ -158,7 +195,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
         void release() {
             if (!held) return;
             held=false; s.setExtraAlphaMult(alpha); cache(combined); s.setDoNotRender(hidden); s.setCollisionClass(collision);
-            for (MutableStat stat : protection) stat.unmodify(Moci_NebulaGate.EVENT);
+            for (MutableStat stat : protection) stat.unmodify(transitKey);
         }
         void draw(CombatEngineLayers layer, CombatViewport viewport) {
             if (!held || hidden || !(s instanceof Ship nativeShip) || !s.getActiveLayers().contains(layer)
@@ -171,13 +208,11 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
     }
 
     void start() { for (Part p : parts) p.take(); }
-    @Override public void registered(CombatEntityAPI host) {
+    void registered(CombatEntityAPI host) {
         if (host!=null) host.getLocation().set(gate);
         start();
     }
-    @Override public boolean isLeaving() { return false; }
-    @Override public void stop() { systemEnded=true; if (ship.isHulk()) cancel(); }
-    @Override public void cancel() { cleanup(); }
+    void stop() { systemEnded=true; if (ship.isHulk()) cleanup(); }
     boolean locked() { return !released; }
     private void release() {
         if (released) return;
@@ -186,11 +221,14 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
     }
     @Override public void cleanup() {
         release(); expired=true;
-        // 与质量跃迁一致：演出先结束时留标记，避免同一段持续燃烧再次开门。
-        if (systemEnded && ship.getCustomData().get(Moci_NebulaGate.EVENT)==this) ship.removeCustomData(Moci_NebulaGate.EVENT);
+        // 只有旅行驱动和入场演出均结束，才释放本轮标记。
+        if (systemEnded && ship.getCustomData().get(transitKey)==this) ship.removeCustomData(transitKey);
     }
     @Override public boolean isExpired() { return expired; }
-    @Override public float getRenderRadius() { return Math.max(2.6f,PUFF.outerRadius()*(1f+PUFF.radialDrift()*PUFF.maxLife())+.5f*PUFF.maxDiameter()*PUFF.endSize()+.2f)*radius + nose + tail + 16f; }
+    @Override public float getRenderRadius() {
+        var p=puffs[0];
+        return Math.max(2.6f*flashSizeMult(ribbon),p.outerRadius()*(1f+p.radialDrift()*p.maxLife())+.5f*p.maxDiameter()*p.endSize()+.2f)*radius + nose + tail + 16f;
+    }
     @Override public EnumSet<CombatEngineLayers> getActiveLayers() { return layers; }
 
     private boolean visible() {
@@ -203,8 +241,11 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
         if (expired) return;
         if (!ship.isAlive() || !engine.isEntityInPlay(ship)) { cleanup(); return; }
         if (amount<=0f || engine.isPaused()) return;
-        if (ship.isRetreating()) { cancel(); return; } // 入场燃烧可能已经结束，不能等下一次 apply 才解锁
-        age+=amount;
+        if (ship.isRetreating()) { cleanup(); return; } // 入场燃烧可能已经结束，不能等下一次 apply 才解锁
+        if (ribbon) {
+            ribbonElapsed+=amount;
+            age=Moci_FluxRibbonDrive.TIMING.animationAt((float)ribbonElapsed);
+        } else age+=amount*speed;
         if (!released) {
             for (Part p : parts) {
                 if (p.s!=ship && (!p.s.isAlive() || !engine.isEntityInPlay(p.s) || p.s.getParentStation()!=ship)) p.release();
@@ -216,8 +257,8 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
         boolean emit=visible() && engine.getViewport().isNearViewport(gate,getRenderRadius());
         // Fixed event times, never a burst of catch-up particles after an off-screen wait.
         while (nextSmoke<=age && nextSmoke<CLOSED) {
-            if (emit) emitSmoke(engine,gate,radius,seed,smokeIndex++,nextSmoke,random);
-            nextSmoke += smokeInterval(nextSmoke);
+            if (emit) smokeIndex=smoke.emitBurst(engine,gate,radius,seed,smokeIndex,nextSmoke,random,puffs[ribbon ? Moci_FluxRibbonDrive.TIMING.phaseAt(nextSmoke) : 0]);
+            nextSmoke += smoke.interval(nextSmoke);
         }
         while (nextArc<=age && nextArc<HANDOFF+.25f) {
             if (emit) lightning();
@@ -226,33 +267,38 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
         }
     }
 
-    // 两团烟之间的间隔（战斗秒）：聚云时密、出门时缓、合门时稀。
-    static float smokeInterval(float at) { return at<OPEN ? .042f : at<HANDOFF ? .085f : .16f; }
     private Vector2f polar(float r, float a) { return new Vector2f(gate.x+r*(float)Math.cos(a),gate.y+r*(float)Math.sin(a)); }
-    static void emitSmoke(CombatEngineAPI engine,Vector2f gate,float radius,float seed,int index,float at,Random random) {
+    private static void emitSmoke(CombatEngineAPI engine,Vector2f gate,float radius,float seed,int index,float at,Random random,Moci_Util.NebulaPuffStyle puff,Color[] palette) {
         // 相邻烟心沿黄金角错开，小幅随机偏移打散队列，避免连续数团都堆在同侧。
         float angle=seed+index*2.399963f+(random.nextFloat()-.5f)*.48f;
         float growth=.32f+.68f*ease((at-SMOKE)/.92f); // 烟心起初铺开到最终范围的 32%，0.92 秒后铺满
-        int color=(int)(2.5f+1.35f*Math.sin(angle*3f+seed)+random.nextFloat()*.9f)%CLOUD.length; // 沿圆周分出冷暖色区，并混入相邻烟色
+        float colorBand=2.5f+1.35f*(float)Math.sin(angle*3f+seed)+random.nextFloat()*.9f;
+        int color=(int)(colorBand*.25f*palette.length)%palette.length; // 沿用四色时的冷暖分区，增删颜色后按新色板长度映射
         Moci_Util.spawnNebulaPuff(engine, gate, radius, // 当前战场、云团中心、世界尺寸基准
                 growth, angle, random,                 // 当前散布进度、方向（弧度）、本次随机源
-                PUFF, CLOUD[color]);                   // 上方烟团参数、该片星云的颜色及透明度
+                puff, palette[color]);                 // 烟团参数（已换算播放速度）、该片星云的颜色及透明度
     }
     private void lightning() {
         float a=random.nextFloat()*6.283f;
         // 起点距门心 0.48~0.96 倍半径，终点 0.65 倍半径；终点偏转 0.48~1.48 弧度。
         Vector2f from=polar(radius*(.48f+.48f*random.nextFloat()),a), to=polar(radius*.65f,a+.48f+random.nextFloat());
-        emitMovingArc(engine,from,to,radius);
+        emitMovingArc(engine,from,to,radius,ribbon ? Moci_FluxRibbonDrive.TIMING.rate(Moci_FluxRibbonDrive.TIMING.phaseAt(nextArc)) : speed);
     }
     static void emitMovingArc(CombatEngineAPI engine,Vector2f from,Vector2f to,float radius) {
+        emitMovingArc(engine,from,to,radius,1f);
+    }
+    private static void emitMovingArc(CombatEngineAPI engine,Vector2f from,Vector2f to,float radius,float speed) {
         float t=Math.max(0f,Math.min(1f,(radius-MIN_GATE_RADIUS)/Math.max(.001f,ARC_FULL_WIDTH_RADIUS-MIN_GATE_RADIUS)));
         Moci_Util.spawnVisualLightning(engine,from,to, // 当前战场、电弧起点和终点（世界坐标）；抵达时不再补烟
                 ARC_WIDTH_MIN+(ARC_WIDTH_MAX-ARC_WIDTH_MIN)*t, // 以门半径在两端宽度之间线性过渡
                 FRINGE,CORE,                          // 外晕颜色、亮芯颜色
-                radius*ARC_SPEED_RADII_PER_SEC);       // 将门半径/秒换算成通用方法使用的世界单位/秒
+                radius*ARC_SPEED_RADII_PER_SEC*speed); // 门半径/动画秒换算为世界单位/战斗秒
     }
 
     static void drawAtmosphere(Vector2f gate,float radius,float facing,float age,float seed,float opacity,Moci_Util.ScorchContour scorch) {
+        drawAtmosphere(gate,radius,facing,age,seed,opacity,scorch,false);
+    }
+    static void drawAtmosphere(Vector2f gate,float radius,float facing,float age,float seed,float opacity,Moci_Util.ScorchContour scorch,boolean ribbon) {
             float burst=flash(age)*opacity;
             if (burst>0) {
                 float blend=SCORCH_BLEND_SECONDS>0f ? ease(age/SCORCH_BLEND_SECONDS) : 1f;
@@ -263,10 +309,11 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
                         radius*(SCORCH_RADIUS_START+(SCORCH_RADIUS_END-SCORCH_RADIUS_START)*expand), // 当前世界半径
                         0f,burst,scorch,                          // 朝向（度）、随横闪淡出的亮度、当前轮廓
                         SCORCH_BAND,SCORCH);                      // 焦带相对宽度、蓝紫焦边色
-                Moci_Util.drawCrossFlare(gate,radius,             // 横闪中心、尺度（世界单位）
-                        0f,burst,FLASH);                          // 长轴朝向（0 度为水平）、亮度、闪光颜色
+                Moci_Util.drawCrossFlare(gate,radius*flashSizeMult(ribbon), // 光斑中心、应用本版倍率后的整体尺寸
+                        0f,burst,FLASH,                            // 长轴朝向（0 度为水平）、淡入淡出进度、闪光颜色
+                        FLASH_CORE_SIZE_MULT,FLASH_BRIGHTNESS_MULT); // 独立调整亮芯大小与整束光的亮度
             }
-            Moci_Util.drawPortalRim(gate,radius,facing,           // 门心、长半轴（世界单位）、出门方向（度）
+            if (!ribbon) Moci_Util.drawPortalRim(gate,radius,facing, // 仅原版绘制门面和门圈；差分版的亮带随舰体绘制
                     opacity,RIM,.295f,                            // 透明度、门沿颜色、全开短长轴比（与柔边遮罩配对）
                     aperture(age),age,seed);                      // 当前开度 0~1、演出秒数、光晕流动种子
     }
@@ -274,7 +321,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
     @Override public void render(CombatEngineLayers layer, ViewportAPI viewport) {
         if (expired || !visible() || !viewport.isNearViewport(gate,getRenderRadius())) return;
         if (layer==CombatEngineLayers.UNDER_SHIPS_LAYER) {
-            drawAtmosphere(gate,radius,facing,age,seed,viewport.getAlphaMult(),scorch);
+            drawAtmosphere(gate,radius,facing,age,seed,viewport.getAlphaMult(),scorch,ribbon);
             return;
         }
         if (released || age<EXIT || !(viewport instanceof CombatViewport nativeView)) return;
@@ -285,9 +332,9 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin impl
         boolean masking=false;
         glPushAttrib(GL_ALL_ATTRIB_BITS); glMatrixMode(GL_MODELVIEW); glPushMatrix();
         try {
-            int id=Moci_NebulaGateMask.texture();
+            int id=ribbon ? Moci_NebulaGateMask.ribbonTexture() : Moci_NebulaGateMask.texture();
             if (gl2) glUseProgram(0);
-            if (id!=0) { mask.begin(id); masking=true; }
+            if (id!=0) { mask.begin(id,ribbon); masking=true; }
             else { glClipPlane(GL_CLIP_PLANE0,plane); glEnable(GL_CLIP_PLANE0); }
             glTranslatef(axisX*d,axisY*d,0);
             nativeView.setEverythingNearViewport(true); // native culling tests the real ship centre, not the translated image

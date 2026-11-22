@@ -42,7 +42,10 @@ Trans_AM,Moci_Trans_AM,,,,,,,,,,1,5,1,10,,,,,,,,,,,,,graphics/icons/hullsys/temp
 玻色子跳跃,Moci_PhaseCrossing_Simple,1,,,,,,,,,1,,1,10,,,,TRUE,,,,,,TRUE,,,graphics/icons/hullsys/displacer.png
 跳跃引擎,Moci_TravelJump,1,,,,,,,,,2,,2,0,TRUE,,,,TRUE,TRUE,TRUE,TRUE,TRUE,,,,graphics/icons/hullsys/burn_drive.png
 质量跃迁引擎,Moci_MassDrive,1,,,,,,,,,2,,2,0,TRUE,,,,TRUE,TRUE,TRUE,TRUE,TRUE,,,,graphics/icons/hullsys/burn_drive.png
+菱标跃迁引擎,Moci_DiamondDrive,1,,,,,,,,,2,,2,0,TRUE,,,,TRUE,TRUE,TRUE,TRUE,TRUE,,,,graphics/icons/hullsys/burn_drive.png
+翠瓣跃迁引擎,Moci_PetalDrive,1,,,,,,,,,2,,2,0,TRUE,,,,TRUE,TRUE,TRUE,TRUE,TRUE,,,,graphics/icons/hullsys/burn_drive.png
 星岚门跃迁引擎,Moci_NebulaGate,1,,,,,,,,,2,,2,0,TRUE,,,,TRUE,TRUE,TRUE,TRUE,TRUE,,,,graphics/icons/hullsys/burn_drive.png
+磁弧跃迁引擎,Moci_FluxRibbonDrive,1,,,,,,,,,2,,2,0,TRUE,,,,TRUE,TRUE,TRUE,TRUE,TRUE,,,,graphics/icons/hullsys/burn_drive.png
 起飞引擎,Moci_MSLaunchTravelDrive,,,,,,,,,,2,,2,10,TRUE,,,,TRUE,FALSE,TRUE,TRUE,TRUE,,,,graphics/icons/hullsys/burn_drive.png
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,
 深潜,Moci_DeepDive,,,,,,,,,,0.5,,0.5,4,TRUE,,TRUE,TRUE,,,,,,,TRUE,defensive,graphics/icons/hullsys/phase_cloak.png
