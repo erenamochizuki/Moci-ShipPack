@@ -1,0 +1,140 @@
+#version 110
+
+// Additive accretion light, composited AFTER the background lens. All emission shares
+// one antialiased silhouette; the lens never resamples a white core or a second ring.
+// v_pos is the quad-local position in -1..1, so every radius here is relative to the quad half size.
+// Keep this file ASCII only: non-ASCII bytes can break shader compilation.
+
+uniform float u_time;
+uniform float u_phase;   // accumulated orbital angle for this hole, radians
+uniform vec4 u_shape;    // x: horizon radius, y: cloud outer radius, z: death progress 0..1, w: random seed
+uniform float u_alpha;   // overall brightness (fade in/out, viewport alpha)
+uniform float u_spin;    // 1.0 = counter-clockwise, -1.0 = clockwise
+uniform vec3 u_colCore;
+uniform vec3 u_colMid;
+uniform vec3 u_colEdge;
+
+varying vec2 v_pos;
+
+const float PI = 3.14159265;
+const float TAU = 6.28318531;
+
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float vnoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+float fbm(vec2 p) {
+    float sum = 0.0;
+    float amp = 0.5;
+    for (int i = 0; i < 4; i++) {
+        sum += amp * vnoise(p);
+        p = p * 2.03 + vec2(17.3, 9.1);
+        amp *= 0.5;
+    }
+    return sum;
+}
+
+vec2 rot(vec2 p, float a) {
+    float c = cos(a);
+    float s = sin(a);
+    return vec2(c * p.x - s * p.y, s * p.x + c * p.y);
+}
+
+// The hot side moves much less than the material orbiting it.
+vec2 brightDir(float t, float seed) {
+    float a = PI + 0.35 * sin(t * 0.23 + seed);
+    return vec2(cos(a), sin(a));
+}
+
+vec3 diskPass(vec2 p, float r, vec2 dir, float rs, float cloudEnd, float death, float seed) {
+    float t = u_time;
+    float rn = r / rs;
+    float ang = atan(p.y, p.x + 0.000001);
+
+    // Log-polar radius: the texture scale grows with distance, so the arms look alike at every radius.
+    float rho = rn;
+    if (rn > 1.0) rho = 1.0 + 1.25 * log(rn);
+    vec2 q = dir * rho;
+
+    // Two cloud layers twisted into spirals by radius; each one rotates rigidly at its own speed.
+    vec2 q1 = rot(q, u_spin * (1.30 * rho - u_phase));
+    vec2 q2 = rot(q, u_spin * (0.70 * rho - 0.58 * u_phase) + 1.7);
+    float n1 = fbm(q1 * 1.35 + vec2(seed, seed * 0.37));
+    float n2 = fbm(q2 * 2.90 + vec2(seed * 1.31, t * 0.05));
+
+    // Three main arms that follow the first cloud layer and are perturbed by it.
+    float arms = 0.5 + 0.5 * cos(3.0 * (u_spin * ang + 1.30 * rho - u_phase) + 5.0 * (n1 - 0.47));
+    arms = arms * arms * (3.0 - 2.0 * arms);
+
+    float cloudTex = 0.55 * n1 + 0.45 * n2;
+    float dens = smoothstep(0.24, 0.68, cloudTex) * mix(0.45, 1.0, arms) + 0.15 * arms + 0.08;
+
+    // Radial envelopes: x is 0 at the horizon and 1 at the cloud edge.
+    float x = clamp((r - rs) / max(cloudEnd - rs, 0.0001), 0.0, 1.0);
+    float envCloud = (1.0 - x) * (1.0 - x);
+    float glow = exp(-max(rn - 1.0, 0.0) / 1.5);
+
+    // One hot inner lip that falls off into the disk, not a second detached band.
+    float lop = 0.5 + 0.5 * dot(dir, brightDir(t, seed));
+    float hotSide = lop * lop;
+    float lip = exp(-max(rn - 1.0, 0.0) / mix(0.12, 0.37, hotSide));
+    lip *= mix(0.32, 1.02, hotSide) * (1.0 + 0.35 * sin(PI * death));
+
+    vec3 cloudCol = mix(u_colEdge, u_colMid, smoothstep(0.0, 0.55, envCloud));
+    vec3 rgb = cloudCol * envCloud * dens * 0.92
+             + mix(u_colMid, u_colCore, 0.65) * glow * (0.20 + 0.64 * dens)
+             + u_colCore * lip;
+
+    // Anamorphic lens-flare streak through the centre (always screen-horizontal), kept at least
+    // ~1.5 pixels thick so it does not shimmer when the hole is small or the view is zoomed out.
+    float px = fwidth(v_pos.y);
+    float h = max(0.10 * rs, 1.5 * px);
+    float ay = abs(p.y);
+    float lenFall = 1.0 - smoothstep(0.0, 1.0, abs(p.x));
+    float streak = (exp(-ay / h) + 0.22 * exp(-ay / (h * 5.0))) * lenFall * lenFall;
+    rgb += mix(u_colMid, u_colCore, 0.8) * streak * 0.39;
+
+    // Filaments: short-lived lightning-like wisps that strike two opposite sectors at a time.
+    float slotLen = 0.8;
+    float slot = floor(t / slotLen);
+    float strike = step(0.4, hash(vec2(slot, seed)));
+    if (strike > 0.5) {
+        float ph = fract(t / slotLen);
+        float secAng = hash(vec2(slot, seed + 3.1)) * TAU;
+        float dA = abs(mod(ang - secAng + PI, TAU) - PI);
+        dA = min(dA, PI - dA);
+        float sector = 1.0 - smoothstep(0.22, 0.55, dA);
+        float radial = smoothstep(1.3, 2.0, rn) * (1.0 - smoothstep(0.55, 0.9, x));
+        float flick = sin(PI * ph) * (0.65 + 0.35 * sin(t * 80.0));
+        float n3 = fbm(q1 * 2.6 + vec2(slot * 7.7, seed));
+        float wisp = 1.0 - smoothstep(0.0, 0.03, abs(n3 - 0.47));
+        rgb += u_colCore * wisp * sector * radial * flick * 0.9;
+    }
+
+    // Fade to nothing before the quad border so the quad itself never shows.
+    float border = 1.0 - smoothstep(0.90, 1.0, max(abs(p.x), abs(p.y)));
+    float edge = max(fwidth(r) * 0.65, 0.00001);
+    float outside = smoothstep(rs - edge, rs + edge, r);
+    return rgb * (border * outside);
+}
+
+void main() {
+    vec2 p = v_pos;
+    float r = length(p);
+    float rs = max(u_shape.x, 0.0001);
+    vec2 dir = p / max(r, 0.00001);
+
+    vec3 rgb = diskPass(p, r, dir, rs, u_shape.y, u_shape.z, u_shape.w);
+    gl_FragColor = vec4(rgb * u_alpha, 1.0);
+}
