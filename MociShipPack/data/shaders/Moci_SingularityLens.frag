@@ -6,6 +6,7 @@ uniform vec2 texSize;
 uniform float darkAlpha;
 uniform float magStrength;
 uniform vec3 horizonColor;
+uniform float accretionLens;
 varying vec2 v_uv;
 
 vec2 deflectToSourceUV(vec2 uv, float lensWeight){
@@ -28,6 +29,7 @@ void main(){
     float thetaE = rs_rlens_strength.z;
 
     vec2 uv = gl_FragCoord.xy / texSize;
+    if (accretionLens > 0.5) uv = v_uv;
     vec2 px = uv * texSize;
     vec2 c = center * texSize;
     float r = length(px - c);
@@ -37,6 +39,39 @@ void main(){
 
     vec3 base = texture2D(srcTex, uv).rgb;
     float fade = clamp(darkAlpha, 0.0, 1.0);
+    if (accretionLens > 0.5) {
+        // Trace into this hole's capture, which already contains ships and the accretion disk.
+        // The inner rays fold towards one side rather than focusing a whole ring onto one texel.
+        float rs = max(rsPx, 1.0);
+        vec2 q = (px - c) / rs;
+        float rn = r / rs;
+        float ray = thetaE / max(r, rs);
+        vec2 outer = q * (1.0 - min(0.32, ray * ray));
+        vec2 pivot = vec2(-0.46, 0.15);
+        vec2 d = q - pivot;
+        vec2 shoulder = d * vec2(1.50, 1.06);
+        float angle = -1.9 * exp(-1.85 * dot(shoulder, shoulder));
+        float cs = cos(angle), sn = sin(angle);
+        vec2 folded = pivot + vec2(cs * d.x - sn * d.y, sn * d.x + cs * d.y);
+        vec2 farSide = vec2(1.58, 0.0) + folded * vec2(0.66, 1.17);
+        float core = 1.0 - smoothstep(0.65, 1.72, rn);
+        float rim = 1.0 - smoothstep(rMaxPx * 0.60, max(1.0, rMaxPx), r);
+        vec2 offset = mix(q, mix(outer, farSide, core), rim) * rs;
+        // Only the local box was copied. Taper the displacement if a ray would leave the screen
+        // or the capture, instead of stretching the last copied pixel into a stripe.
+        vec2 delta = offset - (px - c);
+        vec2 lo = max(vec2(0.5), c - rMaxPx - 0.5);
+        vec2 hi = min(texSize - 0.5, c + rMaxPx + 0.5);
+        vec2 room = mix(px - lo, hi - px, step(vec2(0.0), delta));
+        vec2 reach = (max(room, vec2(0.0)) + 0.0001) / max(abs(delta), vec2(0.0001));
+        float travel = clamp(min(reach.x, reach.y), 0.0, 1.0);
+        vec2 samplePx = clamp(px + delta * travel, lo, hi);
+        vec3 refracted = texture2D(srcTex, samplePx / texSize).rgb;
+        float shadow = length((q - vec2(0.20, -0.18)) * vec2(0.96, 1.22));
+        float transmission = smoothstep(0.14, 1.02, shadow);
+        gl_FragColor = vec4(mix(base, refracted * transmission, fade), 1.0);
+        return;
+    }
     // ~2px anti-aliased horizon edge: solid horizon color inside, blends into the lens outside.
     float horizonMask = 1.0 - smoothstep(rsPx - 1.0, rsPx + 1.0, r);
     if (horizonMask >= 0.999) {

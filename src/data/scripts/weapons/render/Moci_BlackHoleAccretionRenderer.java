@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
  * 黑洞吸积云渲染器（纯视觉，不参与任何玩法判定）：
  * - 在奇点周围画吸积云、旋臂、核心辉光、横向光晕、电丝和光子环，全部由着色器程序化生成，不用贴图
  * - 奇点的位置、视界半径、蒸发状态都从 {@link Moci_SingularityRenderer} 读取，投射物必须先在那边登记
- * - 透镜先扭曲背景，再一次画出视界以外的盘面和亮边，避免把内缘反复投成多重亮环。
+ * - 先把盘光画入战场，奇点透镜随后一次采样已包含盘面和舰船的画面。
  */
 public final class Moci_BlackHoleAccretionRenderer extends BaseCombatLayeredRenderingPlugin {
 
@@ -32,7 +32,7 @@ public final class Moci_BlackHoleAccretionRenderer extends BaseCombatLayeredRend
     private static final String FRAG_PATH = "data/shaders/Moci_BlackHoleAccretion.frag";
     private static final String SHADER_KEY = "Moci_BlackHoleAccretion";
 
-    private static final CombatEngineLayers DISK_LAYER = CombatEngineLayers.JUST_BELOW_WIDGETS;
+    private static final CombatEngineLayers DISK_LAYER = CombatEngineLayers.ABOVE_PARTICLES;
 
     // ========================================
     // 可调参数（半径均为世界单位）
@@ -95,8 +95,6 @@ public final class Moci_BlackHoleAccretionRenderer extends BaseCombatLayeredRend
         if (existing instanceof Moci_BlackHoleAccretionRenderer) {
             return (Moci_BlackHoleAccretionRenderer) existing;
         }
-        // 叠加层与透镜同在 JUST_BELOW_WIDGETS，要画在透镜之后：先确保透镜渲染器已加入引擎，本渲染器排在它后面。
-        Moci_SingularityRenderer.getOrCreate();
         Moci_BlackHoleAccretionRenderer renderer = new Moci_BlackHoleAccretionRenderer();
         engine.addLayeredRenderingPlugin(renderer);
         engine.getCustomData().put(RENDER_KEY, renderer);
@@ -115,6 +113,8 @@ public final class Moci_BlackHoleAccretionRenderer extends BaseCombatLayeredRend
     public void track(DamagingProjectileAPI projectile) {
         if (projectile == null || isTracked(projectile)) return;
         holes.add(new Hole(projectile));
+        Moci_SingularityRenderer lens = Moci_SingularityRenderer.getOrCreate();
+        if (program != 0 && lens != null) lens.enableAccretionLens(projectile);
     }
 
     public boolean isTracked(DamagingProjectileAPI projectile) {

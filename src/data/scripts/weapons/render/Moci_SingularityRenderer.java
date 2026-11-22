@@ -44,7 +44,7 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
     // 着色器与采样纹理资源
     // program 由 Moci_ShaderManager 按 key 缓存并跨战斗复用，本类不负责删除。
     private int program = 0;
-    private int[] uniform = null; // 0: srcTex, 1: center, 2: rs_rlens_strength, 3: texSize, 4: darkAlpha, 5: magStrength, 6: horizonColor
+    private int[] uniform = null; // srcTex, center, rs_rlens_strength, texSize, darkAlpha, magStrength, horizonColor, accretionLens
     // 屏幕截图纹理跨战斗共享（GL 上下文贯穿整个游戏进程），避免每场战斗泄漏一张全屏纹理。
     private static int screenTexId = 0;
     private static int screenTexW = 0;
@@ -112,6 +112,7 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
         float smoothedRs;              // 渲染使用的平滑半径
         boolean collapsed;
         boolean collapsing;
+        boolean accretionLens;
         float collapseProgress;          // 0..1
         float collapseStartRs;
         Vector2f manualCenter = new Vector2f();
@@ -191,6 +192,11 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
         if (proj == null) return;
         if (active.containsKey(proj)) return;
         active.put(proj, new SingularityData(proj, eventHorizonRadius, lensStrength, accretionColor));
+    }
+
+    void enableAccretionLens(DamagingProjectileAPI projectile) {
+        SingularityData s = active.get(projectile);
+        if (s != null) s.accretionLens = true;
     }
 
     // 手动注册：以自定义 token + 初始中心跟踪奇点（无真实投射物）
@@ -589,6 +595,8 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
 
         GL20.glUniform2f(uniform[1], centerUx, centerUy);
         GL20.glUniform3f(uniform[2], rsPx, rMaxPx, thetaEPx);
+        // Always reset per hole: ordinary/manual singularities and collapse retain the original horizon.
+        GL20.glUniform1f(uniform[7], s.accretionLens && !s.collapsing && !s.collapsed ? 1f : 0f);
         // 蒸发阶段按进度淡出；常态用默认 alpha
         float fade = 1f;
         if (s.evaporating) fade = Math.max(0f, 1f - s.evaporateProgress);
@@ -675,7 +683,8 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
                     GL20.glGetUniformLocation(program, "texSize"),
                     GL20.glGetUniformLocation(program, "darkAlpha"),
                     GL20.glGetUniformLocation(program, "magStrength"),
-                    GL20.glGetUniformLocation(program, "horizonColor")
+                    GL20.glGetUniformLocation(program, "horizonColor"),
+                    GL20.glGetUniformLocation(program, "accretionLens")
                 };
                 GL20.glUseProgram(0);
             }

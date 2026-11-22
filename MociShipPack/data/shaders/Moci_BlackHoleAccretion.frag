@@ -1,7 +1,6 @@
 #version 110
 
-// Composite after the background lens. The apparent core folds the far disk light
-// in local coordinates; it never feeds its own bright output back into the lens.
+// Source emission only. The later screen-space lens bends this disk and the scene together.
 // v_pos is the quad-local position in -1..1, so every radius here is relative to the quad half size.
 // Keep this file ASCII only: non-ASCII bytes can break shader compilation.
 
@@ -55,40 +54,6 @@ vec2 rot(vec2 p, float a) {
 vec2 brightDir(float t, float seed) {
     float a = PI + 0.35 * sin(t * 0.23 + seed);
     return vec2(cos(a), sin(a));
-}
-
-// A secondary image of the far disk. Bend the same horizontal streak around a
-// shoulder on the hot side, but leave its far end horizontal where it exits.
-vec3 coreImage(vec2 c, float pixel, float seed, vec3 diskLight) {
-    float left = 1.0 - smoothstep(-0.65, 0.18, c.x);
-    float drift = sin(0.52 * u_phase + seed);
-    vec2 shadow = c - vec2(0.10, -0.06 + left * (0.24 + 0.045 * drift));
-    shadow.y *= 1.10 + 0.13 * left;
-    float silhouette = length(shadow);
-
-    vec2 pivot = vec2(-0.49, 0.17 + 0.055 * drift);
-    vec2 delta = c - pivot;
-    vec2 lens = delta * vec2(1.50, 1.06);
-    float bend = exp(-1.85 * dot(lens, lens));
-    vec2 source = pivot + rot(delta, -(1.85 + 0.18 * drift) * bend);
-    vec2 farDisk = vec2(1.72 + 0.62 * source.x, 1.12 * source.y);
-    float rho = 1.0 + 1.25 * log(length(farDisk));
-    vec2 diskUV = rot(normalize(farDisk) * rho, u_spin * (1.30 * rho - u_phase));
-    float gas = fbm(diskUV * 1.35 + vec2(seed, seed * 0.37));
-    float stripeY = source.y + (gas - 0.47) * (0.08 + 0.43 * bend);
-    float width = max(0.082 + 0.071 * bend, pixel * 0.65);
-    float beam = exp(-abs(stripeY) / width);
-    float veil = exp(-abs(stripeY) / 0.40);
-    float light = smoothstep(0.25, 0.68, gas);
-    float backlight = smoothstep(-0.58, 0.70, source.y + 0.13 * source.x);
-    vec3 glass = mix(u_colMid, u_colCore, 0.56) * (0.055 + 0.16 * light + 0.13 * backlight);
-    glass += mix(u_colMid, u_colCore, 0.82) * ((0.35 + 0.25 * light) * beam + 0.21 * veil);
-
-    // The outer disk supplies the bright lip. Blend into it once, not as an outline.
-    float feather = max(0.085, pixel * 0.85);
-    float inner = 1.0 - smoothstep(0.74, 1.08, length(c));
-    diskLight = mix(diskLight, diskLight / (1.0 + 0.70 * diskLight), inner);
-    return mix(glass, diskLight, smoothstep(0.90 - feather, 0.90 + feather, silhouette));
 }
 
 vec3 diskPass(vec2 p, float r, vec2 dir, float rs, float cloudEnd, float death, float seed) {
@@ -158,8 +123,11 @@ vec3 diskPass(vec2 p, float r, vec2 dir, float rs, float cloudEnd, float death, 
 
     // Fade to nothing before the quad border so the quad itself never shows.
     float border = 1.0 - smoothstep(0.90, 1.0, max(abs(p.x), abs(p.y)));
-    if (rn < 1.40) rgb = coreImage(p / rs, px / rs, seed, rgb);
-    return rgb * border;
+    // A faint, continuous source sheet: cutting a second black silhouette into the
+    // input projects a spurious black crescent. Only the lens owns the shadow.
+    float inner = 1.0 - smoothstep(0.12, 1.35, rn);
+    rgb *= 1.0 - 0.48 * inner;
+    return border * rgb / (1.0 + 0.40 * inner * rgb);
 }
 
 void main() {
