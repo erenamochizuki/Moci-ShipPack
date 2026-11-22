@@ -4,6 +4,8 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.combat.CombatViewport;
 import com.fs.starfarer.combat.entities.Ship;
+import data.scripts.util.Moci_Util;
+import data.scripts.util.Moci_TravelDriveControl.AnimationLock;
 import java.util.EnumSet;
 import java.util.ArrayList;
 import java.util.Random;
@@ -34,8 +36,10 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
     private boolean arrivalPeakFrame;
     private boolean peakWasDrawn;
     private boolean systemEnded;
+    private AnimationLock controls;
     private float stopAge;
     final ArrayList<Ship> modules = new ArrayList<>();
+    float hullLength, hullWidth, hullNose, stampSize;
 
     Moci_MassDrivePass(CombatEngineAPI engine, ShipAPI ship, int sequence) {
         this(engine, ship, sequence, Moci_MassDrive.EVENT);
@@ -56,6 +60,14 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
 
     @Override public boolean isLeaving() { return leaving; }
 
+    @Override public void registered(CombatEntityAPI host) {
+        if (!expired && controls == null) controls = new AnimationLock(engine, ship);
+    }
+
+    private void releaseControls() {
+        if (controls != null) { controls.release(); controls = null; }
+    }
+
     @Override public void stop() {
         systemEnded = true;
         if (ship.isHulk() || leaving && !started) cancel();
@@ -63,6 +75,7 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
     }
 
     @Override public void cancel() {
+        releaseControls();
         restore();
         expired = true;
     }
@@ -105,13 +118,17 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
 
     @Override
     public void advance(float amount) {
-        if (expired || engine.isPaused() || amount <= 0f) return;
-        if (peakWasDrawn) arrivalPeakFrame = false;
+        if (expired) return;
         if (ship.isHulk() || ship.getHitpoints() <= 0f) {
             cancel();
             return;
         }
-        if (!engine.isEntityInPlay(ship)) {
+        boolean present = engine.isEntityInPlay(ship);
+        if (!present) releaseControls();
+        if (present && leaving && !ship.isRetreating()) { cancel(); return; }
+        if (engine.isPaused() || amount <= 0f) return;
+        if (peakWasDrawn) arrivalPeakFrame = false;
+        if (!present) {
             if (!started || !leaving) {
                 cancel();
                 return;
@@ -127,7 +144,6 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
         } else {
             readPose();
             if (leaving) {
-                if (!ship.isRetreating()) { cancel(); return; }
                 if (ship.getTravelDrive() != null && ship.getTravelDrive().isChargedown()) stopping = true;
                 // Chargedown/unapply can precede removal by one simulation tick.
                 // No collapse while the entity is still present, even during this grace period.
@@ -139,9 +155,11 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
         if (!leaving || removed) age += amount / duration;
         if (leaving && !removed) age = -0.015f;
         if (!leaving && previousAge < 0f && age >= 0f) {
+            releaseControls();
             arrivalPeakFrame = true;
             playWarpSound(gate);
         }
+        if (controls != null) controls.advance();
         if (!leaving && age >= 0.81f) expired = true;
     }
 
@@ -167,6 +185,7 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
 
     @Override
     public void cleanup() {
+        releaseControls();
         restore();
         if (systemEnded && ship.getCustomData().get(eventKey) == this) ship.removeCustomData(eventKey);
         image.close();
@@ -221,7 +240,22 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
     }
 
     float reach() {
-        float size = Math.max(ship.getSpriteAPI().getWidth(), ship.getSpriteAPI().getHeight());
+        // 第一次渲染且尚未隐藏舰体时测量；退场实体被移除后仍沿用最后的整舰尺寸。
+        if (stampSize==0) {
+            var b=Moci_Util.measureTravelHull(ship,engine);
+            var sp=ship.getSpriteAPI();
+            hullLength=sp==null?0:sp.getHeight(); hullWidth=sp==null?0:sp.getWidth();
+            hullNose=sp==null?0:hullLength-sp.getCenterY();
+            stampSize=2.4f*Math.max(hullLength,hullWidth);
+            if (b.hasModules() || !(stampSize>0)) {
+                hullLength=Math.max(hullLength,b.nose()+b.tail());
+                hullWidth=Math.max(hullWidth,2f*b.side()); // 门以母舰为中心，不能剪掉偏向一侧的模块
+                hullNose=b.nose();
+                stampSize=Math.max(stampSize,2f*(Math.max(Math.max(b.nose(),b.tail()),b.side())+2f));
+            }
+            hullLength=Math.max(1f,hullLength); hullWidth=Math.max(1f,hullWidth);
+        }
+        float size = Math.max(hullLength,hullWidth);
         return 4f * size + (leaving ? 0f : Math.abs(position.x - gate.x) + Math.abs(position.y - gate.y));
     }
 }

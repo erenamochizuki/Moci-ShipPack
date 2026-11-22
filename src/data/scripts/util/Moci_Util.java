@@ -244,6 +244,54 @@ public class Moci_Util {
 	}
 	public static final String TAG_NO_RECOIL = "NO_RECOIL";
 
+	/** 跃迁美术尺寸，以母舰位置和朝向为坐标系；只量舰体贴图，不改变碰撞或落点判断。 */
+	public static final class TravelHullBounds {
+		private float nose,tail,side,radiusSq;
+		private boolean hasModules;
+		public float nose() { return nose; }
+		public float tail() { return tail; }
+		public float side() { return side; }
+		public float radius() { return (float)Math.sqrt(radiusSq); }
+		public boolean hasModules() { return hasModules; }
+
+		private void include(float front,float lateral) {
+			nose=Math.max(nose,front); tail=Math.max(tail,-front); side=Math.max(side,Math.abs(lateral));
+			radiusSq=Math.max(radiusSq,front*front+lateral*lateral);
+		}
+		private boolean measure(ShipAPI root,ShipAPI part,double axisX,double axisY) {
+			if(part.isDoNotRender() || part.isDoNotRenderSprite()) return false;
+			SpriteAPI sp=part.getSpriteAPI();
+			Vector2f offset=part.getRenderOffset();
+			float dx=part.getLocation().x-root.getLocation().x+(offset==null?0:offset.x);
+			float dy=part.getLocation().y-root.getLocation().y+(offset==null?0:offset.y);
+			float front=(float)(dx*axisX+dy*axisY), lateral=(float)(dy*axisX-dx*axisY);
+			if(sp==null || !(sp.getWidth()>0 && sp.getHeight()>0)) {
+				float r=part.getCollisionRadius(); // 无贴图可量时，才退回碰撞圆
+				include(front+r,lateral); include(front-r,lateral); include(front,lateral+r); include(front,lateral-r);
+				float far=(float)Math.hypot(front,lateral)+r; radiusSq=Math.max(radiusSq,far*far);
+				return true;
+			}
+			if(sp.getAlphaMult()<=0 || (sp.getColor()!=null && sp.getColor().getAlpha()==0)) return false;
+			double a=Math.toRadians(part.getFacing()-root.getFacing()-90f), c=Math.cos(a), s=Math.sin(a);
+			for(int i=0;i<4;i++) {
+				float x=((i&1)==0?0:sp.getWidth())-sp.getCenterX(), y=((i&2)==0?0:sp.getHeight())-sp.getCenterY();
+				include(front+(float)(x*c-y*s),lateral+(float)(x*s+y*c));
+			}
+			return true;
+		}
+	}
+	/** 在跃迁开始时测量一次；不递归，也不遍历武器。 */
+	public static TravelHullBounds measureTravelHull(ShipAPI ship,CombatEngineAPI engine) {
+		TravelHullBounds b=new TravelHullBounds();
+		double a=Math.toRadians(ship.getFacing()), x=Math.cos(a), y=Math.sin(a);
+		b.measure(ship,ship,x,y);
+		for(ShipAPI child:ship.getChildModulesCopy()) {
+			if(child!=null && child.getParentStation()==ship && child.isAlive() && engine.isEntityInPlay(child))
+				b.hasModules |= b.measure(ship,child,x,y);
+		}
+		return b;
+	}
+
 	/** A single short-lived plane: absolute birth time, then independent growth and decay in seconds. */
 	public record PetalPulse(float birth,float grow,float shrink,float degrees,float reach,float halfWidth,float bias,float opacity) {
 		public float end() { return birth+grow+shrink; }

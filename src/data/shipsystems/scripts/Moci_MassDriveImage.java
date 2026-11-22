@@ -1,7 +1,6 @@
 package data.shipsystems.scripts;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.combat.CombatViewport;
 import com.fs.starfarer.combat.entities.Ship;
 import java.io.IOException;
@@ -115,16 +114,7 @@ final class Moci_MassDriveImage {
         try {
             glActiveTexture(GL_TEXTURE0);
             if (framebuffer == 0) {
-                SpriteAPI sprite = ship.getSpriteAPI();
-                stampWidth = 2.4f * Math.max(sprite.getWidth(), sprite.getHeight());
-                for (Ship child : pass.modules) {
-                    SpriteAPI part = child.getSpriteAPI();
-                    float dx = child.getLocation().x - pass.position.x;
-                    float dy = child.getLocation().y - pass.position.y;
-                    double corner = Math.hypot(Math.max(part.getCenterX(), part.getWidth() - part.getCenterX()),
-                            Math.max(part.getCenterY(), part.getHeight() - part.getCenterY()));
-                    stampWidth = Math.max(stampWidth, 2f * (float)(Math.hypot(dx, dy) + corner + 2f));
-                }
+                stampWidth = pass.stampSize;
                 resolution = Math.min(2048, Math.max(128, (int)Math.ceil(stampWidth)));
                 hullTexture = texture();
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, resolution, resolution, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer)null);
@@ -215,8 +205,7 @@ final class Moci_MassDriveImage {
             glUseProgram(program);
             glUniform1i(uniform("fittedShip"),0);
             glUniform1i(uniform("scene"),1);
-            SpriteAPI sprite = pass.ship.getSpriteAPI();
-            float ux = sprite.getHeight()/1.13f, uy = sprite.getWidth()/0.8475f;
+            float ux = pass.hullLength/1.13f, uy = pass.hullWidth/0.8475f;
             double angle = Math.toRadians(pass.facing);
             float dx = (float)Math.cos(angle), dy = (float)Math.sin(angle);
             float gx = pass.gate.x-pass.position.x, gy = pass.gate.y-pass.position.y;
@@ -227,7 +216,7 @@ final class Moci_MassDriveImage {
             glUniform4f(uniform("screenRect"),sceneX,sceneY,Math.max(1,sceneWidth),Math.max(1,sceneHeight));
             glUniform2f(uniform("pixelsPerUnit"),width/view.getVisibleWidth(),height/view.getVisibleHeight());
             glUniform1f(uniform("stampWidth"),stampWidth);
-            glUniform1f(uniform("noseX"),sprite.getHeight()-sprite.getCenterY());
+            glUniform1f(uniform("noseX"),pass.hullNose);
             glUniform1f(uniform("age"),pass.renderAge());
             glUniform1f(uniform("trailAge"),pass.trailAge);
             glUniform1f(uniform("seed"),pass.seed);
@@ -260,8 +249,7 @@ final class Moci_MassDriveImage {
         float px = width/view.getVisibleWidth(), py = height/view.getVisibleHeight();
         float cx = left + (pass.gate.x - view.getLLX()) * px;
         float cy = bottom + (pass.gate.y - view.getLLY()) * py;
-        SpriteAPI sprite = pass.ship.getSpriteAPI();
-        float radius = 2.15f * (float)Math.sqrt((sprite.getHeight()/1.13f)*(sprite.getWidth()/0.8475f));
+        float radius = 2.15f * (float)Math.sqrt((pass.hullLength/1.13f)*(pass.hullWidth/0.8475f));
         int rx = Math.min(width, (int)Math.ceil(radius * px) + 2);
         int ry = Math.min(height, (int)Math.ceil(radius * py) + 2);
         int w = Math.min(width, 2*rx), h = Math.min(height, 2*ry);

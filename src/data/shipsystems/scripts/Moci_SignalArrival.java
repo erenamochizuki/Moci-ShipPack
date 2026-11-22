@@ -2,6 +2,7 @@ package data.shipsystems.scripts;
 
 import com.fs.starfarer.api.combat.*;
 import data.scripts.util.Moci_Util;
+import data.scripts.util.Moci_TravelDriveControl.AnimationLock;
 import org.lwjgl.util.vector.Vector2f;
 import java.util.*;
 import data.shipsystems.scripts.Moci_DiamondDrive.Landing;
@@ -25,6 +26,7 @@ final class Moci_SignalArrival extends BaseCombatLayeredRenderingPlugin {
     private float time, nextArc;
     private boolean released,expired,burnEnded;
     private Moci_Util.HullEcho echo;
+    private AnimationLock controls;
 
     private static final class Part {
         final ShipAPI s;
@@ -49,8 +51,6 @@ final class Moci_SignalArrival extends BaseCombatLayeredRenderingPlugin {
         }
         void pin() {
             s.getLocation().set(at); s.setFacing(angle); s.setAngularVelocity(0); s.getVelocity().set(0,0);
-            s.setHoldFireOneFrame(true); s.blockCommandForOneFrame(ShipCommand.USE_SYSTEM);
-            for(var w:s.getAllWeapons()) w.setForceNoFireOneFrame(true);
         }
         void release() {
             if(!held) return;
@@ -69,20 +69,27 @@ final class Moci_SignalArrival extends BaseCombatLayeredRenderingPlugin {
         petals=style.petals ? Moci_PetalDrive.makePetals(petalSeed,style.charge) : null;
         parts.add(new Part(ship));
         for(var child:ship.getChildModulesCopy()) if(child.getParentStation()==ship && child.isAlive() && engine.isEntityInPlay(child)) parts.add(new Part(child));
-        float size=24f;
-        for(var part:parts) {
-            var sp=part.s.getSpriteAPI();
-            float half=sp==null?0:.5f*Math.max(sp.getWidth(),sp.getHeight());
-            size=Math.max(size,(float)Math.hypot(gate.x-part.at.x,gate.y-part.at.y)+Math.max(half,part.s.getCollisionRadius()));
-        }
-        radius=size; trailLength=((float)Math.hypot(engine.getMapWidth(),engine.getMapHeight())+radius*4)*Landing.TRAIL_LENGTH;
+        var bounds=Moci_Util.measureTravelHull(ship,engine);
+        var sp=ship.getSpriteAPI();
+        float solo=Math.max(ship.getCollisionRadius(),sp==null?0:.5f*Math.max(sp.getWidth(),sp.getHeight()));
+        radius=Math.max(24f,bounds.hasModules()?Math.max(solo,bounds.radius()):solo);
+        trailLength=((float)Math.hypot(engine.getMapWidth(),engine.getMapHeight())+radius*4)*Landing.TRAIL_LENGTH;
         nextArc=style.charge-Petal.ARC_LEAD;
     }
-    void start() { for(var p:parts) p.hold(); }
+    void start() {
+        if (released || controls!=null) return;
+        controls=new AnimationLock(engine,ship);
+        for(var p:parts) p.hold();
+    }
     void continueBurn() { burnEnded=false; }
     void endBurn() { burnEnded=true; if(expired) forget(); }
     private void forget() { if(ship.getCustomData().get(Moci_DiamondDrive.EVENT)==this) ship.removeCustomData(Moci_DiamondDrive.EVENT); }
-    private void release() { if(!released){ for(var p:parts) p.release(); released=true; } }
+    private void release() {
+        if(released) return;
+        if(controls!=null) controls.release();
+        for(var p:parts) p.release();
+        released=true;
+    }
     @Override public void cleanup() { release(); expired=true; echo=null; if(burnEnded) forget(); }
     @Override public boolean isExpired() { return expired; }
     @Override public EnumSet<CombatEngineLayers> getActiveLayers() { return LAYERS; }
@@ -104,6 +111,7 @@ final class Moci_SignalArrival extends BaseCombatLayeredRenderingPlugin {
         }
         boolean emit=visible() && engine.getViewport().isNearViewport(gate,4*radius);
         if(!released) {
+            if(post<0 && controls!=null) controls.advance();
             for(var p:parts) {
                 if(p.s!=ship && (!p.s.isAlive() || p.s.getParentStation()!=ship || !engine.isEntityInPlay(p.s))) { p.release(); p.detached=true; }
                 if(p.held) p.pin();

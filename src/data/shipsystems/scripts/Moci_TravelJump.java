@@ -9,6 +9,9 @@ import org.dark.shaders.distortion.RippleDistortion;
 import org.dark.shaders.distortion.WaveDistortion;
 import org.lazywizard.lazylib.MathUtils;
 import data.scripts.util.Moci_BoxBasedUtil;
+import data.scripts.util.Moci_Util;
+import data.scripts.util.Moci_TravelDriveControl.AnimationLock;
+import com.fs.starfarer.api.input.InputEventAPI;
 import org.boxutil.units.standard.entity.FlareEntity;
 
 import com.fs.starfarer.api.Global;
@@ -37,6 +40,36 @@ public class Moci_TravelJump extends BaseShipSystemScript {
     // 核心引用
     public CombatEngineAPI engine = Global.getCombatEngine();
     private ShipAPI ship; // 当前舰船引用
+    private Staging staging;
+    private float visualRadius; // 本次跃迁的光斑和扭曲半径，不用于寻找无碰撞落点
+
+    // 母舰被移除时未必会收到 unapply；短时监听器也负责释放仍在场的模块。
+    private static final class Staging extends BaseEveryFrameCombatPlugin {
+        final CombatEngineAPI engine;
+        final ShipAPI root;
+        final AnimationLock lock;
+        boolean closed;
+        Staging(CombatEngineAPI engine, ShipAPI root) {
+            this.engine = engine;
+            this.root = root;
+            lock = AnimationLock.hiddenArrival(engine, root);
+        }
+        @Override public void advance(float amount, java.util.List<InputEventAPI> events) {
+            if (closed) return;
+            if (!root.isAlive() || !engine.isEntityInPlay(root)) close();
+            else if (amount > 0f && !engine.isPaused()) lock.advance();
+        }
+        void close() {
+            if (closed) return;
+            closed = true;
+            lock.release();
+            engine.removePlugin(this);
+        }
+    }
+
+    private void endStaging() {
+        if (staging != null) { staging.close(); staging = null; }
+    }
 
     // 位置相关变量
     private Vector2f endLoc = null; // 目标位置
@@ -68,6 +101,17 @@ public class Moci_TravelJump extends BaseShipSystemScript {
     // === 视觉效果开关 ===
     private static final boolean ENABLE_SMOKE_EFFECTS = false; // 是否启用烟雾效果（true=启用烟雾，false=仅光晕和扭曲）
 
+    // 整舰只取一次速度，避免母舰与模块的残影朝相反方向滑开。
+    static void addAssemblyEcho(CombatEngineAPI engine,ShipAPI root,Color color) {
+        Vector2f velocity=root.getVelocity();
+        float vx=-velocity.x, vy=-velocity.y;
+        root.addAfterimage(color,0,0,vx,vy,0,.1f,0f,.1f,false,true,true);
+        for(ShipAPI part:root.getChildModulesCopy()) {
+            if(part!=null && part.getParentStation()==root && part.isAlive() && !part.isDoNotRender() && engine.isEntityInPlay(part))
+                part.addAfterimage(color,0,0,vx,vy,0,.1f,0f,.1f,false,true,true);
+        }
+    }
+
     /**
      * 系统效果应用方法 - 核心逻辑处理
      * 
@@ -83,9 +127,14 @@ public class Moci_TravelJump extends BaseShipSystemScript {
         } else {
             return; // 如果不是舰船实体则退出
         }
+        if (state != State.IN && state != State.ACTIVE && state != State.OUT) { endStaging(); return; }
+        if (engine == null || !ship.isAlive() || !engine.isEntityInPlay(ship)) { endStaging(); return; }
 
         // 计算目标位置（只在首次激活时计算一次）
         if (once && !targetCalculated) {
+            var bounds=Moci_Util.measureTravelHull(ship,engine);
+            visualRadius=ship.getCollisionRadius();
+            if(bounds.hasModules()) visualRadius=Math.max(visualRadius,bounds.radius());
             endLoc = evaluateLandLocationForStart(ship);
             targetCalculated = true;
         }
@@ -103,17 +152,10 @@ public class Moci_TravelJump extends BaseShipSystemScript {
 
             // OUT状态的特殊处理（系统结束阶段）
             if (state == State.OUT) {
-                // 恢复舰船透明度
-                ship.setExtraAlphaMult2(1);
-                if (!ship.getChildModulesCopy().isEmpty()) {
-                    for (ShipAPI module : ship.getChildModulesCopy()) {
-                        module.setExtraAlphaMult2(1f); // 同步恢复模块透明度
-                    }
-                }
+                endStaging(); // 显形就交还操控，不等残影、音效结束。
 
                 // 计算当前位置和速度差值用于残影效果
                 Vector2f currLoc = ship.getLocation();
-                Vector2f diff = new Vector2f(ship.getVelocity());
 
                 // 强制舰船加速（保持前进动力）
                 ship.giveCommand(ShipCommand.ACCELERATE, null, 0);
@@ -129,17 +171,7 @@ public class Moci_TravelJump extends BaseShipSystemScript {
                     Color c = new Color(AFTER_IMAGE.getRed(), AFTER_IMAGE.getGreen(),
                             AFTER_IMAGE.getBlue(), (int) (AFTER_IMAGE.getAlpha() * effectLevel));
 
-                    // 为主舰船添加残影（反向速度方向）
-                    ship.addAfterimage(c, 0, 0, -diff.getX(), -diff.getY(),
-                            0, 0.1f, 0f, 0.1f, false, true, true);
-
-                    // 为子模块添加残影
-                    if (!ship.getChildModulesCopy().isEmpty()) {
-                        for (ShipAPI module : ship.getChildModulesCopy()) {
-                            module.addAfterimage(c, 0, 0, diff.getX(), diff.getY(),
-                                    0, 0.1f, 0f, 0.1f, false, true, true);
-                        }
-                    }
+                    addAssemblyEcho(engine,ship,c);
                 }
 
                 // OUT状态也创建舰船位置视觉效果（跟随舰船移动）（仅在BoxUtil可用时）
@@ -154,7 +186,7 @@ public class Moci_TravelJump extends BaseShipSystemScript {
                     onceFx = true;
 
                     // 在OUT阶段开始时创建一个MagicLensFlare，与FlareEntity相同的大小和颜色
-                    float flareWidth = ship.getCollisionRadius() * 6.0F;
+                    float flareWidth = visualRadius * 6.0F;
                     MagicLensFlare.createSharpFlare(engine, ship, ship.getLocation(), 9f,
                             flareWidth, 0f, // 朝向0度
                             TARGET_GLOW_1, TARGET_GLOW_2);
@@ -164,12 +196,9 @@ public class Moci_TravelJump extends BaseShipSystemScript {
                     createOutPhaseRipple(ship.getLocation());
                 }
             } else {
-                // 非OUT状态时隐藏舰船（相位状态）
-                ship.setExtraAlphaMult2(0f);
-                if (!ship.getChildModulesCopy().isEmpty()) {
-                    for (ShipAPI module : ship.getChildModulesCopy()) {
-                        module.setExtraAlphaMult2(0f); // 同步隐藏模块
-                    }
+                if (staging == null) {
+                    staging = new Staging(engine, ship);
+                    engine.addPlugin(staging);
                 }
 
                 // IN和ACTIVE状态创建舰船位置视觉效果（跟随舰船移动）（仅在BoxUtil可用时）
@@ -179,7 +208,7 @@ public class Moci_TravelJump extends BaseShipSystemScript {
                     // 创建和更新舰船位置的扭曲效果
                     if (targetWave == null) {
                         targetWave = new WaveDistortion(ship.getLocation(), new Vector2f(0, 0));
-                        targetWave.setSize(ship.getCollisionRadius() * 1.5F);
+                        targetWave.setSize(visualRadius * 1.5F);
                         targetWave.setIntensity(10.0F);
                         targetWave.setArc(0.0F, 360.0F);
                         targetWave.flip(true); // IN阶段正向扭曲
@@ -221,8 +250,8 @@ public class Moci_TravelJump extends BaseShipSystemScript {
         float out = ship.getSystem().getChargeDownDur();
 
         // 定义最大和最小尺寸
-        float maxWidth = ship.getCollisionRadius() * 3.0F;
-        float minWidth = ship.getCollisionRadius() * 0F;
+        float maxWidth = visualRadius * 3.0F;
+        float minWidth = visualRadius * 0F;
         
         // 根据effectLevel计算当前尺寸（从最小到最大）
         float currentWidth = minWidth + (maxWidth - minWidth) * effectLevel;
@@ -246,8 +275,8 @@ public class Moci_TravelJump extends BaseShipSystemScript {
         }
 
         // 内核光晕的尺寸参数
-        float innerMaxWidth = ship.getCollisionRadius() * 3F * 0.20F;
-        float innerMinWidth = ship.getCollisionRadius() * 0F * 0.20F;
+        float innerMaxWidth = visualRadius * 3F * 0.20F;
+        float innerMinWidth = visualRadius * 0F * 0.20F;
         float innerCurrentWidth = innerMinWidth + (innerMaxWidth - innerMinWidth) * effectLevel;
         float innerCurrentHeight = innerCurrentWidth * 0.1F;
 
@@ -268,7 +297,7 @@ public class Moci_TravelJump extends BaseShipSystemScript {
 
         // 舰船位置烟雾效果（可选）
         if (ENABLE_SMOKE_EFFECTS) {
-            createTargetSmokeRing(currentLoc, ship.getCollisionRadius() * 1.0F * effectLevel, effectLevel);
+            createTargetSmokeRing(currentLoc, visualRadius * 1.0F * effectLevel, effectLevel);
         }
     }
 
@@ -320,6 +349,7 @@ public class Moci_TravelJump extends BaseShipSystemScript {
      * @param id    系统ID
      */
     public void unapply(MutableShipStatsAPI stats, String id) {
+        endStaging();
         // 移除所有属性修正
         stats.getMaxSpeed().unmodify(id); // 移除最大速度修正
         stats.getMaxTurnRate().unmodify(id); // 移除转向速度修正
@@ -469,14 +499,14 @@ public class Moci_TravelJump extends BaseShipSystemScript {
                 targetWave.flip(true);
                 float inIntensity = effectLevel * 40.0F + 10.0F;
                 targetWave.setLocation(ship.getLocation());
-                targetWave.setSize(ship.getCollisionRadius() * (1.5F + effectLevel * 0.5F));
+                targetWave.setSize(visualRadius * (1.5F + effectLevel * 0.5F));
                 targetWave.setIntensity(inIntensity);
                 break;
 
             case ACTIVE:
                 targetWave.flip(true);
                 targetWave.setLocation(ship.getLocation());
-                targetWave.setSize(ship.getCollisionRadius() * 2.0F);
+                targetWave.setSize(visualRadius * 2.0F);
                 targetWave.setIntensity(50.0F);
                 break;
 
@@ -484,7 +514,7 @@ public class Moci_TravelJump extends BaseShipSystemScript {
                 targetWave.flip(false);
                 float outIntensity = effectLevel * 50.0F;
                 targetWave.setLocation(ship.getLocation());
-                targetWave.setSize(ship.getCollisionRadius() * (2.0F - effectLevel * 0.5F));
+                targetWave.setSize(visualRadius * (2.0F - effectLevel * 0.5F));
                 targetWave.setIntensity(outIntensity);
 
                 if (effectLevel < 0.1f) {
@@ -504,7 +534,7 @@ public class Moci_TravelJump extends BaseShipSystemScript {
     private void createOutPhaseRipple(Vector2f location) {
         // === 创建涟漪扭曲效果 ===
         float lifetime = 0.6F; // 涟漪持续时间
-        float radius = ship.getCollisionRadius() * 4.0F; // 涟漪范围基于舰船大小
+        float radius = visualRadius * 4.0F; // 涟漪范围基于舰船大小
 
         RippleDistortion ripple = new RippleDistortion();
         ripple.setLocation(location); // 设置扭曲中心位置

@@ -2,8 +2,8 @@ package data.shipsystems.scripts;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
-import com.fs.starfarer.api.graphics.SpriteAPI;
 import data.scripts.util.Moci_Util;
+import data.scripts.util.Moci_TravelDriveControl.AnimationLock;
 import com.fs.starfarer.combat.CombatViewport;
 import com.fs.starfarer.combat.entities.Ship;
 import org.lwjgl.BufferUtils;
@@ -80,7 +80,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
                 SCORCH_BLOCKS,SCORCH_DEPTH,SCORCH_CHIPS, // v3 主块数、大块凹凸、小缺口
                 SCORCH_V2_ROUGHNESS);                    // v2 碎齿起伏强度
     }
-    private static final ShipCommand[] BLOCK = {ShipCommand.FIRE, ShipCommand.VENT_FLUX, ShipCommand.TOGGLE_SHIELD_OR_PHASE_CLOAK,
+    private static final ShipCommand[] BLOCK = {ShipCommand.VENT_FLUX, ShipCommand.TOGGLE_SHIELD_OR_PHASE_CLOAK,
             ShipCommand.ACCELERATE, ShipCommand.ACCELERATE_BACKWARDS, ShipCommand.DECELERATE, ShipCommand.STRAFE_LEFT,
             ShipCommand.STRAFE_RIGHT, ShipCommand.TURN_LEFT, ShipCommand.TURN_RIGHT};
     // Native render() writes this cache even for a visual copy. External thrusters read it separately from extraAlpha.
@@ -110,6 +110,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
     private final EnumSet<CombatEngineLayers> layers = EnumSet.of(CombatEngineLayers.UNDER_SHIPS_LAYER);
     private float nose, tail, width, age, nextSmoke = SMOKE, nextArc = LIGHTNING;
     private boolean released, expired, systemEnded;
+    private AnimationLock controls;
 
     Moci_NebulaGateTransit(CombatEngineAPI engine, ShipAPI ship, Vector2f to) {
         this(engine,ship,to,Moci_NebulaGate.EVENT,false,Moci_NebulaGate.ANIMATION_SPEED);
@@ -133,34 +134,17 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
         for (Part part : parts) {
             if (part.hidden) continue;
             ShipAPI s = part.s;
-            measure(s.getSpriteAPI(), s.getLocation(), s.getFacing());
-            for (WeaponAPI w : s.getAllWeapons()) {
-                measure(w.getSprite(), w.getLocation(), w.getCurrAngle());
-                measure(w.getBarrelSpriteAPI(), w.getLocation(), w.getCurrAngle());
-                measure(w.getUnderSpriteAPI(), w.getLocation(), w.getCurrAngle());
-                measure(w.getGlowSpriteAPI(), w.getLocation(), w.getCurrAngle());
-            }
             layers.add(s.getLayer());
             if (s.getActiveLayers().contains(CombatEngineLayers.STATION_WEAPONS_LAYER)) layers.add(CombatEngineLayers.STATION_WEAPONS_LAYER);
         }
+        var bounds=Moci_Util.measureTravelHull(ship,engine);
+        nose=bounds.nose(); tail=bounds.tail(); width=bounds.side();
         radius = Math.max(MIN_GATE_RADIUS, width*1.14f+5f);
         gate = new Vector2f(to.x-axisX*(tail+GAP), to.y-axisY*(tail+GAP));
         mask = new Moci_NebulaGateMask(gate,axisX,axisY,radius);
         plane.put(axisX).put(axisY).put(0d).put(-(axisX*(double)gate.x+axisY*(double)gate.y)).flip();
         seed = random.nextFloat()*6.28f;
         scorch = makeScorch(seed);
-    }
-
-    // Project the four sprite corners; ship and weapon pivots need not be centred, or aligned with each other.
-    private void measure(SpriteAPI sp, Vector2f p, float angle) {
-        if (sp == null || sp.getColor().getAlpha() == 0 || sp.getAlphaMult() <= 0f) return;
-        float dx = p.x-ship.getLocation().x, dy = p.y-ship.getLocation().y;
-        double a = Math.toRadians(angle-facing-90f), c = Math.cos(a), s = Math.sin(a);
-        for (int i=0;i<4;i++) {
-            float x=((i&1)==0?0:sp.getWidth())-sp.getCenterX(), y=((i&2)==0?0:sp.getHeight())-sp.getCenterY();
-            float fore = dx*axisX+dy*axisY+(float)(x*c-y*s), side = dy*axisX-dx*axisY+(float)(x*s+y*c);
-            nose=Math.max(nose,fore); tail=Math.max(tail,-fore); width=Math.max(width,Math.abs(side));
-        }
     }
 
     private final class Part {
@@ -187,9 +171,8 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
         void pin() {
             s.setDoNotRender(true); s.setExtraAlphaMult(0f); cache(0f);
             s.setCollisionClass(CollisionClass.NONE); s.getLocation().set(at); s.setFacing(heading);
-            s.getVelocity().set(0f,0f); s.setAngularVelocity(0f); s.setHoldFireOneFrame(true);
+            s.getVelocity().set(0f,0f); s.setAngularVelocity(0f);
             for (ShipCommand cmd : BLOCK) s.blockCommandForOneFrame(cmd);
-            for (WeaponAPI w : s.getAllWeapons()) w.setForceNoFireOneFrame(true);
         }
         void cache(float value) { if (COMBINED != null && s instanceof Ship nativeShip) COMBINED.set(nativeShip,value); }
         void release() {
@@ -207,7 +190,11 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
         }
     }
 
-    void start() { for (Part p : parts) p.take(); }
+    void start() {
+        if (released || controls!=null) return;
+        controls=new AnimationLock(engine,ship);
+        for (Part p : parts) p.take();
+    }
     void registered(CombatEntityAPI host) {
         if (host!=null) host.getLocation().set(gate);
         start();
@@ -216,6 +203,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
     boolean locked() { return !released; }
     private void release() {
         if (released) return;
+        if (controls!=null) controls.release();
         for (Part p : parts) p.release();
         released=true;
     }
@@ -240,13 +228,14 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
     @Override public void advance(float amount) {
         if (expired) return;
         if (!ship.isAlive() || !engine.isEntityInPlay(ship)) { cleanup(); return; }
-        if (amount<=0f || engine.isPaused()) return;
         if (ship.isRetreating()) { cleanup(); return; } // 入场燃烧可能已经结束，不能等下一次 apply 才解锁
+        if (amount<=0f || engine.isPaused()) return;
         if (ribbon) {
             ribbonElapsed+=amount;
             age=Moci_FluxRibbonDrive.TIMING.animationAt((float)ribbonElapsed);
         } else age+=amount*speed;
         if (!released) {
+            if (age<HANDOFF && controls!=null) controls.advance();
             for (Part p : parts) {
                 if (p.s!=ship && (!p.s.isAlive() || !engine.isEntityInPlay(p.s) || p.s.getParentStation()!=ship)) p.release();
                 if (p.held) p.pin();
