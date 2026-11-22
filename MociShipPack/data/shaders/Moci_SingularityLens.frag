@@ -9,6 +9,9 @@ uniform vec3 horizonColor;
 uniform float accretionLens;
 varying vec2 v_uv;
 
+// Black hole cannon only: 1.00 = original bend, 0.00 = shadow without refraction.
+const float ACCRETION_LENS_STRENGTH = 1.25;
+
 vec2 deflectToSourceUV(vec2 uv, float lensWeight){
     float thetaE = rs_rlens_strength.z;
     vec2 px = uv * texSize;
@@ -59,7 +62,7 @@ void main(){
         vec2 offset = mix(q, mix(outer, farSide, core), rim) * rs;
         // Only the local box was copied. Taper the displacement if a ray would leave the screen
         // or the capture, instead of stretching the last copied pixel into a stripe.
-        vec2 delta = offset - (px - c);
+        vec2 delta = (offset - (px - c)) * ACCRETION_LENS_STRENGTH;
         vec2 lo = max(vec2(0.5), c - rMaxPx - 0.5);
         vec2 hi = min(texSize - 0.5, c + rMaxPx + 0.5);
         vec2 room = mix(px - lo, hi - px, step(vec2(0.0), delta));
