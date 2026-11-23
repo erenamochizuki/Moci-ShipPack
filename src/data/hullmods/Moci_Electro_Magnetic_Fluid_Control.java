@@ -65,7 +65,7 @@ public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
     public String getUnapplicableReason(ShipAPI ship) {
         if (ship != null && ship.getVariant() != null
                 && ship.getVariant().hasHullMod(INCOMPATIBLE_HULLMOD_ID)) {
-            return "与自适应相位线圈不兼容";
+            return Moci_TextLoader.getText("code_Moci_Electro_Magnetic_Fluid_Control", "t001", "与自适应相位线圈不兼容");
         }
         return super.getUnapplicableReason(ship);
     }
@@ -113,7 +113,7 @@ public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
         CombatEngineAPI engine = Global.getCombatEngine();
         if (engine != null && ship == engine.getPlayerShip()) {
             engine.maintainStatusForPlayerShip(id, "graphics/icons/hullsys/phase_cloak.png",
-                    "磁流体控制系统", String.format("最大航速+%.0f%%，机动性+%.0f%%", speedBonus, mobilityBonus), false);
+                    Moci_TextLoader.getText("code_Moci_Electro_Magnetic_Fluid_Control", "t002", "磁流体控制系统"), String.format(Moci_TextLoader.getText("code_Moci_Electro_Magnetic_Fluid_Control", "t003", "最大航速+%.0f%%，机动性+%.0f%%"), speedBonus, mobilityBonus), false);
         }
     }
 
@@ -214,7 +214,7 @@ public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
                 "phase_max", String.valueOf(Math.round(PHASE_MOBILITY_MAX_PERCENT)));
         tooltip.addPara(Moci_TextLoader.getTextWithReplacements(TEXT_ID, "description.phase_mobility", phaseValues), pad, h,
                 Moci_TextLoader.getHighlightsWithReplacements(TEXT_ID, "description.phase_mobility_highlights", phaseValues).toArray(new String[0]));
-        tooltip.addPara("与}%s}不兼容。", pad, Misc.getNegativeHighlightColor(), "自适应相位线圈");
+        tooltip.addPara(Moci_TextLoader.getText("code_Moci_Electro_Magnetic_Fluid_Control", "t004", "与}%s}不兼容。"), pad, Misc.getNegativeHighlightColor(), Moci_TextLoader.getText("code_Moci_Electro_Magnetic_Fluid_Control", "t005", "自适应相位线圈"));
 
 		tooltip.addPara(
 				Moci_TextLoader.getTextWithReplacements(TEXT_ID, "description.sensor_profile",

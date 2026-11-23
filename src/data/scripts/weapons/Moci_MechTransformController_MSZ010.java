@@ -1,5 +1,6 @@
 package data.scripts.weapons;
 
+import data.scripts.util.Moci_TextLoader;
 import org.lwjgl.input.Keyboard;
 
 import com.fs.starfarer.api.combat.CombatEngineAPI;
@@ -305,23 +306,23 @@ public class Moci_MechTransformController_MSZ010 implements EveryFrameWeaponEffe
             return;
         }
 
-        String title = "ZZ高达变形系统";
+        String title = Moci_TextLoader.getText("code_Moci_MechTransformController_MSZ010", "t001", "ZZ高达变形系统");
         String data;
         boolean isDebuff = false;
 
         if (state == State.TRANSFORMING) {
-            data = "变形中";
+            data = Moci_TextLoader.getText("code_Moci_MechTransformController_MSZ010", "t002", "变形中");
         } else if (state == State.REVERTING) {
-            data = "复归中";
+            data = Moci_TextLoader.getText("code_Moci_MechTransformController_MSZ010", "t003", "复归中");
         } else if (cooldownTimer > 0f) {
-            data = String.format("冷却 %.1f秒", cooldownTimer);
+            data = String.format(Moci_TextLoader.getText("code_Moci_MechTransformController_MSZ010", "t004", "冷却 %.1f秒"), cooldownTimer);
             isDebuff = true;
         } else if (state == State.TRANSFORMED) {
-            data = String.format("Wave Rider: 速度 +%.0f%%，长按X复归", TRANSFORMED_SPEED_BONUS);
+            data = String.format(Moci_TextLoader.getText("code_Moci_MechTransformController_MSZ010", "t005", "G-Fortress: 速度 +%.0f%%，长按X复归"), TRANSFORMED_SPEED_BONUS);
         } else if (holdTimer > 0f) {
-            data = String.format("变形准备 %.0f%%", Math.min(1f, holdTimer / HOLD_TIME) * 100f);
+            data = String.format(Moci_TextLoader.getText("code_Moci_MechTransformController_MSZ010", "t006", "变形准备 %.0f%%"), Math.min(1f, holdTimer / HOLD_TIME) * 100f);
         } else {
-            data = String.format("MS形态: 机动 +%.0f%%，长按X变形", NORMAL_MANEUVER_BONUS);
+            data = String.format(Moci_TextLoader.getText("code_Moci_MechTransformController_MSZ010", "t007", "MS形态: 机动 +%.0f%%，长按X变形"), NORMAL_MANEUVER_BONUS);
         }
 
         engine.maintainStatusForPlayerShip(STATUS_KEY,

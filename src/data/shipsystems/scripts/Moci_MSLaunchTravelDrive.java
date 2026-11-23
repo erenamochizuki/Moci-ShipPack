@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 
 import org.lazywizard.lazylib.MathUtils;
@@ -254,7 +255,7 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
      */
     public StatusData getStatusData(int index, State state, float effectLevel) {
         if (index == 0) {
-            return new StatusData("起飞中..", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_MSLaunchTravelDrive", "t001", "起飞中.."), false);
         }
         return null;
     }
@@ -447,7 +448,7 @@ public class Moci_MSLaunchTravelDrive extends BaseShipSystemScript {
             Global.getSoundPlayer().playSound("ui_noise_static",
                     1f + MathUtils.getRandomNumberInRange(-0.3f, .3f), 1f,
                     carrier.getLocation(), new Vector2f());
-            carrier.getFluxTracker().showOverloadFloatyIfNeeded("祝你好运！", Color.white, 2f, true);
+            carrier.getFluxTracker().showOverloadFloatyIfNeeded(Moci_TextLoader.getText("code_Moci_MSLaunchTravelDrive", "t002", "祝你好运！"), Color.white, 2f, true);
         }
 
         ship.setFacing(carrier.getFacing() + slot.getAngle());

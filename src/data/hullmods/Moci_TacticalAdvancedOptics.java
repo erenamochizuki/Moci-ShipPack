@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.combat.BaseHullMod;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -28,6 +29,6 @@ public class Moci_TacticalAdvancedOptics extends BaseHullMod implements Moci_Tac
         return ship != null && !ship.getVariant().hasHullMod(HullMods.HIGH_SCATTER_AMP);
     }
     @Override public String getUnapplicableReason(ShipAPI ship) {
-        return "与高散射增幅器不兼容。";
+        return Moci_TextLoader.getText("code_Moci_TacticalAdvancedOptics", "t001", "与高散射增幅器不兼容。");
     }
 }

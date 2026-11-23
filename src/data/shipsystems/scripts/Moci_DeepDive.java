@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.ArmorGridAPI;
 import com.fs.starfarer.api.combat.CollisionClass;
@@ -181,7 +182,7 @@ public class Moci_DeepDive extends BaseShipSystemScript {
                 engine.maintainStatusForPlayerShip(
                         STATUS_KEY_ARMOR_REPAIR,
                         "graphics/icons/hullsys/phase_cloak.png",
-                        "深潜战术",
+                        Moci_TextLoader.getText("code_Moci_DeepDive", "t001", "深潜战术"),
                         armorRepairStatus,
                         false
                 );
@@ -322,7 +323,7 @@ public class Moci_DeepDive extends BaseShipSystemScript {
      * 装甲修复速率状态文本。
      */
     private String getArmorRepairStatusText(ShipAPI ship) {
-        return String.format("装甲修复中：%.1f/秒", getArmorRepairPerSecond(ship));
+        return String.format(Moci_TextLoader.getText("code_Moci_DeepDive", "t002", "装甲修复中：%.1f/秒"), getArmorRepairPerSecond(ship));
     }
 
     @Override

@@ -1,0 +1,373 @@
+{
+    "code_Moci_AcausalDisruptorStats": {
+        "t001": "相位崩溃!"
+    },
+    "code_Moci_AdaptiveWeaponSystem": {
+        "t001": " 航速，+ ",
+        "t002": "% 机动性",
+        "t003": "% 实弹/能量射速",
+        "t004": "% 实弹/能量伤害"
+    },
+    "code_Moci_AirSquadronManager": {
+        "t001": "船体内置联队不能改装，需要至少一个非内置机库",
+        "t002": "需要至少一个可用的舰载机机库",
+        "t003": "允许在情报界面的 %s 中调整 %s 的 %s 装配。 %s ， %s 。",
+        "t004": "编队管理",
+        "t005": "母舰",
+        "t006": "舰载机联队",
+        "t007": "每个机库分别设置",
+        "t008": "不附加战斗属性",
+        "t009": "使用方法",
+        "t010": "在情报界面打开 %s ，选择 %s ；再选择 %s 和要调整的 %s ，完成修改后点击 %s 。每支联队按 %s 结算。",
+        "t011": "航空中队管理",
+        "t012": "机库联队",
+        "t013": "应用装配",
+        "t014": "一套武器配置",
+        "t015": "注意事项",
+        "t016": "安装 %s ，但母舰 %s 。 %s 。",
+        "t017": "无需分配军官",
+        "t018": "至少要有一个非内置机库",
+        "t019": "自动化舰船不能安装",
+        "t020": "卸下船插后，退出改装或市场界面时，系统会 %s ，并把额外投入的武器 %s 。货舱中的 %s %s 。本船插 %s 。",
+        "t021": "恢复联队原型",
+        "t022": "退回舰队货舱",
+        "t023": "自定义联队 LPC",
+        "t024": "保留原有装配",
+        "t025": "不能永久内置"
+    },
+    "code_Moci_AlwaysOnShieldFluxShunt": {
+        "t001": "舰船没有护盾。"
+    },
+    "code_Moci_AugmentedHumanSubsystem": {
+        "t001": "消耗 %.0f 软幅能：%.0f 秒内本舰时流 ×%.3f，世界时流 ×%.2f",
+        "t002": "强化人"
+    },
+    "code_Moci_BroadsideLidarArrayStats": {
+        "t001": "武器射程 +",
+        "t002": "射速 +",
+        "t003": "后坐力 -",
+        "t004": "弹速 +",
+        "t005": "侧弦激光雷达阵列 - 被动"
+    },
+    "code_Moci_ChainLightningBranching": {
+        "t001": "需要先安装连锁雷暴电容器",
+        "t002": "只能选择一种雷暴调谐"
+    },
+    "code_Moci_ChainLightningCapacitor": {
+        "t001": "需要第八战斗群-隐匿实验室",
+        "t002": "连锁雷暴电容器",
+        "t003": "充能 "
+    },
+    "code_Moci_ChainLightningOverload": {
+        "t001": "需要先安装连锁雷暴电容器",
+        "t002": "只能选择一种雷暴调谐"
+    },
+    "code_Moci_CombatSquadCombatPlugin": {
+        "t001": "机师-"
+    },
+    "code_Moci_DeepDive": {
+        "t001": "深潜战术",
+        "t002": "装甲修复中：%.1f/秒"
+    },
+    "code_Moci_DefenseDroneStats": {
+        "t001": "守卫无人机",
+        "t002": "战场视野+ %s | 电子战强度+ %s",
+        "t003": "状态激活中"
+    },
+    "code_Moci_DiamondDrive": {
+        "t001": "提高引擎出力"
+    },
+    "code_Moci_Electro_Magnetic_Fluid_Control": {
+        "t001": "与自适应相位线圈不兼容",
+        "t002": "磁流体控制系统",
+        "t003": "最大航速+%.0f%%，机动性+%.0f%%",
+        "t004": "与}%s}不兼容。",
+        "t005": "自适应相位线圈"
+    },
+    "code_Moci_EnergyCoreOverclock": {
+        "t001": "射速+",
+        "t002": "弹速+",
+        "t003": "弹药回复+",
+        "t004": " 幅能消耗-50%"
+    },
+    "code_Moci_FluxArmor": {
+        "t001": "决战形态",
+        "t002": "% 伤害减免",
+        "t003": "时间流速 x",
+        "t004": " 最大速度"
+    },
+    "code_Moci_FluxRiftLightningSystem": {
+        "t001": "每0.2秒消耗500幅能释放裂隙电弧",
+        "t002": "400能量伤害 / 400 EMP"
+    },
+    "code_Moci_FluxRiftVent": {
+        "t001": "需要第八战斗群-隐匿实验室"
+    },
+    "code_Moci_GravityBeamCannonEffect": {
+        "t001": "重力波炮 发射中 - 禁用战术系统",
+        "t002": "重力波炮 充能中 - 禁用战术系统",
+        "t003": "重力波炮"
+    },
+    "code_Moci_Great_Determination": {
+        "t001": "大毅力激活!",
+        "t002": "修复中...",
+        "t003": "无使用次数",
+        "t004": "准备激活",
+        "t005": "待机中"
+    },
+    "code_Moci_HWIWingmanEffect": {
+        "t001": "浮游炮: "
+    },
+    "code_Moci_HotkeySubsystem": {
+        "t001": "未绑定",
+        "t002": "未分配键，去 LunaLib 设置",
+        "t003": "没有分到按键，请在 LunaLib → Moci 里给「",
+        "t004": "」设置按键",
+        "t005": "这台机体没有挂载对应的按键"
+    },
+    "code_Moci_LandingAI": {
+        "t001": "撤退中",
+        "t002": "正在着陆",
+        "t003": "正在整备",
+        "t004": "整备程序"
+    },
+    "code_Moci_Lidararray": {
+        "t001": "幅能装甲",
+        "t002": "最高速度+ %s | 机动性提高 | 减伤 %s | 剩余: %s ",
+        "t003": "BUFF激活中"
+    },
+    "code_Moci_MSLaunchTravelDrive": {
+        "t001": "起飞中..",
+        "t002": "祝你好运！"
+    },
+    "code_Moci_MSN03Wingman_Effect": {
+        "t001": "浮游炮: "
+    },
+    "code_Moci_MSN04Wingman_Effect": {
+        "t001": "浮游炮: "
+    },
+    "code_Moci_MassDrive": {
+        "t001": "提高引擎出力"
+    },
+    "code_Moci_MechTransformController": {
+        "t001": "Z高达变形系统",
+        "t002": "变形中",
+        "t003": "复归中",
+        "t004": "冷却 %.1f秒",
+        "t005": "Wave Rider: 基准最高330 / 加速度650 / 转向60，X切换复归",
+        "t006": "MS形态: 加速度220 / 刹车400 / 转向100，X切换变形"
+    },
+    "code_Moci_MechTransformController_MSZ010": {
+        "t001": "ZZ高达变形系统",
+        "t002": "变形中",
+        "t003": "复归中",
+        "t004": "冷却 %.1f秒",
+        "t005": "G-Fortress: 速度 +%.0f%%，长按X复归",
+        "t006": "变形准备 %.0f%%",
+        "t007": "MS形态: 机动 +%.0f%%，长按X变形"
+    },
+    "code_Moci_MissileDefenseRadarStats": {
+        "t001": "导弹防御系统激活",
+        "t002": "传感器范围 +",
+        "t003": "导弹防御雷达 - 被动扫描",
+        "t004": "导弹防御雷达 - 主动攻击"
+    },
+    "code_Moci_MissileJammerSystemScript": {
+        "t001": "武器射程降低"
+    },
+    "code_Moci_MsBurstDriver": {
+        "t001": "动力背包启动"
+    },
+    "code_Moci_NZ333Wingman_Effect": {
+        "t001": "浮游炮: "
+    },
+    "code_Moci_NebulaGate": {
+        "t001": "提高引擎出力"
+    },
+    "code_Moci_NewtypeSubsystem": {
+        "t001": "消耗 %.0f 软幅能：%.0f 秒内本舰时流 ×%.1f，世界时流 ×%.2f",
+        "t002": "新人类"
+    },
+    "code_Moci_PhaseCrossing": {
+        "t001": "玻色子跳跃 - 跳跃中"
+    },
+    "code_Moci_PhaseCrossing_Simple": {
+        "t001": "玻色子跳跃 - 跳跃中"
+    },
+    "code_Moci_PilotManager": {
+        "t001": "拉姆达",
+        "t002": "缪",
+        "t003": "纽",
+        "t004": "克西",
+        "t005": "欧米克戎",
+        "t006": "罗",
+        "t007": "西格玛",
+        "t008": "陶",
+        "t009": "宇普西龙",
+        "t010": "斐",
+        "t011": "卡伊",
+        "t012": "普赛",
+        "t013": "分析单元",
+        "t014": "战术单元",
+        "t015": "执行单元",
+        "t016": "观测单元",
+        "t017": "校准单元",
+        "t018": "引导单元",
+        "t019": "拦截单元",
+        "t020": "应答单元",
+        "t021": "仲裁单元",
+        "t022": "巡检单元",
+        "t023": "整流单元",
+        "t024": "归档单元",
+        "t025": "阿尔法",
+        "t026": "贝塔",
+        "t027": "伽马",
+        "t028": "德尔塔",
+        "t029": "艾普西隆",
+        "t030": "泽塔",
+        "t031": "艾塔",
+        "t032": "西塔",
+        "t033": "猎鹰",
+        "t034": "老鹰",
+        "t035": "猎豹",
+        "t036": "黑鹰",
+        "t037": "金雕",
+        "t038": "银狼",
+        "t039": "火狐",
+        "t040": "寒鸦",
+        "t041": "幽灵",
+        "t042": "子弹",
+        "t043": "闪电",
+        "t044": "雷霆",
+        "t045": "烈火",
+        "t046": "寒冰",
+        "t047": "钢刃",
+        "t048": "利剑",
+        "t049": "钢铁",
+        "t050": "雄鹰",
+        "t051": "黑豹",
+        "t052": "白狼",
+        "t053": "红龙",
+        "t054": "青鸟",
+        "t055": "金翼",
+        "t056": "银鳞",
+        "t057": "紫电",
+        "t058": "蓝焰",
+        "t059": "编队",
+        "t060": "小队",
+        "t061": "中队",
+        "t062": "战队",
+        "t063": "部队",
+        "t064": "分队",
+        "t065": "机群",
+        "t066": "联队",
+        "squad_name_format": "{roman1}.{roman2}{prefix}{suffix}"
+    },
+    "code_Moci_PointDefenseSystem": {
+        "t001": "点防御射程/转速 +",
+        "t002": "点防御射程 +",
+        "t003": "点防御射速 +",
+        "t004": "武器幅能消耗 -",
+        "t005": "后坐力减轻/快速修复",
+        "t006": "点防御阵列(被动)"
+    },
+    "code_Moci_RampageGhostArrayStats": {
+        "t001": "机体隐匿，不受伤害",
+        "t002": "航速与机动性下降"
+    },
+    "code_Moci_RampageGhostStats": {
+        "t001": "就绪",
+        "t002": "射程外",
+        "t003": "没有目标"
+    },
+    "code_Moci_ShipboardAIBattleListener": {
+        "t001": " 的舰载AI 升级到 ",
+        "t002": " 级"
+    },
+    "code_Moci_ShipboardAIConfigLoader": {
+        "t001": "99系统",
+        "t002": "奈因",
+        "t003": "哈罗AI",
+        "t004": "阿尔法舰载AI",
+        "t005": "高雄",
+        "t006": "金刚",
+        "t007": "榛名",
+        "t008": "欧米伽舰载AI",
+        "t009": "伊欧娜"
+    },
+    "code_Moci_ShipboardAISystemBase": {
+        "t001": "舰载AI"
+    },
+    "code_Moci_ShipboardAISystemRegistry": {
+        "t001": "、"
+    },
+    "code_Moci_ShroudedTemporalShellStats_new": {
+        "t001": "遮罩护盾",
+        "t002": "% 速度和机动性",
+        "t003": "% 武器射速",
+        "t004": "% 能量武器弹药",
+        "t005": "裂隙闪电攻击"
+    },
+    "code_Moci_SuperTimporalStats": {
+        "t001": "时空加速场激活",
+        "t002": "主观时间流速 x"
+    },
+    "code_Moci_System1Effect": {
+        "t001": "% 伤害降低"
+    },
+    "code_Moci_System_RX_93_v2": {
+        "t001": "未选择有效武器",
+        "t002": "就绪"
+    },
+    "code_Moci_TacticalAdvancedOptics": {
+        "t001": "与高散射增幅器不兼容。"
+    },
+    "code_Moci_TacticalHardenedShieldEmitter": {
+        "t001": "舰船没有护盾。"
+    },
+    "code_Moci_TacticalHullmods": {
+        "t001": "强化护盾",
+        "t002": "扩展弹仓",
+        "t003": "扩展发射架",
+        "t004": "先进光学器件",
+        "t005": "重型装甲"
+    },
+    "code_Moci_TimeScaleHud": {
+        "t001": "时间流",
+        "t002": "世界 ×? · 本舰 ×?",
+        "t003": "世界 ",
+        "t004": " · 本舰 ",
+        "t005": "时间流 · 生效 ",
+        "t006": " 条"
+    },
+    "code_Moci_TravelDriveYamatoStats": {
+        "t001": "波动引擎启动"
+    },
+    "code_Moci_WaveMotionGunChargeEffect": {
+        "t001": "机动性降低 %d%% - 质量 +%d%%",
+        "t002": "波动炮 - 空间锚启动",
+        "t003": "战术系统",
+        "t004": "已禁用",
+        "t005": "强制排幅"
+    },
+    "code_Moci_WeaponSwitcherSimpleUI": {
+        "t001": "按键: 未知",
+        "t002": "按键: ",
+        "t003": "未绑定武器"
+    },
+    "code_Moci_YamatoAirDefense": {
+        "t001": "射程增加 25%"
+    },
+    "code_Moci_YamatoMainGunAmmoSwitch": {
+        "t001": "三式融合弹",
+        "t002": "脉冲镭射弹",
+        "t003": "按",
+        "t004": "键切换弹药"
+    },
+    "code_Moci_ZeroWingman2_Effect": {
+        "t001": "浮游炮: "
+    },
+    "code_Moci_ZeroWingman_Effect": {
+        "t001": "浮游炮: "
+    }
+}

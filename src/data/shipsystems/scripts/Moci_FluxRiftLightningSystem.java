@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -289,10 +290,10 @@ public class Moci_FluxRiftLightningSystem extends BaseShipSystemScript {
     @Override
     public StatusData getStatusData(int index, State state, float effectLevel) {
         if (index == 0) {
-            return new StatusData("每0.2秒消耗500幅能释放裂隙电弧", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_FluxRiftLightningSystem", "t001", "每0.2秒消耗500幅能释放裂隙电弧"), false);
         }
         if (index == 1) {
-            return new StatusData("400能量伤害 / 400 EMP", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_FluxRiftLightningSystem", "t002", "400能量伤害 / 400 EMP"), false);
         }
         return null;
     }

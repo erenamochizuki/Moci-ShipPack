@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -328,7 +329,7 @@ public class Moci_PointDefenseSystem extends BaseShipSystemScript {
     public StatusData getStatusData(int index, State state, float effectLevel) {
         if (state == State.IDLE || state == State.COOLDOWN) {
             if (index == 3) {
-                return new StatusData("点防御射程/转速 +" + (int) PASSIVE_RANGE_BONUS + "%", false);
+                return new StatusData(Moci_TextLoader.getText("code_Moci_PointDefenseSystem", "t001", "点防御射程/转速 +") + (int) PASSIVE_RANGE_BONUS + "%", false);
             }
         }
         if (effectLevel <= 0f) return null;
@@ -337,16 +338,16 @@ public class Moci_PointDefenseSystem extends BaseShipSystemScript {
         float bonusPercent = (int) ((ROF_BONUS) * 100f);
 
         if (index == 3) {
-            return new StatusData("点防御射程 +" + (int) RANGE_BONUS + "%", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_PointDefenseSystem", "t002", "点防御射程 +") + (int) RANGE_BONUS + "%", false);
         }
         if (index == 2) {
-            return new StatusData("点防御射速 +" + (int) bonusPercent + "%", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_PointDefenseSystem", "t003", "点防御射速 +") + (int) bonusPercent + "%", false);
         }
         if (index == 1) {
-            return new StatusData("武器幅能消耗 -" + (int) FLUX_REDUCTION + "%", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_PointDefenseSystem", "t004", "武器幅能消耗 -") + (int) FLUX_REDUCTION + "%", false);
         }
         if (index == 0) {
-            return new StatusData("后坐力减轻/快速修复", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_PointDefenseSystem", "t005", "后坐力减轻/快速修复"), false);
         }
         return null;
     }
@@ -357,7 +358,7 @@ public class Moci_PointDefenseSystem extends BaseShipSystemScript {
     @Override
     public String getDisplayNameOverride(State state, float effectLevel) {
         if (state == State.IDLE || state == State.COOLDOWN) {
-            return "点防御阵列(被动)"; // 被动模式显示名称
+            return Moci_TextLoader.getText("code_Moci_PointDefenseSystem", "t006", "点防御阵列(被动)"); // 被动模式显示名称
         }
         return null; // 激活时使用默认名称
     }

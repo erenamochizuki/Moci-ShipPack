@@ -1,5 +1,6 @@
 package data.campaign.intel;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -287,7 +288,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         if (trackedShips.isEmpty()) {
             info.addPara(csText("fleet_no_manageable", "当前没有可管理舰船。"), Misc.getGrayColor(), 8f);
             info.addPara(csFormat("fleet_hint", "安装了 {mod1} 或 {mod2} 的舰船会出现在这里。",
-                    "mod1", "CombatSquad船插", "mod2", "舰载AI系统"), pad, h, "CombatSquad船插", "舰载AI系统");
+                    "mod1", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t001", "CombatSquad船插"), "mod2", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t002", "舰载AI系统")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t001", "CombatSquad船插"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t002", "舰载AI系统"));
             member = null;
             selectedSquadShipId = null;
             return;
@@ -1191,7 +1192,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         if (!hasShipSquad) {
             info.addPara(csText("detail_no_squad", "该舰船当前未成立小队。"), Misc.getGrayColor(), 8f);
             info.addPara(csFormat("detail_no_squad_hint", "请先安装 {mod} 并分配非默认军官，随后在战役中完成小队初始化。",
-                    "mod", "CombatSquad 船插"), 4f, h, "CombatSquad 船插");
+                    "mod", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t003", "CombatSquad 船插")), 4f, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t003", "CombatSquad 船插"));
             info.addButton(csText("common_back", "返回"), "back_to_fleet", 120, TAB_BUTTON_HEIGHT, 10f);
             return;
         }
@@ -2075,13 +2076,13 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         Color bg = fc.getDarkUIColor();
         Color bright = fc.getBrightUIColor();
         TooltipMakerAPI btnHolder1 = generateTabButton(panel, csText("tab_fleet", "编队列表"), BUTTON_FLEET, base, bg, bright, null);
-        TooltipMakerAPI btnHolder2 = generateTabButton(panel, "航空中队管理", Tab.AIR_SQUADRON, base, bg, bright, btnHolder1);
+        TooltipMakerAPI btnHolder2 = generateTabButton(panel, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t004", "航空中队管理"), Tab.AIR_SQUADRON, base, bg, bright, btnHolder1);
         generateTabButton(panel, csText("tab_help", "使用说明"), Tab.HELP, base, bg, bright, btnHolder2);
         return btnHolder1;
     }
 
     private void createAirSquadronView(CustomPanelAPI panel, TooltipMakerAPI info, float width) {
-        info.addPara("选择母舰，逐机库管理航空中队的武器装配。安装“航空中队管理”船插的母舰会出现在这里。", 10f);
+        info.addPara(Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t005", "选择母舰，逐机库管理航空中队的武器装配。安装“航空中队管理”船插的母舰会出现在这里。"), 10f);
         boolean available = Moci_FighterLoadoutService.isAvailable();
         if (!available) {
             info.addPara(Moci_FighterLoadoutService.getUnavailableReason(),
@@ -2097,7 +2098,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
             }
         }
         if (carriers.isEmpty()) {
-            info.addPara("当前没有安装航空中队管理船插的母舰。该船插无需军官，零 OP，有机库即可安装。", Misc.getGrayColor(), 12f);
+            info.addPara(Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t006", "当前没有安装航空中队管理船插的母舰。该船插无需军官，零 OP，有机库即可安装。"), Misc.getGrayColor(), 12f);
             return;
         }
         float rowHeight = 116f;
@@ -2127,11 +2128,11 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                     .inTL(officerX, y);
             // +5：图片是 tooltip 的第一个流式元素，引擎把它右移 5px，框按图片实际位置对齐
             if (available) data.campaign.intel.ui.Moci_UIHoverFrame.attach(rows, officerX + 5f, y, IMAGE_WIDTH, ENTRY_HEIGHT);
-            String captainName = captain != null && !captain.isDefault() ? captain.getNameString() : "未分配军官";
+            String captainName = captain != null && !captain.isDefault() ? captain.getNameString() : Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t007", "未分配军官");
             TooltipMakerAPI details = rows.createUIElement(textWidth, rowHeight - 8f, true);
             details.addPara(ship.getShipName(), Misc.getHighlightColor(), 0f);
             details.addPara(ship.getHullSpec().getHullNameWithDashClass(), Misc.getGrayColor(), 3f);
-            details.addPara("舰长：" + captainName, Misc.getTextColor(), 3f);
+            details.addPara(Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t008", "舰长：") + captainName, Misc.getTextColor(), 3f);
             int installed = 0, editable = 0, modified = 0;
             StringBuilder summary = new StringBuilder();
             if (available) {
@@ -2143,10 +2144,10 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                     if (summary.length() > 0) summary.append(" / ");
                     summary.append(bay.wing() != null ? bay.wing().getWingName() : bay.wingId());
                 }
-                details.addPara("联队 " + installed + " · 可装配 " + editable + " · 已改装 " + modified, 4f);
-                details.addPara(summary.length() > 0 ? summary.toString() : "尚未安装联队", Misc.getGrayColor(), 3f);
+                details.addPara(Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t009", "联队 ") + installed + Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t010", " · 可装配 ") + editable + Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t011", " · 已改装 ") + modified, 4f);
+                details.addPara(summary.length() > 0 ? summary.toString() : Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t012", "尚未安装联队"), Misc.getGrayColor(), 3f);
             } else {
-                details.addPara("装配服务暂不可用，舰船及库存保持原状。", Misc.getGrayColor(), 4f);
+                details.addPara(Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t013", "装配服务暂不可用，舰船及库存保持原状。"), Misc.getGrayColor(), 4f);
             }
             rows.addUIElement(details).inTL(textX, y);
             y += rowHeight;
@@ -2250,7 +2251,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         if ("reset_config".equals(buttonId)) {
             String result = resetAllSquadData();
             Global.getSector().getCampaignUI().addMessage(result,
-                    result.startsWith("已") ? Misc.getHighlightColor() : Misc.getNegativeHighlightColor());
+                    resetSucceeded ? Misc.getHighlightColor() : Misc.getNegativeHighlightColor());
             currentTab = Tab.FLEET;
             selectingPortraitIdx = null;
             selectingSkillIdx = null;
@@ -2310,7 +2311,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                             && carrier.getStats().getNumFighterBays().getModifiedValue() >= 1f) {
                         Moci_AirSquadronDialog.open(ui, this, memberId);
                     } else {
-                        Global.getSector().getCampaignUI().addMessage("母舰已不在舰队中，或已卸下航空中队管理船插。",
+                        Global.getSector().getCampaignUI().addMessage(Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t014", "母舰已不在舰队中，或已卸下航空中队管理船插。"),
                                 Misc.getNegativeHighlightColor());
                         ui.updateUIForItem(this);
                     }
@@ -2766,11 +2767,13 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
     private static final String SQUAD_DATA_PREFIX = "moci_combatSquad_";
     /** 被指派为僚机、暂时移出舰队的舰船存放键，见 Moci_CustomWingmanManager.REMOVED_SHIP_KEY。 */
     private static final String SQUAD_REMOVED_SHIP_PREFIX = "moci_combatSquad_removedShip_";
+    /** 最近一次「重置所有配置」是否成功，只用来给结果提示选颜色。 */
+    private transient boolean resetSucceeded;
 
     /**
      * 「重置所有配置」：先把指派给僚机的舰船归还舰队，再删掉所有作战小队持久化数据。
      * 舰船没能全部归还时（例如没有玩家舰队），一个键都不删，免得舰船丢失。
-     * 返回给玩家看的结果；成功时以「已」开头。
+     * 返回给玩家看的结果；是否成功记在 resetSucceeded 里。
      */
     private String resetAllSquadData() {
         Map<String, Object> data = Global.getSector().getPersistentData();
@@ -2787,6 +2790,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         }
         if (left > 0) {
             Global.getLogger(this.getClass()).warn("[MOCI_COMBAT_SQUAD_INTEL] 重置中止：还有 " + left + " 艘僚机舰船没能归还舰队");
+            resetSucceeded = false;
             return csFormat("reset_aborted", "重置没有执行：还有 {count} 艘僚机舰船没能归还舰队，请稍后再试。",
                     "count", String.valueOf(left));
         }
@@ -2799,6 +2803,7 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         }
         Global.getLogger(this.getClass()).info("[MOCI_COMBAT_SQUAD_INTEL] 已重置所有配置：归还舰船 " + stored
                 + " 艘，清除数据 " + removed + " 项");
+        resetSucceeded = true;
         return csFormat("reset_done", "已重置所有配置：归还舰船 {ships} 艘，清除数据 {count} 项。",
                 "ships", String.valueOf(stored), "count", String.valueOf(removed));
     }
@@ -3143,11 +3148,11 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
                 "system", "CombatSquad", "mod", "CombatSquad"), pad, h, "CombatSquad", "CombatSquad");
         info.addPara(csFormat("help_concept_2",
                 "- 编队由一名 {leader} 和最多 {count} 名 {wingman} 组成",
-                "leader", "指挥官（队长机）", "count", "2", "wingman", "僚机"), pad, h, "指挥官（队长机）", "2", "僚机");
+                "leader", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t015", "指挥官（队长机）"), "count", "2", "wingman", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t015", "指挥官（队长机）"), "2", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"));
         info.addPara(csFormat("help_concept_3",
                 "- {wingman} 会在战斗中自动跟随 {leader} 行动，提供 {support1} 和 {support2}",
-                "wingman", "僚机", "leader", "队长机", "support1", "火力支援", "support2", "护航"),
-                pad, h, "僚机", "队长机", "火力支援", "护航");
+                "wingman", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), "leader", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t017", "队长机"), "support1", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t018", "火力支援"), "support2", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t019", "护航")),
+                pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t017", "队长机"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t018", "火力支援"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t019", "护航"));
 
         // 分隔线
         info.addSpacer(5f);
@@ -3157,10 +3162,10 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
         // 编队组建规则
         info.addPara(csText("help_section_rules", "编队组建规则"), opad, h, csText("help_section_rules", "编队组建规则"));
         info.addPara(csFormat("help_rules_1", "- 队长机必须安装 {mod} 船插", "mod", "CombatSquad"), pad, h, "CombatSquad");
-        info.addPara(csFormat("help_rules_2", "- 队长机必须有 {captain} 担任舰长", "captain", "非默认军官"), pad, h, "非默认军官");
-        info.addPara(csFormat("help_rules_3", "- 编队会自动跟随 {leader} 移动和战斗", "leader", "队长机"), pad, h, "队长机");
+        info.addPara(csFormat("help_rules_2", "- 队长机必须有 {captain} 担任舰长", "captain", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t020", "非默认军官")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t020", "非默认军官"));
+        info.addPara(csFormat("help_rules_3", "- 编队会自动跟随 {leader} 移动和战斗", "leader", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t017", "队长机")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t017", "队长机"));
         info.addPara(csFormat("help_rules_4", "- {wingman}在战斗中不消耗 {dp} 和 {supplies} ",
-                "wingman", "僚机", "dp", "部署点", "supplies", "补给"), pad, h, "僚机", "部署点", "补给");
+                "wingman", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), "dp", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t021", "部署点"), "supplies", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t022", "补给")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t021", "部署点"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t022", "补给"));
         
         // 分隔线
         info.addSpacer(5f);
@@ -3169,13 +3174,13 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
         // 僚机选择规则
         info.addPara(csText("help_section_select", "僚机选择规则"), opad, h, csText("help_section_select", "僚机选择规则"));
-        info.addPara(csFormat("help_select_1", "- {wingman} 必须是 {size} 级别", "wingman", "僚机", "size", "护卫舰"), pad, h, "僚机", "护卫舰");
+        info.addPara(csFormat("help_select_1", "- {wingman} 必须是 {size} 级别", "wingman", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), "size", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t023", "护卫舰")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t023", "护卫舰"));
         info.addPara(csFormat("help_select_2", "- {wingman} 的 {stat} 不能超过 {leader} ",
-                "wingman", "僚机", "stat", "原始部署点", "leader", "队长机"), pad, h, "僚机", "原始部署点", "队长机");
-        info.addPara(csFormat("help_select_3", "- {wingman} 不能有 {captain} ", "wingman", "僚机", "captain", "非默认军官"), pad, h, "僚机", "非默认军官");
-        info.addPara(csFormat("help_select_4", "- {wingman} 不能是其他编队的 {leader} ", "wingman", "僚机", "leader", "队长机"), pad, h, "僚机", "队长机");
-        info.addPara(csFormat("help_select_5", "- {wingman} 不能处于封存状态", "wingman", "僚机"), pad, h, "僚机");
-        info.addPara(csFormat("help_select_6", "- {wingman} 必须是支持的制造商类型", "wingman", "僚机"), pad, h, "僚机");
+                "wingman", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), "stat", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t024", "原始部署点"), "leader", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t017", "队长机")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t024", "原始部署点"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t017", "队长机"));
+        info.addPara(csFormat("help_select_3", "- {wingman} 不能有 {captain} ", "wingman", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), "captain", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t020", "非默认军官")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t020", "非默认军官"));
+        info.addPara(csFormat("help_select_4", "- {wingman} 不能是其他编队的 {leader} ", "wingman", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), "leader", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t017", "队长机")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t017", "队长机"));
+        info.addPara(csFormat("help_select_5", "- {wingman} 不能处于封存状态", "wingman", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"));
+        info.addPara(csFormat("help_select_6", "- {wingman} 必须是支持的制造商类型", "wingman", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t016", "僚机"));
         
         // 分隔线
         info.addSpacer(5f);
@@ -3184,11 +3189,11 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
         // 自定义舰船功能
         info.addPara(csText("help_section_custom_ship", "自定义舰船功能"), opad, h, csText("help_section_custom_ship", "自定义舰船功能"));
-        info.addPara(csFormat("help_custom_ship_1", "- 可以为每个机师 {assign} 特定的舰船", "assign", "指派"), pad, h, "指派");
-        info.addPara(csFormat("help_custom_ship_2", "- 指派的舰船会保持完整的 {fit} （武器、船插、改装等）", "fit", "装配配置"), pad, h, "装配配置");
+        info.addPara(csFormat("help_custom_ship_1", "- 可以为每个机师 {assign} 特定的舰船", "assign", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t025", "指派")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t025", "指派"));
+        info.addPara(csFormat("help_custom_ship_2", "- 指派的舰船会保持完整的 {fit} （武器、船插、改装等）", "fit", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t026", "装配配置")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t026", "装配配置"));
         info.addPara(csFormat("help_custom_ship_3", "- 指派后的舰船会从舰队中 {remove} ，当指派新的舰船时，旧的舰船会 {return} ",
-                "remove", "移除", "return", "自动归还"), pad, h, "移除", "自动归还");
-        info.addPara(csFormat("help_custom_ship_4", "- 如果僚机DP超出队长机会导致战斗中 {fail} ", "fail", "无法部署"), pad, bad, "无法部署");
+                "remove", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t027", "移除"), "return", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t028", "自动归还")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t027", "移除"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t028", "自动归还"));
+        info.addPara(csFormat("help_custom_ship_4", "- 如果僚机DP超出队长机会导致战斗中 {fail} ", "fail", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t029", "无法部署")), pad, bad, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t029", "无法部署"));
         
         // 分隔线
         info.addSpacer(5f);
@@ -3197,11 +3202,11 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
         // 机师管理
         info.addPara(csText("help_section_pilot", "机师管理功能"), opad, h, csText("help_section_pilot", "机师管理功能"));
-        info.addPara(csFormat("help_pilot_1", "- 可以修改机师的 {name} 和 {callsign} ", "name", "姓名", "callsign", "呼号"), pad, h, "姓名", "呼号");
-        info.addPara(csFormat("help_pilot_2", "- 可以更换机师 {portrait} ", "portrait", "头像"), pad, h, "头像");
-        info.addPara(csFormat("help_pilot_3", "- 支持机师 {levelup} 和 {learn} ", "levelup", "升级", "learn", "技能学习"), pad, h, "升级", "技能学习");
-        info.addPara(csFormat("help_pilot_4", "- 支持技能 {elite} ", "elite", "精英化"), pad, h, "精英化");
-        info.addPara(csFormat("help_pilot_5", "- 机师经验会在战斗中 {auto_exp} ", "auto_exp", "自动积累"), pad, h, "自动积累");
+        info.addPara(csFormat("help_pilot_1", "- 可以修改机师的 {name} 和 {callsign} ", "name", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t030", "姓名"), "callsign", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t031", "呼号")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t030", "姓名"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t031", "呼号"));
+        info.addPara(csFormat("help_pilot_2", "- 可以更换机师 {portrait} ", "portrait", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t032", "头像")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t032", "头像"));
+        info.addPara(csFormat("help_pilot_3", "- 支持机师 {levelup} 和 {learn} ", "levelup", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t033", "升级"), "learn", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t034", "技能学习")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t033", "升级"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t034", "技能学习"));
+        info.addPara(csFormat("help_pilot_4", "- 支持技能 {elite} ", "elite", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t035", "精英化")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t035", "精英化"));
+        info.addPara(csFormat("help_pilot_5", "- 机师经验会在战斗中 {auto_exp} ", "auto_exp", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t036", "自动积累")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t036", "自动积累"));
         
         // 分隔线
         info.addSpacer(5f);
@@ -3210,13 +3215,13 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
         // 操作说明
         info.addPara(csText("help_section_ops", "操作说明"), opad, h, csText("help_section_ops", "操作说明"));
-        info.addPara(csFormat("help_ops_1", "- 在编队列表中点击 {portrait} 进入编队详情", "portrait", "'指挥官头像'"), pad, h, "'指挥官头像'");
-        info.addPara(csFormat("help_ops_2", "- 点击 {ai_portrait} 进入舰载AI详情", "ai_portrait", "'AI头像'"), pad, h, "'AI头像'");
-        info.addPara(csFormat("help_ops_3", "- 点击 {assign_ship} 为机师选择自定义舰船", "assign_ship", "'指派舰船'"), pad, h, "'指派舰船'");
-        info.addPara(csFormat("help_ops_4", "- 点击 {change_portrait} 为机师选择新头像", "change_portrait", "'换头像'"), pad, h, "'换头像'");
-        info.addPara(csFormat("help_ops_5", "- 使用输入框和按钮修改机师 {name} 和 {callsign} ", "name", "姓名", "callsign", "呼号"), pad, h, "姓名", "呼号");
-        info.addPara(csFormat("help_ops_6", "- 当机师经验足够时，点击 {upgrade} 学习新技能", "upgrade", "'升级'"), pad, h, "'升级'");
-        info.addPara(csFormat("help_ops_7", "- 当有精英化点数时，点击 {elite} 提升技能等级", "elite", "'精英化'"), pad, h, "'精英化'");
+        info.addPara(csFormat("help_ops_1", "- 在编队列表中点击 {portrait} 进入编队详情", "portrait", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t037", "'指挥官头像'")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t037", "'指挥官头像'"));
+        info.addPara(csFormat("help_ops_2", "- 点击 {ai_portrait} 进入舰载AI详情", "ai_portrait", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t038", "'AI头像'")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t038", "'AI头像'"));
+        info.addPara(csFormat("help_ops_3", "- 点击 {assign_ship} 为机师选择自定义舰船", "assign_ship", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t039", "'指派舰船'")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t039", "'指派舰船'"));
+        info.addPara(csFormat("help_ops_4", "- 点击 {change_portrait} 为机师选择新头像", "change_portrait", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t040", "'换头像'")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t040", "'换头像'"));
+        info.addPara(csFormat("help_ops_5", "- 使用输入框和按钮修改机师 {name} 和 {callsign} ", "name", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t030", "姓名"), "callsign", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t031", "呼号")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t030", "姓名"), Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t031", "呼号"));
+        info.addPara(csFormat("help_ops_6", "- 当机师经验足够时，点击 {upgrade} 学习新技能", "upgrade", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t041", "'升级'")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t041", "'升级'"));
+        info.addPara(csFormat("help_ops_7", "- 当有精英化点数时，点击 {elite} 提升技能等级", "elite", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t042", "'精英化'")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t042", "'精英化'"));
         
         // 分隔线
         info.addSpacer(5f);
@@ -3225,10 +3230,10 @@ public class Moci_CombatSquadManagerIntel extends BaseIntelPlugin {
 
         // 注意事项
         info.addPara(csText("help_section_notes", "注意事项"), opad, h, csText("help_section_notes", "注意事项"));
-        info.addPara(csFormat("help_notes_1", "- 编队数据会 {autosave} ，无需手动操作", "autosave", "自动保存"), pad, h, "自动保存");
-        info.addPara(csFormat("help_notes_2", "- 战斗中僚机会 {autodeploy} ，无需玩家干预", "autodeploy", "自动部署"), pad, h, "自动部署");
-        info.addPara(csFormat("help_notes_3", "- 指派的自定义舰船在战斗结束后会 {autoreturn} 到舰队", "autoreturn", "自动归还"), pad, h, "自动归还");
-        info.addPara(csFormat("help_notes_4", "- 在战斗中队长机被击毁会导致所属的小队开始 {retreat} ", "retreat", "撤退"), pad, h, "撤退");
+        info.addPara(csFormat("help_notes_1", "- 编队数据会 {autosave} ，无需手动操作", "autosave", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t043", "自动保存")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t043", "自动保存"));
+        info.addPara(csFormat("help_notes_2", "- 战斗中僚机会 {autodeploy} ，无需玩家干预", "autodeploy", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t044", "自动部署")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t044", "自动部署"));
+        info.addPara(csFormat("help_notes_3", "- 指派的自定义舰船在战斗结束后会 {autoreturn} 到舰队", "autoreturn", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t028", "自动归还")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t028", "自动归还"));
+        info.addPara(csFormat("help_notes_4", "- 在战斗中队长机被击毁会导致所属的小队开始 {retreat} ", "retreat", Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t045", "撤退")), pad, h, Moci_TextLoader.getText("code_Moci_CombatSquadManagerIntel", "t045", "撤退"));
 
         // 重置入口（确认框见 doesButtonHaveConfirmDialog / createConfirmationPrompt）
         info.addSpacer(5f);

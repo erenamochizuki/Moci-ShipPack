@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
 import com.fs.starfarer.api.graphics.SpriteAPI;
@@ -191,9 +192,9 @@ public class Moci_System_RX_93_v2 extends BaseShipSystemScript {
     @Override
     public String getInfoText(ShipSystemAPI system, ShipAPI ship) {
         if (!isUsable(system, ship)) {
-            return "未选择有效武器";
+            return Moci_TextLoader.getText("code_Moci_System_RX_93_v2", "t001", "未选择有效武器");
         } else {
-            return "就绪";
+            return Moci_TextLoader.getText("code_Moci_System_RX_93_v2", "t002", "就绪");
         }
     }
 

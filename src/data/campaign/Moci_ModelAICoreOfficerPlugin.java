@@ -1,5 +1,6 @@
 package data.campaign;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.PersonAPI;
@@ -33,7 +34,7 @@ public class Moci_ModelAICoreOfficerPlugin extends BaseAICoreOfficerPluginImpl {
 
     @Override
     public void createPersonalitySection(PersonAPI person, TooltipMakerAPI tooltip) {
-        tooltip.addPara("%s 的指挥风格：%s。通过对应船插内置后，可在舰载 AI 详情中培养或进化。", 10f,
+        tooltip.addPara(Moci_TextLoader.getText("code_Moci_ModelAICoreOfficerPlugin", "t001", "%s 的指挥风格：%s。通过对应船插内置后，可在舰载 AI 详情中培养或进化。"), 10f,
                 com.fs.starfarer.api.util.Misc.getHighlightColor(), person.getNameString(),
                 Moci_ShipboardAIManager.getPersonalityLabel(person.getPersonalityAPI().getId()));
     }

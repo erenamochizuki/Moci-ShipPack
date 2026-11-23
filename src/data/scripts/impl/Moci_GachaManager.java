@@ -443,29 +443,29 @@ public class Moci_GachaManager {
 
 
     public void outPutPool(TextPanelAPI text) {
-        text.addPara("/////卡池状况///////");
+        text.addPara(Moci_TextLoader.getText("code_Moci_GachaManager", "t001", "/////卡池状况///////"));
         if (SSR_Picker.isEmpty()) {
-            text.addPara("SSR卡池：空");
+            text.addPara(Moci_TextLoader.getText("code_Moci_GachaManager", "t002", "SSR卡池：空"));
         } else {
-            text.addPara("SSR卡池：");
+            text.addPara(Moci_TextLoader.getText("code_Moci_GachaManager", "t003", "SSR卡池："));
             for (String s : SSR_Picker.getItems()) {
-                text.addPara(dataMap.get(s).itemID + " 权重：" + SSR_Picker.getWeight(s));
+                text.addPara(dataMap.get(s).itemID + Moci_TextLoader.getText("code_Moci_GachaManager", "t004", " 权重：") + SSR_Picker.getWeight(s));
             }
         }
         if (SR_Picker.isEmpty()) {
-            text.addPara("SR卡池：空");
+            text.addPara(Moci_TextLoader.getText("code_Moci_GachaManager", "t005", "SR卡池：空"));
         } else {
-            text.addPara("SR卡池：");
+            text.addPara(Moci_TextLoader.getText("code_Moci_GachaManager", "t006", "SR卡池："));
             for (String s : SR_Picker.getItems()) {
-                text.addPara(dataMap.get(s).itemID + " 权重：" + SR_Picker.getWeight(s));
+                text.addPara(dataMap.get(s).itemID + Moci_TextLoader.getText("code_Moci_GachaManager", "t004", " 权重：") + SR_Picker.getWeight(s));
             }
         }
         if (R_Picker.isEmpty()) {
-            text.addPara("R池：空");
+            text.addPara(Moci_TextLoader.getText("code_Moci_GachaManager", "t007", "R池：空"));
         } else {
-            text.addPara("R卡池：");
+            text.addPara(Moci_TextLoader.getText("code_Moci_GachaManager", "t008", "R卡池："));
             for (String s : R_Picker.getItems()) {
-                text.addPara(s + " 权重：" + R_Picker.getWeight(s));
+                text.addPara(s + Moci_TextLoader.getText("code_Moci_GachaManager", "t004", " 权重：") + R_Picker.getWeight(s));
             }
         }
     }
@@ -634,13 +634,13 @@ public class Moci_GachaManager {
                         log.info("军官池为空或不存在，转换为AI核心: " + data.itemID);
                         if ("SSR_Officer".equals(data.itemID)) {
                             picker = SSR_Officer_Instead_Item;
-                            coreType = "阿尔法核心";
+                            coreType = Moci_TextLoader.getText("code_Moci_GachaManager", "t009", "阿尔法核心");
                         } else if ("SR_Officer".equals(data.itemID)) {
                             picker = SR_Officer_Instead_Item;
-                            coreType = "贝塔核心";
+                            coreType = Moci_TextLoader.getText("code_Moci_GachaManager", "t010", "贝塔核心");
                         } else {
                             picker = R_Officer_Instead_Item;
-                            coreType = "伽马核心";
+                            coreType = Moci_TextLoader.getText("code_Moci_GachaManager", "t011", "伽马核心");
                         }
                     }
                     String pickedId = picker.pick();
@@ -718,7 +718,7 @@ public class Moci_GachaManager {
             int tickets = calculateTicketsFromPearl(gachaMemoryItem) * totalDraws;
             if (tickets > 0) {
                 boolean ticketRegistered = Global.getSettings().getCommoditySpec("Moci_GachaTicket") != null;
-                settled.add(new Moci_GachaReward("draw_bonus", ticketRegistered ? "附赠兑奖券" : "兑奖券折算星币",
+                settled.add(new Moci_GachaReward("draw_bonus", ticketRegistered ? Moci_TextLoader.getText("code_Moci_GachaManager", "t012", "附赠兑奖券") : Moci_TextLoader.getText("code_Moci_GachaManager", "t013", "兑奖券折算星币"),
                         ticketRegistered ? "Commodity" : "Credits", ticketRegistered ? "Moci_GachaTicket" : "credits",
                         null, ticketRegistered ? tickets : tickets * 100, "BONUS", null));
             }
@@ -731,7 +731,7 @@ public class Moci_GachaManager {
         for (int n = 0; n < totalDraws; n++) {
             Moci_GachaData data = n < rolled.size() ? rolled.get(n) : null;
             Moci_GachaReward aggregate = grantedByEntry.get(data), reward = null;
-            String message = "该次未获得可发放奖励";
+            String message = Moci_TextLoader.getText("code_Moci_GachaManager", "t014", "该次未获得可发放奖励");
             if (aggregate != null) {
                 int offset = offsets.getOrDefault(data, 0);
                 offsets.put(data, offset + 1);
@@ -740,7 +740,7 @@ public class Moci_GachaManager {
                 int quantity = groupedUnique ? (offset == 0 ? aggregate.quantity() : 0) : slotQuantities.get(data).get(offset);
                 if (quantity > 0) reward = new Moci_GachaReward(aggregate.id(), aggregate.name(), aggregate.type(),
                         aggregate.itemId(), aggregate.param(), quantity, aggregate.rarity(), aggregate.portrait());
-                else message = groupedUnique ? "本批同类奖励已合并结算" : "该次发放数量为零";
+                else message = groupedUnique ? Moci_TextLoader.getText("code_Moci_GachaManager", "t015", "本批同类奖励已合并结算") : Moci_TextLoader.getText("code_Moci_GachaManager", "t016", "该次发放数量为零");
             }
             slots.add(new Moci_GachaBatchReceipt.Draw(n + 1, reward, message));
         }
@@ -982,8 +982,8 @@ public class Moci_GachaManager {
                     continue;
                 }
             }
-            String name = csv.getJSONObject(x).optString("name", "无效姓名");
-            String lastName = csv.getJSONObject(x).optString("last_name", "无效姓名");
+            String name = csv.getJSONObject(x).optString("name", Moci_TextLoader.getText("code_Moci_GachaManager", "t017", "无效姓名"));
+            String lastName = csv.getJSONObject(x).optString("last_name", Moci_TextLoader.getText("code_Moci_GachaManager", "t017", "无效姓名"));
             String sprite = csv.getJSONObject(x).optString("sprite", null);
             if (sprite == null || sprite.isEmpty()) {
                 log.warn("军官 " + id + " 没有配置默认头像，跳过");
@@ -1000,7 +1000,7 @@ public class Moci_GachaManager {
             }
             FullName.Gender gender = FullName.Gender.MALE;
             String genderString = csv.getJSONObject(x).optString("gender", "MALE");
-            if ("FEMAIL".equals(genderString)) {
+            if ("FEMALE".equals(genderString)) {
                 gender = FullName.Gender.FEMALE;
             }
             if ("ANY".equals(genderString)) {
@@ -1080,10 +1080,10 @@ public class Moci_GachaManager {
     public String getGachaItemName(String id) {
         Moci_GachaData data = dataMap.get(id);
         if (data == null) {
-            return "不存在的商品： " + id;
+            return Moci_TextLoader.getText("code_Moci_GachaManager", "t018", "不存在的商品： ") + id;
         }
         if (data.name == null || data.name.isEmpty()) {
-            return "无名商品： " + id;
+            return Moci_TextLoader.getText("code_Moci_GachaManager", "t019", "无名商品： ") + id;
         }
         return data.name;
     }
@@ -1100,14 +1100,14 @@ public class Moci_GachaManager {
         tooltip.addPara(getGachaItemName(id), pad);
         Moci_GachaData data = dataMap.get(id);
         if (data.sellReqItemId != null && !data.sellReqItemId.isEmpty()) {
-            tooltip.addPara("售价", 10);
+            tooltip.addPara(Moci_TextLoader.getText("code_Moci_GachaManager", "t020", "售价"), 10);
             id = data.sellReqItemId;
             CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(id);
             if (spec == null) {
-                tooltip.addPara("星币: " + data.sellReqItemNum, 10);
+                tooltip.addPara(Moci_TextLoader.getText("code_Moci_GachaManager", "t021", "星币: ") + data.sellReqItemNum, 10);
             } else {
                 TooltipMakerAPI image = tooltip.beginImageWithText(Global.getSettings().getCommoditySpec(id).getIconName(), 40f);
-                image.addPara(spec.getName() + " " + data.sellReqItemNum + " 单位", 10f);
+                image.addPara(spec.getName() + " " + data.sellReqItemNum + Moci_TextLoader.getText("code_Moci_GachaManager", "t022", " 单位"), 10f);
                 tooltip.addImageWithText(10);
             }
         }

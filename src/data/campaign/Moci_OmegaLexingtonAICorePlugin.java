@@ -1,5 +1,6 @@
 package data.campaign;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.AICoreOfficerPlugin;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
@@ -39,7 +40,7 @@ public class Moci_OmegaLexingtonAICorePlugin extends BaseAICoreOfficerPluginImpl
             person.setPortraitSprite("graphics/portraits/Moci_omega_lexington_portrait.png");
             person.setName(new FullName(spec.getName(), "", FullName.Gender.ANY));
             person.setId("Moci_Omega_Lexington");
-            person.getName().setFirst("欧米茄·Lex");
+            person.getName().setFirst(Moci_TextLoader.getText("code_Moci_OmegaLexingtonAICorePlugin", "t001", "欧米茄·Lex"));
             
             // 设置等级和技能
             person.getStats().setLevel(11);
@@ -82,9 +83,9 @@ public class Moci_OmegaLexingtonAICorePlugin extends BaseAICoreOfficerPluginImpl
         Color bg = person.getFaction().getDarkUIColor();
         CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(person.getAICoreId());
         
-        tooltip.addSectionHeading("鲁莽 — 欧米茄·列克星敦", text, bg, Alignment.MID, 20.0f);
-        tooltip.addPara("欧米茄·列克星敦是一个极其强大的AI核心，拥有超凡的战术能力。" +
-                "它采用极度激进的作战风格，毫不犹豫地投入战斗，追求压倒性的火力优势。" +
-                "这个AI核心精通各类武器系统，能够最大化发挥舰船的进攻潜力。", 10.0f);
+        tooltip.addSectionHeading(Moci_TextLoader.getText("code_Moci_OmegaLexingtonAICorePlugin", "t002", "鲁莽 — 欧米茄·列克星敦"), text, bg, Alignment.MID, 20.0f);
+        tooltip.addPara(Moci_TextLoader.getText("code_Moci_OmegaLexingtonAICorePlugin", "t003", "欧米茄·列克星敦是一个极其强大的AI核心，拥有超凡的战术能力。") +
+                Moci_TextLoader.getText("code_Moci_OmegaLexingtonAICorePlugin", "t004", "它采用极度激进的作战风格，毫不犹豫地投入战斗，追求压倒性的火力优势。") +
+                Moci_TextLoader.getText("code_Moci_OmegaLexingtonAICorePlugin", "t005", "这个AI核心精通各类武器系统，能够最大化发挥舰船的进攻潜力。"), 10.0f);
     }
 }

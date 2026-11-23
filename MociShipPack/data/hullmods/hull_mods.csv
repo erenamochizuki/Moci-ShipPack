@@ -167,8 +167,8 @@ NTD,Moci_NTDSubsystemHullmod,,,,,,,,TRUE,,0,0,0,0,xi.arsenal.UnicornSharedNtdHul
 光束步枪,Moci_RX_78_2_WeaponSwap_right_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 右手 武器安装 光束步枪，移除插件将更换武器模式。,光束步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
 高能火箭炮,Moci_RX_78_2_WeaponSwap_right_bazooka,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 右手 武器安装 高能火箭炮，移除插件将更换武器模式。,高能火箭炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
 光束军刀,Moci_RX_78_2_WeaponSwap_right_Sabre,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 右手 武器安装 光束军刀，移除插件将更换武器模式。,光束军刀,,graphics/hullmods/Moci_MSSwapHullmod_Sabre.png
-高能火箭炮,Moci_RX_78_2_WeaponSwap_left_bazooka,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 右手 武器安装 高能火箭炮，移除插件将更换武器模式。,高能火箭炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
-光束军刀,Moci_RX_78_2_WeaponSwap_left_Sabre,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 右手 武器安装 光束军刀，移除插件将更换武器模式。,光束军刀,,graphics/hullmods/Moci_MSSwapHullmod_Sabre.png
+高能火箭炮,Moci_RX_78_2_WeaponSwap_left_bazooka,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 左手 武器安装 高能火箭炮，移除插件将更换武器模式。,高能火箭炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+光束军刀,Moci_RX_78_2_WeaponSwap_left_Sabre,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为高达的 左手 武器安装 光束军刀，移除插件将更换武器模式。,光束军刀,,graphics/hullmods/Moci_MSSwapHullmod_Sabre.png
 ,,,,,,,,,,,,,,,,,,,
 杰刚武器切换器,Moci_RGM_89_leader_WeaponSwap,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod,你不应该看到这个船插,你不应该看到这个船插,,
 光束步枪,Moci_RGM_89_leader_WeaponSwap_right_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为杰刚的 右手 武器安装 光束步枪，移除插件将更换武器模式。,光束步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
@@ -179,16 +179,16 @@ NTD,Moci_NTDSubsystemHullmod,,,,,,,,TRUE,,0,0,0,0,xi.arsenal.UnicornSharedNtdHul
 拳套(左),Moci_Gespenst_left_mode_fist,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为量产型亡灵的 左手 武器安装 等离子拳套，移除插件将更换武器模式。,等离子拳套,,graphics/hullmods/Moci_MSSwapHullmod_Fist.png
 冲锋枪(左),Moci_Gespenst_left_mode_gun,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为量产型亡灵的 左手 武器安装 冲锋枪，移除插件将更换武器模式。,冲锋枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
 ,,,,,,,,,,,,,,,,,,,
-拳套(右),Moci_Gespenst_right_mode_fist,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为量产型亡灵的 左手 武器安装 等离子拳套，移除插件将更换武器模式。,等离子拳套,,graphics/hullmods/Moci_MSSwapHullmod_Fist.png
-冲锋枪(右),Moci_Gespenst_right_mode_gun,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为量产型亡灵的 左手 武器安装 冲锋枪，移除插件将更换武器模式。,冲锋枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+拳套(右),Moci_Gespenst_right_mode_fist,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为量产型亡灵的 右手 武器安装 等离子拳套，移除插件将更换武器模式。,等离子拳套,,graphics/hullmods/Moci_MSSwapHullmod_Fist.png
+冲锋枪(右),Moci_Gespenst_right_mode_gun,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为量产型亡灵的 右手 武器安装 冲锋枪，移除插件将更换武器模式。,冲锋枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
 ,,,,,,,,,,,,,,,,,,,
 夏日花武器切换器,Moci_Aestivalis_WeaponSwap,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod,你不应该看到这个船插,你不应该看到这个船插,,
 制式突击步枪,Moci_Aestivalis_WeaponSwap_right_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 右手 武器安装 制式突击步枪，移除插件将更换武器模式。,制式突击步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
 磁轨加农炮,Moci_Aestivalis_WeaponSwap_right_railcannon,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 右手 武器安装 磁轨加农炮，移除插件将更换武器模式。,磁轨加农炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
 ,,,,,,,,,,,,,,,,,,,
-制式突击步枪,Moci_Aestivalis_WeaponSwap_left_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 右手 武器安装 制式突击步枪，移除插件将更换武器模式。,制式突击步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
-磁轨加农炮,Moci_Aestivalis_WeaponSwap_left_railcannon,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 右手 武器安装 磁轨加农炮，移除插件将更换武器模式。,磁轨加农炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
-激钢爆炎,Moci_Aestivalis_WeaponSwap_left_Gekiganflare,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 右手 武器安装 激钢爆炎，移除插件将更换武器模式。,激钢爆炎,,graphics/hullmods/Moci_MSSwapHullmod_Fist.png
+制式突击步枪,Moci_Aestivalis_WeaponSwap_left_rifle,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 左手 武器安装 制式突击步枪，移除插件将更换武器模式。,制式突击步枪,,graphics/hullmods/Moci_MSSwapHullmod_Gun.png
+磁轨加农炮,Moci_Aestivalis_WeaponSwap_left_railcannon,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 左手 武器安装 磁轨加农炮，移除插件将更换武器模式。,磁轨加农炮,,graphics/hullmods/Moci_MSSwapHullmod_Bazooka.png
+激钢爆炎,Moci_Aestivalis_WeaponSwap_left_Gekiganflare,,,,no_build_in,,,,TRUE,,0,0,0,0,data.hullmods.Moci_WeaponSwitchHullMod2,为夏日花的 左手 武器安装 激钢爆炎，移除插件将更换武器模式。,激钢爆炎,,graphics/hullmods/Moci_MSSwapHullmod_Fist.png
 ,,,,,,,,,,,,,,,,,,,
 劣质改装舰体,Moci_pyrejudge_slot_randomizer,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_Pa_SlotRandomizer,,随机化舰船的槽位类型,,
 ,,,,,,,,,,,,,,,,,,,

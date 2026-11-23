@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.ShipEngineControllerAPI.ShipEngineAPI;
@@ -332,7 +333,7 @@ public class Moci_TravelDriveYamatoStats extends BaseShipSystemScript {
     @Override
     public StatusData getStatusData(int index, State state, float effectLevel) {
         if (index == 0)
-            return new StatusData("波动引擎启动", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_TravelDriveYamatoStats", "t001", "波动引擎启动"), false);
         return null;
     }
 }

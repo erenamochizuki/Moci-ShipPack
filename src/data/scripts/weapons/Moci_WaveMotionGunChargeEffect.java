@@ -1,5 +1,6 @@
 package data.scripts.weapons;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import org.lazywizard.lazylib.MathUtils;
@@ -374,13 +375,13 @@ public class Moci_WaveMotionGunChargeEffect implements EveryFrameWeaponEffectPlu
             // 显示状态（仅玩家舰船）
             if (ship == Global.getCombatEngine().getPlayerShip()) {
                 // 主状态：机动性降低
-                String statusText = String.format("机动性降低 %d%% - 质量 +%d%%",
+                String statusText = String.format(Moci_TextLoader.getText("code_Moci_WaveMotionGunChargeEffect", "t001", "机动性降低 %d%% - 质量 +%d%%"),
                     (int)((1.0f - maneuverMult) * 100),
                     (int)((massMult - 1.0f) * 100));
                 Global.getCombatEngine().maintainStatusForPlayerShip(
                     STATUS_KEY,
                     "graphics/icons/hullsys/darkened_gaze.png",
-                    "波动炮 - 空间锚启动",
+                    Moci_TextLoader.getText("code_Moci_WaveMotionGunChargeEffect", "t002", "波动炮 - 空间锚启动"),
                     statusText,
                     true  // 负面效果，显示为红色
                 );
@@ -389,8 +390,8 @@ public class Moci_WaveMotionGunChargeEffect implements EveryFrameWeaponEffectPlu
                 Global.getCombatEngine().maintainStatusForPlayerShip(
                     STATUS_KEY + "_system",
                     "graphics/icons/hullsys/darkened_gaze.png",
-                    "战术系统",
-                    "已禁用",
+                    Moci_TextLoader.getText("code_Moci_WaveMotionGunChargeEffect", "t003", "战术系统"),
+                    Moci_TextLoader.getText("code_Moci_WaveMotionGunChargeEffect", "t004", "已禁用"),
                     true  // 负面效果
                 );
                 
@@ -398,8 +399,8 @@ public class Moci_WaveMotionGunChargeEffect implements EveryFrameWeaponEffectPlu
                 Global.getCombatEngine().maintainStatusForPlayerShip(
                     STATUS_KEY + "_vent",
                     "graphics/icons/hullsys/darkened_gaze.png",
-                    "强制排幅",
-                    "已禁用",
+                    Moci_TextLoader.getText("code_Moci_WaveMotionGunChargeEffect", "t005", "强制排幅"),
+                    Moci_TextLoader.getText("code_Moci_WaveMotionGunChargeEffect", "t004", "已禁用"),
                     true  // 负面效果
                 );
             }

@@ -1,5 +1,6 @@
 package data.campaign.skills;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.LevelBasedEffect;
 import com.fs.starfarer.api.characters.MarketSkillEffect;
@@ -25,7 +26,7 @@ public class Moci_OmegaAdministrationSkill {
         @Override
         public void apply(MarketAPI market, String id, float level) {
             market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT)
-                .modifyFlat(id, FLEET_SIZE_BONUS / 100f, "欧米茄管理");
+                .modifyFlat(id, FLEET_SIZE_BONUS / 100f, Moci_TextLoader.getText("code_Moci_OmegaAdministrationSkill", "t001", "欧米茄管理"));
         }
         
         @Override
@@ -35,7 +36,7 @@ public class Moci_OmegaAdministrationSkill {
         
         @Override
         public String getEffectDescription(float level) {
-            return "舰队规模 +25%";
+            return Moci_TextLoader.getText("code_Moci_OmegaAdministrationSkill", "t002", "舰队规模 +25%");
         }
         
         @Override
@@ -56,7 +57,7 @@ public class Moci_OmegaAdministrationSkill {
         @Override
         public void apply(MarketAPI market, String id, float level) {
             market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD)
-                .modifyMult(id, 1f + GROUND_DEFENSE_BONUS * 0.01f, "欧米茄管理");
+                .modifyMult(id, 1f + GROUND_DEFENSE_BONUS * 0.01f, Moci_TextLoader.getText("code_Moci_OmegaAdministrationSkill", "t001", "欧米茄管理"));
         }
         
         @Override
@@ -66,7 +67,7 @@ public class Moci_OmegaAdministrationSkill {
         
         @Override
         public String getEffectDescription(float level) {
-            return "地面防御 +25%";
+            return Moci_TextLoader.getText("code_Moci_OmegaAdministrationSkill", "t003", "地面防御 +25%");
         }
         
         @Override
@@ -86,7 +87,7 @@ public class Moci_OmegaAdministrationSkill {
     public static class Accessibility implements MarketSkillEffect {
         @Override
         public void apply(MarketAPI market, String id, float level) {
-            market.getAccessibilityMod().modifyFlat(id, ACCESSIBILITY_BONUS, "欧米茄管理");
+            market.getAccessibilityMod().modifyFlat(id, ACCESSIBILITY_BONUS, Moci_TextLoader.getText("code_Moci_OmegaAdministrationSkill", "t001", "欧米茄管理"));
         }
         
         @Override
@@ -96,7 +97,7 @@ public class Moci_OmegaAdministrationSkill {
         
         @Override
         public String getEffectDescription(float level) {
-            return "流通性 +25%";
+            return Moci_TextLoader.getText("code_Moci_OmegaAdministrationSkill", "t004", "流通性 +25%");
         }
         
         @Override
@@ -117,7 +118,7 @@ public class Moci_OmegaAdministrationSkill {
         @Override
         public void apply(MarketAPI market, String id, float level) {
             market.getStats().getDynamic().getMod(Stats.DEMAND_REDUCTION_MOD)
-                .modifyFlat(id, DEMAND_REDUCTION, "欧米茄管理");
+                .modifyFlat(id, DEMAND_REDUCTION, Moci_TextLoader.getText("code_Moci_OmegaAdministrationSkill", "t001", "欧米茄管理"));
         }
         
         @Override
@@ -127,7 +128,7 @@ public class Moci_OmegaAdministrationSkill {
         
         @Override
         public String getEffectDescription(float level) {
-            return "需求减少 -1";
+            return Moci_TextLoader.getText("code_Moci_OmegaAdministrationSkill", "t005", "需求减少 -1");
         }
         
         @Override
@@ -147,7 +148,7 @@ public class Moci_OmegaAdministrationSkill {
     public static class UpkeepReduction implements MarketSkillEffect {
         @Override
         public void apply(MarketAPI market, String id, float level) {
-            market.getUpkeepMult().modifyMult(id, UPKEEP_MULT, "欧米茄管理");
+            market.getUpkeepMult().modifyMult(id, UPKEEP_MULT, Moci_TextLoader.getText("code_Moci_OmegaAdministrationSkill", "t001", "欧米茄管理"));
         }
         
         @Override
@@ -157,7 +158,7 @@ public class Moci_OmegaAdministrationSkill {
         
         @Override
         public String getEffectDescription(float level) {
-            return "维护费用 -25%";
+            return Moci_TextLoader.getText("code_Moci_OmegaAdministrationSkill", "t006", "维护费用 -25%");
         }
         
         @Override

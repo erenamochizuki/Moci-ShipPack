@@ -55,7 +55,7 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
     private static final int MAX_MODULES = 128;
 
     private static final String BRIEF_FALLBACK = String.format(Locale.ROOT,
-            "消耗 %.0f 软幅能：%.0f 秒内本舰时流 ×%.1f，世界时流 ×%.2f",
+            Moci_TextLoader.getText("code_Moci_NewtypeSubsystem", "t001", "消耗 %.0f 软幅能：%.0f 秒内本舰时流 ×%.1f，世界时流 ×%.2f"),
             SOFT_FLUX_COST, ACTIVE_SECONDS, SHIP_TIME_MULT, WORLD_TIME_MULT);
 
     private final String effectId;
@@ -73,7 +73,7 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
     private boolean guardActive;
 
     public Moci_NewtypeSubsystem(ShipAPI ship) {
-        this(ship, "Moci_Newtype_", "新人类", 1f, Moci_PilotAura.Style.NEWTYPE);
+        this(ship, "Moci_Newtype_", Moci_TextLoader.getText("code_Moci_NewtypeSubsystem", "t002", "新人类"), 1f, Moci_PilotAura.Style.NEWTYPE);
     }
 
     /**

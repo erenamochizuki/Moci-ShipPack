@@ -99,7 +99,8 @@ public class Moci_GravityReceiver extends BaseLogisticsHullMod {
         try {
             String manufacturer = ship.getHullSpec().getManufacturer();
             if (manufacturer != null) {
-                return manufacturer.equals("尼尔加重工") || manufacturer.equals("尼尔加重工(特装)");
+                return manufacturer.equals("尼尔加重工") || manufacturer.equals("尼尔加重工(特装)")
+                        || manufacturer.equals("Nergal Heavy Industries") || manufacturer.equals("Nergal Heavy Industries(Special)");
             }
         } catch (Exception e) {
             Global.getLogger(this.getClass()).error(
@@ -120,7 +121,8 @@ public class Moci_GravityReceiver extends BaseLogisticsHullMod {
             String hullId = stats.getVariant().getHullSpec().getHullId();
             String manufacturer = stats.getVariant().getHullSpec().getManufacturer();
             if (manufacturer != null) {
-                return manufacturer.equals("尼尔加重工") || manufacturer.equals("尼尔加重工(特装)");
+                return manufacturer.equals("尼尔加重工") || manufacturer.equals("尼尔加重工(特装)")
+                        || manufacturer.equals("Nergal Heavy Industries") || manufacturer.equals("Nergal Heavy Industries(Special)");
             }
         } catch (Exception e) {
             Global.getLogger(this.getClass()).error(
@@ -418,7 +420,8 @@ public class Moci_GravityReceiver extends BaseLogisticsHullMod {
             try {
                 String manufacturer = ship.getHullSpec().getManufacturer();
                 if (manufacturer != null) {
-                    return manufacturer.equals("尼尔加重工") || manufacturer.equals("尼尔加重工(特装)");
+                    return manufacturer.equals("尼尔加重工") || manufacturer.equals("尼尔加重工(特装)")
+                            || manufacturer.equals("Nergal Heavy Industries") || manufacturer.equals("Nergal Heavy Industries(Special)");
                 }
             } catch (Exception e) {
                 Global.getLogger(this.getClass()).error(

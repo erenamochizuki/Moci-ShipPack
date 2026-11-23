@@ -1,5 +1,6 @@
 package data.scripts.weapons;
 
+import data.scripts.util.Moci_TextLoader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -134,7 +135,7 @@ public class Moci_HWIWingmanEffect implements ProximityExplosionEffect, EveryFra
                     this,
                     "graphics/icons/hullsys/drone_pd_high.png",
                     weapon.getDisplayName(), 
-                    "浮游炮: " + activeCount + " / " + maxDrones,
+                    Moci_TextLoader.getText("code_Moci_HWIWingmanEffect", "t001", "浮游炮: ") + activeCount + " / " + maxDrones,
                     false
                 );
             }

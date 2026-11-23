@@ -126,8 +126,8 @@
         "job_difficultyDescription": "困难",
         "job_pick_option": "接受任务",
 		
-		"target_first_name":"Andrada",
-		"target_last_name":"Philip",
+		"target_first_name":"Philip",
+		"target_last_name":"Andrada",
 		"target_portrait":"andrada",
         "target_rank": "factionLeader",
         "target_post": "fleetCommander",
@@ -573,7 +573,7 @@
 	"fleet_name":"白色流星",
         "fleet_faction": "ML_bounty",
         "fleet_flagship_variant":"Moci_RX_93_v2_HWS_Special",
-        "fleet_flagship_name":"Hi-V Gundam",
+        "fleet_flagship_name":"Hi-Nu Gundam",
         "fleet_flagship_recoverable": true,
         "fleet_flagship_autofit": false,
         "fleet_preset_ships": {
@@ -622,7 +622,7 @@
         "job_difficultyDescription": "不可能",
         "job_pick_option": "接受任务",
 
-		"target_first_name":"Beyounder",
+		"target_first_name":"Beyonder",
 		"target_last_name":"",
         "target_rank": "spaceCaptain",
         "target_post": "fleetCommander",
@@ -922,7 +922,7 @@
 		"fleet_name":"被俘获的天人战舰及其护航队",
         "fleet_faction": "tritachyon",
         "fleet_flagship_variant":"Moci_PtolemaiosII_Special",
-        "fleet_flagship_name":"Ptolemaios 2 ",
+        "fleet_flagship_name":"Ptolemaios 2",
         "fleet_flagship_recoverable": true,
         "fleet_flagship_autofit": false,
         "fleet_preset_ships": {

@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 
 import com.fs.starfarer.api.Global;
@@ -31,6 +32,9 @@ public class Moci_EnergyCoreOverclock extends BaseShipSystemScript {
     // 视觉效果
     private static final Color FLUX_WARNING_COLOR = new Color(255, 100, 100, 150);
     
+    // getStatusData 拿不到舰船：由 apply 记下当前是否真的给了幅能消耗减免（安超舰船没有）
+    private boolean fluxCostReduced = false;
+
     @Override
     public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
         ShipAPI ship = null;
@@ -81,8 +85,10 @@ public class Moci_EnergyCoreOverclock extends BaseShipSystemScript {
             // 减少所有能量武器幅能消耗
             stats.getEnergyWeaponFluxCostMod().modifyMult(id + "_flux", 0.5f);
             trackFluxConsumption(ship, data);
+            fluxCostReduced = true;
         } else {
             // 确保安超舰船或未满充能时移除幅能消耗减免
+            fluxCostReduced = false;
             stats.getEnergyWeaponFluxCostMod().unmodify(id + "_flux");
         }
     }
@@ -164,12 +170,12 @@ public class Moci_EnergyCoreOverclock extends BaseShipSystemScript {
     public StatusData getStatusData(int index, State state, float effectLevel) {
         if (index == 0) {
             // 合并标题和效果到一行显示
-            String effects = "射速+" + (int)(ENERGY_WEAPON_ROF_BONUS * effectLevel) + "% " +
-                           "弹速+" + (int)(ENERGY_WEAPON_SPEED_BONUS * effectLevel) + "% " +
-                           "弹药回复+" + (int)(ENERGY_AMMO_REGEN_BONUS * effectLevel) + "%";
+            String effects = Moci_TextLoader.getText("code_Moci_EnergyCoreOverclock", "t001", "射速+") + (int)(ENERGY_WEAPON_ROF_BONUS * effectLevel) + "% " +
+                           Moci_TextLoader.getText("code_Moci_EnergyCoreOverclock", "t002", "弹速+") + (int)(ENERGY_WEAPON_SPEED_BONUS * effectLevel) + "% " +
+                           Moci_TextLoader.getText("code_Moci_EnergyCoreOverclock", "t003", "弹药回复+") + (int)(ENERGY_AMMO_REGEN_BONUS * effectLevel) + "%";
             
-            if (state == State.ACTIVE) {
-                effects += " 幅能消耗-50%";
+            if (state == State.ACTIVE && fluxCostReduced) {
+                effects += Moci_TextLoader.getText("code_Moci_EnergyCoreOverclock", "t004", " 幅能消耗-50%");
             }
             
             return new StatusData(effects, false);
@@ -206,4 +212,4 @@ public class Moci_EnergyCoreOverclock extends BaseShipSystemScript {
     private static class OverclockData {
         float pendingFlux = 0f;  // 待恢复的幅能值
     }
-} 
+}

@@ -200,10 +200,10 @@ public class Moci_YurikaBarEvent extends BaseBarEvent {
     private String getRouteText() {
         String route = Moci_NadesicoStoryRouteManager.getRoute();
         if ("moci_nadesico_route_a_to_b_to_tdd".equals(route)) {
-            return "抚子A -> 抚子B -> 丹努之子";
+            return Moci_TextLoader.getText("code_Moci_YurikaBarEvent", "t001", "抚子A -> 抚子B -> 丹努之子");
         }
         if ("moci_nadesico_route_b_to_tdd".equals(route)) {
-            return "Prospector -> 抚子A -> Yurika -> 抚子B -> 丹努之子";
+            return Moci_TextLoader.getText("code_Moci_YurikaBarEvent", "t002", "Prospector -> 抚子A -> Yurika -> 抚子B -> 丹努之子");
         }
         return text("bar.route_uninitialized", "未初始化");
     }

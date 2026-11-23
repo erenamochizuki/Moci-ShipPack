@@ -60,7 +60,7 @@ public final class Moci_StoryOfficerManager {
                         Skills.SYSTEMS_EXPERTISE},
                 new String[] {Skills.TARGET_ANALYSIS, Skills.HELMSMANSHIP}),
         TERESA("teresa", "moci_nergal_contact_teresa", "moci_officer_teresa",
-                "Teresa", "Testarossa", FullName.Gender.FEMALE,
+                "Teletha", "Testarossa", FullName.Gender.FEMALE,
                 "graphics/portraits/characters/Moci_Teresa_Testarossa.png", Personalities.CAUTIOUS,
                 6, 12, 4, "Moci_TeresaSkill",
                 new String[] {Skills.MISSILE_SPECIALIZATION, Skills.SYSTEMS_EXPERTISE, Skills.FIELD_MODULATION,

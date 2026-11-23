@@ -1,5 +1,6 @@
 package data.campaign.fighter;
 
+import data.scripts.util.Moci_TextLoader;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -38,37 +39,37 @@ public final class Moci_FighterLoadoutEligibility {
         } catch (IOException | JSONException | RuntimeException ex) {
             // 文件 IO 与 JSON 解析无法事先验证：SettingsAPI 没有查询 mod 资源是否存在的入口，
             // 缺文件时引擎资源加载器（com.fs.util.C）抛 RuntimeException("Error loading [...] resource, not found in [...]")。
-            failure = "航空中队配置无法读取：" + ex.getMessage();
+            failure = Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t001", "航空中队配置无法读取：") + ex.getMessage();
             return;
         }
         failure = apply(config);
     }
     /** Validates every key before publishing it, so a malformed file never leaves a half-applied policy. */
     private static String apply(JSONObject config) {
-        if (config == null) return "航空中队配置无法读取：配置为空";
+        if (config == null) return Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t002", "航空中队配置无法读取：配置为空");
         boolean weapons = DEFAULT_WEAPON_RESTRICTION;
         boolean tactical = DEFAULT_TACTICAL_RESTRICTION;
         Set<String> tags = DEFAULT_ACCEPTED_TAGS;
         if (config.has(WEAPON_RESTRICTION_KEY)) {
             if (!(config.opt(WEAPON_RESTRICTION_KEY) instanceof Boolean value)) {
-                return "航空中队配置无法读取：" + WEAPON_RESTRICTION_KEY + " 必须是 true 或 false";
+                return Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t001", "航空中队配置无法读取：") + WEAPON_RESTRICTION_KEY + Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t003", " 必须是 true 或 false");
             }
             weapons = value;
         }
         if (config.has(TACTICAL_RESTRICTION_KEY)) {
             if (!(config.opt(TACTICAL_RESTRICTION_KEY) instanceof Boolean value)) {
-                return "航空中队配置无法读取：" + TACTICAL_RESTRICTION_KEY + " 必须是 true 或 false";
+                return Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t001", "航空中队配置无法读取：") + TACTICAL_RESTRICTION_KEY + Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t003", " 必须是 true 或 false");
             }
             tactical = value;
         }
         if (config.has(ACCEPTED_TAGS_KEY)) {
             JSONArray array = config.optJSONArray(ACCEPTED_TAGS_KEY);
-            if (array == null) return "航空中队配置无法读取：" + ACCEPTED_TAGS_KEY + " 必须是数组";
+            if (array == null) return Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t001", "航空中队配置无法读取：") + ACCEPTED_TAGS_KEY + Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t004", " 必须是数组");
             LinkedHashSet<String> parsed = new LinkedHashSet<>();
             for (int i = 0; i < array.length(); i++) {
                 Object entry = array.opt(i);
                 String tag = entry instanceof String text ? text.trim() : "";
-                if (tag.isEmpty()) return "航空中队配置无法读取：" + ACCEPTED_TAGS_KEY + " 含空项或非字符串项";
+                if (tag.isEmpty()) return Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t001", "航空中队配置无法读取：") + ACCEPTED_TAGS_KEY + Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t005", " 含空项或非字符串项");
                 parsed.add(tag);
             }
             tags = Set.copyOf(parsed);
@@ -85,7 +86,7 @@ public final class Moci_FighterLoadoutEligibility {
     public static boolean isTacticalRefitRestrictedByTag() { return restrictTacticalRefitByTag; }
     /** Uses the game's automated hullmod and variant/hull tag policy; captains are optional. */
     public static String getCarrierLockReason(ShipVariantAPI variant) {
-        return Misc.isAutomated(variant) ? "自动化舰船不能使用航空中队管理" : null;
+        return Misc.isAutomated(variant) ? Moci_TextLoader.getText("code_Moci_FighterLoadoutEligibility", "t006", "自动化舰船不能使用航空中队管理") : null;
     }
     public static boolean accepts(FighterWingSpecAPI prototype) {
         return acceptsWeapons(prototype);

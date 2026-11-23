@@ -93,7 +93,7 @@ public class Moci_GachaCommand extends BaseCommandPlugin {
         TextPanelAPI text = dialog.getTextPanel();
         long required = (long) count * unitCost;
         if (count <= 0 || unitCost <= 0 || required > Integer.MAX_VALUE || resource == null || cargo.getCommodityQuantity(resource) < required) {
-            text.addPara("抽奖资源不足，请重新选择抽奖次数。", Misc.getNegativeHighlightColor());
+            text.addPara(Moci_TextLoader.getText("code_Moci_GachaCommand", "t001", "抽奖资源不足，请重新选择抽奖次数。"), Misc.getNegativeHighlightColor());
             return;
         }
         Moci_GachaManager.gachaMemoryItem = resource;

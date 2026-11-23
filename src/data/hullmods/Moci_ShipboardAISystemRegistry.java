@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -270,7 +271,7 @@ public final class Moci_ShipboardAISystemRegistry {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < names.size(); i++) {
             if (i > 0) {
-                builder.append("、");
+                builder.append(Moci_TextLoader.getText("code_Moci_ShipboardAISystemRegistry", "t001", "、"));
             }
             builder.append(names.get(i));
         }

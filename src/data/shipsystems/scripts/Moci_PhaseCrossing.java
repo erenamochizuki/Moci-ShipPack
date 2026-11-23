@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 
 import org.dark.shaders.distortion.DistortionShader;
@@ -958,7 +959,7 @@ public class Moci_PhaseCrossing extends BaseShipSystemScript {
             float effectLevel) {
         // 只显示第一个状态条目，其他索引返回null
         return index == 0 ? new ShipSystemStatsScript.StatusData(
-                "玻色子跳跃 - 跳跃中", // 固定显示文本
+                Moci_TextLoader.getText("code_Moci_PhaseCrossing", "t001", "玻色子跳跃 - 跳跃中"), // 固定显示文本
                 false // false表示非进度条类型的状态显示
         ) : null;
     }

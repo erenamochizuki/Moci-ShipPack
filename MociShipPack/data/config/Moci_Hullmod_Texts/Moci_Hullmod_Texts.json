@@ -798,9 +798,9 @@
         "AI",
         "MS"
       ],
-      "ai_cond_hull": "- 结构值不高于 %s；若部署时结构值处于 50%～70% 之间，触发阈值改为 50%",
+      "ai_cond_hull": "- 结构值不高于 %s；若部署时结构值处于 %s～%s 之间，触发阈值改为 %s",
       "ai_cond_hull_highlights": [
-        "70%"
+        "70%", "50%", "70%", "50%"
       ],
       "ai_cond_cr": "- 当前 CR 低于部署时 CR 的一半(触发阈值下限为 %s)",
       "ai_cond_cr_highlights": [
@@ -1511,6 +1511,7 @@
     }
   },
   "Moci_PlayerSkill1": {
+    "subsystem": {"auto_active": "自动N.T.生效中"},
     "name": "新人类",
     "description": {
       "level1": "无视米诺夫斯基粒子的干扰效果",

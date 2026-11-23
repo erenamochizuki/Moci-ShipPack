@@ -1,5 +1,6 @@
 package data.campaign.customstart;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.Script;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
@@ -79,8 +80,8 @@ public class Moci_CustomStart extends CustomStart {
         ExerelinSetupData.getInstance().freeStart = true;
 
         // 添加故事文本
-        dialog.getTextPanel().addPara("你带领着一支小型舰队，装备着来自旧时代的机动战士技术。");
-        dialog.getTextPanel().addPara("虽然舰队规模不大，但这些机体蕴含着强大的战斗潜力。是时候在星海中开创属于你的传奇了。");
+        dialog.getTextPanel().addPara(Moci_TextLoader.getText("code_Moci_CustomStart", "t001", "你带领着一支小型舰队，装备着来自旧时代的机动战士技术。"));
+        dialog.getTextPanel().addPara(Moci_TextLoader.getText("code_Moci_CustomStart", "t002", "虽然舰队规模不大，但这些机体蕴含着强大的战斗潜力。是时候在星海中开创属于你的传奇了。"));
 
         // 创建特性展示tooltip
         TooltipMakerAPI tooltip = dialog.getTextPanel().beginTooltip();
@@ -89,8 +90,8 @@ public class Moci_CustomStart extends CustomStart {
         // 资源展示
         TooltipMakerAPI resourceTooltip = tooltip.beginImageWithText(
                 "graphics/icons/cargo/supplies.png", 48f);
-        resourceTooltip.addPara("获得充足的初始资源和启动资金。", 0f,
-                Misc.getTextColor(), Misc.getHighlightColor(), "初始资源");
+        resourceTooltip.addPara(Moci_TextLoader.getText("code_Moci_CustomStart", "t003", "获得充足的初始资源和启动资金。"), 0f,
+                Misc.getTextColor(), Misc.getHighlightColor(), Moci_TextLoader.getText("code_Moci_CustomStart", "t004", "初始资源"));
         tooltip.addImageWithText(0f);
 
         tooltip.addSpacer(5f);
@@ -111,11 +112,11 @@ public class Moci_CustomStart extends CustomStart {
         }
 
         // 自定义舰队生成（不使用NGCAddStartingShipsByFleetType以避免资源重复）
-        dialog.getTextPanel().addPara("获得起始舰队:");
+        dialog.getTextPanel().addPara(Moci_TextLoader.getText("code_Moci_CustomStart", "t005", "获得起始舰队:"));
         CampaignFleetAPI tempFleet = generateCustomFleet(dialog, data, selectedShips);
 
         // 显示技能获得信息
-        dialog.getTextPanel().addPara("获得额外技能:");
+        dialog.getTextPanel().addPara(Moci_TextLoader.getText("code_Moci_CustomStart", "t006", "获得额外技能:"));
         PersonAPI person = Global.getFactory().createPerson();
         person.setName(new FullName("", "", FullName.Gender.ANY));
         person.getStats().setSkillLevel("Moci_PlayerSkill1", 2);

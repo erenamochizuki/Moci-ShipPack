@@ -1,5 +1,6 @@
 package data.scripts.weapons;
 
+import data.scripts.util.Moci_TextLoader;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -112,7 +113,7 @@ public class Moci_MSN03Wingman_Effect implements EveryFrameWeaponEffectPlugin, O
                     this,
                     "graphics/icons/hullsys/drone_pd_high.png", // 使用无人机图标
                     weapon.getDisplayName(), 
-                    "浮游炮: " + activeCount + " / " + maxDrones,
+                    Moci_TextLoader.getText("code_Moci_MSN03Wingman_Effect", "t001", "浮游炮: ") + activeCount + " / " + maxDrones,
                     false // 有浮游炮时显示为正常状态
                 );
             }

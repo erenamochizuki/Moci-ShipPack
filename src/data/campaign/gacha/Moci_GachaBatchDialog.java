@@ -1,5 +1,6 @@
 package data.campaign.gacha;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,7 @@ public final class Moci_GachaBatchDialog extends BaseCustomUIPanelPlugin impleme
             dialog.showCustomDialog(w,h,new Moci_GachaBatchDialog(receipt,repeat));
         } catch (RuntimeException ex) {
             Global.getLogger(Moci_GachaBatchDialog.class).error("连抽窗口打开失败；奖励已按原流程到账",ex);
-            dialog.getTextPanel().addPara("反馈窗口暂时无法打开，奖励已到账，可查看文字记录。",Misc.getNegativeHighlightColor());
+            dialog.getTextPanel().addPara(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t001", "反馈窗口暂时无法打开，奖励已到账，可查看文字记录。"),Misc.getNegativeHighlightColor());
         }
     }
     @Override public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
@@ -63,26 +64,26 @@ public final class Moci_GachaBatchDialog extends BaseCustomUIPanelPlugin impleme
         float[] displayScales=new float[icons.length];
         for(int i=0;i<icons.length;i++) {
             Moci_GachaReward r=receipt.draws().get(i).reward();
-            Moci_GachaRevealDialog.Asset a=r==null ? new Moci_GachaRevealDialog.Asset(null,"未独立发放",null,null) : Moci_GachaRevealDialog.resolve(r,shipArt);
+            Moci_GachaRevealDialog.Asset a=r==null ? new Moci_GachaRevealDialog.Asset(null,Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t002", "未独立发放"),null,null) : Moci_GachaRevealDialog.resolve(r,shipArt);
             assets.add(a); icons[i]=a.sprite(); models[i]=a.model(); displayScales[i]=a.displayScale();
             facing[i]=r!=null && ("ShipID".equals(r.type()) || "Fighter".equals(r.type()));
         }
         renderer=new Moci_GachaPortalRenderer(Moci_GachaRevealDialog.loadSprite(Moci_GachaPortalRenderer.BACKGROUND),icons,models,facing,displayScales);
         TooltipMakerAPI title=panel.createUIElement(width-40,32,false);
-        title.setParaFontOrbitron(); header=title.addPara("MOCI / 十连召唤",MINT,0);
+        title.setParaFontOrbitron(); header=title.addPara(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t003", "MOCI / 十连召唤"),MINT,0);
         panel.addUIElement(title).inTL(20,8);
         stage=panel.createCustomPanel(stageWidth,stageHeight,new Stage());
         panel.addComponent(stage).inTL((width-stageWidth)/2,44);
         TooltipMakerAPI info=panel.createUIElement(width-40,66,false);
-        detail=info.addPara("通道连接中…",MINT,0); detail.setAlignment(Alignment.MID);
+        detail=info.addPara(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t004", "通道连接中…"),MINT,0); detail.setAlignment(Alignment.MID);
         bonus=info.addPara(bonusText(),DIM,8); bonus.setAlignment(Alignment.MID);
         panel.addUIElement(info).inTL(20,50+stageHeight);
-        next=button("揭晓下一张","next",0,0);
-        all=button("快速揭晓","all",1,0);
-        automatic=button("暂停自动播放","automatic",2,0);
-        previous=button("上一页","previous",0,1);
-        list=button("合并清单","list",1,1);
-        again=button("再抽 "+receipt.draws().size()+" 次","again",2,1);
+        next=button(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t005", "揭晓下一张"),"next",0,0);
+        all=button(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t006", "快速揭晓"),"all",1,0);
+        automatic=button(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t007", "暂停自动播放"),"automatic",2,0);
+        previous=button(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t008", "上一页"),"previous",0,1);
+        list=button(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t009", "合并清单"),"list",1,1);
+        again=button(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t010", "再抽 ")+receipt.draws().size()+Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t011", " 次"),"again",2,1);
         createCardLabels(); updateLabels();
         // 每次创建窗口只播放一次 open 音，不随分页或切换清单重播。
         audio.open();
@@ -121,7 +122,7 @@ public final class Moci_GachaBatchDialog extends BaseCustomUIPanelPlugin impleme
         panel.addUIElement(caption).inTL(left+68*stageWidth/1280f,44+484*stageHeight/720f);
     }
     private String bonusText() {
-        if(receipt.bonuses().isEmpty()) return "奖励已结算 · 点击已揭晓条目切换展示";
+        if(receipt.bonuses().isEmpty()) return Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t012", "奖励已结算 · 点击已揭晓条目切换展示");
         return receipt.bonuses().stream().map(r->r.name()+" ×"+Misc.getWithDGS(r.quantity())).collect(java.util.stream.Collectors.joining("  /  "));
     }
     private static boolean pressed(ButtonAPI b) {
@@ -162,39 +163,39 @@ public final class Moci_GachaBatchDialog extends BaseCustomUIPanelPlugin impleme
     private void updateLabels() {
         String key=sequence.page()+":"+sequence.revealedCount()+":"+sequence.focusIndex()+":"+sequence.focusRevealed()+":"+sequence.intro()+":"+(sequence.landing()>=1)+":"+sequence.automatic()+":"+listMode+":"+selectedIndex+":"+sequence.pageComplete()+":"+sequence.fastForwarding()+":"+pendingList;
         if(key.equals(labelKey))return; labelKey=key;
-        header.setText("MOCI / "+receipt.draws().size()+" 连召唤 · "+sequence.revealedCount()+" / "+receipt.draws().size()+" · 第 "+(sequence.page()+1)+" / "+sequence.pageCount()+" 页");
-        automatic.setText(sequence.automatic()?"暂停自动播放":"继续自动播放");
+        header.setText("MOCI / "+receipt.draws().size()+Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t013", " 连召唤 · ")+sequence.revealedCount()+" / "+receipt.draws().size()+Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t014", " · 第 ")+(sequence.page()+1)+" / "+sequence.pageCount()+Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t015", " 页"));
+        automatic.setText(sequence.automatic()?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t007", "暂停自动播放"):Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t016", "继续自动播放"));
         automatic.setEnabled(!listMode && !sequence.allRevealed()); all.setEnabled(!sequence.allRevealed());
-        all.setText(sequence.fastForwarding()?"快速揭晓中…":"快速揭晓");
+        all.setText(sequence.fastForwarding()?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t017", "快速揭晓中…"):Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t006", "快速揭晓"));
         previous.setEnabled(!listMode && sequence.page()>0 && sequence.pageComplete());
-        again.setEnabled(repeat!=null && sequence.allRevealed()); list.setText(listMode?"返回结果":"合并清单");
+        again.setEnabled(repeat!=null && sequence.allRevealed()); list.setText(listMode?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t018", "返回结果"):Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t009", "合并清单"));
         next.setEnabled(listMode || !sequence.pageComplete() || sequence.page()+1<sequence.pageCount());
-        next.setText(listMode?"返回结果":sequence.focusIndex()>=0?(sequence.focusRevealed()?(sequence.fastForwarding()?"展示中…":"加快展示"):"立即揭晓"):sequence.pageComplete()?(sequence.page()+1<sequence.pageCount()?"下一页":"揭晓完成"):(sequence.fastForwarding()?"展示中…":"揭晓下一张"));
+        next.setText(listMode?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t018", "返回结果"):sequence.focusIndex()>=0?(sequence.focusRevealed()?(sequence.fastForwarding()?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t019", "展示中…"):Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t020", "加快展示")):Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t021", "立即揭晓")):sequence.pageComplete()?(sequence.page()+1<sequence.pageCount()?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t022", "下一页"):Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t023", "揭晓完成")):(sequence.fastForwarding()?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t019", "展示中…"):Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t005", "揭晓下一张")));
         int focus=sequence.focusIndex();
-        if(listMode)detail.setText("合并清单 · 所有奖励已到账");
+        if(listMode)detail.setText(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t024", "合并清单 · 所有奖励已到账"));
         else if(focus>=0) {
             Moci_GachaReward r=receipt.draws().get(focus).reward();
             if(!sequence.focusRevealed()) {
-                detail.setText(sequence.rankAt(focus)==2?"强烈信号正在汇聚…":"稀有信号正在确认…");
+                detail.setText(sequence.rankAt(focus)==2?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t025", "强烈信号正在汇聚…"):Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t026", "稀有信号正在确认…"));
                 detail.setColor(MINT);
             } else {
                 detail.setText(r==null?receipt.draws().get(focus).message():r.rarity()+" / "+assets.get(focus).name()+" ×"+Misc.getWithDGS(r.quantity())+" · "+Moci_GachaRevealDialog.typeLabel(r.type()));
                 detail.setColor(Moci_GachaPortalRenderer.rarityColor(sequence.rankAt(focus)));
             }
-        } else { detail.setText(sequence.pageComplete()?"本页揭晓完成 · 点击条目切换展示":"信号依次确认中… · 点击可加快，保留音效播放时间"); detail.setColor(MINT); }
+        } else { detail.setText(sequence.pageComplete()?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t027", "本页揭晓完成 · 点击条目切换展示"):Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t028", "信号依次确认中… · 点击可加快，保留音效播放时间")); detail.setColor(MINT); }
         int featured=Moci_GachaPortalRenderer.featuredIndex(sequence,selectedIndex);
         boolean showcase=!listMode && !sequence.intro() && sequence.landing()>=1 && focus<0;
-        featureTitle.setText(showcase?(featured<0?"MOCI / 待确认档案":String.format("重点展示 / %02d",featured+1)):"");
+        featureTitle.setText(showcase?(featured<0?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t029", "MOCI / 待确认档案"):String.format(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t030", "重点展示 / %02d"),featured+1)):"");
         featureIndex.setText(showcase?(featured<0?"—":String.format("%02d",featured+1)):"");
         if(showcase && featured>=0) {
             Moci_GachaReward r=receipt.draws().get(featured).reward();
             Color color=Moci_GachaPortalRenderer.rarityColor(sequence.rankAt(featured));
-            featureName.setText(r==null?"未独立发放":assets.get(featured).name());
+            featureName.setText(r==null?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t002", "未独立发放"):assets.get(featured).name());
             featureName.setColor(color);
             featureQuantity.setText(r==null?"":r.rarity()+" / "+Moci_GachaRevealDialog.typeLabel(r.type())+"\n×"+Misc.getWithDGS(r.quantity()));
             featureQuantity.setColor(color);
-            if(sequence.pageComplete() && r!=null)detail.setText(r.rarity()+" / "+assets.get(featured).name()+" ×"+Misc.getWithDGS(r.quantity())+" · 点击条目切换展示");
-        } else {featureName.setText(showcase?"等待信号确认":"");featureQuantity.setText("");}
+            if(sequence.pageComplete() && r!=null)detail.setText(r.rarity()+" / "+assets.get(featured).name()+" ×"+Misc.getWithDGS(r.quantity())+Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t031", " · 点击条目切换展示"));
+        } else {featureName.setText(showcase?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t032", "等待信号确认"):"");featureQuantity.setText("");}
         for(int slot=0;slot<10;slot++) {
             int index=sequence.pageStart()+slot;
             boolean show=!listMode && !sequence.intro() && sequence.landing()>=1 && focus<0 && index<sequence.pageEnd();
@@ -204,7 +205,7 @@ public final class Moci_GachaBatchDialog extends BaseCustomUIPanelPlugin impleme
             if(!show || !sequence.visible(index))cardNames.get(slot).setText("");
             else {
                 Moci_GachaReward r=receipt.draws().get(index).reward();
-                String name=r==null?"未独立发放":assets.get(index).name();
+                String name=r==null?Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t002", "未独立发放"):assets.get(index).name();
                 float textWidth=stageWidth*Moci_GachaPortalRenderer.cardTextWidth()/1280f;
                 cardNames.get(slot).setText(cardText(name,r==null?0:r.quantity(),textWidth));
                 Color color=Moci_GachaPortalRenderer.rarityColor(receipt.draws().get(index).rank());
@@ -232,9 +233,9 @@ public final class Moci_GachaBatchDialog extends BaseCustomUIPanelPlugin impleme
         if(!listMode) {panel.removeComponent(summary);summary=null;labelKey="";return;}
         sequence.closeDetail();
         summary=panel.createUIElement(stageWidth,stageHeight,true);
-        summary.addSectionHeading("全部奖励 · 同类合并 · 已到账",MINT,new Color(20,29,36),Alignment.MID,0);
+        summary.addSectionHeading(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t033", "全部奖励 · 同类合并 · 已到账"),MINT,new Color(20,29,36),Alignment.MID,0);
         for(Moci_GachaReward r:receipt.totals())summary.addPara(r.rarity()+" / "+r.name()+" ×"+Misc.getWithDGS(r.quantity()),Moci_GachaPortalRenderer.rarityColor(r.rank()),10);
-        if(receipt.totals().isEmpty())summary.addPara("本批未获得可发放奖励，请查看原文字记录。",DIM,10);
+        if(receipt.totals().isEmpty())summary.addPara(Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t034", "本批未获得可发放奖励，请查看原文字记录。"),DIM,10);
         panel.addUIElement(summary).inTL((width-stageWidth)/2,44);labelKey="";
     }
     private final class Stage extends BaseCustomUIPanelPlugin {
@@ -264,7 +265,7 @@ public final class Moci_GachaBatchDialog extends BaseCustomUIPanelPlugin impleme
         }
     }
     @Override public boolean hasCancelButton(){return false;}
-    @Override public String getConfirmText(){return "关闭窗口";}
+    @Override public String getConfirmText(){return Moci_TextLoader.getText("code_Moci_GachaBatchDialog", "t035", "关闭窗口");}
     @Override public String getCancelText(){return null;}
     @Override public CustomUIPanelPlugin getCustomPanelPlugin(){return this;}
     @Override public void customDialogConfirm(){disposed=true;}

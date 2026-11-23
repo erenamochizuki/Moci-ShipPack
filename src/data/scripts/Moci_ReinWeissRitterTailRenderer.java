@@ -91,9 +91,27 @@ public class Moci_ReinWeissRitterTailRenderer implements CombatLayeredRenderingP
         // 残影(闪现的副本、列阵的残影)各画一条尾巴，透明度用残影自己的
         shipCopies.clear();
         Moci_Util.collectShipCopies(ship, shipCopies);
+        float captureRadius = 0f;
         for (int c = 0; c < shipCopies.size(); c++) {
           Moci_Util.ShipCopyRenderer.ShipCopy copy = shipCopies.get(c);
-          renderTail(ship, state, copy, baseAlpha * Math.min(1f, copy.alpha));
+          float alpha = baseAlpha * Math.min(1f, copy.alpha);
+          if (alpha > 0f && copy.wind.lengthSquared() > .01f && Moci_Util.isLocalWarpAvailable()) {
+            // 尾巴是单独的图层；捕获整条尾巴一次，共用舰体的曝光位移。
+            if (captureRadius == 0f) {
+              float farthest = 0f;
+              for (SegmentData segment : state.segments) {
+                if (segment == null) continue;
+                float dx = segment.position.x - ship.getLocation().x, dy = segment.position.y - ship.getLocation().y;
+                farthest = Math.max(farthest, dx * dx + dy * dy);
+              }
+              captureRadius = (float)Math.sqrt(farthest) + Math.max(lengthS, Math.max(lengthM, lengthL));
+            }
+            try {
+              if (Moci_Util.renderLocalWind(() -> renderTail(ship, state, copy, 1f), copy.location, captureRadius, alpha, copy.wind)) continue;
+            } catch (RuntimeException | Error error) { throw error; }
+            catch (Throwable error) { throw new IllegalStateException(error); }
+          }
+          renderTail(ship, state, copy, alpha);
         }
         shipCopies.clear();
       }

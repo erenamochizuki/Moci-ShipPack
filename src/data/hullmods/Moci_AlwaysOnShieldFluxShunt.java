@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.combat.BaseHullMod;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShieldAPI.ShieldType;
@@ -47,7 +48,7 @@ public class Moci_AlwaysOnShieldFluxShunt extends BaseHullMod {
     @Override
     public String getUnapplicableReason(ShipAPI ship) {
         if (ship == null || ship.getShield() == null) {
-            return "舰船没有护盾。";
+            return Moci_TextLoader.getText("code_Moci_AlwaysOnShieldFluxShunt", "t001", "舰船没有护盾。");
         }
         return null;
     }

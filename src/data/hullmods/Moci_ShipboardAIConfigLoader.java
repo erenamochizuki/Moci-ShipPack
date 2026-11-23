@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -670,7 +671,7 @@ public class Moci_ShipboardAIConfigLoader {
         ));
 
         AITypeDefinition system99 = new AITypeDefinition(
-                "Moci_system99", "99系统", "graphics/portraits/ai_pilot/Moci_system99.png", false, 7,
+                "Moci_system99", Moci_TextLoader.getText("code_Moci_ShipboardAIConfigLoader", "t001", "99系统"), "graphics/portraits/ai_pilot/Moci_system99.png", false, 7,
                 Personalities.RECKLESS, DEFAULT_AI_RANK_ID,
                 systemSkillPool,
                 Arrays.asList(com.fs.starfarer.api.impl.campaign.ids.Skills.TARGET_ANALYSIS),
@@ -681,7 +682,7 @@ public class Moci_ShipboardAIConfigLoader {
         );
 
         AITypeDefinition nine = new AITypeDefinition(
-                "Moci_Nine", "奈因", "graphics/portraits/ai_pilot/Moci_Nine.png", false, 11,
+                "Moci_Nine", Moci_TextLoader.getText("code_Moci_ShipboardAIConfigLoader", "t002", "奈因"), "graphics/portraits/ai_pilot/Moci_Nine.png", false, 11,
                 Personalities.AGGRESSIVE, DEFAULT_AI_RANK_ID,
                 getDefaultSkillPool(),
                 Arrays.asList(com.fs.starfarer.api.impl.campaign.ids.Skills.TARGET_ANALYSIS),
@@ -692,7 +693,7 @@ public class Moci_ShipboardAIConfigLoader {
         );
 
         AITypeDefinition haro = new AITypeDefinition(
-                "Moci_haro", "哈罗AI", "graphics/portraits/Moci_haro_Base.png", true, 9,
+                "Moci_haro", Moci_TextLoader.getText("code_Moci_ShipboardAIConfigLoader", "t003", "哈罗AI"), "graphics/portraits/Moci_haro_Base.png", true, 9,
                 Personalities.STEADY, DEFAULT_AI_RANK_ID,
                 getDefaultSkillPool(),
                 Arrays.asList(com.fs.starfarer.api.impl.campaign.ids.Skills.HELMSMANSHIP),
@@ -703,7 +704,7 @@ public class Moci_ShipboardAIConfigLoader {
         );
 
         AITypeDefinition alphaRandom = new AITypeDefinition(
-                "Moci_ARP_AlphaRandom", "阿尔法舰载AI", "graphics/icons/cargo/ai_core_alpha.png", false, 9,
+                "Moci_ARP_AlphaRandom", Moci_TextLoader.getText("code_Moci_ShipboardAIConfigLoader", "t004", "阿尔法舰载AI"), "graphics/icons/cargo/ai_core_alpha.png", false, 9,
                 Personalities.STEADY, DEFAULT_AI_RANK_ID,
                 getDefaultSkillPool(),
                 Arrays.asList(com.fs.starfarer.api.impl.campaign.ids.Skills.TARGET_ANALYSIS),
@@ -714,7 +715,7 @@ public class Moci_ShipboardAIConfigLoader {
         );
 
         AITypeDefinition takao = new AITypeDefinition(
-                "Moci_ARP_Takao", "高雄", "graphics/portraits/ai_pilot/Moci_ARP_Takao.png", false, 8,
+                "Moci_ARP_Takao", Moci_TextLoader.getText("code_Moci_ShipboardAIConfigLoader", "t005", "高雄"), "graphics/portraits/ai_pilot/Moci_ARP_Takao.png", false, 8,
                 Personalities.AGGRESSIVE, DEFAULT_AI_RANK_ID,
                 getDefaultSkillPool(),
                 Arrays.asList(com.fs.starfarer.api.impl.campaign.ids.Skills.BALLISTIC_MASTERY),
@@ -725,7 +726,7 @@ public class Moci_ShipboardAIConfigLoader {
         );
 
         AITypeDefinition kongou = new AITypeDefinition(
-                "Moci_ARP_Kongou", "金刚", "graphics/portraits/ai_pilot/Moci_ARP_Kongou.png", false, 9,
+                "Moci_ARP_Kongou", Moci_TextLoader.getText("code_Moci_ShipboardAIConfigLoader", "t006", "金刚"), "graphics/portraits/ai_pilot/Moci_ARP_Kongou.png", false, 9,
                 Personalities.AGGRESSIVE, DEFAULT_AI_RANK_ID,
                 getDefaultSkillPool(),
                 Arrays.asList(com.fs.starfarer.api.impl.campaign.ids.Skills.BALLISTIC_MASTERY),
@@ -736,7 +737,7 @@ public class Moci_ShipboardAIConfigLoader {
         );
 
         AITypeDefinition haruna = new AITypeDefinition(
-                "Moci_ARP_Haruna", "榛名", "graphics/portraits/ai_pilot/Moci_ARP_Haruna.png", false, 9,
+                "Moci_ARP_Haruna", Moci_TextLoader.getText("code_Moci_ShipboardAIConfigLoader", "t007", "榛名"), "graphics/portraits/ai_pilot/Moci_ARP_Haruna.png", false, 9,
                 Personalities.CAUTIOUS, DEFAULT_AI_RANK_ID,
                 getDefaultSkillPool(),
                 Arrays.asList(com.fs.starfarer.api.impl.campaign.ids.Skills.FIELD_MODULATION),
@@ -747,7 +748,7 @@ public class Moci_ShipboardAIConfigLoader {
         );
 
         AITypeDefinition omegaRandom = new AITypeDefinition(
-                "Moci_ARP_OmegaRandom", "欧米伽舰载AI", "graphics/icons/cargo/ai_omega_core.png", false, 10,
+                "Moci_ARP_OmegaRandom", Moci_TextLoader.getText("code_Moci_ShipboardAIConfigLoader", "t008", "欧米伽舰载AI"), "graphics/icons/cargo/ai_omega_core.png", false, 10,
                 Personalities.AGGRESSIVE, DEFAULT_AI_RANK_ID,
                 getDefaultSkillPool(),
                 Arrays.asList(com.fs.starfarer.api.impl.campaign.ids.Skills.TARGET_ANALYSIS),
@@ -758,7 +759,7 @@ public class Moci_ShipboardAIConfigLoader {
         );
 
         AITypeDefinition iona = new AITypeDefinition(
-                "Moci_ARP_Iona", "伊欧娜", "graphics/portraits/ai_pilot/Moci_ARP_Iona.png", false, 10,
+                "Moci_ARP_Iona", Moci_TextLoader.getText("code_Moci_ShipboardAIConfigLoader", "t009", "伊欧娜"), "graphics/portraits/ai_pilot/Moci_ARP_Iona.png", false, 10,
                 Personalities.STEADY, DEFAULT_AI_RANK_ID,
                 getDefaultSkillPool(),
                 Arrays.asList(com.fs.starfarer.api.impl.campaign.ids.Skills.TARGET_ANALYSIS),

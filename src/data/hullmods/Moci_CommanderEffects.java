@@ -270,9 +270,8 @@ public class Moci_CommanderEffects {
                 float skillLevel = commander.getStats().getSkillLevel(skillId);
                 float bonus = entry.getValue() * skillLevel;
                 String skillName = Global.getSettings().getSkillSpec(skillId).getName();
-                details.append(Moci_CombatSquadTextRegistry.getText("commander_details_skill_prefix", "  - "))
-                       .append(skillName).append(" (").append((int)skillLevel)
-                       .append(Moci_CombatSquadTextRegistry.getText("commander_details_skill_suffix", "级): "))
+                details.append(Moci_CombatSquadTextRegistry.format("commander_details_skill_line", "  - {name} ({level}级): ",
+                               "name", skillName, "level", String.valueOf((int) skillLevel)))
                        .append(String.format("%.1f%%", bonus * 100f)).append("\n");
             }
         }

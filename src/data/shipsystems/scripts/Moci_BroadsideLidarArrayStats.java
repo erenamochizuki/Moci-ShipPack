@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import  java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -327,7 +328,7 @@ public class Moci_BroadsideLidarArrayStats extends BaseShipSystemScript {
     public StatusData getStatusData(int index, State state, float effectLevel) {
         if (state == State.IDLE || state == State.COOLDOWN) {
             if (index == 3) {
-                return new StatusData("武器射程 +" + (int) PASSIVE_RANGE_BONUS + "%", false);
+                return new StatusData(Moci_TextLoader.getText("code_Moci_BroadsideLidarArrayStats", "t001", "武器射程 +") + (int) PASSIVE_RANGE_BONUS + "%", false);
             }    
         }
         if (effectLevel <= 0f) return null;
@@ -336,16 +337,16 @@ public class Moci_BroadsideLidarArrayStats extends BaseShipSystemScript {
         float bonusPercent = (int) ((mult - 1f) * 100f);
         
         if (index == 3) {
-            return new StatusData("武器射程 +" + (int) RANGE_BONUS + "%", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_BroadsideLidarArrayStats", "t001", "武器射程 +") + (int) RANGE_BONUS + "%", false);
         }
         if (index == 2) {
-            return new StatusData("射速 +" + (int) bonusPercent + "%", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_BroadsideLidarArrayStats", "t002", "射速 +") + (int) bonusPercent + "%", false);
         }
         if (index == 1) {
-            return new StatusData("后坐力 -" + (int) RECOIL_BONUS + "%", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_BroadsideLidarArrayStats", "t003", "后坐力 -") + (int) RECOIL_BONUS + "%", false);
         }
         if (index == 0 && PROJECTILE_SPEED_BONUS > 0) {
-            return new StatusData("弹速 +" + (int) PROJECTILE_SPEED_BONUS + "%", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_BroadsideLidarArrayStats", "t004", "弹速 +") + (int) PROJECTILE_SPEED_BONUS + "%", false);
         }
         return null;
     }
@@ -356,7 +357,7 @@ public class Moci_BroadsideLidarArrayStats extends BaseShipSystemScript {
     @Override
     public String getDisplayNameOverride(State state, float effectLevel) {
         if (state == State.IDLE || state == State.COOLDOWN) {
-            return "侧弦雷达阵列 - 被动";
+            return Moci_TextLoader.getText("code_Moci_BroadsideLidarArrayStats", "t005", "侧弦激光雷达阵列 - 被动");
         }
         return null;
     }

@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
@@ -281,15 +282,15 @@ public class Moci_AdaptiveWeaponSystem extends BaseShipSystemScript {
         
         // 显示当前激活的加成
         if (index == 0 && weaponTypes.contains(WeaponType.MISSILE)) {
-            return new StatusData("+ " + (int)MISSILE_SPEED_BONUS + " 航速，+ " + (int)(MISSILE_MANEUVER_BONUS * 100) + "% 机动性", false);
+            return new StatusData("+ " + (int)MISSILE_SPEED_BONUS + Moci_TextLoader.getText("code_Moci_AdaptiveWeaponSystem", "t001", " 航速，+ ") + (int)(MISSILE_MANEUVER_BONUS * 100) + Moci_TextLoader.getText("code_Moci_AdaptiveWeaponSystem", "t002", "% 机动性"), false);
         }
         
         if (index == 1 && weaponTypes.contains(WeaponType.BALLISTIC)) {
-            return new StatusData("+ " + (int)(BALLISTIC_ROF_BONUS * 100) + "% 实弹/能量射速", false);
+            return new StatusData("+ " + (int)(BALLISTIC_ROF_BONUS * 100) + Moci_TextLoader.getText("code_Moci_AdaptiveWeaponSystem", "t003", "% 实弹/能量射速"), false);
         }
         
         if (index == 2 && weaponTypes.contains(WeaponType.ENERGY)) {
-            return new StatusData("+ " + (int)(ENERGY_DAMAGE_BONUS * 100) + "% 实弹/能量伤害", false);
+            return new StatusData("+ " + (int)(ENERGY_DAMAGE_BONUS * 100) + Moci_TextLoader.getText("code_Moci_AdaptiveWeaponSystem", "t004", "% 实弹/能量伤害"), false);
         }
         
         return null;

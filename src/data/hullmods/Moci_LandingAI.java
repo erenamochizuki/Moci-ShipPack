@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -134,10 +135,10 @@ public class Moci_LandingAI implements ShipAIPlugin {
             logEvent("状态切换: " + previous + " -> " + state);
         }
         if (ship == Global.getCombatEngine().getPlayerShip()) {
-            String text = state == STATE.MOVING ? "撤退中"
-                    : state == STATE.LANDING ? "正在着陆" : "正在整备";
+            String text = state == STATE.MOVING ? Moci_TextLoader.getText("code_Moci_LandingAI", "t001", "撤退中")
+                    : state == STATE.LANDING ? Moci_TextLoader.getText("code_Moci_LandingAI", "t002", "正在着陆") : Moci_TextLoader.getText("code_Moci_LandingAI", "t003", "正在整备");
             Global.getCombatEngine().maintainStatusForPlayerShip("Moci_LANDINGAI",
-                    Global.getSettings().getSpriteName("ui", "icon_tactical_bdeck"), "整备程序", text, true);
+                    Global.getSettings().getSpriteName("ui", "icon_tactical_bdeck"), Moci_TextLoader.getText("code_Moci_LandingAI", "t004", "整备程序"), text, true);
         }
     }
 

@@ -1,5 +1,6 @@
 package data.scripts.impl;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignUIAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -56,9 +57,9 @@ public final class Moci_CampaignFeedback {
     public static void addMissionCompletedMessage(String missionName, String rewardSummary) {
         CampaignUIAPI ui = Global.getSector() == null ? null : Global.getSector().getCampaignUI();
         if (ui != null) {
-            String message = "任务完成: " + missionName;
+            String message = Moci_TextLoader.getText("code_Moci_CampaignFeedback", "t001", "任务完成: ") + missionName;
             if (rewardSummary != null && !rewardSummary.trim().isEmpty()) {
-                message += "。" + rewardSummary;
+                message += Moci_TextLoader.getText("code_Moci_CampaignFeedback", "t002", "。") + rewardSummary;
             }
             ui.addMessage(message, Misc.getHighlightColor());
         }
@@ -68,7 +69,7 @@ public final class Moci_CampaignFeedback {
     public static void addMissionFailedMessage(String missionName) {
         CampaignUIAPI ui = Global.getSector() == null ? null : Global.getSector().getCampaignUI();
         if (ui != null) {
-            ui.addMessage("任务失败: " + missionName, Misc.getNegativeHighlightColor());
+            ui.addMessage(Moci_TextLoader.getText("code_Moci_CampaignFeedback", "t003", "任务失败: ") + missionName, Misc.getNegativeHighlightColor());
         }
         playMissionFailed();
     }

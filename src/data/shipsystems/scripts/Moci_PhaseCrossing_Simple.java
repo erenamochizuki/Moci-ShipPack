@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
@@ -262,7 +263,7 @@ public class Moci_PhaseCrossing_Simple extends BaseShipSystemScript {
     @Override
     public ShipSystemStatsScript.StatusData getStatusData(int index, ShipSystemStatsScript.State state, float effectLevel) {
         return index == 0 ? new ShipSystemStatsScript.StatusData(
-                "玻色子跳跃 - 跳跃中",
+                Moci_TextLoader.getText("code_Moci_PhaseCrossing_Simple", "t001", "玻色子跳跃 - 跳跃中"),
                 false
         ) : null;
     }

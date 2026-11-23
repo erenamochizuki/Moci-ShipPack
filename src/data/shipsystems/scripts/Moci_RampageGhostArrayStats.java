@@ -1,10 +1,9 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dark.shaders.distortion.DistortionShader;
-import org.dark.shaders.distortion.WaveDistortion;
 import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.Global;
@@ -62,46 +61,9 @@ public class Moci_RampageGhostArrayStats extends BaseShipSystemScript {
     /** 残影的 jitter(船体抖散成多重叠影)强度。0 = 关闭；1 = 原版闪现的强度 */
     private static final float PHANTOM_JITTER_INTENSITY = 0f;
 
-    // ---------- 残影的扭曲 ----------
-    // 每个残影带一个扭曲：现身瞬间最强，DISTORTION_RELAX_SECONDS 内松弛到 0，
-    // 之后把这个过程倒过来放，从 0 重新收紧，到残影消失的那一刻回到最强。
-    /** 是否启用残影的扭曲 */
+    // 现身时由内收恢复；关闭风痕后，退场末端也叠加同方向的径向内收。
     private static final boolean DISTORTION_ENABLED = true;
-    /**
-     * 扭曲的方式。
-     * true  = 只扭曲残影自身的画面(Moci_Util 的局部扭曲)，背景、别的舰船、弹丸都不受影响；
-     * false = GraphicsLib 的屏幕空间扭曲(和玻色子跳跃 Moci_PhaseCrossing_Simple 同一种)，范围内的一切都跟着变形。
-     * 选 true 但局部扭曲在这台机器上不可用时，自动退回 GraphicsLib 的那种。
-     */
-    private static final boolean DISTORTION_SHIP_ONLY = true;
-    /** 现身后扭曲从最强松弛到 0 所用的秒数。之后到残影消失为止是重新收紧的阶段 */
     private static final float DISTORTION_RELAX_SECONDS = 0.15f;
-
-    // 以下 6 项只在 DISTORTION_SHIP_ONLY = true 时生效。三种变形可以叠加，不想要哪种就把它设为 0
-    /** 最强时画面向中心收缩的程度 0..0.95。0.6 = 中心附近被吸到原来四成的范围里；0 = 不收缩 */
-    private static final float SHIP_WARP_PINCH = 0.6f;
-    /** 最强时画面中心的旋转角(度)，越靠外转得越少，形成漩涡。负数反向旋转；0 = 不旋转 */
-    private static final float SHIP_WARP_TWIST_DEGREES = 120f;
-    /** 最强时画面沿半径方向起伏的幅度(单位)，形成向外扩散的涟漪。0 = 没有涟漪 */
-    private static final float SHIP_WARP_RIPPLE_AMPLITUDE = 12f;
-    /** 从画面中心到边缘有几圈涟漪 */
-    private static final float SHIP_WARP_RIPPLE_WAVES = 2.5f;
-    /** 涟漪向外扩散的快慢(弧度/秒) */
-    private static final float SHIP_WARP_RIPPLE_SPEED = 12f;
-    /** 扭曲范围的半径，按舰船碰撞半径的倍数。要大到能罩住整个机体画面；范围外的画面(如很长的尾焰)会被裁掉 */
-    private static final float SHIP_WARP_EXTENT_MULT = 2.2f;
-
-    // 以下 5 项只在用 GraphicsLib 屏幕空间扭曲时生效
-    /** 扭曲最强时的强度。玻色子跳跃充能到顶是 75。调小 = 扭曲更轻 */
-    private static final float DISTORTION_MAX_INTENSITY = 75f;
-    /** 扭曲最强时的半径，按舰船碰撞半径的倍数。玻色子跳跃是"越强越小"，这里照搬：最强时比松弛时小两成 */
-    private static final float DISTORTION_SIZE_MULT_AT_MAX = 1.6f;
-    /** 扭曲松弛到 0 时的半径，按舰船碰撞半径的倍数。两个倍数一起调大 = 扭曲覆盖的范围更大 */
-    private static final float DISTORTION_SIZE_MULT_AT_REST = 2.0f;
-    /** 重新收紧阶段是否把扭曲方向反过来(向内吸变成向外推)。false = 和现身时同方向 */
-    private static final boolean DISTORTION_FLIP_ON_RETURN = false;
-    /** 着色器会自动移除强度为 0 的扭曲，所以松弛到底时保留这点肉眼看不出的强度。一般不用改 */
-    private static final float DISTORTION_MIN_INTENSITY = 0.1f;
     /** 系统期间全舰能量武器的伤害倍率。0.5 = 伤害减半，1 = 不减伤 */
     private static final float DAMAGE_MULT = 0.5f;
     /** 一帧内最多补生成的残影数，防止卡顿后瞬间刷出一大批。一般不用改 */
@@ -153,10 +115,8 @@ public class Moci_RampageGhostArrayStats extends BaseShipSystemScript {
         float firedAngle;
         /** 这个残影淡出时后退的总距离，生成时在上下限之间随机确定 */
         float fadeDrift;
-        /** true = 用只扭曲自身画面的局部扭曲(由渲染器按 copy.warp 处理) */
-        boolean shipWarp;
-        /** GraphicsLib 的屏幕空间扭曲；没用这种方式时为 null */
-        WaveDistortion wave;
+        final Moci_GhostVisuals.Exit exit = new Moci_GhostVisuals.Exit();
+        final Moci_GhostVisuals.Pulse pulse = new Moci_GhostVisuals.Pulse();
         /** 渲染器里对应的副本；多副本渲染不可用时为 null */
         Moci_Util.ShipCopyRenderer.ShipCopy copy;
     }
@@ -257,8 +217,8 @@ public class Moci_RampageGhostArrayStats extends BaseShipSystemScript {
 
     @Override
     public StatusData getStatusData(int index, State state, float effectLevel) {
-        if (index == 0) return new StatusData("机体隐匿，不受伤害", false);
-        if (index == 1) return new StatusData("航速与机动性下降", true);
+        if (index == 0) return new StatusData(Moci_TextLoader.getText("code_Moci_RampageGhostArrayStats", "t001", "机体隐匿，不受伤害"), false);
+        if (index == 1) return new StatusData(Moci_TextLoader.getText("code_Moci_RampageGhostArrayStats", "t002", "航速与机动性下降"), true);
         return null;
     }
 
@@ -281,14 +241,6 @@ public class Moci_RampageGhostArrayStats extends BaseShipSystemScript {
         sinceFireSound = FIRE_SOUND_GAP;
         if (renderer != null) renderer.expire();
         renderer = Moci_Util.createShipCopyRenderer(ship);
-        if (renderer != null) {
-            renderer.warpParams.pinch = SHIP_WARP_PINCH;
-            renderer.warpParams.twistDegrees = SHIP_WARP_TWIST_DEGREES;
-            renderer.warpParams.rippleAmplitude = SHIP_WARP_RIPPLE_AMPLITUDE;
-            renderer.warpParams.rippleWaves = SHIP_WARP_RIPPLE_WAVES;
-            renderer.warpParams.rippleSpeed = SHIP_WARP_RIPPLE_SPEED;
-            renderer.warpExtentRadiusMult = SHIP_WARP_EXTENT_MULT;
-        }
     }
 
     // ==================== 残影 ====================
@@ -309,70 +261,38 @@ public class Moci_RampageGhostArrayStats extends BaseShipSystemScript {
                 + (PHANTOM_FADE_DRIFT_MAX - PHANTOM_FADE_DRIFT_MIN) * Misc.random.nextFloat();
         if (renderer != null && renderer.isWorking()) {
             next.copy = renderer.addCopy();
+            next.copy.facing = ship.getFacing();
             next.copy.alpha = 0f;
         }
-        phantoms.add(next);
 
         Vector2f position = computePosition(ship.getLocation(), ship.getFacing(), ship.getCollisionRadius(),
                 next.u, next.v, next.arcSign, target != null ? target.getLocation() : null,
                 target != null ? target.getCollisionRadius() : 0f, bend);
-        // 优先用只扭曲自身画面的方式；它不可用(或多副本渲染不可用)时退回 GraphicsLib 的屏幕空间扭曲
-        next.shipWarp = DISTORTION_ENABLED && DISTORTION_SHIP_ONLY && next.copy != null
-                && renderer != null && renderer.isWarpAvailable();
-        if (DISTORTION_ENABLED && !next.shipWarp) {
-            next.wave = new WaveDistortion(position, new Vector2f());
-            next.wave.setArc(0f, 360f);
-            next.wave.flip(true);
-            // 保险：万一清理漏掉，扭曲也会在残影寿命结束后不久自行消失，不会永久留在屏幕上
-            next.wave.setLifetime(PHANTOM_IN_SECONDS + PHANTOM_OUT_SECONDS + 0.25f);
-            updateDistortion(next, position);
-            DistortionShader.addDistortion(next.wave);
+        if (Moci_GhostVisuals.USE_GHOST_WIND_EXIT && !phantoms.isEmpty()) {
+            phantoms.get(phantoms.size() - 1).exit.link(position);
         }
+        phantoms.add(next);
         if (sinceAppearSound >= APPEAR_SOUND_GAP) {
             sinceAppearSound = 0f;
             Global.getSoundPlayer().playSound("system_phase_skimmer", 1f, 1f, position, ship.getVelocity());
         }
     }
 
-    /**
-     * 按残影已存在的时间设置它的扭曲：先从最强松弛到 0，再把这个过程倒过来放，残影消失时回到最强。
-     * 强度和半径的关系照搬玻色子跳跃：强度按 sqrt(进度) 增长，越强半径越小。
-     */
     private void updateDistortion(Phantom phantom, Vector2f position) {
-        if (!phantom.shipWarp && phantom.wave == null) return;
+        if (!DISTORTION_ENABLED) return;
         float life = PHANTOM_IN_SECONDS + PHANTOM_OUT_SECONDS;
-        // tightness：1 = 最强，0 = 完全松弛
-        float tightness;
-        boolean returning = phantom.elapsed >= DISTORTION_RELAX_SECONDS;
-        if (!returning) {
-            tightness = 1f - phantom.elapsed / DISTORTION_RELAX_SECONDS;
-        } else {
-            tightness = (phantom.elapsed - DISTORTION_RELAX_SECONDS) / Math.max(0.01f, life - DISTORTION_RELAX_SECONDS);
+        float level = phantom.pulse.relax(phantom.elapsed, DISTORTION_RELAX_SECONDS);
+        if (!Moci_GhostVisuals.USE_GHOST_WIND_EXIT && phantom.fired) {
+            level = phantom.pulse.contract((phantom.elapsed - PHANTOM_IN_SECONDS) / PHANTOM_OUT_SECONDS);
         }
-        tightness = Math.max(0f, Math.min(1f, tightness));
-
-        if (phantom.shipWarp) {
-            // 局部扭曲：强度交给渲染器，它只变形这个残影自己的画面
-            if (phantom.copy != null) phantom.copy.warp = tightness;
-            return;
-        }
-
-        float radius = ship.getCollisionRadius();
-        float size = radius * (DISTORTION_SIZE_MULT_AT_REST
-                + (DISTORTION_SIZE_MULT_AT_MAX - DISTORTION_SIZE_MULT_AT_REST) * tightness);
-        float intensity = DISTORTION_MAX_INTENSITY * (float) Math.sqrt(tightness);
-        phantom.wave.setLocation(position);
-        phantom.wave.setSize(Math.max(1f, size));
-        phantom.wave.setIntensity(Math.max(DISTORTION_MIN_INTENSITY, intensity));
-        phantom.wave.flip(!(returning && DISTORTION_FLIP_ON_RETURN));
+        phantom.pulse.show(position, ship.getCollisionRadius(), level, life);
     }
 
     /** 移除一个残影占用的副本和扭曲(不从列表里删) */
     private void releasePhantom(Phantom phantom) {
         if (phantom.copy != null && renderer != null) renderer.removeCopy(phantom.copy);
         phantom.copy = null;
-        if (phantom.wave != null) DistortionShader.removeDistortion(phantom.wave);
-        phantom.wave = null;
+        phantom.pulse.clear();
     }
 
     private void clearPhantoms() {
@@ -433,6 +353,7 @@ public class Moci_RampageGhostArrayStats extends BaseShipSystemScript {
                     phantom.fired = true;
                     phantom.firedAngle = fireAngle;
                     fire(muzzle, fireAngle);
+                    phantom.exit.begin(position); // 只移动开火后的画面，固定世界坐标起点。
                 }
             }
 
@@ -440,14 +361,17 @@ public class Moci_RampageGhostArrayStats extends BaseShipSystemScript {
             if (!phantom.fired) {
                 level = phantom.elapsed / PHANTOM_IN_SECONDS;
             } else {
-                // 淡出进度 0..1：边变淡边沿身后退开，先快后慢
+                // 淡出进度独立于开火、生成节奏。
                 float fade = (phantom.elapsed - PHANTOM_IN_SECONDS) / PHANTOM_OUT_SECONDS;
                 fade = Math.max(0f, Math.min(1f, fade));
                 level = 1f - fade;
-                float drift = phantom.fadeDrift * (1f - (1f - fade) * (1f - fade));
-                double back = Math.toRadians(fireAngle + 180f);
-                position.x += drift * (float) Math.cos(back);
-                position.y += drift * (float) Math.sin(back);
+                if (Moci_GhostVisuals.USE_GHOST_WIND_EXIT) phantom.exit.sample(position, phantom.copy, fade, ship.getCollisionRadius());
+                else {
+                    float drift = phantom.fadeDrift * fade * (2f - fade);
+                    double back = Math.toRadians(fireAngle + 180f);
+                    position.x += drift * (float) Math.cos(back);
+                    position.y += drift * (float) Math.sin(back);
+                }
             }
             level = Math.max(0f, Math.min(1f, level));
 
@@ -475,11 +399,10 @@ public class Moci_RampageGhostArrayStats extends BaseShipSystemScript {
 
     private void fire(Vector2f muzzle, float fireAngle) {
         CombatEngineAPI engine = Global.getCombatEngine();
-        if (sinceFireSound >= FIRE_SOUND_GAP) {
-            sinceFireSound = 0f;
-            Global.getSoundPlayer().playSound("moci_wpn_weapon_03", 1f, 0.8f, muzzle, ship.getVelocity());
-        }
         for (WeaponAPI weapon : fireWeapons) {
+            if (sinceFireSound >= FIRE_SOUND_GAP && Moci_RampageGhostStats.playShotSound(weapon, muzzle, ship.getVelocity())) {
+                sinceFireSound = 0f;
+            }
             engine.spawnProjectile(ship, weapon, weapon.getId(), muzzle, fireAngle, ship.getVelocity());
             engine.spawnMuzzleFlashOrSmoke(ship, muzzle, weapon.getSpec(), fireAngle);
         }

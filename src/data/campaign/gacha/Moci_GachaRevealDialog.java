@@ -1,5 +1,6 @@
 package data.campaign.gacha;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 import java.util.List;
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ public final class Moci_GachaRevealDialog extends BaseCustomUIPanelPlugin implem
             dialog.showCustomDialog(width, height, new Moci_GachaRevealDialog(receipt, draws));
         } catch (RuntimeException ex) {
             Global.getLogger(Moci_GachaRevealDialog.class).error("抽奖反馈窗口打开失败；奖励已经按原流程结算", ex);
-            dialog.getTextPanel().addPara("反馈窗口暂时无法打开，奖励已到账，可在此查看文字记录。", Misc.getNegativeHighlightColor());
+            dialog.getTextPanel().addPara(Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t001", "反馈窗口暂时无法打开，奖励已到账，可在此查看文字记录。"), Misc.getNegativeHighlightColor());
         }
     }
 
@@ -91,7 +92,7 @@ public final class Moci_GachaRevealDialog extends BaseCustomUIPanelPlugin implem
                 assets.stream().map(Asset::model).toArray(Moci_AirSquadronArt.Model[]::new), faceDown, displayScales);
         TooltipMakerAPI title = panel.createUIElement(width - 40, 38, false);
         title.setParaFontOrbitron();
-        header = title.addPara("MOCI / 召唤回响", MINT, 0);
+        header = title.addPara(Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t002", "MOCI / 召唤回响"), MINT, 0);
         panel.addUIElement(title).inTL(20, 8);
         stagePanel = panel.createCustomPanel(stageWidth, stageHeight, new Stage());
         panel.addComponent(stagePanel).inTL((width - stageWidth) / 2, 46);
@@ -101,10 +102,10 @@ public final class Moci_GachaRevealDialog extends BaseCustomUIPanelPlugin implem
         panel.addUIElement(result).inTL(20, 54 + stageHeight);
         TooltipMakerAPI controls = panel.createUIElement(width - 40, 34, false);
         float buttonWidth = (width - 64) / 3f;
-        next = controls.addButton("揭晓", "reveal", buttonWidth, 28, 0);
-        summaryButton = controls.addButton("全部显示", "summary", buttonWidth, 28, 0);
+        next = controls.addButton(Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t003", "揭晓"), "reveal", buttonWidth, 28, 0);
+        summaryButton = controls.addButton(Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t004", "全部显示"), "summary", buttonWidth, 28, 0);
         summaryButton.getPosition().rightOfTop(next, 12);
-        automatic = controls.addButton("暂停自动播放", "automatic", buttonWidth, 28, 0);
+        automatic = controls.addButton(Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t005", "暂停自动播放"), "automatic", buttonWidth, 28, 0);
         automatic.getPosition().rightOfTop(summaryButton, 12);
         panel.addUIElement(controls).inTL(20, height - 36);
         updateLabels();
@@ -145,32 +146,32 @@ public final class Moci_GachaRevealDialog extends BaseCustomUIPanelPlugin implem
                 + (sequence.automatic() ? 0 : 4096) + (sequence.fastForwarding() ? 8192 : 0);
         if (displayKey == key) return;
         displayKey = key;
-        automatic.setText(sequence.automatic() ? "暂停自动播放" : "继续自动播放");
+        automatic.setText(sequence.automatic() ? Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t005", "暂停自动播放") : Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t006", "继续自动播放"));
         if (sequence.summary()) {
-            header.setText("MOCI / 召唤完成 · " + draws + " 抽 · " + rewards.size() + " 类奖励");
+            header.setText(Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t007", "MOCI / 召唤完成 · ") + draws + Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t008", " 抽 · ") + rewards.size() + Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t009", " 类奖励"));
             rewardName.setText(""); detail.setText("");
-            next.setText("关闭"); summaryButton.setEnabled(false); automatic.setEnabled(false);
+            next.setText(Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t010", "关闭")); summaryButton.setEnabled(false); automatic.setEnabled(false);
             return;
         }
-        header.setText("MOCI / 召唤回响 · " + draws + " 抽 · " + (sequence.index() + 1) + " / " + sequence.count());
+        header.setText(Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t011", "MOCI / 召唤回响 · ") + draws + Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t008", " 抽 · ") + (sequence.index() + 1) + " / " + sequence.count());
         Moci_GachaReward r = rewards.get(sequence.index());
         if (sequence.revealed()) {
             rewardName.setText(r.rarity() + "  /  " + assets.get(sequence.index()).name() + "  ×" + Misc.getWithDGS(r.quantity()));
             rewardName.setColor(Moci_GachaPortalRenderer.rarityColor(r.rank()));
-            detail.setText(typeLabel(r.type()) + " · 已到账");
+            detail.setText(typeLabel(r.type()) + Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t012", " · 已到账"));
         } else {
             rewardName.setColor(MINT);
-            rewardName.setText(sequence.silhouette() ? "轮廓已确认" : sequence.charge() >= 0.55f ? "信号汇聚中…" : "通道连接中…");
-            detail.setText("点击「揭晓」可跳过当前特效；Esc 可关闭，奖励已结算。");
+            rewardName.setText(sequence.silhouette() ? Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t013", "轮廓已确认") : sequence.charge() >= 0.55f ? Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t014", "信号汇聚中…") : Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t015", "通道连接中…"));
+            detail.setText(Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t016", "点击「揭晓」可跳过当前特效；Esc 可关闭，奖励已结算。"));
         }
-        next.setText(sequence.revealed() ? sequence.fastForwarding() ? "展示中…" : sequence.index() + 1 == sequence.count() ? "查看汇总" : "下一项" : "揭晓");
+        next.setText(sequence.revealed() ? sequence.fastForwarding() ? Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t017", "展示中…") : sequence.index() + 1 == sequence.count() ? Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t018", "查看汇总") : Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t019", "下一项") : Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t003", "揭晓"));
     }
 
     private void buildSummary() {
         summaryBuilt = true;
         panel.removeComponent(stagePanel);
         TooltipMakerAPI list = panel.createUIElement(width - 40, height - 102, true);
-        list.addSectionHeading("全部奖励 · 已到账", MINT, new Color(20, 35, 26), Alignment.MID, 0);
+        list.addSectionHeading(Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t020", "全部奖励 · 已到账"), MINT, new Color(20, 35, 26), Alignment.MID, 0);
         for (int i = 0; i < rewards.size(); i++) {
             Moci_GachaReward r = rewards.get(i);
             Asset a = assets.get(i);
@@ -195,7 +196,7 @@ public final class Moci_GachaRevealDialog extends BaseCustomUIPanelPlugin implem
         // Native buttons and the native dialog own clicks, Enter and Esc. No global input capture.
     }
     @Override public boolean hasCancelButton() { return false; }
-    @Override public String getConfirmText() { return "关闭窗口"; }
+    @Override public String getConfirmText() { return Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t021", "关闭窗口"); }
     @Override public String getCancelText() { return null; }
     @Override public void customDialogConfirm() { disposed = true; }
     @Override public void customDialogCancel() { disposed = true; }
@@ -218,9 +219,9 @@ public final class Moci_GachaRevealDialog extends BaseCustomUIPanelPlugin implem
 
     static String typeLabel(String type) {
         return switch (type) {
-            case "ShipID" -> "机体 / 舰船"; case "Weapon" -> "武器"; case "Fighter" -> "舰载机联队";
-            case "OFFICER" -> "军官"; case "Credits" -> "星币"; case "SpecialItem" -> "特殊物品";
-            default -> "物资";
+            case "ShipID" -> Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t022", "机体/舰船"); case "Weapon" -> Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t023", "武器"); case "Fighter" -> Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t024", "舰载机联队");
+            case "OFFICER" -> Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t025", "军官"); case "Credits" -> Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t026", "星币"); case "SpecialItem" -> Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t027", "特殊物品");
+            default -> Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t028", "物资");
         };
     }
 
@@ -229,7 +230,7 @@ public final class Moci_GachaRevealDialog extends BaseCustomUIPanelPlugin implem
         Moci_AirSquadronArt.Model model = null;
         try {
             switch (r.type()) {
-                case "Credits" -> { path = CREDITS_ICON; name = "星币"; }
+                case "Credits" -> { path = CREDITS_ICON; name = Moci_TextLoader.getText("code_Moci_GachaRevealDialog", "t026", "星币"); }
                 case "Commodity" -> { var spec = Global.getSettings().getCommoditySpec(r.itemId()); path = spec.getIconName(); if (spec.getName() != null && !spec.getName().isBlank()) name = spec.getName(); }
                 case "SpecialItem" -> { var spec = Global.getSettings().getSpecialItemSpec(r.itemId()); path = spec.getIconName(); if (name == null || name.equals(r.itemId())) name = spec.getName(); }
                 case "Weapon" -> { var spec = Global.getSettings().getWeaponSpec(r.itemId()); path = spec.getTurretSpriteName(); if (spec.getWeaponName() != null && !spec.getWeaponName().isBlank()) name = spec.getWeaponName(); }

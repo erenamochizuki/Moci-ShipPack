@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -456,10 +457,10 @@ public class Moci_MissileDefenseRadarStats extends BaseShipSystemScript {
     @Override
     public StatusData getStatusData(int index, State state, float effectLevel) {
         if (index == 0) {
-            return new StatusData("导弹防御系统激活", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_MissileDefenseRadarStats", "t001", "导弹防御系统激活"), false);
         }
         if (index == 1) {
-            return new StatusData("传感器范围 +" + (int)(25f * effectLevel) + "%", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_MissileDefenseRadarStats", "t002", "传感器范围 +") + (int)(25f * effectLevel) + "%", false);
         }
         return null;
     }
@@ -467,8 +468,8 @@ public class Moci_MissileDefenseRadarStats extends BaseShipSystemScript {
     @Override
     public String getDisplayNameOverride(State state, float effectLevel) {
         if (state == State.IDLE || state == State.COOLDOWN) {
-            return "导弹防御雷达 - 被动扫描";
+            return Moci_TextLoader.getText("code_Moci_MissileDefenseRadarStats", "t003", "导弹防御雷达 - 被动扫描");
         }
-        return "导弹防御雷达 - 主动攻击";
+        return Moci_TextLoader.getText("code_Moci_MissileDefenseRadarStats", "t004", "导弹防御雷达 - 主动攻击");
     }
 } 

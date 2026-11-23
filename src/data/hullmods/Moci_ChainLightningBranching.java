@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.combat.BaseHullMod;
 import com.fs.starfarer.api.combat.ShipAPI;
 
@@ -18,10 +19,10 @@ public class Moci_ChainLightningBranching extends BaseHullMod {
     public String getUnapplicableReason(ShipAPI ship) {
         if (ship == null || ship.getVariant() == null ||
                 !ship.getVariant().hasHullMod(Moci_ChainLightningCapacitor.ID)) {
-            return "需要先安装连锁雷暴电容器";
+            return Moci_TextLoader.getText("code_Moci_ChainLightningBranching", "t001", "需要先安装连锁雷暴电容器");
         }
         if (ship.getVariant().hasHullMod(Moci_ChainLightningCapacitor.OVERLOAD_ID)) {
-            return "只能选择一种雷暴调谐";
+            return Moci_TextLoader.getText("code_Moci_ChainLightningBranching", "t002", "只能选择一种雷暴调谐");
         }
         return null;
     }

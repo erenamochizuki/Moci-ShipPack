@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
@@ -64,8 +65,8 @@ public class Moci_Lidararray extends BaseShipSystemScript {
     // ===== 状态提示配置 =====
     private static final Object Moci_STATUS_KEY = new Object(); // 唯一状态键
     private static final String STATUS_ICON = "graphics/icons/hullsys/damper_field.png"; // 沿用DamperField图标
-    private static final String STATUS_NAME = "幅能装甲";
-    private static final String STATUS_DESC_FORMAT = "最高速度+ %s | 机动性提高 | 减伤 %s | 剩余: %s ";
+    private static final String STATUS_NAME = Moci_TextLoader.getText("code_Moci_Lidararray", "t001", "幅能装甲");
+    private static final String STATUS_DESC_FORMAT = Moci_TextLoader.getText("code_Moci_Lidararray", "t002", "最高速度+ %s | 机动性提高 | 减伤 %s | 剩余: %s ");
 
     @Override
     public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
@@ -290,7 +291,7 @@ public class Moci_Lidararray extends BaseShipSystemScript {
                             (int) damageReduction + "%",
                             (int) duration);
                 } catch (Exception e) {
-                    desc = "BUFF激活中";
+                    desc = Moci_TextLoader.getText("code_Moci_Lidararray", "t003", "BUFF激活中");
                 }
 
                 // 最终状态更新

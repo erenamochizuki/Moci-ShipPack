@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
@@ -54,9 +55,9 @@ public final class Moci_TacticalHullmods {
     private static final String FALLBACK_SPRITE_EXPANDED_MISSILE_RACKS = "graphics/hullmods/expanded_missile_racks.png";
 
     /** 战术改装的兜底显示名，与原版对应船插的名字一致，仅在 CSV/运行时规格缺失时使用。 */
-    private static final String FALLBACK_NAME_HARDENED_SHIELD = "强化护盾";
-    private static final String FALLBACK_NAME_EXPANDED_MAGAZINES = "扩展弹仓";
-    private static final String FALLBACK_NAME_EXPANDED_MISSILE_RACKS = "扩展发射架";
+    private static final String FALLBACK_NAME_HARDENED_SHIELD = Moci_TextLoader.getText("code_Moci_TacticalHullmods", "t001", "强化护盾");
+    private static final String FALLBACK_NAME_EXPANDED_MAGAZINES = Moci_TextLoader.getText("code_Moci_TacticalHullmods", "t002", "扩展弹仓");
+    private static final String FALLBACK_NAME_EXPANDED_MISSILE_RACKS = Moci_TextLoader.getText("code_Moci_TacticalHullmods", "t003", "扩展发射架");
 
     private Moci_TacticalHullmods() {
     }
@@ -191,8 +192,8 @@ public final class Moci_TacticalHullmods {
     }
 
     private static String fallbackName(String hullmodId) {
-        if (ADVANCED_OPTICS.equals(hullmodId)) return "先进光学器件";
-        if (HEAVY_ARMOR.equals(hullmodId)) return "重型装甲";
+        if (ADVANCED_OPTICS.equals(hullmodId)) return Moci_TextLoader.getText("code_Moci_TacticalHullmods", "t004", "先进光学器件");
+        if (HEAVY_ARMOR.equals(hullmodId)) return Moci_TextLoader.getText("code_Moci_TacticalHullmods", "t005", "重型装甲");
         if (HARDENED_SHIELD.equals(hullmodId)) return FALLBACK_NAME_HARDENED_SHIELD;
         if (EXPANDED_MAGAZINES.equals(hullmodId)) return FALLBACK_NAME_EXPANDED_MAGAZINES;
         if (EXPANDED_MISSILE_RACKS.equals(hullmodId)) return FALLBACK_NAME_EXPANDED_MISSILE_RACKS;

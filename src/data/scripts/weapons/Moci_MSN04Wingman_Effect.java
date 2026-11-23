@@ -10,6 +10,7 @@ package data.scripts.weapons;
  * 1 发弹药、以及更严格的失效无人机清理。
  */
 
+import data.scripts.util.Moci_TextLoader;
 import data.scripts.weapons.Moci_WingmanSupport;
 import java.util.*;
 import java.util.Iterator;
@@ -168,7 +169,7 @@ public final class Moci_MSN04Wingman_Effect implements EveryFrameWeaponEffectPlu
                     this,
                     "graphics/icons/hullsys/drone_pd_high.png",
                     weapon.getDisplayName(), 
-                    "浮游炮: " + activeCount + " / " + maxDrones,
+                    Moci_TextLoader.getText("code_Moci_MSN04Wingman_Effect", "t001", "浮游炮: ") + activeCount + " / " + maxDrones,
                     false
                 );
             }

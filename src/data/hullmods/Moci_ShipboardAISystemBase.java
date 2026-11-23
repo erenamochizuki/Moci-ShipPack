@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.BaseHullMod;
@@ -365,7 +366,7 @@ public abstract class Moci_ShipboardAISystemBase extends BaseHullMod {
         }
 
         return fallbackDisplayName == null || fallbackDisplayName.trim().isEmpty()
-                ? "舰载AI"
+                ? Moci_TextLoader.getText("code_Moci_ShipboardAISystemBase", "t001", "舰载AI")
                 : fallbackDisplayName.trim();
     }
 

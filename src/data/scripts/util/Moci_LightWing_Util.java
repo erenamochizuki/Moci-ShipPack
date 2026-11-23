@@ -281,11 +281,13 @@ public class Moci_LightWing_Util {
                 expireAndCleanup();
                 return;
             }
-            renderUnderTrail();
-            renderUpTrail();
+            try (Moci_OffscreenPass pass = new Moci_OffscreenPass()) {
+                renderUnderTrail(pass);
+                renderUpTrail(pass);
+            }
         }
 
-        private void renderUpTrail() {
+        private void renderUpTrail(Moci_OffscreenPass pass) {
             for (engineRenderEntity entity : list) {
                 if (isInvalidEntity(entity)) {
                     continue;
@@ -296,50 +298,7 @@ public class Moci_LightWing_Util {
                 int textureBufferId = bufferWithData.getTextureBufferId();
 
                 // 先画到 FBO，再贴回世界坐标。
-                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-                GL20.glUseProgram(0);
-
-                if (ShaderLib.useBufferCore()) {
-                    GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, textureBufferId);
-                } else if (ShaderLib.useBufferARB()) {
-                    ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, textureBufferId);
-                } else {
-                    EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, textureBufferId);
-                }
-
-                GL11.glViewport(0, 0, width, height);
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-                GL11.glOrtho(0, width, 0, height, -2000, 2000);
-
-                GL11.glMatrixMode(GL11.GL_TEXTURE);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-
-                renderSingleTrail(entity, width, height);
-
-                GL11.glDisable(GL11.GL_BLEND);
-                GL11.glDisable(GL11.GL_TEXTURE_2D);
-
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                GL11.glPopMatrix();
-                GL11.glMatrixMode(GL11.GL_TEXTURE);
-                GL11.glPopMatrix();
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glPopMatrix();
-
-                if (ShaderLib.useBufferCore()) {
-                    GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-                } else if (ShaderLib.useBufferARB()) {
-                    ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, 0);
-                } else {
-                    EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
-                }
-                GL11.glPopAttrib();
+                pass.drawTrail(textureBufferId, width, height, () -> renderSingleTrail(entity, width, height));
 
                 GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 
@@ -398,7 +357,7 @@ public class Moci_LightWing_Util {
             }
         }
 
-        private void renderUnderTrail() {
+        private void renderUnderTrail(Moci_OffscreenPass pass) {
             for (engineRenderEntity entity : list) {
                 if (isInvalidEntity(entity)) {
                     continue;
@@ -408,50 +367,7 @@ public class Moci_LightWing_Util {
                 int textureId = bufferWithData.getTextureId();
                 int textureBufferId = bufferWithData.getTextureBufferId();
 
-                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-                GL20.glUseProgram(0);
-
-                if (ShaderLib.useBufferCore()) {
-                    GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, textureBufferId);
-                } else if (ShaderLib.useBufferARB()) {
-                    ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, textureBufferId);
-                } else {
-                    EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, textureBufferId);
-                }
-
-                GL11.glViewport(0, 0, width, height);
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-                GL11.glOrtho(0, width, 0, height, -2000, 2000);
-
-                GL11.glMatrixMode(GL11.GL_TEXTURE);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-
-                renderSingleUnderTrail(entity, width, height);
-
-                GL11.glDisable(GL11.GL_BLEND);
-                GL11.glDisable(GL11.GL_TEXTURE_2D);
-
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                GL11.glPopMatrix();
-                GL11.glMatrixMode(GL11.GL_TEXTURE);
-                GL11.glPopMatrix();
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glPopMatrix();
-
-                if (ShaderLib.useBufferCore()) {
-                    GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-                } else if (ShaderLib.useBufferARB()) {
-                    ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, 0);
-                } else {
-                    EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
-                }
-                GL11.glPopAttrib();
+                pass.drawTrail(textureBufferId, width, height, () -> renderSingleUnderTrail(entity, width, height));
 
                 GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 
@@ -502,7 +418,9 @@ public class Moci_LightWing_Util {
             if (bufferWithData != null) {
                 return true;
             }
-            bufferWithData = BufferWithData.createBuffer(texture1, texture2);
+            try (Moci_OffscreenPass pass = new Moci_OffscreenPass()) {
+                bufferWithData = BufferWithData.createBuffer(texture1, texture2);
+            }
             if (bufferWithData == null) {
                 log.info("createBuffer error");
                 return false;

@@ -56,8 +56,8 @@ public class Moci_YurikaMissionPlugin extends BaseIntelPlugin {
     private static final String TEXT_ID = "Moci_CampaignText";
     private static final String INTEL_TAG_MOCI = "Moci";
     private static final String INTEL_TAG_NERGAL = "Nergal";
-    private static final String INTEL_TAG_NERGAL_CN = "尼尔加重工";
-    private static final String INTEL_TAG_IMPORTANT_CN = "重要";
+    private static final String INTEL_TAG_NERGAL_CN = Moci_TextLoader.getText("code_Moci_YurikaMissionPlugin", "intel_tag_nergal", "尼尔加重工");
+    private static final String INTEL_TAG_IMPORTANT_CN = Moci_TextLoader.getText("code_Moci_YurikaMissionPlugin", "intel_tag_important", "重要");
 
     public enum MissionType {
         REMNANT,
@@ -437,7 +437,7 @@ public class Moci_YurikaMissionPlugin extends BaseIntelPlugin {
     private PersonAPI createStoryTddTeresaOfficer() {
         PersonAPI officer = createOfficer(
                 "moci_yurika_story_tdd_teresa",
-                "Teresa",
+                "Teletha",
                 "Testarossa",
                 FullName.Gender.FEMALE,
                 PORTRAIT_TERESA,

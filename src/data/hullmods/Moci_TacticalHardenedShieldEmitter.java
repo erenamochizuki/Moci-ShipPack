@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.combat.BaseHullMod;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -51,6 +52,6 @@ public class Moci_TacticalHardenedShieldEmitter extends BaseHullMod implements M
 
     @Override
     public String getUnapplicableReason(ShipAPI ship) {
-        return "舰船没有护盾。";
+        return Moci_TextLoader.getText("code_Moci_TacticalHardenedShieldEmitter", "t001", "舰船没有护盾。");
     }
 }

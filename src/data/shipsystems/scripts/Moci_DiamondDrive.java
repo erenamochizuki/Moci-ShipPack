@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
@@ -115,6 +116,6 @@ public class Moci_DiamondDrive extends BaseShipSystemScript {
         }
     }
     @Override public StatusData getStatusData(int index,State state,float level) {
-        return index==0 ? new StatusData("提高引擎出力",false) : null;
+        return index==0 ? new StatusData(Moci_TextLoader.getText("code_Moci_DiamondDrive", "t001", "提高引擎出力"),false) : null;
     }
 }

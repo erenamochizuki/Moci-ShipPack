@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 import java.util.EnumSet;
 import com.fs.starfarer.api.Global;
@@ -241,17 +242,17 @@ public class Moci_FluxArmor extends BaseShipSystemScript {
 
 	public StatusData getStatusData(int index, State state, float effectLevel) {
 		if (index == 0) {
-			return new StatusData("决战形态", false);
+			return new StatusData(Moci_TextLoader.getText("code_Moci_FluxArmor", "t001", "决战形态"), false);
 		}
 		if (index == 1) {
 			float percent = (1f - INCOMING_DAMAGE_MULT) * 100;
-			return new StatusData((int) percent + "% 伤害减免", false);
+			return new StatusData((int) percent + Moci_TextLoader.getText("code_Moci_FluxArmor", "t002", "% 伤害减免"), false);
 		}
 		if (index == 2) {
-			return new StatusData("时间流速 x" + String.format("%.1f", 1f + (TIME_MULT - 1f) * effectLevel), false);
+			return new StatusData(Moci_TextLoader.getText("code_Moci_FluxArmor", "t003", "时间流速 x") + String.format("%.1f", 1f + (TIME_MULT - 1f) * effectLevel), false);
 		}
 		if (index == 3) {
-			return new StatusData("+" + (int)(SPEED_BONUS * effectLevel) + " 最大速度", false);
+			return new StatusData("+" + (int)(SPEED_BONUS * effectLevel) + Moci_TextLoader.getText("code_Moci_FluxArmor", "t004", " 最大速度"), false);
 		}
 		return null;
 	}

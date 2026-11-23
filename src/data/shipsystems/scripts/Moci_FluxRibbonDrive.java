@@ -9,8 +9,8 @@ public final class Moci_FluxRibbonDrive extends Moci_NebulaGate {
 
     // 仅磁弧版：间隔以动画秒计，拉长对应阶段也会拉长两批之间的实战时间。
     static final Moci_NebulaGateTransit.SmokeSettings RIBBON_SMOKE = new Moci_NebulaGateTransit.SmokeSettings(
-            .90f, 1.48f, // 单团初始直径：最小、最大值，单位为门半径；想填缝先增大最小值
-            1,           // 每批生成几团：0 关闭烟雾，2 表示每批同时在不同方向生成两团（上限 16）
+            .45f, .74f,  // 单团初始直径：最小、最大值，单位为门半径；想填缝先增大最小值
+            4,           // 每批生成几团：0 关闭烟雾，2 表示每批同时在不同方向生成两团（上限 16）
             .042f,       // 蓄势聚云：每批间隔（动画秒）；数值减半，频率翻倍（最短 .01 秒）
             .085f,       // 光带展开到舰尾完全驶出：每批间隔（动画秒）
             .16f,        // 真舰出现后的收尾：每批间隔（动画秒），收束完成后停止生成

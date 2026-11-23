@@ -1,5 +1,6 @@
 package com.fs.starfarer.api.impl.campaign.rulecmd;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -53,11 +54,11 @@ public class Moci_AugmentedHumanCommand extends BaseCommandPlugin {
 
     public static String getAccessUnavailableReason(InteractionDialogAPI dialog) {
         if (!hasFlanaganInstitute(dialog)) {
-            return "此处没有弗拉纳冈机构。";
+            return Moci_TextLoader.getText("code_Moci_AugmentedHumanCommand", "t001", "此处没有弗拉纳冈机构。");
         }
         if (Global.getSector() == null || Global.getSector().getPlayerFaction() == null
                 || Global.getSector().getPlayerFaction().getRelationship(NERGAL_FACTION_ID) < REQUIRED_REPUTATION) {
-            return "需要与尼尔加的好感度至少达到 25。";
+            return Moci_TextLoader.getText("code_Moci_AugmentedHumanCommand", "t002", "需要与尼尔加的好感度至少达到 25。");
         }
         return null;
     }
@@ -77,6 +78,6 @@ public class Moci_AugmentedHumanCommand extends BaseCommandPlugin {
         String unavailable = getAccessUnavailableReason(dialog);
         dialog.getOptionPanel().setEnabled(OPTION_ID, unavailable == null);
         dialog.getOptionPanel().setTooltip(OPTION_ID, unavailable == null
-                ? "进入弗拉纳冈机构，使用强化人培育服务。" : unavailable);
+                ? Moci_TextLoader.getText("code_Moci_AugmentedHumanCommand", "t003", "进入弗拉纳冈机构，使用强化人培育服务。") : unavailable);
     }
 }

@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -28,12 +29,12 @@ public class Moci_PilotManager {
 
     private static final String SHIPBOARD_AI_PERSON_ID_PREFIX = "moci_shipboard_ai_";
     private static final List<String> DEFAULT_AI_CALLSIGNS = Arrays.asList(
-        "拉姆达", "缪", "纽", "克西", "欧米克戎", "罗", "西格玛", "陶",
-        "宇普西龙", "斐", "卡伊", "普赛"
+        Moci_TextLoader.getText("code_Moci_PilotManager", "t001", "拉姆达"), Moci_TextLoader.getText("code_Moci_PilotManager", "t002", "缪"), Moci_TextLoader.getText("code_Moci_PilotManager", "t003", "纽"), Moci_TextLoader.getText("code_Moci_PilotManager", "t004", "克西"), Moci_TextLoader.getText("code_Moci_PilotManager", "t005", "欧米克戎"), Moci_TextLoader.getText("code_Moci_PilotManager", "t006", "罗"), Moci_TextLoader.getText("code_Moci_PilotManager", "t007", "西格玛"), Moci_TextLoader.getText("code_Moci_PilotManager", "t008", "陶"),
+        Moci_TextLoader.getText("code_Moci_PilotManager", "t009", "宇普西龙"), Moci_TextLoader.getText("code_Moci_PilotManager", "t010", "斐"), Moci_TextLoader.getText("code_Moci_PilotManager", "t011", "卡伊"), Moci_TextLoader.getText("code_Moci_PilotManager", "t012", "普赛")
     );
     private static final List<String> DEFAULT_AI_PILOT_NAMES = Arrays.asList(
-        "分析单元", "战术单元", "执行单元", "观测单元", "校准单元", "引导单元",
-        "拦截单元", "应答单元", "仲裁单元", "巡检单元", "整流单元", "归档单元"
+        Moci_TextLoader.getText("code_Moci_PilotManager", "t013", "分析单元"), Moci_TextLoader.getText("code_Moci_PilotManager", "t014", "战术单元"), Moci_TextLoader.getText("code_Moci_PilotManager", "t015", "执行单元"), Moci_TextLoader.getText("code_Moci_PilotManager", "t016", "观测单元"), Moci_TextLoader.getText("code_Moci_PilotManager", "t017", "校准单元"), Moci_TextLoader.getText("code_Moci_PilotManager", "t018", "引导单元"),
+        Moci_TextLoader.getText("code_Moci_PilotManager", "t019", "拦截单元"), Moci_TextLoader.getText("code_Moci_PilotManager", "t020", "应答单元"), Moci_TextLoader.getText("code_Moci_PilotManager", "t021", "仲裁单元"), Moci_TextLoader.getText("code_Moci_PilotManager", "t022", "巡检单元"), Moci_TextLoader.getText("code_Moci_PilotManager", "t023", "整流单元"), Moci_TextLoader.getText("code_Moci_PilotManager", "t024", "归档单元")
     );
     
     // 数据键值常量定义
@@ -186,9 +187,9 @@ public class Moci_PilotManager {
         
         // 配置文件不存在,使用默认列表(向后兼容)
         List<String> callsigns = Arrays.asList(
-            "阿尔法", "贝塔", "伽马", "德尔塔", "艾普西隆", "泽塔", "艾塔", "西塔",
-            "猎鹰", "老鹰", "猎豹", "黑鹰", "金雕", "银狼", "火狐", "寒鸦",
-            "幽灵", "子弹", "闪电", "雷霆", "烈火", "寒冰", "钢刃", "利剑"
+            Moci_TextLoader.getText("code_Moci_PilotManager", "t025", "阿尔法"), Moci_TextLoader.getText("code_Moci_PilotManager", "t026", "贝塔"), Moci_TextLoader.getText("code_Moci_PilotManager", "t027", "伽马"), Moci_TextLoader.getText("code_Moci_PilotManager", "t028", "德尔塔"), Moci_TextLoader.getText("code_Moci_PilotManager", "t029", "艾普西隆"), Moci_TextLoader.getText("code_Moci_PilotManager", "t030", "泽塔"), Moci_TextLoader.getText("code_Moci_PilotManager", "t031", "艾塔"), Moci_TextLoader.getText("code_Moci_PilotManager", "t032", "西塔"),
+            Moci_TextLoader.getText("code_Moci_PilotManager", "t033", "猎鹰"), Moci_TextLoader.getText("code_Moci_PilotManager", "t034", "老鹰"), Moci_TextLoader.getText("code_Moci_PilotManager", "t035", "猎豹"), Moci_TextLoader.getText("code_Moci_PilotManager", "t036", "黑鹰"), Moci_TextLoader.getText("code_Moci_PilotManager", "t037", "金雕"), Moci_TextLoader.getText("code_Moci_PilotManager", "t038", "银狼"), Moci_TextLoader.getText("code_Moci_PilotManager", "t039", "火狐"), Moci_TextLoader.getText("code_Moci_PilotManager", "t040", "寒鸦"),
+            Moci_TextLoader.getText("code_Moci_PilotManager", "t041", "幽灵"), Moci_TextLoader.getText("code_Moci_PilotManager", "t042", "子弹"), Moci_TextLoader.getText("code_Moci_PilotManager", "t043", "闪电"), Moci_TextLoader.getText("code_Moci_PilotManager", "t044", "雷霆"), Moci_TextLoader.getText("code_Moci_PilotManager", "t045", "烈火"), Moci_TextLoader.getText("code_Moci_PilotManager", "t046", "寒冰"), Moci_TextLoader.getText("code_Moci_PilotManager", "t047", "钢刃"), Moci_TextLoader.getText("code_Moci_PilotManager", "t048", "利剑")
         );
         
         Random random = new Random();
@@ -301,15 +302,15 @@ public class Moci_PilotManager {
         // 如果配置不存在，使用默认列表
         if (prefix == null) {
             List<String> defaultPrefixes = Arrays.asList(
-                "雷霆", "闪电", "烈火", "寒冰", "钢铁", "利剑", "猎鹰", "雄鹰",
-                "黑豹", "白狼", "红龙", "青鸟", "金翼", "银鳞", "紫电", "蓝焰"
+                Moci_TextLoader.getText("code_Moci_PilotManager", "t044", "雷霆"), Moci_TextLoader.getText("code_Moci_PilotManager", "t043", "闪电"), Moci_TextLoader.getText("code_Moci_PilotManager", "t045", "烈火"), Moci_TextLoader.getText("code_Moci_PilotManager", "t046", "寒冰"), Moci_TextLoader.getText("code_Moci_PilotManager", "t049", "钢铁"), Moci_TextLoader.getText("code_Moci_PilotManager", "t048", "利剑"), Moci_TextLoader.getText("code_Moci_PilotManager", "t033", "猎鹰"), Moci_TextLoader.getText("code_Moci_PilotManager", "t050", "雄鹰"),
+                Moci_TextLoader.getText("code_Moci_PilotManager", "t051", "黑豹"), Moci_TextLoader.getText("code_Moci_PilotManager", "t052", "白狼"), Moci_TextLoader.getText("code_Moci_PilotManager", "t053", "红龙"), Moci_TextLoader.getText("code_Moci_PilotManager", "t054", "青鸟"), Moci_TextLoader.getText("code_Moci_PilotManager", "t055", "金翼"), Moci_TextLoader.getText("code_Moci_PilotManager", "t056", "银鳞"), Moci_TextLoader.getText("code_Moci_PilotManager", "t057", "紫电"), Moci_TextLoader.getText("code_Moci_PilotManager", "t058", "蓝焰")
             );
             prefix = defaultPrefixes.get(random.nextInt(defaultPrefixes.size()));
         }
         
         if (suffix == null) {
             List<String> defaultSuffixes = Arrays.asList(
-                "编队", "小队", "中队", "战队", "部队", "分队", "机群", "联队"
+                Moci_TextLoader.getText("code_Moci_PilotManager", "t059", "编队"), Moci_TextLoader.getText("code_Moci_PilotManager", "t060", "小队"), Moci_TextLoader.getText("code_Moci_PilotManager", "t061", "中队"), Moci_TextLoader.getText("code_Moci_PilotManager", "t062", "战队"), Moci_TextLoader.getText("code_Moci_PilotManager", "t063", "部队"), Moci_TextLoader.getText("code_Moci_PilotManager", "t064", "分队"), Moci_TextLoader.getText("code_Moci_PilotManager", "t065", "机群"), Moci_TextLoader.getText("code_Moci_PilotManager", "t066", "联队")
             );
             suffix = defaultSuffixes.get(random.nextInt(defaultSuffixes.size()));
         }
@@ -322,7 +323,9 @@ public class Moci_PilotManager {
         
         // 格式: [罗马数字].[罗马数字][前缀][后缀]
         // 例如: V.IV雷霆编队
-        String squadName = roman1 + "." + roman2 + prefix + suffix;
+        String squadName = Moci_TextLoader.getText("code_Moci_PilotManager", "squad_name_format", "{roman1}.{roman2}{prefix}{suffix}")
+                .replace("{roman1}", roman1).replace("{roman2}", roman2)
+                .replace("{prefix}", prefix.trim()).replace("{suffix}", suffix.trim());
         
         if (persistent) {
             Global.getSector().getPersistentData().put(SQUAD_NAME_KEY + commanderId, squadName);

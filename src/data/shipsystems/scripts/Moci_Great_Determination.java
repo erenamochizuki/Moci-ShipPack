@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -96,7 +97,7 @@ public class Moci_Great_Determination extends BaseShipSystemScript {
                 
                 Global.getCombatEngine().addFloatingText(
                     ship.getLocation(), 
-                    "大毅力激活!", 
+                    Moci_TextLoader.getText("code_Moci_Great_Determination", "t001", "大毅力激活!"),
                     20f, 
                     JITTER_COLOR, 
                     ship, 
@@ -137,7 +138,7 @@ public class Moci_Great_Determination extends BaseShipSystemScript {
                 // 添加修复特效
                 Global.getCombatEngine().addFloatingText(
                     ship.getLocation(), 
-                    "修复中...", 
+                    Moci_TextLoader.getText("code_Moci_Great_Determination", "t002", "修复中..."),
                     15f, 
                     JITTER_COLOR, 
                     ship, 
@@ -167,14 +168,14 @@ public class Moci_Great_Determination extends BaseShipSystemScript {
     
     @Override
     public String getInfoText(ShipSystemAPI system, ShipAPI ship) {
-        if (system.isOutOfAmmo()) return "无使用次数";
+        if (system.isOutOfAmmo()) return Moci_TextLoader.getText("code_Moci_Great_Determination", "t003", "无使用次数");
         if (system.getState() != ShipSystemAPI.SystemState.IDLE) return null;
         
         float hullLevel = ship.getHullLevel();
         if (hullLevel <= HULL_THRESHOLD) {
-            return "准备激活";
+            return Moci_TextLoader.getText("code_Moci_Great_Determination", "t004", "准备激活");
         }
-        return "待机中";
+        return Moci_TextLoader.getText("code_Moci_Great_Determination", "t005", "待机中");
     }
     
     @Override
@@ -199,4 +200,4 @@ public class Moci_Great_Determination extends BaseShipSystemScript {
             ship.addListener(new DeterminationListener(ship));
         }
     }
-} 
+}

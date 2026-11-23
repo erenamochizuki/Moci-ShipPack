@@ -1,5 +1,6 @@
 package data.campaign.fighter;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
@@ -145,7 +146,7 @@ public final class Moci_FighterLoadoutLifecycle {
             log().error(LOG_PREFIX + "cannot register custom fighter wings", ex);
         }
         if (restored > 0) {
-            addNotice("航空中队管理：从存档内嵌副本恢复了 " + restored + " 条自定义联队定义");
+            addNotice(Moci_TextLoader.getText("code_Moci_FighterLoadoutLifecycle", "t001", "航空中队管理：从存档内嵌副本恢复了 ") + restored + Moci_TextLoader.getText("code_Moci_FighterLoadoutLifecycle", "t002", " 条自定义联队定义"));
         }
         try {
             SectorAPI sector = Global.getSector();

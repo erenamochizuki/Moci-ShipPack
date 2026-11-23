@@ -1,5 +1,6 @@
 package data.campaign.fighter.ui;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -243,7 +244,7 @@ public final class Moci_AirSquadronDialog {
                     // SettingsAPI already returns virtual UI coordinates, including screen scaling.
                     // A failed preview disables automatic retry until the next explicit action: never log a
                     // broken preview or repeat an expensive failed refresh every frame.
-                    hoverFailed = !guarded("航空中队悬停预览失败", "悬停预览暂不可用，请点击部位重试。",
+                    hoverFailed = !guarded("航空中队悬停预览失败", Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t001", "悬停预览暂不可用，请点击部位重试。"),
                             () -> updateHoveredSlot(Global.getSettings().getMouseX(), Global.getSettings().getMouseY()));
                 }
                 return;
@@ -265,7 +266,7 @@ public final class Moci_AirSquadronDialog {
             if (failure == null) return true;
             Global.getLogger(Moci_AirSquadronDialog.class).error(log, failure);
             notice = failureNotice != null ? failureNotice
-                    : "操作未完成：" + Objects.toString(failure.getMessage(), "请关闭窗口后重新打开");
+                    : Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t002", "操作未完成：") + Objects.toString(failure.getMessage(), Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t003", "请关闭窗口后重新打开"));
             RuntimeException rebuildFailure = attempt(this::rebuild);
             if (rebuildFailure != null) {
                 Global.getLogger(Moci_AirSquadronDialog.class).error("航空中队管理界面无法恢复，关闭窗口", rebuildFailure);
@@ -377,7 +378,7 @@ public final class Moci_AirSquadronDialog {
                     selectedSlot = choice.slotId();
                     hoveredSlot = null;
                     draft.put(choice.slotId(), choice.weaponId() == null ? "" : choice.weaponId());
-                    notice = "草稿尚未应用。";
+                    notice = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t004", "草稿尚未应用。");
                     rebuild();
                 }
                 case "tactical" -> {
@@ -388,18 +389,18 @@ public final class Moci_AirSquadronDialog {
                     if (!tacticalDraft.contains(choice) && Moci_FighterLoadoutService.tacticalUnavailableReason(
                             choice, selected.wingId()) != null) return;
                     tacticalDraft = Moci_TacticalHullmods.toggle(tacticalDraft, choice);
-                    notice = "草稿尚未应用。";
+                    notice = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t004", "草稿尚未应用。");
                     rebuild();
                 }
                 case "reset" -> {
                     resetDraft();
-                    notice = "已恢复当前装配。";
+                    notice = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t005", "已恢复当前装配。");
                     rebuild();
                 }
                 case "discard" -> {
                     if (!dirty()) return;
                     resetDraft();
-                    notice = "已放弃草稿。";
+                    notice = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t006", "已放弃草稿。");
                     rebuild();
                 }
                 case "keep" -> rebuild();
@@ -409,7 +410,7 @@ public final class Moci_AirSquadronDialog {
                     for (WeaponSlotAPI slot : slots) draft.putIfAbsent(slot.getId(), "");
                     // 原型联队本身不带战术改装，载入原型时同步清空战术改装草稿。
                     if (selected.tacticalEligible()) tacticalDraft = List.of();
-                    notice = "已载入原型草稿，点击应用后结算。";
+                    notice = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t007", "已载入原型草稿，点击应用后结算。");
                     rebuild();
                 }
                 case "apply" -> apply();
@@ -467,13 +468,13 @@ public final class Moci_AirSquadronDialog {
                 RefitPlan fresh = Moci_FighterLoadoutService.previewTactical(memberId, selected.index(),
                         selected.wingId(), draft, tacticalDraft);
                 if (!fresh.hasChanges || fresh.blockReason != null) {
-                    notice = fresh.blockReason == null ? "装配没有变化。" : fresh.blockReason;
+                    notice = fresh.blockReason == null ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t008", "装配没有变化。") : fresh.blockReason;
                 } else {
                     String failure = Moci_FighterLoadoutService.applyRefit(fresh);
                     if (failure == null) {
                         int bay = selected.index();
                         refreshCarrier(bay);
-                        notice = "装配已应用，武器已结算。";
+                        notice = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t009", "装配已应用，武器已结算。");
                     } else notice = failure;
                 }
             } finally { applying = false; }
@@ -636,10 +637,10 @@ public final class Moci_AirSquadronDialog {
         private float buildHeader() {
             Moci_AirSquadronLayout.Header layout = Moci_AirSquadronLayout.header(width);
             TooltipMakerAPI header = text(content, layout.titleWidth(), 38f, false);
-            header.addTitle("航空中队管理", ACCENT);
+            header.addTitle(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t010", "航空中队管理"), ACCENT);
             add(content, header, 12, 8);
             refitBudget = null;
-            String caption = "改造值：请选择联队";
+            String caption = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t011", "改造值：请选择联队");
             String op = ""; // 未选中有效联队时不显示 OP 行。
             if (selected != null && selected.wing() != null) {
                 // refitBudgetForTacticals 在原型规格或装配缺失时抛 IllegalArgumentException，这里先用同一组
@@ -648,13 +649,13 @@ public final class Moci_AirSquadronDialog {
                 FighterWingSpecAPI prototype = Moci_FighterLoadoutService.getWingSpec(
                         Moci_FighterLoadoutService.getBaseWingId(selected.wingId()));
                 if (prototype == null || prototype.getVariant() == null) {
-                    caption = "改造值暂不可用";
-                    op = "原型联队规格缺失";
+                    caption = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t012", "改造值暂不可用");
+                    op = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t013", "原型联队规格缺失");
                 } else {
                     refitBudget = Moci_FighterLoadoutService.refitBudgetForTacticals(selected.wingId(), draft, tacticalDraft);
-                    String percent = refitBudget.baseOp() > 0f ? number(refitBudget.usageRatio() * 100f) + "%" : "无基础容量";
-                    caption = "改造值 " + refitBudget.usedPoints() + " / " + number(refitBudget.baseOp()) + " · " + percent;
-                    op = "联队当前 OP：" + number(refitBudget.opCost());
+                    String percent = refitBudget.baseOp() > 0f ? number(refitBudget.usageRatio() * 100f) + "%" : Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t014", "无基础容量");
+                    caption = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t015", "改造值 ") + refitBudget.usedPoints() + " / " + number(refitBudget.baseOp()) + " · " + percent;
+                    op = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t016", "联队当前 OP：") + number(refitBudget.opCost());
                     if (width < 540f) {
                         caption = refitBudget.usedPoints() + " / " + number(refitBudget.baseOp()) + " · " + percent;
                     }
@@ -679,7 +680,7 @@ public final class Moci_AirSquadronDialog {
                 opLabel.setColor(refitBudget == null ? WARNING : ACCENT);
                 if (refitBudget != null) {
                     // 用精确字符区间染色，避免 LabelAPI 的字符串匹配在中文前缀后漏掉该数字。
-                    int valueStart = "联队当前 OP：".length();
+                    int valueStart = Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t016", "联队当前 OP：").length();
                     opLabel.setHighlight(valueStart, op.length());
                     opLabel.setHighlightColor(refitBudget.overLimit() ? Moci_AirSquadronEnergyBar.RED : ACCENT);
                 }
@@ -698,9 +699,9 @@ public final class Moci_AirSquadronDialog {
             Moci_AirSquadronLayout.Carrier layout = Moci_AirSquadronLayout.carrier(h, w);
             h = layout.height();
             TooltipMakerAPI title = text(column, w - 16f, 66f, true);
-            title.addSectionHeading("母舰", ACCENT, DARK, Alignment.MID, 0);
+            title.addSectionHeading(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t017", "母舰"), ACCENT, DARK, Alignment.MID, 0);
             if (carrier == null) {
-                title.addPara("母舰已不在玩家舰队中。", BAD, 8f);
+                title.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t018", "母舰已不在玩家舰队中。"), BAD, 8f);
                 add(column, title, 8, 8);
                 return;
             }
@@ -721,11 +722,11 @@ public final class Moci_AirSquadronDialog {
             if (captain != null && !captain.isDefault()) {
                 TooltipMakerAPI portrait = info.beginImageWithText(captain.getPortraitSprite(), 44f);
                 portrait.setParaFont("graphics/fonts/insignia15LTaa.fnt");
-                portrait.addPara("舰长：" + captain.getNameString(), ACCENT, 0f);
+                portrait.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t019", "舰长：") + captain.getNameString(), ACCENT, 0f);
                 info.addImageWithText(0);
-            } else info.addPara("舰长：未分配军官", DIM, 0f);
-            info.addPara("已安装联队：" + bays.stream().filter(b -> b.wing() != null).count() + " / " + bays.size(), DIM, 8f);
-            info.addPara("按母舰与机库独立管理", ACCENT, 6f);
+            } else info.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t020", "舰长：未分配军官"), DIM, 0f);
+            info.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t021", "已安装联队：") + bays.stream().filter(b -> b.wing() != null).count() + " / " + bays.size(), DIM, 8f);
+            info.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t022", "按母舰与机库独立管理"), ACCENT, 6f);
             add(column, info, 8, layout.infoTop());
         }
 
@@ -733,11 +734,11 @@ public final class Moci_AirSquadronDialog {
             CustomPanelAPI column = content.createCustomPanel(w, h, new Moci_AirSquadronScanPanel(false));
             content.addComponent(column).inTL(x, y);
             TooltipMakerAPI list = text(column, w - 18f, h - 16f, true);
-            list.addSectionHeading("机库联队", ACCENT, DARK, Alignment.MID, 0);
-            if (bays.isEmpty()) list.addPara("没有可显示的机库。", DIM, 12f);
+            list.addSectionHeading(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t023", "机库联队"), ACCENT, DARK, Alignment.MID, 0);
+            if (bays.isEmpty()) list.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t024", "没有可显示的机库。"), DIM, 12f);
             for (BayEntry bay : bays) {
                 boolean chosen = selected != null && selected.index() == bay.index();
-                String name = bay.wing() == null ? "空机库" : bay.wing().getWingName();
+                String name = bay.wing() == null ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t025", "空机库") : bay.wing().getWingName();
                 float cardWidth = w - 24f;
                 float iconWidth = Math.min(94f, cardWidth * 0.40f);
                 Moci_AirSquadronCanvas cardPlugin = new Moci_AirSquadronCanvas(art.weaponIcon(null), false, chosen,
@@ -750,8 +751,8 @@ public final class Moci_AirSquadronDialog {
                         : list.getExternalScroller().getPosition());
                 CustomPanelAPI card = column.createCustomPanel(cardWidth, 100f, cardPlugin);
                 TooltipMakerAPI label = text(card, Math.max(30f, cardWidth - iconWidth - 20f), 132f, false);
-                label.addSectionHeading(chosen ? "已选中联队" : "点击选择联队", chosen ? ACCENT : DIM, DARK, Alignment.MID, 0);
-                label.addPara("机库 " + (bay.index() + 1) + " " + name, chosen ? ACCENT : Color.LIGHT_GRAY, 6f);
+                label.addSectionHeading(chosen ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t026", "已选中联队") : Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t027", "点击选择联队"), chosen ? ACCENT : DIM, DARK, Alignment.MID, 0);
+                label.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t028", "机库 ") + (bay.index() + 1) + " " + name, chosen ? ACCENT : Color.LIGHT_GRAY, 6f);
                 if (bay.wing() != null) {
                     // 已加载的联队规格在启动时校验过 variant；Art 对缺失的贴图和武器规格返回空图层，不会抛异常。
                     ShipVariantAPI bayVariant = bay.wing().getVariant();
@@ -762,7 +763,7 @@ public final class Moci_AirSquadronDialog {
                         CustomPanelAPI image = card.createCustomPanel(iconWidth, 75f, iconPlugin);
                         card.addComponent(image).inTL(8, 14);
                     } else {
-                        label.addPara("预览不可用", DIM, 4f);
+                        label.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t029", "预览不可用"), DIM, 4f);
                     }
                 }
                 if (bay.wing() != null) {
@@ -770,13 +771,13 @@ public final class Moci_AirSquadronDialog {
                     List<String> tactical = bay.wingId() == null ? List.of()
                             : Moci_FighterLoadoutService.getTacticalHullmods(bay.wingId());
                     String suffix = Moci_FighterLoadoutService.isCustomWingId(bay.wingId())
-                            ? " 已改装" + (tactical.isEmpty() ? "" : " " + tacticalNames(tactical))
-                            : " 原型";
-                    label.addPara("数量 " + bay.wing().getNumFighters() + suffix, DIM, 4f);
+                            ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t030", " 已改装") + (tactical.isEmpty() ? "" : " " + tacticalNames(tactical))
+                            : Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t031", " 原型");
+                    label.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t032", "数量 ") + bay.wing().getNumFighters() + suffix, DIM, 4f);
                 }
                 if (bay.builtIn() || !bay.eligible()) {
                     // 内置机库照常列出、可以点选查看，但锁定不可编辑：显示服务层给出的锁定理由。
-                    label.addPara(Objects.toString(bay.lockReason(), bay.builtIn() ? "内置联队 只读" : "不可装配"), WARNING, 4f);
+                    label.addPara(Objects.toString(bay.lockReason(), bay.builtIn() ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t033", "内置联队 只读") : Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t034", "不可装配")), WARNING, 4f);
                 }
                 add(card, label, iconWidth + 12f, 6f);
                 list.addCustom(card, 8f);
@@ -793,8 +794,8 @@ public final class Moci_AirSquadronDialog {
             h = layout.height();
             if (selected == null || selected.wing() == null) {
                 TooltipMakerAPI empty = text(column, w - 20f, h - 16f, true);
-                empty.addSectionHeading("舰载机装配", ACCENT, DARK, Alignment.MID, 0);
-                empty.addPara("从中间选择一个已安装的舰载机联队。", DIM, 12f);
+                empty.addSectionHeading(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t035", "舰载机装配"), ACCENT, DARK, Alignment.MID, 0);
+                empty.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t036", "从中间选择一个已安装的舰载机联队。"), DIM, 12f);
                 if (!Moci_FighterLoadoutService.isAvailable()) empty.addPara(Moci_FighterLoadoutService.getUnavailableReason(), WARNING, 8f);
                 add(column, empty, 8, 8);
                 return;
@@ -808,11 +809,11 @@ public final class Moci_AirSquadronDialog {
             buildSummary(column, 8, weaponsY + weaponsH + 5f, w - 18f, summaryH);
             TooltipMakerAPI commands = text(column, w - 16f, 36f, false);
             float buttonWidth = (w - 28f) / 3f;
-            ButtonAPI apply = button(commands, "应用装配", new Action("apply", null), buttonWidth, 30f, 0,
+            ButtonAPI apply = button(commands, Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t037", "应用装配"), new Action("apply", null), buttonWidth, 30f, 0,
                     dirty() && editable() && plan != null && plan.hasChanges && plan.blockReason == null);
-            ButtonAPI reset = button(commands, "恢复装配", new Action("reset", null), buttonWidth, 30f, 0, dirty());
+            ButtonAPI reset = button(commands, Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t038", "恢复装配"), new Action("reset", null), buttonWidth, 30f, 0, dirty());
             reset.getPosition().rightOfTop(apply, 4f);
-            ButtonAPI prototype = button(commands, "载入原型", new Action("prototype", null), buttonWidth, 30f, 0, editable());
+            ButtonAPI prototype = button(commands, Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t039", "载入原型"), new Action("prototype", null), buttonWidth, 30f, 0, editable());
             prototype.getPosition().rightOfTop(reset, 4f);
             add(column, commands, 8, h - 36f);
         }
@@ -835,7 +836,7 @@ public final class Moci_AirSquadronDialog {
             ShipVariantAPI baseVariant = selected.wing().getVariant();
             if (baseVariant == null) {
                 TooltipMakerAPI failure = text(work, workWidth, workHeight, true);
-                failure.addPara("预览不可用；请重新选择联队。", WARNING, 4f);
+                failure.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t040", "预览不可用；请重新选择联队。"), WARNING, 4f);
                 add(work, failure, 0, 0);
             } else {
                 if (draftPreview == null || !selected.wingId().equals(previewWingId) || !draft.equals(previewLoadout)) {
@@ -861,10 +862,10 @@ public final class Moci_AirSquadronDialog {
                 CustomPanelAPI image = work.createCustomPanel(previewWidth, Math.max(40f, previewHeight - 24f), preview);
                 work.addComponent(image).inTL(0, 0);
                 TooltipMakerAPI caption = text(work, previewWidth, 22f, false);
-                caption.addPara(dirty() ? "装配草稿预览" : "当前装配", ACCENT, 0f);
+                caption.addPara(dirty() ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t041", "装配草稿预览") : Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t042", "当前装配"), ACCENT, 0f);
                 add(work, caption, 4, previewHeight - 22f);
                 TooltipMakerAPI boxes = text(work, namesWidth, workHeight - 4f, false);
-                boxes.addSectionHeading("武器改装", ACCENT, DARK, Alignment.MID, 0);
+                boxes.addSectionHeading(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t043", "武器改装"), ACCENT, DARK, Alignment.MID, 0);
                 for (WeaponSlotAPI slot : slots) {
                     boolean chosen = slot.getId().equals(selectedSlot);
                     String id = draft.get(slot.getId());
@@ -884,8 +885,8 @@ public final class Moci_AirSquadronDialog {
                 // getEditableSlots() already filters fixed, system, and decorative slots.
                 // 内置机库可见、可点选，但锁定只读；其他不能换武器的联队显示服务层给出的理由。
                 if (!weaponEditable()) boxes.addPara(selected.builtIn()
-                        ? "已锁定，只能查看（" + Objects.toString(selected.lockReason(), "内置联队不可改装") + "）。"
-                        : Objects.toString(selected.lockReason(), "该联队不支持武器换装。"), WARNING, 4f);
+                        ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t044", "已锁定，只能查看（") + Objects.toString(selected.lockReason(), Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t045", "内置联队不可改装")) + Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t046", "）。")
+                        : Objects.toString(selected.lockReason(), Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t047", "该联队不支持武器换装。")), WARNING, 4f);
                 add(work, boxes, previewWidth + Moci_AirSquadronLayout.WORKBENCH_GAP, 0);
                 buildTactical(work, top, workHeight, tacticalOptions, viewport, parent);
             }
@@ -906,7 +907,7 @@ public final class Moci_AirSquadronDialog {
             float rowWidth = Math.max(40f, w - 8f);
             TooltipMakerAPI column = text(work, rowWidth, workHeight - 4f, false);
             if (options.isEmpty()) {
-                column.addPara("战术改装不可用。", WARNING, 4f);
+                column.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t048", "战术改装不可用。"), WARNING, 4f);
                 add(work, column, x, 0);
                 return;
             }
@@ -915,7 +916,7 @@ public final class Moci_AirSquadronDialog {
                 Color groupColor = group == Moci_TacticalHullmods.Group.DEFENSE
                         ? new Color(100, 170, 255) : new Color(255, 170, 75);
                 column.addSectionHeading(group == Moci_TacticalHullmods.Group.DEFENSE
-                        ? "防御改装" : "火力改装", groupColor, DARK, Alignment.MID,
+                        ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t049", "防御改装") : Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t050", "火力改装"), groupColor, DARK, Alignment.MID,
                         group == Moci_TacticalHullmods.Group.DEFENSE ? 0f : 8f);
                 for (String id : options) {
                     if (Moci_TacticalHullmods.group(id) != group) continue;
@@ -974,12 +975,12 @@ public final class Moci_AirSquadronDialog {
             weaponsContent = parent;
             TooltipMakerAPI list = text(parent, w, h, true);
             WeaponSlotAPI slot = findSlot(slotId);
-            list.addSectionHeading("适配武器", ACCENT, DARK, Alignment.MID, 0);
-            if (slot == null) list.addPara(slots.isEmpty() ? "没有可编辑的武器槽。"
-                    : "悬停部位可预览适配武器，点击部位后固定显示。", DIM, 6f);
+            list.addSectionHeading(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t051", "适配武器"), ACCENT, DARK, Alignment.MID, 0);
+            if (slot == null) list.addPara(slots.isEmpty() ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t052", "没有可编辑的武器槽。")
+                    : Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t053", "悬停部位可预览适配武器，点击部位后固定显示。"), DIM, 6f);
             else {
                 Action removeAction = new Action("weapon", new WeaponChoice(slotId, null));
-                ButtonAPI remove = list.addButton("留空 / 拆下武器", removeAction, ACCENT, DARK,
+                ButtonAPI remove = list.addButton(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t054", "留空 / 拆下武器"), removeAction, ACCENT, DARK,
                         w - 8f, 28f, 6f);
                 remove.setEnabled(slotInteractionEnabled());
                 registerWeaponButton(remove, removeAction);
@@ -987,7 +988,7 @@ public final class Moci_AirSquadronDialog {
                 List<WeaponAvailability> weapons = fittingWeapons.computeIfAbsent(slotId,
                         key -> Moci_FighterLoadoutService.listAvailableFittingWeapons(slot));
                 if (weapons.isEmpty()) {
-                    list.addPara("当前货舱、仓库和市场没有匹配武器。", DIM, 8f);
+                    list.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t055", "当前货舱、仓库和市场没有匹配武器。"), DIM, 8f);
                 } else {
                     final float tileSize = 48f;
                     final float gap = 4f;
@@ -1047,22 +1048,22 @@ public final class Moci_AirSquadronDialog {
 
         private void buildSummary(CustomPanelAPI parent, float x, float y, float w, float h) {
             TooltipMakerAPI summary = text(parent, w, h, true);
-            summary.addSectionHeading("改装结果", ACCENT, DARK, Alignment.MID, 0);
+            summary.addSectionHeading(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t056", "改装结果"), ACCENT, DARK, Alignment.MID, 0);
             plan = Moci_FighterLoadoutService.previewTactical(memberId, selected.index(), selected.wingId(), draft, tacticalDraft);
             if (!Moci_FighterLoadoutService.isAvailable()) summary.addPara(Moci_FighterLoadoutService.getUnavailableReason(), BAD, 4f);
             else if (plan.blockReason != null) summary.addPara(plan.blockReason, BAD, 4f);
             // 战术改装结算：只报最终生效值。字体不含「→」这类符号，也不写前后关系/未改动说明。
             List<String> targetTactical = plan.tacticalHullmods;
-            if (!targetTactical.isEmpty()) summary.addPara("战术改装：" + tacticalNames(targetTactical), ACCENT, 4f);
-            else summary.addPara("战术改装：未选择", DIM, 4f);
+            if (!targetTactical.isEmpty()) summary.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t057", "战术改装：") + tacticalNames(targetTactical), ACCENT, 4f);
+            else summary.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t058", "战术改装：未选择"), DIM, 4f);
             // 选中机库时服务层报告的自动拆除结果：与下方操作提示同一警告样式，一直显示到切换机库。
             if (removedTacticalNotice != null) summary.addPara(removedTacticalNotice, WARNING, 4f);
-            if (plan.consume.isEmpty() && plan.returns.isEmpty()) summary.addPara("无武器增减。原型自带武器额度免费。", DIM, 4f);
+            if (plan.consume.isEmpty() && plan.returns.isEmpty()) summary.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t059", "无武器增减。原型自带武器额度免费。"), DIM, 4f);
             for (Map.Entry<String, Integer> item : plan.consume.entrySet()) {
-                summary.addPara("消耗：" + weaponName(item.getKey()) + " × " + item.getValue(), WARNING, 4f);
+                summary.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t060", "消耗：") + weaponName(item.getKey()) + " × " + item.getValue(), WARNING, 4f);
             }
             for (Map.Entry<String, Integer> item : plan.returns.entrySet()) {
-                summary.addPara("返还货舱：" + weaponName(item.getKey()) + " × " + item.getValue(), ACCENT, 4f);
+                summary.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t061", "返还货舱：") + weaponName(item.getKey()) + " × " + item.getValue(), ACCENT, 4f);
             }
             // 市场购买结算：货舱/仓库不足的部分会在「应用装配」时自动从当前市场买入。
             if (!plan.purchases.isEmpty()) {
@@ -1071,9 +1072,9 @@ public final class Moci_AirSquadronDialog {
                     buying.merge(purchase.weaponId(), purchase.count(), Math::addExact);
                 }
                 for (Map.Entry<String, Integer> item : buying.entrySet()) {
-                    summary.addPara("将购买：" + weaponName(item.getKey()) + " × " + item.getValue(), ACCENT, 4f);
+                    summary.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t062", "将购买：") + weaponName(item.getKey()) + " × " + item.getValue(), ACCENT, 4f);
                 }
-                summary.addPara("购买花费：" + plan.purchaseCost + " 信用点（应用时扣除）", WARNING, 4f);
+                summary.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t063", "购买花费：") + plan.purchaseCost + Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t064", " 信用点（应用时扣除）"), WARNING, 4f);
             }
             if (!notice.isEmpty()) summary.addPara(notice, WARNING, 5f);
             add(parent, summary, x, y);
@@ -1082,31 +1083,31 @@ public final class Moci_AirSquadronDialog {
         private void buildFooter(float y) {
             TooltipMakerAPI footer = text(content, width - 24f, 42f, false);
             if (dirty()) {
-                footer.addPara(confirmation.isPending() ? "关闭前处理未应用草稿" : "存在未应用草稿", WARNING, 0);
+                footer.addPara(confirmation.isPending() ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t065", "关闭前处理未应用草稿") : Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t066", "存在未应用草稿"), WARNING, 0);
                 float buttonWidth = Math.min(128f, Math.max(92f, (width - 48f) / 3f));
                 Action discardAction = new Action("discard", null);
-                ButtonAPI discard = footer.addButton("放弃草稿", discardAction, BAD, DISCARD_BACKGROUND,
+                ButtonAPI discard = footer.addButton(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t067", "放弃草稿"), discardAction, BAD, DISCARD_BACKGROUND,
                         buttonWidth, 26f, 0);
                 discard.setEnabled(true);
                 registerButton(discard, discardAction);
                 discard.getPosition().inTL(0, 16f);
 
                 Action applyAction = new Action("apply", null);
-                ButtonAPI apply = footer.addButton("应用草稿", applyAction, ACCENT, DARK,
+                ButtonAPI apply = footer.addButton(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t068", "应用草稿"), applyAction, ACCENT, DARK,
                         buttonWidth, 26f, 0);
                 apply.setEnabled(dirty() && editable() && plan != null && plan.hasChanges && plan.blockReason == null);
                 registerButton(apply, applyAction);
                 apply.getPosition().rightOfTop(discard, 4f);
 
                 Action keepAction = new Action("keep", null);
-                ButtonAPI keep = footer.addButton("继续编辑", keepAction, ACCENT, DARK,
+                ButtonAPI keep = footer.addButton(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t069", "继续编辑"), keepAction, ACCENT, DARK,
                         buttonWidth, 26f, 0);
                 keep.setEnabled(true);
                 registerButton(keep, keepAction);
                 keep.getPosition().rightOfTop(apply, 4f);
             } else {
-                footer.addPara("草稿仅在应用后生效。关闭返回情报页。", DIM, 4f);
-                ButtonAPI close = button(footer, "关闭", new Action("close", null), 112f, 32f, 0, true);
+                footer.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t070", "草稿仅在应用后生效。关闭返回情报页。"), DIM, 4f);
+                ButtonAPI close = button(footer, Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t071", "关闭"), new Action("close", null), 112f, 32f, 0, true);
                 close.getPosition().inTR(4f, 0);
             }
             add(content, footer, 12, y);
@@ -1124,11 +1125,11 @@ public final class Moci_AirSquadronDialog {
 
     /** 战术改装的展示名：优先运行时船插规格，规格/CSV 缺失时退回 T1 helper 的兜底名称。 */
     private static String tacticalNames(List<String> ids) {
-        return ids.stream().map(Moci_AirSquadronDialog::tacticalName).collect(java.util.stream.Collectors.joining("、"));
+        return ids.stream().map(Moci_AirSquadronDialog::tacticalName).collect(java.util.stream.Collectors.joining(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t072", "、")));
     }
 
     private static String tacticalName(String id) {
-        if (id == null || id.isEmpty()) return "不装";
+        if (id == null || id.isEmpty()) return Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t073", "不装");
         String name = Moci_TacticalHullmods.displayName(id);
         return name == null || name.isEmpty() ? id : name;
     }
@@ -1145,14 +1146,14 @@ public final class Moci_AirSquadronDialog {
         for (Map.Entry<String, String> entry : removed.entrySet()) {
             String reason = entry.getValue() == null ? "" : entry.getValue().trim();
             // 服务层的原因多以「。」结尾，放进括号前去掉，避免「（……。）」。
-            if (reason.endsWith("。")) reason = reason.substring(0, reason.length() - 1);
-            parts.add(tacticalName(entry.getKey()) + (reason.isEmpty() ? "" : "（" + reason + "）"));
+            if (reason.endsWith(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t074", "。"))) reason = reason.substring(0, reason.length() - 1);
+            parts.add(tacticalName(entry.getKey()) + (reason.isEmpty() ? "" : Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t075", "（") + reason + Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t076", "）")));
         }
-        return "已自动拆除不可用的战术改装：" + String.join("、", parts);
+        return Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t077", "已自动拆除不可用的战术改装：") + String.join(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t072", "、"), parts);
     }
 
     private static String weaponName(String id) {
-        if (id == null || id.isEmpty()) return "空槽";
+        if (id == null || id.isEmpty()) return Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t078", "空槽");
         // 这里的 ID 只来自引擎已解析的装配（addWeapon 会拒绝未知 ID）、getAllWeaponSpecs 候选和服务层结算，
         // 都是已注册的武器，不需要兜底；查不到规格时按原样显示 ID。
         WeaponSpecAPI spec = Global.getSettings().getWeaponSpec(id);
@@ -1265,7 +1266,7 @@ public final class Moci_AirSquadronDialog {
                 if (description != null && !description.isBlank()) tip.addPara(description, 6f);
             }
             if (unavailableReason != null || !Moci_FighterLoadoutService.isTacticalHullmodAvailable(id)) {
-                tip.addPara(unavailableReason == null ? "当前不可用。" : unavailableReason, WARNING, 6f);
+                tip.addPara(unavailableReason == null ? Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t079", "当前不可用。") : unavailableReason, WARNING, 6f);
             }
         }
     }
@@ -1349,21 +1350,21 @@ public final class Moci_AirSquadronDialog {
             tip.addPara(spec.getWeaponId(), DIM, 4f);
             tip.addPara(spec.getSize() + " / " + spec.getType() + " / " + spec.getDamageType(), 6f);
             // 说明里的每个数字都要可读：非 0 用高亮金，0 用蓝色，避免在同一行里混色。
-            para(tip, "射程 ", Math.round(spec.getMaxRange()));
-            para(tip, "本槽改造值 ", Moci_FighterRefitBudget.weaponPoints(spec, original));
-            para(tip, "货舱 ", availability.cargo(), "仓库 ", availability.storage(),
-                    "市场 ", availability.market(), "黑市 ", availability.blackMarket());
+            para(tip, Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t080", "射程 "), Math.round(spec.getMaxRange()));
+            para(tip, Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t081", "本槽改造值 "), Moci_FighterRefitBudget.weaponPoints(spec, original));
+            para(tip, Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t082", "货舱 "), availability.cargo(), Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t083", "仓库 "), availability.storage(),
+                    Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t084", "市场 "), availability.market(), Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t085", "黑市 "), availability.blackMarket());
             if (availability.market() > 0 || availability.blackMarket() > 0) {
                 // 价格保持蓝色：这是买入成本提示，和「数量/性能」类数字的金色高亮区分开。
-                paraAccent(tip, "市场单价：", Moci_FighterLoadoutService.bestMarketUnitPrice(spec), 5f);
-                tip.addPara("应用装配时自动购买。", DIM, 5f);
+                paraAccent(tip, Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t086", "市场单价："), Moci_FighterLoadoutService.bestMarketUnitPrice(spec), 5f);
+                tip.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t087", "应用装配时自动购买。"), DIM, 5f);
             }
             if (spec.getDerivedStats() != null) {
                 // 分隔符「 · 」由 number() 统一补在第二项之前，标签本身不能再带，否则会出现两个「·」。
-                para(tip, "每秒伤害 ", Math.round(spec.getDerivedStats().getDps()),
-                        "每秒幅能 ", Math.round(spec.getDerivedStats().getFluxPerSecond()));
+                para(tip, Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t088", "每秒伤害 "), Math.round(spec.getDerivedStats().getDps()),
+                        Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t089", "每秒幅能 "), Math.round(spec.getDerivedStats().getFluxPerSecond()));
             }
-            if (spec.usesAmmo()) para(tip, "弹药 ", spec.getMaxAmmo());
+            if (spec.usesAmmo()) para(tip, Moci_TextLoader.getText("code_Moci_AirSquadronDialog", "t090", "弹药 "), spec.getMaxAmmo());
         }
     }
 }

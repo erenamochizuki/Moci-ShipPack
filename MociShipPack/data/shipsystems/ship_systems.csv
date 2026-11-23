@@ -23,7 +23,7 @@ name,id,flux/second,f/s (base rate),f/s (base cap),flux/use,f/u (base rate),f/u 
 超级时流引擎,Moci_supertimporal,1,,,,,,,,,0.5,1.25,0.5,5,,,,,,,,,,TRUE,,restricted,graphics/icons/hullsys/burn_drive.png
 遮蔽之壳,Moci_ShroudedTemporalShell,1,,,,,0.25,,,,2,4,2,10,,,,,,,,,,,,,graphics/icons/hullsys/temporal_shell.png
 光学隐形装置,Moci_GNphasecloak,1,,0.05,,,,,,,0.5,,0.5,2,TRUE,,TRUE,TRUE,TRUE,,,,TRUE,,TRUE,,graphics/icons/hullsys/phase_cloak.png
-Trans_AM,Moci_Trans_AM,,,,,,,,,,1,5,1,10,,,,,,,,,,,,,graphics/icons/hullsys/temporal_shell.png
+Trans-Am,Moci_Trans_AM,,,,,,,,,,1,5,1,10,,,,,,,,,,,,,graphics/icons/hullsys/temporal_shell.png
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,
 快速转向仪,Moci_fastturndrive,,,,,,,,,,0.1,2,0.1,2,,,,,,,,,,,,,graphics/icons/hullsys/maneuvering_jets.png
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,

@@ -29,7 +29,12 @@ public class Moci_TextLoader {
     private static final String HULLMOD_CONFIG_PATH = "data/config/Moci_Hullmod_Texts/Moci_Hullmod_Texts.json";
     private static final String INTEL_CONFIG_PATH = "data/config/Moci_IntelText/Moci_Intel_Texts.json";
     private static final String CAMPAIGN_CONFIG_PATH = "data/config/Moci_CampaignText/Moci_Campaign_Texts.json";
-    private static final String[] CONFIG_PATHS = {HULLMOD_CONFIG_PATH, INTEL_CONFIG_PATH, CAMPAIGN_CONFIG_PATH};
+    // 原先写死在 Java 里的文字：段名是 code_<类名>，由 tools/l10n_tool.py 生成
+    private static final String CODE_CAMPAIGN_CONFIG_PATH = "data/config/Moci_CodeText/Moci_Code_Texts_Campaign.json";
+    private static final String CODE_DIALOG_CONFIG_PATH = "data/config/Moci_CodeText/Moci_Code_Texts_Dialog.json";
+    private static final String CODE_COMBAT_CONFIG_PATH = "data/config/Moci_CodeText/Moci_Code_Texts_Combat.json";
+    private static final String[] CONFIG_PATHS = {HULLMOD_CONFIG_PATH, INTEL_CONFIG_PATH, CAMPAIGN_CONFIG_PATH,
+            CODE_CAMPAIGN_CONFIG_PATH, CODE_DIALOG_CONFIG_PATH, CODE_COMBAT_CONFIG_PATH};
     
     // 缓存加载的文本数据
     private static Map<String, JSONObject> textCache = new HashMap<>();
@@ -68,6 +73,8 @@ public class Moci_TextLoader {
             log.warn("无法加载文本配置文件: " + configPath, e);
         } catch (JSONException e) {
             log.warn("文本配置文件JSON格式错误: " + configPath, e);
+        } catch (RuntimeException e) {
+            log.warn("无法加载文本配置文件: " + configPath, e);
         }
     }
     

@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -76,7 +77,7 @@ public class Moci_ChainLightningCapacitor extends BaseHullMod {
 
     @Override
     public String getUnapplicableReason(ShipAPI ship) {
-        return isApplicableToShip(ship) ? null : "需要第八战斗群-隐匿实验室";
+        return isApplicableToShip(ship) ? null : Moci_TextLoader.getText("code_Moci_ChainLightningCapacitor", "t001", "需要第八战斗群-隐匿实验室");
     }
 
     @Override
@@ -169,8 +170,8 @@ public class Moci_ChainLightningCapacitor extends BaseHullMod {
             if (ship == engine.getPlayerShip()) {
                 engine.maintainStatusForPlayerShip(STATUS_KEY,
                         "graphics/icons/hullsys/quantum_disruptor.png",
-                        "连锁雷暴电容器",
-                        "充能 " + (int) charge + "/" + (int) MAX_CHARGE,
+                        Moci_TextLoader.getText("code_Moci_ChainLightningCapacitor", "t002", "连锁雷暴电容器"),
+                        Moci_TextLoader.getText("code_Moci_ChainLightningCapacitor", "t003", "充能 ") + (int) charge + "/" + (int) MAX_CHARGE,
                         false);
             }
         }

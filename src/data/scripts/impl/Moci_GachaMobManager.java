@@ -1,5 +1,6 @@
 package data.scripts.impl;
 
+import data.scripts.util.Moci_TextLoader;
 import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.Global;
@@ -108,7 +109,7 @@ public class Moci_GachaMobManager {
         );
 
         // 设置名称和ID
-        yamatoWreck.setName("大和号残骸");
+        yamatoWreck.setName(Moci_TextLoader.getText("code_Moci_GachaMobManager", "t001", "大和号残骸"));
         yamatoWreck.setId("moci_yamato_derelict");
 
         // 添加唯一标签用于rules.csv匹配
@@ -164,7 +165,7 @@ public class Moci_GachaMobManager {
 
         // === 扭蛋实体固定位置设置 ===
         // 创建扭蛋核心实体
-        SectorEntityToken entity = system.addCustomEntity("moci_gacha_entity", "沙仑的玫瑰", "moci_gacha_entity",
+        SectorEntityToken entity = system.addCustomEntity("moci_gacha_entity", Moci_TextLoader.getText("code_Moci_GachaMobManager", "t002", "沙仑的玫瑰"), "moci_gacha_entity",
                 Factions.NEUTRAL);
 
         // 设置固定的静态位置：坐标(1500, 1000)
@@ -191,7 +192,7 @@ public class Moci_GachaMobManager {
         Vector2f stationLocation = new Vector2f();
         stationLocation.x = 6500f; // 距离中心较远的位置
         stationLocation.y = -4500f;
-        SectorEntityToken derelictStation = system.addCustomEntity("vortex_derelict_station", "废弃的孢子母舰",
+        SectorEntityToken derelictStation = system.addCustomEntity("vortex_derelict_station", Moci_TextLoader.getText("code_Moci_GachaMobManager", "t003", "废弃的孢子母舰"),
                 com.fs.starfarer.api.impl.campaign.ids.Entities.DERELICT_MOTHERSHIP, Factions.NEUTRAL);
         derelictStation.getLocation().set(stationLocation);
 

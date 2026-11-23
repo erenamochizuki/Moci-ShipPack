@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipAPI.HullSize;
@@ -23,7 +24,7 @@ public class Moci_MsBurstDriver extends BaseShipSystemScript {
 	
 	public StatusData getStatusData(int index, State state, float effectLevel) {
 		if (index == 0) {
-			return new StatusData("动力背包启动", false);
+			return new StatusData(Moci_TextLoader.getText("code_Moci_MsBurstDriver", "t001", "动力背包启动"), false);
 		}
 		return null;
 	}

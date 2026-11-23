@@ -1,5 +1,6 @@
 package data.scripts.impl;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 
 import com.fs.starfarer.api.Global;
@@ -409,7 +410,7 @@ public class Moci_NergalHeavyIndustriesColonyManager {
         surveyAllConditions(market);
         market.reapplyConditions();
         market.reapplyIndustries();
-        market.getStability().modifyFlat("base", 6f, "基础稳定度");
+        market.getStability().modifyFlat("base", 6f, Moci_TextLoader.getText("code_Moci_NergalHeavyIndustriesColonyManager", "t001", "基础稳定度"));
     }
 
     private static void createAsterHub(StarSystemAPI system) {
@@ -458,7 +459,7 @@ public class Moci_NergalHeavyIndustriesColonyManager {
         surveyAllConditions(market);
         market.reapplyConditions();
         market.reapplyIndustries();
-        market.getStability().modifyFlat("base", 4f, "基础稳定度");
+        market.getStability().modifyFlat("base", 4f, Moci_TextLoader.getText("code_Moci_NergalHeavyIndustriesColonyManager", "t001", "基础稳定度"));
         ensureAsterPeople(market);
     }
 

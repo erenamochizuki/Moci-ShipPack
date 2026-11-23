@@ -1,5 +1,6 @@
 package data.campaign.backgrounds;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionSpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -34,13 +35,13 @@ public class Moci_NewtypeBackground extends BaseCharacterBackground {
         super.addTooltipForSelection(tooltip, factionSpec, factionConfig, expanded);
 
         tooltip.addSpacer(10f);
-        tooltip.addPara("你天生拥有超越常人的感知能力和反应速度。", 0f, 
+        tooltip.addPara(Moci_TextLoader.getText("code_Moci_NewtypeBackground", "t001", "你天生拥有超越常人的感知能力和反应速度。"), 0f,
             Misc.getTextColor(), Misc.getHighlightColor());
         
         tooltip.addSpacer(10f);
-        tooltip.addPara("获得技能: %s ", 0f,
+        tooltip.addPara(Moci_TextLoader.getText("code_Moci_NewtypeBackground", "t002", "获得技能: %s "), 0f,
             Misc.getTextColor(), Misc.getHighlightColor(), 
-            "新人类");
+            Moci_TextLoader.getText("code_Moci_NewtypeBackground", "t003", "新人类"));
     }
 
     @Override
@@ -52,7 +53,7 @@ public class Moci_NewtypeBackground extends BaseCharacterBackground {
         
         if (hasBackground != null && hasBackground) {
             tooltip.addSpacer(10f);
-            tooltip.addPara("你的新人类能力让你在战场上拥有超乎寻常的洞察力。", 0f,
+            tooltip.addPara(Moci_TextLoader.getText("code_Moci_NewtypeBackground", "t004", "你的新人类能力让你在战场上拥有超乎寻常的洞察力。"), 0f,
                 Misc.getTextColor(), Misc.getHighlightColor());
         }
     }

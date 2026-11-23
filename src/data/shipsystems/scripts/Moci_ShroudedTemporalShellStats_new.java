@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 import java.util.EnumSet;
 
@@ -620,26 +621,26 @@ public class Moci_ShroudedTemporalShellStats_new extends BaseShipSystemScript {
 
 	public StatusData getStatusData(int index, State state, float effectLevel) {
 		if (index == 0) {
-			return new StatusData("遮罩护盾", false);
+			return new StatusData(Moci_TextLoader.getText("code_Moci_ShroudedTemporalShellStats_new", "t001", "遮罩护盾"), false);
 		}
 		
 		if (index == 1) {
 			float bonus = SPEED_BONUS * 100f * effectLevel * effectLevel;
-			return new StatusData("+ " + (int)Math.round(bonus) + "% 速度和机动性", false);
+			return new StatusData("+ " + (int)Math.round(bonus) + Moci_TextLoader.getText("code_Moci_ShroudedTemporalShellStats_new", "t002", "% 速度和机动性"), false);
 		}
 		
 		if (index == 2) {
 			float bonus = ROF_BONUS * 100f * effectLevel * effectLevel;
-			return new StatusData("+ " + (int)Math.round(bonus) + "% 武器射速", false);
+			return new StatusData("+ " + (int)Math.round(bonus) + Moci_TextLoader.getText("code_Moci_ShroudedTemporalShellStats_new", "t003", "% 武器射速"), false);
 		}
 		
 		if (index == 3) {
 			float bonus = AMMO_BONUS * 100f * effectLevel * effectLevel;
-			return new StatusData("+ " + (int)Math.round(bonus) + "% 能量武器弹药", false);
+			return new StatusData("+ " + (int)Math.round(bonus) + Moci_TextLoader.getText("code_Moci_ShroudedTemporalShellStats_new", "t004", "% 能量武器弹药"), false);
 		}
 		
 		if (index == 4) {
-			return new StatusData("裂隙闪电攻击", false);
+			return new StatusData(Moci_TextLoader.getText("code_Moci_ShroudedTemporalShellStats_new", "t005", "裂隙闪电攻击"), false);
 		}
 		
 		return null;

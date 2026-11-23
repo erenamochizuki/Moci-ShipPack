@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import java.awt.Color;
 
 import com.fs.starfarer.api.combat.BaseHullMod;
@@ -26,9 +27,9 @@ public class Moci_AirSquadronManager extends BaseHullMod {
         if (carrierReason != null) return carrierReason;
         if (ship != null && ship.getMutableStats() != null
                 && ship.getMutableStats().getNumFighterBays().getModifiedValue() >= 1f) {
-            return "船体内置联队不能改装，需要至少一个非内置机库";
+            return Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t001", "船体内置联队不能改装，需要至少一个非内置机库");
         }
-        return "需要至少一个可用的舰载机机库";
+        return Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t002", "需要至少一个可用的舰载机机库");
     }
 
     /**
@@ -54,19 +55,19 @@ public class Moci_AirSquadronManager extends BaseHullMod {
 
         // 引擎按字符串匹配高亮，且要求高亮词两侧是空白、ASCII 标点或段落首尾；紧贴汉字或中文标点
         // （“”，。；）的词不会变色。所以高亮词一律写成 " %s "，与原版中文说明的「提高 %s 装甲值」一致。
-        tooltip.addPara("允许在情报界面的 %s 中调整 %s 的 %s 装配。 %s ， %s 。",
-                pad, highlight, "编队管理", "母舰", "舰载机联队", "每个机库分别设置", "不附加战斗属性");
+        tooltip.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t003", "允许在情报界面的 %s 中调整 %s 的 %s 装配。 %s ， %s 。"),
+                pad, highlight, Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t004", "编队管理"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t005", "母舰"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t006", "舰载机联队"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t007", "每个机库分别设置"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t008", "不附加战斗属性"));
 
-        tooltip.addSectionHeading("使用方法",
+        tooltip.addSectionHeading(Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t009", "使用方法"),
                 new Color(150, 205, 255, 255), new Color(20, 80, 140, 150), Alignment.MID, pad);
-        tooltip.addPara("在情报界面打开 %s ，选择 %s ；再选择 %s 和要调整的 %s ，完成修改后点击 %s 。每支联队按 %s 结算。",
-                pad, highlight, "编队管理", "航空中队管理", "母舰", "机库联队", "应用装配", "一套武器配置");
+        tooltip.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t010", "在情报界面打开 %s ，选择 %s ；再选择 %s 和要调整的 %s ，完成修改后点击 %s 。每支联队按 %s 结算。"),
+                pad, highlight, Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t004", "编队管理"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t011", "航空中队管理"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t005", "母舰"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t012", "机库联队"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t013", "应用装配"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t014", "一套武器配置"));
 
-        tooltip.addSectionHeading("注意事项",
+        tooltip.addSectionHeading(Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t015", "注意事项"),
                 new Color(255, 150, 150, 255), new Color(130, 0, 0, 150), Alignment.MID, pad);
-        tooltip.addPara("安装 %s ，但母舰 %s 。 %s 。",
-                pad, highlight, "无需分配军官", "至少要有一个非内置机库", "自动化舰船不能安装");
-        tooltip.addPara("卸下船插后，退出改装或市场界面时，系统会 %s ，并把额外投入的武器 %s 。货舱中的 %s %s 。本船插 %s 。",
-                pad, highlight, "恢复联队原型", "退回舰队货舱", "自定义联队 LPC", "保留原有装配", "不能永久内置");
+        tooltip.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t016", "安装 %s ，但母舰 %s 。 %s 。"),
+                pad, highlight, Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t017", "无需分配军官"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t018", "至少要有一个非内置机库"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t019", "自动化舰船不能安装"));
+        tooltip.addPara(Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t020", "卸下船插后，退出改装或市场界面时，系统会 %s ，并把额外投入的武器 %s 。货舱中的 %s %s 。本船插 %s 。"),
+                pad, highlight, Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t021", "恢复联队原型"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t022", "退回舰队货舱"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t023", "自定义联队 LPC"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t024", "保留原有装配"), Moci_TextLoader.getText("code_Moci_AirSquadronManager", "t025", "不能永久内置"));
     }
 }

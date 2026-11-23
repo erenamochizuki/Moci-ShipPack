@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,15 +17,15 @@ import com.fs.starfarer.api.combat.ShipwideAIFlags;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.loading.WeaponSpecAPI;
+import com.fs.starfarer.loading.specs.BaseWeaponSpec;
 
 import data.scripts.util.Moci_Util;
 
 /**
  * 暴走亡灵(Moci_RampageGhost)：围绕目标连续闪现，每次落地用 ARM_R_MAIN 主炮开一炮；
  * 结束后闪回激活时的位置并重装弹药。
- * 每次闪现在原位置留下一个残影(多个并存)：残影边后退边淡出，同时从不扭曲收紧到最强；
- * 本体落地时反过来，从最强的扭曲松弛到正常。两段接起来就是"本体散开 -> 在别处重新凝聚"。
- * 残影和扭曲用 Moci_Util.ShipCopyRenderer 画，瞬移和镜头追随用 Moci_Util.SkimmerBlink。
+ * 每次落地出现向内的径向波；出发点的残影按共享开关飞向落点，或向后淡出并内收。
  * 多残影渲染不可用时，退回原版闪现的观感(一个残像与本体交叉淡化)。
  * 另一个版本见 Moci_RampageGhostArrayStats(舰船不动，由残影列阵开火)。
  *
@@ -60,28 +61,10 @@ public class Moci_RampageGhostStats extends BaseShipSystemScript {
     private static final float AFTERIMAGE_DRIFT_MIN = 75f;
     private static final float AFTERIMAGE_DRIFT_MAX = 150f;
 
-    // ---------- 扭曲(只扭曲本体和残影自身的画面，不影响背景和其他舰船) ----------
-    // 残影：从留下时的不扭曲，到消失时收紧到最强。
-    // 本体：落地瞬间最强，BODY_RELAX_SECONDS 内松弛到正常。期间本体由一个带扭曲的副本代为显示。
-    /** 是否启用扭曲。false = 残影只后退淡出，本体落地没有任何过渡 */
+    // 径向波作用于屏幕画面；风痕只画残影自身。
     private static final boolean DISTORTION_ENABLED = true;
-    /** 本体落地后从最强扭曲松弛到正常的秒数。应小于闪现间隔，否则还没松弛完就又闪走了 */
     private static final float BODY_RELAX_SECONDS = 0.15f;
-    /** 本体落地瞬间的透明度 0..1，随着松弛升到 1。调低 = 落地时更像"从无到有凝聚成形" */
     private static final float BODY_ARRIVE_ALPHA = 0.4f;
-    // 以下 6 项是扭曲的形状，三种变形可以叠加，不想要哪种就把它设为 0
-    /** 最强时画面向中心收缩的程度 0..0.95。0.6 = 中心附近被吸到原来四成的范围里；0 = 不收缩 */
-    private static final float SHIP_WARP_PINCH = 0.6f;
-    /** 最强时画面中心的旋转角(度)，越靠外转得越少，形成漩涡。负数反向旋转；0 = 不旋转 */
-    private static final float SHIP_WARP_TWIST_DEGREES = 120f;
-    /** 最强时画面沿半径方向起伏的幅度(单位)，形成向外扩散的涟漪。0 = 没有涟漪 */
-    private static final float SHIP_WARP_RIPPLE_AMPLITUDE = 12f;
-    /** 从画面中心到边缘有几圈涟漪 */
-    private static final float SHIP_WARP_RIPPLE_WAVES = 2.5f;
-    /** 涟漪向外扩散的快慢(弧度/秒) */
-    private static final float SHIP_WARP_RIPPLE_SPEED = 12f;
-    /** 扭曲范围的半径，按舰船碰撞半径的倍数。要大到能罩住整个机体画面；范围外的画面(如很长的尾焰)会被裁掉 */
-    private static final float SHIP_WARP_EXTENT_MULT = 2.2f;
 
     // ---------- 备用观感(只在多残影渲染不可用时生效：原版闪现那种一个残像与本体交叉淡化) ----------
     /** "瞬移前"的最长秒数：本体留在原地淡到半透明，目的地的残像淡入。原版闪现是 0.25。实际取 min(该值, 当前间隔的一半) */
@@ -131,6 +114,8 @@ public class Moci_RampageGhostStats extends BaseShipSystemScript {
     /** 留在闪现出发点的一个残影 */
     private static final class Afterimage {
         final Vector2f origin = new Vector2f();
+        final Moci_GhostVisuals.Exit exit = new Moci_GhostVisuals.Exit();
+        Moci_GhostVisuals.Pulse pulse;
         float facing;
         float elapsed;
         /** 淡出期间后退的总距离，留下时随机确定 */
@@ -142,6 +127,7 @@ public class Moci_RampageGhostStats extends BaseShipSystemScript {
     private final List<Afterimage> afterimages = new ArrayList<>();
     /** 本体落地过渡期间代替本体显示的副本；不在过渡期时为 null */
     private Moci_Util.ShipCopyRenderer.ShipCopy bodyCopy = null;
+    private Moci_GhostVisuals.Pulse bodyPulse;
     private float bodyElapsed = 0f;
     /** 每帧记下瞬移前的位置和朝向，残影要留在这里 */
     private final Vector2f departLocation = new Vector2f();
@@ -196,7 +182,7 @@ public class Moci_RampageGhostStats extends BaseShipSystemScript {
         }
         advanceVisuals(amount);
         // 系统结束、闪回完成、残影都消失后，才把渲染器撤掉
-        if (!running && !pendingReturn && !blink.isBusy() && bodyCopy == null && afterimages.isEmpty()) {
+        if (!running && !pendingReturn && !blink.isBusy() && bodyPulse == null && afterimages.isEmpty()) {
             releaseVisuals();
         }
     }
@@ -239,14 +225,6 @@ public class Moci_RampageGhostStats extends BaseShipSystemScript {
         if (renderer == null || !renderer.isWorking()) {
             if (renderer != null) renderer.expire();
             renderer = Moci_Util.createShipCopyRenderer(ship);
-            if (renderer != null) {
-                renderer.warpParams.pinch = SHIP_WARP_PINCH;
-                renderer.warpParams.twistDegrees = SHIP_WARP_TWIST_DEGREES;
-                renderer.warpParams.rippleAmplitude = SHIP_WARP_RIPPLE_AMPLITUDE;
-                renderer.warpParams.rippleWaves = SHIP_WARP_RIPPLE_WAVES;
-                renderer.warpParams.rippleSpeed = SHIP_WARP_RIPPLE_SPEED;
-                renderer.warpExtentRadiusMult = SHIP_WARP_EXTENT_MULT;
-            }
         }
     }
 
@@ -276,88 +254,105 @@ public class Moci_RampageGhostStats extends BaseShipSystemScript {
 
     /** 刚完成一次瞬移：在出发点留下残影，本体开始落地过渡 */
     private void onTeleported() {
-        if (!useMultiAfterimages()) return;
-
+        boolean multi = useMultiAfterimages();
         Afterimage image = new Afterimage();
         image.origin.set(departLocation);
         image.facing = departFacing;
         image.drift = AFTERIMAGE_DRIFT_MIN + (AFTERIMAGE_DRIFT_MAX - AFTERIMAGE_DRIFT_MIN) * Misc.random.nextFloat();
-        image.copy = renderer.addCopy();
-        image.copy.location.set(departLocation);
-        image.copy.facing = departFacing;
-        image.copy.alpha = AFTERIMAGE_START_ALPHA;
-        image.copy.warp = 0f;
-        afterimages.add(image);
-
-        // 本体的扭曲只有局部扭曲这一种画法；它不可用时本体直接出现，不做过渡
-        if (DISTORTION_ENABLED && renderer.isWarpAvailable()) {
-            if (bodyCopy == null) bodyCopy = renderer.addCopy();
+        image.exit.begin(image.origin);
+        image.exit.link(ship.getLocation()); // 闪现已完成，包含避障后的实际落点和最终闪回。
+        if (multi) {
+            image.copy = renderer.addCopy();
+            image.copy.location.set(image.origin);
+            image.copy.facing = image.facing;
+            image.copy.alpha = AFTERIMAGE_START_ALPHA;
+        }
+        if (DISTORTION_ENABLED && !Moci_GhostVisuals.USE_GHOST_WIND_EXIT) image.pulse = new Moci_GhostVisuals.Pulse();
+        if (multi || image.pulse != null) afterimages.add(image);
+        if (DISTORTION_ENABLED) {
+            endBodyArrival();
+            bodyPulse = new Moci_GhostVisuals.Pulse();
             bodyElapsed = 0f;
-            updateBodyCopy();
+            if (multi) bodyCopy = renderer.addCopy();
         }
     }
 
     private void advanceVisuals(float amount) {
-        if (bodyCopy != null) {
+        if (bodyPulse != null) {
             bodyElapsed += amount;
-            if (bodyElapsed >= BODY_RELAX_SECONDS || renderer == null || !renderer.isWarpAvailable()) {
-                endBodyArrival();
-            } else {
-                updateBodyCopy();
+            if (bodyElapsed >= BODY_RELAX_SECONDS) endBodyArrival();
+            else {
+                float p = bodyElapsed / BODY_RELAX_SECONDS;
+                bodyPulse.show(ship.getLocation(), ship.getCollisionRadius(), bodyPulse.relax(bodyElapsed, BODY_RELAX_SECONDS), BODY_RELAX_SECONDS);
+                if (bodyCopy != null && useMultiAfterimages()) {
+                    bodyCopy.location.set(ship.getLocation());
+                    bodyCopy.facing = ship.getFacing();
+                    bodyCopy.alpha = BODY_ARRIVE_ALPHA + (1f - BODY_ARRIVE_ALPHA) * p;
+                    ship.setExtraAlphaMult(0f);
+                } else if (bodyCopy != null) endBodyArrival();
             }
         }
-
-        for (int index = afterimages.size() - 1; index >= 0; index--) {
-            Afterimage image = afterimages.get(index);
+        for (int i = afterimages.size() - 1; i >= 0; i--) {
+            Afterimage image = afterimages.get(i);
             image.elapsed += amount;
-            if (image.elapsed >= AFTERIMAGE_SECONDS || renderer == null) {
-                if (renderer != null) renderer.removeCopy(image.copy);
-                afterimages.remove(index);
+            if (image.elapsed >= AFTERIMAGE_SECONDS) {
+                releaseImage(image);
+                afterimages.remove(i);
                 continue;
             }
-            // progress 0..1：边变淡边沿身后退开(先快后慢)，同时扭曲从 0 收紧到最强
-            float progress = image.elapsed / AFTERIMAGE_SECONDS;
-            float drift = image.drift * (1f - (1f - progress) * (1f - progress));
-            double back = Math.toRadians(image.facing + 180f);
-            image.copy.location.set(image.origin.x + drift * (float) Math.cos(back),
-                    image.origin.y + drift * (float) Math.sin(back));
-            image.copy.facing = image.facing;
-            image.copy.alpha = AFTERIMAGE_START_ALPHA * (1f - progress);
-            image.copy.warp = DISTORTION_ENABLED ? progress : 0f;
+            float p = image.elapsed / AFTERIMAGE_SECONDS;
+            Vector2f position = image.origin;
+            if (image.copy != null) {
+                position = image.copy.location;
+                if (Moci_GhostVisuals.USE_GHOST_WIND_EXIT) image.exit.sample(position, image.copy, p, ship.getCollisionRadius());
+                else {
+                    float drift = image.drift * p * (2f - p);
+                    double back = Math.toRadians(image.facing + 180f);
+                    position.set(image.origin.x + drift * (float) Math.cos(back), image.origin.y + drift * (float) Math.sin(back));
+                }
+                image.copy.alpha = AFTERIMAGE_START_ALPHA * (1f - p);
+            }
+            if (image.pulse != null) image.pulse.show(position, ship.getCollisionRadius(),
+                    image.pulse.contract(p), AFTERIMAGE_SECONDS);
         }
-    }
-
-    /** 落地过渡期间：隐藏真正的本体，由贴在本体位置上的副本带着扭曲显示 */
-    private void updateBodyCopy() {
-        float progress = Math.max(0f, Math.min(1f, bodyElapsed / BODY_RELAX_SECONDS));
-        bodyCopy.location.set(ship.getLocation());
-        bodyCopy.facing = ship.getFacing();
-        bodyCopy.alpha = BODY_ARRIVE_ALPHA + (1f - BODY_ARRIVE_ALPHA) * progress;
-        bodyCopy.warp = 1f - progress;
-        ship.setExtraAlphaMult(0f);
     }
 
     private void endBodyArrival() {
+        if (bodyPulse != null) bodyPulse.clear();
+        bodyPulse = null;
         if (bodyCopy == null) return;
         if (renderer != null) renderer.removeCopy(bodyCopy);
         bodyCopy = null;
         if (ship != null) ship.setExtraAlphaMult(1f);
     }
 
-    /** 撤掉所有残影、恢复本体显示、移除渲染器 */
-    private void releaseVisuals() {
-        endBodyArrival();
-        if (renderer != null) {
-            for (Afterimage image : afterimages) {
-                renderer.removeCopy(image.copy);
-            }
-            renderer.expire();
-            renderer = null;
-        }
-        afterimages.clear();
+    private void releaseImage(Afterimage image) {
+        if (image.pulse != null) image.pulse.clear();
+        if (renderer != null && image.copy != null) renderer.removeCopy(image.copy);
     }
 
+    private void releaseVisuals() {
+        endBodyArrival();
+        for (Afterimage image : afterimages) releaseImage(image);
+        afterimages.clear();
+        if (renderer != null) renderer.expire();
+        renderer = null;
+    }
+
+
     // ==================== 两个版本共用 ====================
+
+    // fireSoundTwo 是实际出膛声；不要把蓄力声 fireSoundOne 当作备用枪声。
+    static String shotSound(WeaponSpecAPI spec) {
+        return spec instanceof BaseWeaponSpec nativeSpec ? nativeSpec.getFireSoundTwo() : null;
+    }
+
+    static boolean playShotSound(WeaponAPI weapon, Vector2f muzzle, Vector2f velocity) {
+        String sound = shotSound(weapon.getSpec());
+        if (sound == null || sound.isBlank()) return false;
+        Global.getSoundPlayer().playSound(sound, 1f, 0.8f, muzzle, velocity);
+        return true;
+    }
 
     /** 装在 FIRE_SLOT_ID 槽位上的武器 */
     public static List<WeaponAPI> findFireWeapons(ShipAPI ship) {
@@ -515,7 +510,7 @@ public class Moci_RampageGhostStats extends BaseShipSystemScript {
             weapon.setCurrAngle(fireAngle);
             Vector2f firePoint = weapon.getFirePoint(0);
 
-            Global.getSoundPlayer().playSound("moci_wpn_weapon_03", 1f, 0.8f, firePoint, ship.getVelocity());
+            playShotSound(weapon, firePoint, ship.getVelocity());
             engine.spawnProjectile(ship, weapon, weapon.getId(), firePoint, fireAngle, ship.getVelocity());
             engine.spawnMuzzleFlashOrSmoke(ship, weapon.getSlot(), weapon.getSpec(), 0, fireAngle);
         }
@@ -592,12 +587,12 @@ public class Moci_RampageGhostStats extends BaseShipSystemScript {
 
         ShipAPI target = findTarget(ship);
         if (target != null && target != ship) {
-            return "就绪";
+            return Moci_TextLoader.getText("code_Moci_RampageGhostStats", "t001", "就绪");
         }
         if (isValidTarget(ship, ship.getShipTarget())) {
-            return "射程外";
+            return Moci_TextLoader.getText("code_Moci_RampageGhostStats", "t002", "射程外");
         }
-        return "没有目标";
+        return Moci_TextLoader.getText("code_Moci_RampageGhostStats", "t003", "没有目标");
     }
 
     @Override

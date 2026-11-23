@@ -1,7 +1,7 @@
 {
 	"baseHullId":"Moci_General_Revil",
 	"skinHullId":"Moci_General_Revil_LXVI",
-	"hullName":"雷比尔将军 (XIV)",
+	"hullName":"雷比尔将军 (LXVI)",
 	"incompatibleWithBaseHull":false, # for the autofit dialog
 	"descriptionId":"Moci_General_Revil",
 	"descriptionPrefix":"六十六卫队的改装型号。",

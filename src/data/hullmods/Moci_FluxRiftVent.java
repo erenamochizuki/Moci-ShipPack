@@ -1,5 +1,6 @@
 package data.hullmods;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseHullMod;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
@@ -18,7 +19,7 @@ public class Moci_FluxRiftVent extends BaseHullMod {
 
     @Override
     public String getUnapplicableReason(ShipAPI ship) {
-        return isApplicableToShip(ship) ? null : "需要第八战斗群-隐匿实验室";
+        return isApplicableToShip(ship) ? null : Moci_TextLoader.getText("code_Moci_FluxRiftVent", "t001", "需要第八战斗群-隐匿实验室");
     }
 
     @Override

@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.ShieldAPI.ShieldType;
@@ -98,7 +99,7 @@ public class Moci_AcausalDisruptorStats extends BaseShipSystemScript {
 			}
 		});
 		// 显示浮字提示
-		target.getFluxTracker().showOverloadFloatyIfNeeded("相位崩溃!", OVERLOAD_COLOR, 4.0F, true);
+		target.getFluxTracker().showOverloadFloatyIfNeeded(Moci_TextLoader.getText("code_Moci_AcausalDisruptorStats", "t001", "相位崩溃!"), OVERLOAD_COLOR, 4.0F, true);
 	}
 
 	// 目标筛选逻辑

@@ -1,5 +1,6 @@
 package data.campaign.fighter;
 
+import data.scripts.util.Moci_TextLoader;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -54,7 +55,7 @@ public class Moci_FighterLoadoutRegistry {
 
     private static boolean initialized = false;
     private static boolean available = false;
-    private static String unavailableReason = "尚未初始化";
+    private static String unavailableReason = Moci_TextLoader.getText("code_Moci_FighterLoadoutRegistry", "t001", "尚未初始化");
 
     private static Class<?> variantSpecClass;
     private static MethodHandle variantPut;          // (HullVariantSpec)void 或 (HullVariantSpec, boolean)void
@@ -100,13 +101,13 @@ public class Moci_FighterLoadoutRegistry {
                 variantPutTakesFlag = variantPut != null;
             }
             if (variantPut == null) {
-                unavailableReason = "未找到战机变体注册方法（B.put(HullVariantSpec)）";
+                unavailableReason = Moci_TextLoader.getText("code_Moci_FighterLoadoutRegistry", "t002", "未找到战机变体注册方法（B.put(HullVariantSpec)）");
                 return false;
             }
 
             wingPut = findStatic(wingStoreClass, MethodType.methodType(void.class, String.class, wingSpecClass));
             if (wingPut == null) {
-                unavailableReason = "未找到联队规格注册方法（K.put(String, FighterWingSpec)）";
+                unavailableReason = Moci_TextLoader.getText("code_Moci_FighterLoadoutRegistry", "t003", "未找到联队规格注册方法（K.put(String, FighterWingSpec)）");
                 return false;
             }
 

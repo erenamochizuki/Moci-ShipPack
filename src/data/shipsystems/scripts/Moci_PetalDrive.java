@@ -55,7 +55,7 @@ public class Moci_PetalDrive extends Moci_DiamondDrive {
         static final int ARCS_PER_BURST = 3; // 每批电弧数；0 表示关闭闪电，不关闭光晕和双环
         static final float ARC_INTERVAL = .11f, ARC_INTERVAL_RANDOM = .045f; // 批次间隔最小值与随机增量（秒）；越小越频繁
         static final float ARC_REACH = 1.45f, ARC_REACH_RANDOM = 1.60f; // 电弧长度的最小值与随机增量（R）
-        static final float ARC_WIDTH = .042f, ARC_MIN_WIDTH = 5f, ARC_SPEED = 45f; // 宽度（R）、最小宽度（世界单位）、传播速度（R/秒）
+        static final float ARC_WIDTH = .042f, ARC_MIN_WIDTH = 5f; // 宽度（R）、最小宽度（世界单位）
         static final float OUTER_RISE = .42f, OUTER_RADIUS = .38f, OUTER_EXPAND = 2.70f; // 外环扩散时长、起始半径、增量（R）
         static final float OUTER_IN_EDGE = .035f, OUTER_OUT_EDGE = .045f, OUTER_ALPHA = 1f; // 外环内外侧软边宽（R）、亮度
         static final float INNER_RADIUS = .18f, INNER_EXPAND = .74f; // 内环起始半径、增量（R）

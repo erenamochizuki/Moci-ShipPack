@@ -1,5 +1,6 @@
 package data.scripts.campaign;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
@@ -108,34 +109,34 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
 
     private void showInstitute(boolean withIntro) {
         if (withIntro) {
-            text.addPara("弗拉纳冈机构的地下区划被层层隔离门封闭。值勤人员确认了你的授权后，将机构提供的服务列在终端上。");
+            text.addPara(Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t001", "弗拉纳冈机构的地下区划被层层隔离门封闭。值勤人员确认了你的授权后，将机构提供的服务列在终端上。"));
         }
         options.clearOptions();
-        options.addOption("强化人培育", OptionId.MAIN);
+        options.addOption(Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t002", "强化人培育"), OptionId.MAIN);
         String unavailable = Moci_AugmentedHumanCommand.getAccessUnavailableReason(dialog);
         if (unavailable == null && !hasAlphaCore()) {
-            unavailable = "需要 1 个 Alpha Core。";
+            unavailable = Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t003", "需要 1 个 Alpha Core。");
         }
         if (unavailable == null && !hasEligibleTarget()) {
-            unavailable = "没有可进行强化人培育的玩家或军官。";
+            unavailable = Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t004", "没有可进行强化人培育的玩家或军官。");
         }
         options.setEnabled(OptionId.MAIN, unavailable == null);
         options.setTooltip(OptionId.MAIN, unavailable == null
-                ? "消耗 1 个 Alpha Core，为玩家或军官授予强化人技能。" : unavailable);
-        options.addOption("返回市场", OptionId.BACK);
+                ? Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t005", "消耗 1 个 Alpha Core，为玩家或军官授予强化人技能。") : unavailable);
+        options.addOption(Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t006", "返回市场"), OptionId.BACK);
         options.setShortcut(OptionId.BACK, Keyboard.KEY_ESCAPE, false, false, false, true);
     }
 
     private void showMain(boolean withIntro) {
         if (withIntro) {
-            text.addPara("每次强化人培育需要消耗 %s 个 Alpha Core。培育完成后，目标会获得强化人技能，可无视米诺夫斯基粒子的干扰效果，但不会获得新人类的时流能力。",
-                    Misc.getTextColor(), Misc.getHighlightColor(), String.valueOf(ALPHA_CORE_COST), "强化人");
+            text.addPara(Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t007", "每次强化人培育需要消耗 %s 个 Alpha Core。培育完成后，目标会获得强化人技能，可无视米诺夫斯基粒子的干扰效果，但不会获得新人类的时流能力。"),
+                    Misc.getTextColor(), Misc.getHighlightColor(), String.valueOf(ALPHA_CORE_COST), Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t008", "强化人"));
         }
 
         options.clearOptions();
         List<UnitOption> targets = getTargets();
         if (targets.isEmpty()) {
-            text.addPara("当前舰队里没有可进行培育的对象。");
+            text.addPara(Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t009", "当前舰队里没有可进行培育的对象。"));
         }
 
         for (UnitOption target : targets) {
@@ -148,15 +149,15 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
         }
 
         if (targets.isEmpty() || !hasAlphaCore()) {
-            String optionText = targets.isEmpty() ? "没有可培育对象" : "需要 Alpha Core";
+            String optionText = targets.isEmpty() ? Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t010", "没有可培育对象") : Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t011", "需要 Alpha Core");
             options.addOption(optionText, OptionId.MAIN);
             options.setEnabled(OptionId.MAIN, false);
             options.setTooltip(OptionId.MAIN, targets.isEmpty()
-                    ? "玩家和所有可用军官都已经是新人类、强化人，或不是可培育对象。"
-                    : "货舱中需要至少 1 个 Alpha Core。");
+                    ? Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t012", "玩家和所有可用军官都已经是新人类、强化人，或不是可培育对象。")
+                    : Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t013", "货舱中需要至少 1 个 Alpha Core。"));
         }
 
-        options.addOption("返回弗拉纳冈机构", OptionId.INSTITUTE);
+        options.addOption(Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t014", "返回弗拉纳冈机构"), OptionId.INSTITUTE);
         options.setShortcut(OptionId.INSTITUTE, Keyboard.KEY_ESCAPE, false, false, false, true);
         if (Global.getSettings().isDevMode()) {
             DevMenuOptions.addOptions(dialog);
@@ -178,7 +179,7 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
 
         CargoAPI cargo = getPlayerCargo();
         if (cargo == null || cargo.getCommodityQuantity(Commodities.ALPHA_CORE) < ALPHA_CORE_COST) {
-            text.addPara("货舱中没有可用的 Alpha Core。", Misc.getNegativeHighlightColor());
+            text.addPara(Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t015", "货舱中没有可用的 Alpha Core。"), Misc.getNegativeHighlightColor());
             showContinue();
             return;
         }
@@ -199,15 +200,15 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
         }
 
         String name = getPersonDisplayName(target);
-        text.addPara("%s 已完成强化人培育，获得技能：%s。",
-                Misc.getTextColor(), Misc.getHighlightColor(), name, "强化人");
+        text.addPara(Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t016", "%s 已完成强化人培育，获得技能：%s。"),
+                Misc.getTextColor(), Misc.getHighlightColor(), name, Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t008", "强化人"));
         showContinue();
     }
 
     private void showContinue() {
         options.clearOptions();
-        options.addOption("继续", OptionId.MAIN);
-        options.addOption("返回弗拉纳冈机构", OptionId.INSTITUTE);
+        options.addOption(Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t017", "继续"), OptionId.MAIN);
+        options.addOption(Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t014", "返回弗拉纳冈机构"), OptionId.INSTITUTE);
         options.setShortcut(OptionId.INSTITUTE, Keyboard.KEY_ESCAPE, false, false, false, true);
         if (Global.getSettings().isDevMode()) {
             DevMenuOptions.addOptions(dialog);
@@ -268,19 +269,19 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
 
     private static String getUnavailableReason(PersonAPI person) {
         if (person == null || person.isDefault()) {
-            return "该对象没有可修改的军官数据。";
+            return Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t018", "该对象没有可修改的军官数据。");
         }
         if (person.isAICore()) {
-            return "AI 核心无法进行强化人培育。";
+            return Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t019", "AI 核心无法进行强化人培育。");
         }
         if (hasSkill(person, NEWTYPE_SKILL_ID)) {
-            return "该对象已经是新人类，不需要强化人培育。";
+            return Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t020", "该对象已经是新人类，不需要强化人培育。");
         }
         if (hasSkill(person, AUGMENTED_HUMAN_SKILL_ID)) {
-            return "该对象已经是强化人。";
+            return Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t021", "该对象已经是强化人。");
         }
         if (!hasAlphaCore()) {
-            return "需要 1 个 Alpha Core。";
+            return Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t003", "需要 1 个 Alpha Core。");
         }
         return null;
     }
@@ -308,15 +309,15 @@ public class Moci_FlanaganInstituteDialogPlugin implements InteractionDialogPlug
     }
 
     private String getOptionText(UnitOption target) {
-        return "培育：" + getPersonDisplayName(target);
+        return Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t022", "培育：") + getPersonDisplayName(target);
     }
 
     private static String getPersonDisplayName(UnitOption target) {
         if (target == null || target.person == null) {
-            return "未知对象";
+            return Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t023", "未知对象");
         }
         if (target.player) {
-            return "你自己（" + target.person.getNameString() + "）";
+            return Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t024", "你自己（") + target.person.getNameString() + Moci_TextLoader.getText("code_Moci_FlanaganInstituteDialogPlugin", "t025", "）");
         }
         String rank = target.person.getRank();
         if (rank != null && !rank.isEmpty()) {

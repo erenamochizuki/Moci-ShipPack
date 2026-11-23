@@ -2790,6 +2790,8 @@ public class Moci_Util {
 			public float alpha = 1f;
 			/** 自身扭曲的强度 0..1：0 = 不扭曲，1 = 按渲染器的 warp 参数扭曲到最大。只扭曲这个副本的画面 */
 			public float warp = 0f;
+			/** 世界坐标中的曝光位移；非零时把当前副本沿运动反方向模糊。 */
+			public final Vector2f wind = new Vector2f();
 		}
 
 		/** 自身扭曲的参数，对这个渲染器的所有副本生效；各副本用 ShipCopy.warp 控制强弱 */
@@ -2955,18 +2957,15 @@ public class Moci_Util {
 					location.set(copy.location);
 					ship.setFacing(copy.facing);
 					float copyAlpha = Math.min(1f, copy.alpha);
-					if (copy.warp > 0.001f && isLocalWarpAvailable()) {
-						// 扭曲的副本：先按完全不透明画进离屏纹理，贴回屏幕时再乘上副本的透明度
+					boolean wind = copy.wind.lengthSquared() > .01f;
+					if ((wind || copy.warp > .001f) && isLocalWarpAvailable()) {
 						float halfSize = ship.getCollisionRadius() * owner.warpExtentRadiusMult;
-						if (!viewport.isNearViewport(copy.location, halfSize)) continue;
+						if (!viewport.isNearViewport(copy.location, halfSize + (wind ? copy.wind.length() : 0f))) continue;
 						ship.setExtraAlphaMult(1f);
-						float time = Global.getCombatEngine().getTotalElapsedTime(false);
-						boolean drawn = renderLocalWarp(new LocalWarpContent() {
-							@Override
-							public void draw() throws Throwable {
-								renderShip.invoke(ship, layer, viewport, true);
-							}
-						}, copy.location, halfSize, copyAlpha, Math.min(1f, copy.warp), time, owner.warpParams);
+						LocalWarpContent hull = () -> renderShip.invoke(ship, layer, viewport, true);
+						boolean drawn = wind ? renderLocalWind(hull, copy.location, halfSize, copyAlpha, copy.wind)
+									: renderLocalWarp(hull, copy.location, halfSize, copyAlpha, copy.warp,
+										Global.getCombatEngine().getTotalElapsedTime(false), owner.warpParams);
 						if (drawn) continue;
 					}
 					ship.setExtraAlphaMult(copyAlpha);
@@ -3003,6 +3002,7 @@ public class Moci_Util {
 		public int gridCells = 18;
 	}
 
+
 	/** 要被扭曲的那段绘制。在当前的世界坐标变换下照常画即可 */
 	public interface LocalWarpContent {
 		void draw() throws Throwable;
@@ -3012,6 +3012,7 @@ public class Moci_Util {
 	private static boolean localWarpChecked = false;
 	private static int localWarpFbo = 0;
 	private static int localWarpTexture = 0;
+	private static int localWarpStencil = 0;
 	private static int localWarpWidth = 0;
 	private static int localWarpHeight = 0;
 	private static final FloatBuffer LOCAL_WARP_MODELVIEW = BufferUtils.createFloatBuffer(16);
@@ -3041,10 +3042,21 @@ public class Moci_Util {
 	 */
 	public static boolean renderLocalWarp(LocalWarpContent content, Vector2f center, float halfSize, float alpha,
 			float strength, float time, LocalWarpParams params) throws Throwable {
-		if (!isLocalWarpAvailable() || content == null || center == null || params == null) return false;
-		if (!(halfSize > 0f)) return false;
+		return params != null && renderLocalCapture(content, center, halfSize, alpha, strength, time, params, null);
+	}
+
+	/** 对透明舰体捕获做定向曝光，同时混合轮廓内的细节；不采样背景。 */
+	public static boolean renderLocalWind(LocalWarpContent content, Vector2f center, float halfSize, float alpha,
+			Vector2f wind) throws Throwable {
+		return wind != null && isLocalWarpAvailable() && MotionBlur.available()
+				&& renderLocalCapture(content, center, halfSize, alpha, 0f, 0f, null, wind);
+	}
+
+	private static boolean renderLocalCapture(LocalWarpContent content, Vector2f center, float halfSize, float alpha,
+			float strength, float time, LocalWarpParams params, Vector2f wind) throws Throwable {
+		if (!isLocalWarpAvailable() || content == null || center == null || !(halfSize > 0f)) return false;
 		try {
-			return renderLocalWarpImpl(content, center, halfSize, alpha, strength, time, params);
+			return renderLocalWarpImpl(content, center, halfSize, alpha, strength, time, params, wind);
 		} catch (LocalWarpUnsupported unsupported) {
 			localWarpFailed = true;
 			Global.getLogger(Moci_Util.class).error("[Moci_LocalWarp] 局部扭曲不可用，已停用：" + unsupported.getMessage());
@@ -3059,7 +3071,7 @@ public class Moci_Util {
 	}
 
 	private static boolean renderLocalWarpImpl(LocalWarpContent content, Vector2f center, float halfSize, float alpha,
-			float strength, float time, LocalWarpParams params) throws Throwable {
+			float strength, float time, LocalWarpParams params, Vector2f wind) throws Throwable {
 		// 世界坐标 -> 窗口像素 的仿射关系：取中心点和两个单位方向各投影一次
 		LOCAL_WARP_MODELVIEW.clear();
 		LOCAL_WARP_PROJECTION.clear();
@@ -3099,54 +3111,57 @@ public class Moci_Util {
 		}
 
 		// 第一步：把 content 画进离屏纹理
-		int previousFramebuffer = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
-		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-		try {
+		try (Moci_OffscreenPass pass = new Moci_OffscreenPass()) {
 			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, localWarpFbo);
 			GL11.glEnable(GL11.GL_SCISSOR_TEST);
 			GL11.glScissor(left, bottom, right - left, top - bottom);
+			GL11.glColorMask(true, true, true, true);
+			GL11.glStencilMask(0xff);
+			GL11.glDisable(GL11.GL_STENCIL_TEST);
 			GL11.glClearColor(0f, 0f, 0f, 0f);
-			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+			GL11.glClearStencil(0);
+			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
 			content.draw();
-		} finally {
-			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, previousFramebuffer);
-			GL11.glPopAttrib();
 		}
 
 		// 第二步：把纹理贴到变形网格上画回屏幕。纹理里的颜色已经乘过透明度，所以用预乘混合
-		int cells = Math.max(2, Math.min(64, params.gridCells));
 		float clampedAlpha = Math.max(0f, Math.min(1f, alpha));
 		float clampedStrength = Math.max(0f, Math.min(1f, strength));
-		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-		try {
+		try (Moci_OffscreenPass pass = new Moci_OffscreenPass()) {
+			GL11.glDisable(GL11.GL_LIGHTING);
+			GL11.glDisable(GL11.GL_CULL_FACE);
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, localWarpTexture);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glColor4f(clampedAlpha, clampedAlpha, clampedAlpha, clampedAlpha);
-			float step = 2f * halfSize / cells;
-			float[] upper = new float[2];
-			float[] lower = new float[2];
-			for (int row = 0; row < cells; row++) {
-				float y0 = -halfSize + row * step;
-				float y1 = y0 + step;
-				GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
-				for (int col = 0; col <= cells; col++) {
-					float x = -halfSize + col * step;
-					warpOffset(x, y1, halfSize, clampedStrength, time, params, upper);
-					warpOffset(x, y0, halfSize, clampedStrength, time, params, lower);
-					// 贴图坐标取"变形前"的位置，顶点画在"变形后"的位置，画面就跟着网格变形
-					GL11.glTexCoord2f((origin[0] + x * xToWinX + y1 * yToWinX) / localWarpWidth,
-							(origin[1] + x * xToWinY + y1 * yToWinY) / localWarpHeight);
-					GL11.glVertex2f(center.x + upper[0], center.y + upper[1]);
-					GL11.glTexCoord2f((origin[0] + x * xToWinX + y0 * yToWinX) / localWarpWidth,
-							(origin[1] + x * xToWinY + y0 * yToWinY) / localWarpHeight);
-					GL11.glVertex2f(center.x + lower[0], center.y + lower[1]);
+			if (wind != null) {
+				drawWindTexture(left, bottom, right, top, wind.x * xToWinX + wind.y * yToWinX,
+						wind.x * xToWinY + wind.y * yToWinY, clampedAlpha);
+			} else {
+				int cells = Math.max(2, Math.min(64, params.gridCells));
+				float step = 2f * halfSize / cells;
+				float[] upper = new float[2];
+				float[] lower = new float[2];
+				for (int row = 0; row < cells; row++) {
+					float y0 = -halfSize + row * step;
+					float y1 = y0 + step;
+					GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
+					for (int col = 0; col <= cells; col++) {
+						float x = -halfSize + col * step;
+						warpOffset(x, y1, halfSize, clampedStrength, time, params, upper);
+						warpOffset(x, y0, halfSize, clampedStrength, time, params, lower);
+						// 贴图坐标取"变形前"的位置，顶点画在"变形后"的位置，画面就跟着网格变形
+						GL11.glTexCoord2f((origin[0] + x * xToWinX + y1 * yToWinX) / localWarpWidth,
+								(origin[1] + x * xToWinY + y1 * yToWinY) / localWarpHeight);
+						GL11.glVertex2f(center.x + upper[0], center.y + upper[1]);
+						GL11.glTexCoord2f((origin[0] + x * xToWinX + y0 * yToWinX) / localWarpWidth,
+								(origin[1] + x * xToWinY + y0 * yToWinY) / localWarpHeight);
+						GL11.glVertex2f(center.x + lower[0], center.y + lower[1]);
+					}
+					GL11.glEnd();
 				}
-				GL11.glEnd();
 			}
-		} finally {
-			GL11.glPopAttrib();
 		}
 
 		if (firstUse) {
@@ -3185,6 +3200,71 @@ public class Moci_Util {
 		out[1] = radius * (float) Math.sin(angle);
 	}
 
+	private static final class MotionBlur {
+		private static int program = -1, invSize, captured, exposure, opacity, samples;
+		private static final String FRAGMENT = """
+				#version 120
+				uniform sampler2D hull;
+				uniform vec2 invSize, exposure;
+				uniform int samples;
+				uniform vec4 captured;
+				uniform float opacity;
+				vec4 sampleHull(vec2 p) {
+				    if (any(lessThan(p,captured.xy)) || any(greaterThan(p,captured.zw))) return vec4(0.0);
+				    return texture2D(hull, p * invSize);
+				}
+				void main() {
+				    vec2 p = gl_FragCoord.xy;
+				    vec4 sum = vec4(0.0);
+				    for (int i = 0; i < 97; ++i) {
+				        if (i >= samples) break;
+				        float f = float(i) / float(samples - 1) - 0.5;
+				        sum += sampleHull(p + f * exposure);
+				    }
+				    // Captured RGB is premultiplied: integrate coverage and colour with the same shutter.
+				    gl_FragColor = sum * (opacity / float(samples));
+				}
+				""";
+
+		static boolean available() {
+			if (program == -1) {
+				program = org.dark.shaders.util.ShaderLib.loadShader("#version 120\nvoid main(){ gl_Position=ftransform(); }", FRAGMENT);
+				if (program != 0) {
+					invSize = GL20.glGetUniformLocation(program, "invSize");
+					captured = GL20.glGetUniformLocation(program, "captured");
+					exposure = GL20.glGetUniformLocation(program, "exposure");
+					opacity = GL20.glGetUniformLocation(program, "opacity");
+					samples = GL20.glGetUniformLocation(program, "samples");
+				}
+			}
+			return program != 0;
+		}
+	}
+
+	private static void drawWindTexture(int l, int b, int r, int t, float dx, float dy, float alpha) {
+		// Sample density follows zoom; cap cost, not the projected exposure length.
+		float pixels = (float)Math.sqrt(dx * dx + dy * dy);
+		int sampleCount = 1 + 2 * Math.max(1, Math.min(48, (int)Math.ceil(.5f * pixels)));
+		int vx = LOCAL_WARP_VIEWPORT.get(0), vy = LOCAL_WARP_VIEWPORT.get(1);
+		GL11.glMatrixMode(GL11.GL_PROJECTION); GL11.glPushMatrix(); GL11.glLoadIdentity();
+		GL11.glOrtho(vx, vx + LOCAL_WARP_VIEWPORT.get(2), vy, vy + LOCAL_WARP_VIEWPORT.get(3), -1, 1);
+		GL11.glMatrixMode(GL11.GL_MODELVIEW); GL11.glPushMatrix(); GL11.glLoadIdentity();
+		try {
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			GL20.glUseProgram(MotionBlur.program); // caller program restored by Moci_OffscreenPass
+			GL20.glUniform2f(MotionBlur.invSize, 1f/localWarpWidth, 1f/localWarpHeight);
+			GL20.glUniform4f(MotionBlur.captured, l+.5f, b+.5f, r-.5f, t-.5f);
+			GL20.glUniform2f(MotionBlur.exposure, dx, dy);
+			GL20.glUniform1f(MotionBlur.opacity, alpha);
+			GL20.glUniform1i(MotionBlur.samples, sampleCount);
+			float padX = Math.abs(dx) * .5f, padY = Math.abs(dy) * .5f;
+			GL11.glRectf(l-padX, b-padY, r+padX, t+padY);
+		} finally {
+			GL11.glPopMatrix(); GL11.glMatrixMode(GL11.GL_PROJECTION); GL11.glPopMatrix();
+			GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		}
+	}
+
 	private static float[] projectToWindow(float x, float y) {
 		LOCAL_WARP_MODELVIEW.rewind();
 		LOCAL_WARP_PROJECTION.rewind();
@@ -3200,7 +3280,8 @@ public class Moci_Util {
 	/** 建立(或在窗口尺寸变化后重建)离屏纹理和帧缓冲。全局只有一份，所有局部扭曲轮流使用 */
 	private static void ensureLocalWarpTarget(int width, int height) throws LocalWarpUnsupported {
 		if (localWarpFbo != 0 && width == localWarpWidth && height == localWarpHeight) return;
-		int previousFramebuffer = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
+		int previousDraw = GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
+		int previousRenderbuffer = GL11.glGetInteger(GL30.GL_RENDERBUFFER_BINDING);
 		int previousTexture = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
 		try {
 			if (localWarpTexture == 0) localWarpTexture = GL11.glGenTextures();
@@ -3213,17 +3294,24 @@ public class Moci_Util {
 					GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
 
 			if (localWarpFbo == 0) localWarpFbo = GL30.glGenFramebuffers();
-			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, localWarpFbo);
-			GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D,
+			GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, localWarpFbo);
+			GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D,
 					localWarpTexture, 0);
-			int status = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
+			// 原版用模板测试把舰体裁剪方块留在颜色纹理之外；仅有 RGBA 附件时白块会直接可见。
+			if (localWarpStencil == 0) localWarpStencil = GL30.glGenRenderbuffers();
+			GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, localWarpStencil);
+			GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL30.GL_STENCIL_INDEX8, width, height);
+			GL30.glFramebufferRenderbuffer(GL30.GL_DRAW_FRAMEBUFFER, GL30.GL_STENCIL_ATTACHMENT,
+					GL30.GL_RENDERBUFFER, localWarpStencil);
+			int status = GL30.glCheckFramebufferStatus(GL30.GL_DRAW_FRAMEBUFFER);
 			if (status != GL30.GL_FRAMEBUFFER_COMPLETE) {
 				throw new LocalWarpUnsupported("帧缓冲不完整，状态 0x" + Integer.toHexString(status));
 			}
 			localWarpWidth = width;
 			localWarpHeight = height;
 		} finally {
-			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, previousFramebuffer);
+			GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, previousDraw);
+			GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, previousRenderbuffer);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, previousTexture);
 		}
 	}

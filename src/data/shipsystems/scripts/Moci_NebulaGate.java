@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
@@ -12,8 +13,8 @@ public class Moci_NebulaGate extends BaseShipSystemScript {
 
     // 星岚门入场烟雾。间隔以动画秒计，播放速度变化时随动画一起伸缩。
     static final Moci_NebulaGateTransit.SmokeSettings GATE_SMOKE = new Moci_NebulaGateTransit.SmokeSettings(
-            .90f, 1.48f, // 单团初始直径：最小、最大值，单位为门半径；想填缝先增大最小值
-            1,           // 每批生成几团：0 关闭烟雾，2 表示每批同时在不同方向生成两团（上限 16）
+            .45f, .74f,  // 单团初始直径：最小、最大值，单位为门半径；想填缝先增大最小值
+            4,           // 每批生成几团：0 关闭烟雾，2 表示每批同时在不同方向生成两团（上限 16）
             .042f,       // 蓄势聚云：每隔多少动画秒生成一批；数值减半，频率翻倍（最短 .01 秒）
             .085f,       // 开门到舰尾完全驶出：每批间隔（动画秒）
             .16f,        // 真舰出现后的收尾：每批间隔（动画秒），门关闭后停止生成
@@ -87,6 +88,6 @@ public class Moci_NebulaGate extends BaseShipSystemScript {
     }
 
     @Override public StatusData getStatusData(int index,State state,float effectLevel) {
-        return index==0 ? new StatusData("提高引擎出力",false) : null;
+        return index==0 ? new StatusData(Moci_TextLoader.getText("code_Moci_NebulaGate", "t001", "提高引擎出力"),false) : null;
     }
 }

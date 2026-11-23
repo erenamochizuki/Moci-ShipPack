@@ -121,7 +121,7 @@ final class Moci_SignalArrival extends BaseCombatLayeredRenderingPlugin {
                     double a=(i+rng.nextFloat())*Math.PI*2/Petal.ARCS_PER_BURST;
                     float r=radius*(Petal.ARC_REACH+Petal.ARC_REACH_RANDOM*rng.nextFloat());
                     Moci_Util.spawnVisualLightning(engine,gate,new Vector2f(gate.x+r*(float)Math.cos(a),gate.y+r*(float)Math.sin(a)),
-                            Math.max(Petal.ARC_MIN_WIDTH,radius*Petal.ARC_WIDTH),style.signal,Landing.FLASH,radius*Petal.ARC_SPEED); // 纯视觉电弧，无伤害
+                            Math.max(Petal.ARC_MIN_WIDTH,radius*Petal.ARC_WIDTH),style.signal,Landing.FLASH,false); // 纯视觉电弧，无伤害
                 }
                 nextArc=time+Petal.ARC_INTERVAL+Petal.ARC_INTERVAL_RANDOM*rng.nextFloat();
             }

@@ -1,5 +1,6 @@
 package data.scripts.weapons;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.util.Misc;
@@ -214,11 +215,11 @@ public class Moci_YamatoMainGunAmmoSwitch implements EveryFrameWeaponEffectPlugi
 
         // 显示当前弹药类型（仅玩家舰船）
         if (isPlayerShip) {
-            String ammoType = useHE ? "三式融合弹" : "脉冲镭射弹";
+            String ammoType = useHE ? Moci_TextLoader.getText("code_Moci_YamatoMainGunAmmoSwitch", "t001", "三式融合弹") : Moci_TextLoader.getText("code_Moci_YamatoMainGunAmmoSwitch", "t002", "脉冲镭射弹");
             engine.maintainStatusForPlayerShip(STATUS_KEY,
                     "graphics/icons/hullsys/ammo_feeder.png",
                     weapon.getDisplayName() + ": " + ammoType,
-                    "按" + getKeyName(ammoSwitchKey) + "键切换弹药",
+                    Moci_TextLoader.getText("code_Moci_YamatoMainGunAmmoSwitch", "t003", "按") + getKeyName(ammoSwitchKey) + Moci_TextLoader.getText("code_Moci_YamatoMainGunAmmoSwitch", "t004", "键切换弹药"),
                     false);
         }
     }

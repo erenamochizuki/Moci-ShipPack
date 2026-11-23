@@ -4,30 +4,41 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BoundsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.io.IOException;
 import java.util.List;
 
 final class Moci_NZ666WingPose {
     private static final int LIVE_FRAMES = 9;
 
     private enum Outline {
-        FRONT("data/config/Moci_NZ666WingLeftFrontFrames.json"),
-        BACK("data/config/Moci_NZ666WingLeftBackFrames.json");
+        // Frames 01-08 of the left wings, in (forward, left) pairs. Frame 00 comes from the module.
+        FRONT(new float[][] {
+                {28.5f, -11.5f, 87.5f, 57.5f, 39, 42.5f, 7.5f, 27.5f, -1.5f, 4.5f, 1.5f, -2.5f},
+                {29.5f, -11.5f, 80.5f, 56.5f, 22.5f, 41.5f, 0.5f, 24, -2.5f, 6, 5.5f, -3.5f},
+                {30, -9.5f, 72.5f, 65, 8.5f, 37, -0.5f, 27.5f, -3.5f, 5.5f, 5.5f, -3.5f},
+                {44.5f, 12.5f, 60.5f, 76.5f, 4.5f, 50.5f, -8.5f, 34.5f, -4.5f, 7.5f, 7.5f, -3.5f},
+                {42.5f, 18.5f, 47.5f, 83.5f, -7.5f, 44.5f, -13.5f, 30.5f, -4.5f, 4.5f, 29.5f, -2.5f},
+                {33.5f, 21.5f, 30.5f, 91.5f, -7.5f, 46.5f, -17.5f, 19.5f, -3.5f, 2.5f, 11.5f, -2.5f},
+                {28.5f, 28.5f, 11.5f, 96.5f, -17.5f, 43.5f, -20.5f, 17.5f, -0.5f, 1.5f, 10.5f, -0.5f},
+                {19.5f, 33.5f, -11.5f, 103.5f, -26.5f, 38.5f, -22.5f, 14.5f, 1, 0.5f, 11.5f, 2}
+        }),
+        BACK(new float[][] {
+                {26.5f, 15.5f, 22.5f, 42.5f, -6.5f, 94.5f, -21.5f, 19.5f, -5.5f, -1.5f, 6.5f, -0.5f},
+                {23.5f, 17.5f, 7.5f, 48.5f, -24.5f, 89.5f, -24.5f, 11.5f, -2.5f, -4.5f, 8, -0.5f},
+                {19.5f, 25.5f, 9.5f, 45.5f, -43.5f, 80.5f, -23.5f, -4.5f, -1.5f, -4.5f, 6.5f, 1.5f},
+                {14.5f, 32.5f, -2.5f, 48.5f, -57.5f, 71.5f, -22.5f, -7.5f, 0.5f, -4.5f, 8.5f, 3.5f},
+                {7.5f, 22.5f, -8.5f, 38.5f, -68.5f, 61.5f, -23.5f, -11.5f, 0.5f, -6.5f, 9.5f, 3.5f},
+                {3.5f, 25.5f, -17.5f, 39.5f, -75.5f, 53.5f, -22.5f, -13.5f, 0.5f, -5.5f, 8.5f, 4.5f},
+                {0.5f, 23.5f, -32.5f, 40.5f, -82.5f, 53.5f, -22.5f, -13.5f, 3.5f, -5.5f, 8.5f, 3.5f},
+                {-5.5f, 26.5f, -38.5f, 38.5f, -86.5f, 46.5f, -43.5f, -4.5f, 2.5f, -5.5f, 6.5f, 1.5f}
+        });
 
-        final String config;
-        private float[][] frames;
+        private final float[][] frames;
 
-        Outline(String config) { this.config = config; }
+        Outline(float[][] frames) { this.frames = frames; }
 
-        float[] points(int frame) {
-            if (frames == null) frames = loadMovementBounds(config);
-            return frames[frame];
-        }
+        float[] points(int frame) { return frames[frame - 1]; }
     }
 
     private final Outline outline;
@@ -76,7 +87,6 @@ final class Moci_NZ666WingPose {
             edges = original;
         }
         float[] points = frame == 0 ? restBounds : outline.points(frame);
-        if (points == null) return appliedFrame;
 
         SpriteAPI sprite = sprites[frame];
         if (sprite == null) {
@@ -103,28 +113,5 @@ final class Moci_NZ666WingPose {
         module.setSprite(sprite);
         appliedFrame = frame;
         return appliedFrame;
-    }
-
-    private static float[][] loadMovementBounds(String configPath) {
-        try {
-            JSONObject config = Global.getSettings().loadJSON(configPath);
-            float[][] result = new float[LIVE_FRAMES][];
-            for (int frame = 1; frame < LIVE_FRAMES; frame++) {
-                JSONArray values = config.getJSONArray("0" + frame);
-                if (values.length() < 6 || values.length() % 2 != 0) {
-                    throw new JSONException("Invalid polygon for wing frame " + frame);
-                }
-                float[] points = new float[values.length()];
-                for (int index = 0; index < points.length; index++) {
-                    points[index] = (float) values.getDouble(index);
-                    if (!Float.isFinite(points[index])) throw new JSONException("Non-finite coordinate in wing frame " + frame);
-                }
-                result[frame] = points;
-            }
-            return result;
-        } catch (IOException | JSONException failure) {
-            Global.getLogger(Moci_NZ666WingPose.class).error("Cannot load " + configPath + "; keeping the affected wings in their rest pose", failure);
-            return new float[LIVE_FRAMES][];
-        }
     }
 }

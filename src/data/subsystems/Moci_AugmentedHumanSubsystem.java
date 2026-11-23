@@ -26,11 +26,11 @@ public class Moci_AugmentedHumanSubsystem extends Moci_NewtypeSubsystem {
     public static final float WORLD_TIME_MULT = 1f / SHIP_TIME_MULT;
 
     private static final String BRIEF_FALLBACK = String.format(Locale.ROOT,
-            "消耗 %.0f 软幅能：%.0f 秒内本舰时流 ×%.3f，世界时流 ×%.2f",
+            Moci_TextLoader.getText("code_Moci_AugmentedHumanSubsystem", "t001", "消耗 %.0f 软幅能：%.0f 秒内本舰时流 ×%.3f，世界时流 ×%.2f"),
             SOFT_FLUX_COST, ACTIVE_SECONDS, SHIP_TIME_MULT, WORLD_TIME_MULT);
 
     public Moci_AugmentedHumanSubsystem(ShipAPI ship) {
-        super(ship, "Moci_AugmentedHuman_", "强化人", STRENGTH, Moci_PilotAura.Style.AUGMENTED);
+        super(ship, "Moci_AugmentedHuman_", Moci_TextLoader.getText("code_Moci_AugmentedHumanSubsystem", "t002", "强化人"), STRENGTH, Moci_PilotAura.Style.AUGMENTED);
     }
 
     /** 由强化人技能在本舰成为玩家座舰时调用；船上已有新人类/强化人子系统时不再挂。 */

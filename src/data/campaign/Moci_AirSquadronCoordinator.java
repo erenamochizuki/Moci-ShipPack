@@ -1,5 +1,6 @@
 package data.campaign;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.GameState;
 import com.fs.starfarer.api.Global;
@@ -83,7 +84,7 @@ public class Moci_AirSquadronCoordinator implements EveryFrameScript, RefitScree
                     // 逐舰隔离：恢复会跑各 mod 船插的统计代码并搬动库存，首次触碰的类也可能在脚本类加载器里链接失败
                     // （LinkageError 不是 RuntimeException），这些都无法事先验证。一艘船失败不能挡住其余待恢复的船，
                     // 失败原因还要照常告诉玩家（下面按原因去重）。
-                    reason = "装配恢复异常，已保留舰船及库存：" + ex.getClass().getSimpleName();
+                    reason = Moci_TextLoader.getText("code_Moci_AirSquadronCoordinator", "t001", "装配恢复异常，已保留舰船及库存：") + ex.getClass().getSimpleName();
                     if (!reason.equals(reportedFailures.get(id))) {
                         Global.getLogger(Moci_AirSquadronCoordinator.class).warn(reason, ex);
                     }
@@ -92,7 +93,7 @@ public class Moci_AirSquadronCoordinator implements EveryFrameScript, RefitScree
                     reportedFailures.remove(id);
                 } else if (!reason.equals(reportedFailures.put(id, reason))) {
                     Global.getLogger(Moci_AirSquadronCoordinator.class).warn("航空中队恢复失败 " + id + ": " + reason);
-                    ui.addMessage("航空中队管理：" + member.getShipName() + " — " + reason,
+                    ui.addMessage(Moci_TextLoader.getText("code_Moci_AirSquadronCoordinator", "t002", "航空中队管理：") + member.getShipName() + " — " + reason,
                             Misc.getNegativeHighlightColor());
                 }
             }

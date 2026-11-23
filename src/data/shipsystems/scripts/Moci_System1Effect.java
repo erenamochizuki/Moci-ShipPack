@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
@@ -132,7 +133,7 @@ public class Moci_System1Effect extends BaseShipSystemScript {
                 float percent = (1f - INCOMING_DAMAGE_MULT) * effectLevel * 100;
                 Global.getCombatEngine().maintainStatusForPlayerShip(STATUSKEY1,
                         system.getSpecAPI().getIconSpriteName(), system.getDisplayName(),
-                        (int) Math.round(percent) + "% 伤害降低", false);
+                        (int) Math.round(percent) + Moci_TextLoader.getText("code_Moci_System1Effect", "t001", "% 伤害降低"), false);
             }
         }
     }

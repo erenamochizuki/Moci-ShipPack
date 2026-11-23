@@ -1,5 +1,6 @@
 package data.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
@@ -89,7 +90,7 @@ public class Moci_ShipboardAIBattleListener extends BaseCampaignEventListener im
             Moci_ShipboardAIManager.ExperienceGainResult result = Moci_ShipboardAIManager.addExperience(member, exp);
             if (result.applied && result.levelAfter > result.levelBefore) {
                 Global.getSector().getCampaignUI().addMessage(
-                        member.getShipName() + " 的舰载AI 升级到 " + result.levelAfter + " 级",
+                        member.getShipName() + Moci_TextLoader.getText("code_Moci_ShipboardAIBattleListener", "t001", " 的舰载AI 升级到 ") + result.levelAfter + Moci_TextLoader.getText("code_Moci_ShipboardAIBattleListener", "t002", " 级"),
                         Misc.getHighlightColor()
                 );
             }

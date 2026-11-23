@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
@@ -406,7 +407,7 @@ public class Moci_MissileJammerSystemScript extends BaseShipSystemScript {
             if (!ship.hasTag(playerSkillBanTag) && ship == Global.getCombatEngine().getPlayerShip()) {
                 float rangeMultiplier = getRangeMultiplierByHullSize(ship.getHullSize());
                 int reductionPercent = (int) ((1f - rangeMultiplier) * 100);
-                String statusText = "武器射程降低" + reductionPercent + "%";
+                String statusText = Moci_TextLoader.getText("code_Moci_MissileJammerSystemScript", "t001", "武器射程降低") + reductionPercent + "%";
                 Global.getCombatEngine().maintainStatusForPlayerShip(key, spriteName, systemName, statusText, true);
             }
 

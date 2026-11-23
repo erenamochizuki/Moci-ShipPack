@@ -8,12 +8,12 @@ import com.fs.starfarer.api.combat.CombatEntityAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import data.scripts.util.Moci_OffscreenPass;
 import org.dark.shaders.util.ShaderLib;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -163,8 +163,10 @@ public class Moci_WeaponFirePointTrailRenderer extends BaseCombatLayeredRenderin
         }
         float facing = getFirstFirePointFacing();
 
-        composeTrailToBuffer();
-        drawBufferToWorld(anchor, facing);
+        try (Moci_OffscreenPass pass = new Moci_OffscreenPass()) {
+            composeTrailToBuffer(pass);
+            drawBufferToWorld(anchor, facing);
+        }
     }
 
     private boolean shouldAutoExpire() {
@@ -198,7 +200,7 @@ public class Moci_WeaponFirePointTrailRenderer extends BaseCombatLayeredRenderin
         return (float) Math.toDegrees(Math.atan2(dy, dx));
     }
 
-    private void composeTrailToBuffer() {
+    private void composeTrailToBuffer(Moci_OffscreenPass pass) {
         if (bufferWithData == null) {
             return;
         }
@@ -206,44 +208,18 @@ public class Moci_WeaponFirePointTrailRenderer extends BaseCombatLayeredRenderin
         int height = bufferWithData.getHeight();
         int textureBufferId = bufferWithData.getTextureBufferId();
 
-        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-        GL20.glUseProgram(0);
-        bindFramebuffer(textureBufferId);
+        pass.drawTrail(textureBufferId, width, height, () -> {
+            GL11.glColorMask(true, true, true, true);
+            GL11.glClearColor(0f, 0f, 0f, 0f);
+            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 
-        GL11.glViewport(0, 0, width, height);
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
-        GL11.glOrtho(0, width, 0, height, -2000, 2000);
+            drawTrailPass(texturePrimary, width, height, 0f, 1.0f, primaryStartColor, primaryEndColor, 0.60f);
+            drawTrailPass(textureDetail, width, height, 0.37f, 0.85f, detailStartColor, detailEndColor, 0.80f);
 
-        GL11.glMatrixMode(GL11.GL_TEXTURE);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
-
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
-
-        GL11.glColorMask(true, true, true, true);
-        GL11.glClearColor(0f, 0f, 0f, 0f);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-
-        drawTrailPass(texturePrimary, width, height, 0f, 1.0f, primaryStartColor, primaryEndColor, 0.60f);
-        drawTrailPass(textureDetail, width, height, 0.37f, 0.85f, detailStartColor, detailEndColor, 0.80f);
-
-        GL11.glDisable(GL11.GL_BLEND);
-
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPopMatrix();
-        GL11.glMatrixMode(GL11.GL_TEXTURE);
-        GL11.glPopMatrix();
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPopMatrix();
-
-        unbindFramebuffer();
-        GL11.glPopAttrib();
+            GL11.glDisable(GL11.GL_BLEND);
+        });
     }
 
     private void drawTrailPass(SpriteAPI texture, int width, int height, float uvOffset, float alphaMult, Color startColor, Color endColor, float alphaFadeStart) {
@@ -363,7 +339,9 @@ public class Moci_WeaponFirePointTrailRenderer extends BaseCombatLayeredRenderin
         }
 
         cleanupResources();
-        bufferWithData = BufferWithData.createBuffer(expectedWidth, expectedHeight);
+        try (Moci_OffscreenPass pass = new Moci_OffscreenPass()) {
+            bufferWithData = BufferWithData.createBuffer(expectedWidth, expectedHeight);
+        }
         return bufferWithData != null;
     }
 
@@ -395,26 +373,6 @@ public class Moci_WeaponFirePointTrailRenderer extends BaseCombatLayeredRenderin
             }
         }
         bufferWithData = null;
-    }
-
-    private void bindFramebuffer(int textureBufferId) {
-        if (ShaderLib.useBufferCore()) {
-            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, textureBufferId);
-        } else if (ShaderLib.useBufferARB()) {
-            ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, textureBufferId);
-        } else {
-            EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, textureBufferId);
-        }
-    }
-
-    private void unbindFramebuffer() {
-        if (ShaderLib.useBufferCore()) {
-            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-        } else if (ShaderLib.useBufferARB()) {
-            ARBFramebufferObject.glBindFramebuffer(ARBFramebufferObject.GL_FRAMEBUFFER, 0);
-        } else {
-            EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
-        }
     }
 
     private static float smoothstep(float edge0, float edge1, float x) {

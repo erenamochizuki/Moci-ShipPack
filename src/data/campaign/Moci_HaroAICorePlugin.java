@@ -1,5 +1,6 @@
 package data.campaign;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.AICoreOfficerPlugin;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
@@ -39,7 +40,7 @@ public class Moci_HaroAICorePlugin extends BaseAICoreOfficerPluginImpl implement
             person.setPortraitSprite("graphics/portraits/Moci_haro_Base.png");
             person.setName(new FullName(spec.getName(), "", FullName.Gender.ANY));
             person.setId("Moci_Haro");
-            person.getName().setFirst("哈罗");
+            person.getName().setFirst(Moci_TextLoader.getText("code_Moci_HaroAICorePlugin", "t001", "哈罗"));
             
             // 设置等级和技能
             person.getStats().setLevel(7);
@@ -76,8 +77,8 @@ public class Moci_HaroAICorePlugin extends BaseAICoreOfficerPluginImpl implement
         Color bg = person.getFaction().getDarkUIColor();
         CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(person.getAICoreId());
         
-        tooltip.addSectionHeading("哈罗", text, bg, Alignment.MID, 20.0f);
-        tooltip.addPara("哈罗AI核心具有友好的个性和出色的战术协调能力。" +
-                "它会冷静的执行任何命令，能够有效保护舰船并支援友军。", 10.0f);
+        tooltip.addSectionHeading(Moci_TextLoader.getText("code_Moci_HaroAICorePlugin", "t001", "哈罗"), text, bg, Alignment.MID, 20.0f);
+        tooltip.addPara(Moci_TextLoader.getText("code_Moci_HaroAICorePlugin", "t002", "哈罗AI核心具有友好的个性和出色的战术协调能力。") +
+                Moci_TextLoader.getText("code_Moci_HaroAICorePlugin", "t003", "它会冷静的执行任何命令，能够有效保护舰船并支援友军。"), 10.0f);
     }
 }

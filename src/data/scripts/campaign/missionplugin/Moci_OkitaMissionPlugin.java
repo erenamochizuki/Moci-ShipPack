@@ -639,8 +639,8 @@ public class Moci_OkitaMissionPlugin extends BaseIntelPlugin {
     private static PersonAPI createStage1KyosukeOfficer() {
         PersonAPI officer = createBaseOfficer(
                 "moci_okita_stage1_kyosuke",
-                "南部",
-                "响介",
+                Moci_TextLoader.getText("code_Moci_OkitaMissionPlugin", "t001", "南部"),
+                Moci_TextLoader.getText("code_Moci_OkitaMissionPlugin", "t002", "响介"),
                 FullName.Gender.MALE,
                 10,
                 "graphics/portraits/characters/ATX_Kyosuke_Nanbu.png");
@@ -682,8 +682,8 @@ public class Moci_OkitaMissionPlugin extends BaseIntelPlugin {
     private static PersonAPI createStage1ExcellenOfficer() {
         PersonAPI officer = createBaseOfficer(
                 "moci_okita_stage1_excellen",
-                "艾克塞琳",
-                "勃朗宁",
+                Moci_TextLoader.getText("code_Moci_OkitaMissionPlugin", "t003", "艾克塞琳"),
+                Moci_TextLoader.getText("code_Moci_OkitaMissionPlugin", "t004", "勃朗宁"),
                 FullName.Gender.FEMALE,
                 10,
                 "graphics/portraits/characters/ATX_Excellen_Browning.png");
@@ -695,8 +695,8 @@ public class Moci_OkitaMissionPlugin extends BaseIntelPlugin {
     private static PersonAPI createStage1ArdeliaOfficer() {
         PersonAPI officer = createBaseOfficer(
                 "moci_okita_stage1_ardelia",
-                "阿莉艾尔",
-                "奥格",
+                Moci_TextLoader.getText("code_Moci_OkitaMissionPlugin", "t005", "阿莉艾尔"),
+                Moci_TextLoader.getText("code_Moci_OkitaMissionPlugin", "t006", "奥格"),
                 FullName.Gender.FEMALE,
                 10,
                 "graphics/portraits/characters/ATX_Arriere_Orge.png");

@@ -1,5 +1,6 @@
 package data.scripts.weapons;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.WeaponAPI.WeaponType;
@@ -149,14 +150,14 @@ public class Moci_GravityBeamCannonEffect implements EveryFrameWeaponEffectPlugi
             if (ship == engine.getPlayerShip()) {
                 String statusText;
                 if (isBeamFiring) {
-                    statusText = "重力波炮 发射中 - 禁用战术系统";
+                    statusText = Moci_TextLoader.getText("code_Moci_GravityBeamCannonEffect", "t001", "重力波炮 发射中 - 禁用战术系统");
                 } else {
-                    statusText = "重力波炮 充能中 - 禁用战术系统";
+                    statusText = Moci_TextLoader.getText("code_Moci_GravityBeamCannonEffect", "t002", "重力波炮 充能中 - 禁用战术系统");
                 }
                 engine.maintainStatusForPlayerShip(
                     "Moci_GravityBeamCannon_SystemBlock",
                     "graphics/icons/hullsys/fortress_shield.png",
-                    "重力波炮",
+                    Moci_TextLoader.getText("code_Moci_GravityBeamCannonEffect", "t003", "重力波炮"),
                     statusText,
                     true // 负面效果，显示为红色
                 );

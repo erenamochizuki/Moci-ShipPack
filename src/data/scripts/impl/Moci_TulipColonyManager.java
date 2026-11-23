@@ -1,5 +1,6 @@
 package data.scripts.impl;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
@@ -50,7 +51,7 @@ public class Moci_TulipColonyManager {
     
     // 轨道站参数
     private static final String STATION_ID = "moci_tulip_station";
-    private static final String STATION_NAME = "Tulip轨道站";
+    private static final String STATION_NAME = Moci_TextLoader.getText("code_Moci_TulipColonyManager", "t001", "Tulip轨道站");
     private static final float STATION_ORBIT_DISTANCE = 200f; // 距离Tulip 200单位
     private static final float STATION_ORBIT_PERIOD = 15f; // 轨道周期15天
     
@@ -200,7 +201,7 @@ public class Moci_TulipColonyManager {
         Global.getSector().getEconomy().addMarket(market, false);
         
         // 设置市场稳定度（默认5）
-        market.getStability().modifyFlat("base", 5f, "基础稳定度");
+        market.getStability().modifyFlat("base", 5f, Moci_TextLoader.getText("code_Moci_TulipColonyManager", "t002", "基础稳定度"));
         
         // 手动添加NPC人物（在市场添加到经济系统之后）
         // 因为我们设置了MARKET_DO_NOT_INIT_COMM_LISTINGS标记

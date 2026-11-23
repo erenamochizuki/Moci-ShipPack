@@ -1,5 +1,6 @@
 package data.campaign.fighter;
 
+import data.scripts.util.Moci_TextLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -121,7 +122,7 @@ public final class Moci_FighterLoadoutService {
         Moci_FighterLoadoutEligibility.initialize();
         Moci_FighterLoadoutStore.initialize();
         if (!Moci_FighterLoadoutRegistry.init()) {
-            failure = "联队规格注册入口不可用：" + Moci_FighterLoadoutRegistry.getUnavailableReason();
+            failure = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t001", "联队规格注册入口不可用：") + Moci_FighterLoadoutRegistry.getUnavailableReason();
             return;
         }
         registerAllFromStore();
@@ -139,7 +140,7 @@ public final class Moci_FighterLoadoutService {
                 // 逐条隔离：每条定义来自存档/注册库文件，会驱动变体克隆、引擎注册表和 SCVE 快照；
                 // 能事先校验的都在 registerDefinition 里返回原因了，剩下的是引擎内部状态，
                 // 一条出错只锁这一条，不能让后面的定义都不注册（读档入口的外层 catch 会整段跳过）。
-                definitionIssues.put(spec.getWingId(), "型号恢复失败：" + ex.getMessage());
+                definitionIssues.put(spec.getWingId(), Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t002", "型号恢复失败：") + ex.getMessage());
                 Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "cannot restore " + spec.getWingId(), ex);
             }
         }
@@ -185,20 +186,20 @@ public final class Moci_FighterLoadoutService {
             FighterWingSpecAPI wing = getWingSpec(id);
             boolean builtIn = variant.getHullSpec().isBuiltInWing(i);
             String reason = null;
-            if (builtIn) reason = "内置联队不可改装";
-            else if (i >= capacity) reason = "该机库当前不可用";
-            else if (!variant.hasHullMod(HULLMOD_ID)) reason = "需要航空中队管理船插";
+            if (builtIn) reason = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t003", "内置联队不可改装");
+            else if (i >= capacity) reason = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t004", "该机库当前不可用");
+            else if (!variant.hasHullMod(HULLMOD_ID)) reason = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t005", "需要航空中队管理船插");
             else if (Moci_FighterLoadoutEligibility.getCarrierLockReason(variant) != null) {
                 reason = Moci_FighterLoadoutEligibility.getCarrierLockReason(variant);
             }
-            else if (id == null || id.isEmpty()) reason = "空机库";
-            else if (wing == null) reason = "联队规格缺失，已保留原装配";
+            else if (id == null || id.isEmpty()) reason = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t006", "空机库");
+            else if (wing == null) reason = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t007", "联队规格缺失，已保留原装配");
             else if (isCustomWingId(id)) reason = validateSource(id);
             FighterWingSpecAPI prototype = getWingSpec(getBaseWingId(id));
             boolean weapons = reason == null && Moci_FighterLoadoutEligibility.acceptsWeapons(prototype)
                     && !getEditableSlots(wing).isEmpty();
             boolean tactical = reason == null && Moci_FighterLoadoutEligibility.acceptsTactical(prototype);
-            if (reason == null && !weapons && !tactical) reason = "该联队不支持装配管理";
+            if (reason == null && !weapons && !tactical) reason = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t008", "该联队不支持装配管理");
             result.add(new BayEntry(i, id, wing, builtIn, weapons || tactical, reason, weapons, tactical));
         }
         return result;
@@ -324,17 +325,17 @@ public final class Moci_FighterLoadoutService {
      * 读档不能因此把存档里已装的战术改装全部拆掉。
      */
     private static String tacticalIssue(String id, FighterWingSpecAPI prototype, boolean applyPolicy) {
-        if (!Moci_TacticalHullmods.isTactical(id)) return "当前不可用。";
+        if (!Moci_TacticalHullmods.isTactical(id)) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t009", "当前不可用。");
         if (applyPolicy && Moci_FighterLoadoutEligibility.getFailure() != null) return Moci_FighterLoadoutEligibility.getFailure();
         ShipVariantAPI variant = prototype == null ? null : prototype.getVariant();
-        if (variant == null) return "原型联队缺失。";
-        if (applyPolicy && !Moci_FighterLoadoutEligibility.acceptsTactical(prototype)) return "该联队不支持战术改装。";
+        if (variant == null) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t010", "原型联队缺失。");
+        if (applyPolicy && !Moci_FighterLoadoutEligibility.acceptsTactical(prototype)) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t011", "该联队不支持战术改装。");
         if (Moci_TacticalHullmods.HARDENED_SHIELD.equals(id)) {
             ShieldType type = variant.getHullSpec() == null ? null : variant.getHullSpec().getShieldType();
-            if (type != ShieldType.FRONT && type != ShieldType.OMNI) return "该舰载机没有护盾，无法安装强化护盾。";
+            if (type != ShieldType.FRONT && type != ShieldType.OMNI) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t012", "该舰载机没有护盾，无法安装强化护盾。");
         }
         if (Moci_TacticalHullmods.ADVANCED_OPTICS.equals(id) && variant.hasHullMod(HullMods.HIGH_SCATTER_AMP)) {
-            return "先进光学器件与高散射增幅器不兼容。";
+            return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t013", "先进光学器件与高散射增幅器不兼容。");
         }
         return null;
     }
@@ -356,7 +357,7 @@ public final class Moci_FighterLoadoutService {
         } else {
             removedTacticals.put(wingId, removed);
             List<String> parts = new ArrayList<>();
-            for (Map.Entry<String, String> entry : removed.entrySet()) parts.add(entry.getKey() + "（" + entry.getValue() + "）");
+            for (Map.Entry<String, String> entry : removed.entrySet()) parts.add(entry.getKey() + Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t014", "（") + entry.getValue() + Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t015", "）"));
             Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + wingId
                     + " 保存的战术改装已不可用，已自动拆除：" + String.join("、", parts));
         }
@@ -729,28 +730,28 @@ public final class Moci_FighterLoadoutService {
             // （Budget 抛 IllegalArgumentException）、数量溢出（addExact）都在这里变成「已保留原装配」的计划，
             // 不能穿进对话框。
             Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "cannot preview fighter refit", ex);
-            return blocked(memberId, bayIndex, expectedWingId, "装配数据异常，已保留原装配");
+            return blocked(memberId, bayIndex, expectedWingId, Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t016", "装配数据异常，已保留原装配"));
         }
     }
     private static RefitPlan previewChecked(String memberId, int bayIndex, String expectedWingId,
             Map<String, String> draft, List<String> tacticalHullmods, boolean explicitTactical) {
         if (!isAvailable()) return blocked(memberId, bayIndex, expectedWingId, getUnavailableReason());
         FleetMemberAPI member = findMember(memberId);
-        if (member == null) return blocked(memberId, bayIndex, expectedWingId, "母舰已不在玩家舰队");
+        if (member == null) return blocked(memberId, bayIndex, expectedWingId, Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t017", "母舰已不在玩家舰队"));
         if (!Objects.equals(member.getVariant().getWingId(bayIndex), expectedWingId)) {
-            return blocked(memberId, bayIndex, expectedWingId, "该机库联队已改变，请重新选择");
+            return blocked(memberId, bayIndex, expectedWingId, Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t018", "该机库联队已改变，请重新选择"));
         }
         BayEntry bay = collectBays(member).stream().filter(b -> b.index == bayIndex).findFirst().orElse(null);
         if (bay == null || !bay.eligible) return blocked(memberId, bayIndex, expectedWingId,
-                bay == null ? "机库不存在" : bay.lockReason);
+                bay == null ? Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t019", "机库不存在") : bay.lockReason);
         List<String> sourceTactical = getTacticalHullmods(expectedWingId);
         List<String> targetTactical = explicitTactical ? tacticalHullmods : sourceTactical;
         if (!Moci_TacticalHullmods.validSelection(targetTactical)) {
-            return blocked(memberId, bayIndex, expectedWingId, "战术改装不可用或同组重复，请重新选择");
+            return blocked(memberId, bayIndex, expectedWingId, Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t020", "战术改装不可用或同组重复，请重新选择"));
         }
         targetTactical = Moci_TacticalHullmods.normalize(targetTactical);
         if (!bay.tacticalEligible && !targetTactical.equals(sourceTactical)) {
-            return blocked(memberId, bayIndex, expectedWingId, "该联队不支持战术改装");
+            return blocked(memberId, bayIndex, expectedWingId, Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t021", "该联队不支持战术改装"));
         }
         // 按原型判断（不看已装变体）：与界面置灰、读档自动拆除用同一条规则。
         for (String id : targetTactical) {
@@ -769,11 +770,11 @@ public final class Moci_FighterLoadoutService {
         Map<String, String> baseline = sourceSpec == null ? defaults : sourceSpec.getBaseline();
         LinkedHashMap<String, String> target = new LinkedHashMap<>();
         if (draft == null || !defaults.keySet().containsAll(draft.keySet())) {
-            return blocked(memberId, bayIndex, expectedWingId, "草稿含未知槽位");
+            return blocked(memberId, bayIndex, expectedWingId, Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t022", "草稿含未知槽位"));
         }
         for (WeaponSlotAPI slot : slots) {
             String id = draft.containsKey(slot.getId()) ? draft.get(slot.getId()) : source.get(slot.getId());
-            if (id == null) return blocked(memberId, bayIndex, expectedWingId, "草稿武器无效");
+            if (id == null) return blocked(memberId, bayIndex, expectedWingId, Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t023", "草稿武器无效"));
             // A stock prototype may still expose a stale weapon ID that no longer
             // fits its slot. Treat that unchanged stock entry as the sanitized
             // empty default; an explicit replacement is still validated normally.
@@ -783,12 +784,12 @@ public final class Moci_FighterLoadoutService {
                 id = defaults.get(slot.getId());
             }
             if (!id.isEmpty() && !canFitSlot(slot, id) && (bay.weaponEligible || !id.equals(source.get(slot.getId())))) {
-                return blocked(memberId, bayIndex, expectedWingId, "武器不适配槽位：" + slot.getId());
+                return blocked(memberId, bayIndex, expectedWingId, Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t024", "武器不适配槽位：") + slot.getId());
             }
             target.put(slot.getId(), id);
         }
         if (!bay.weaponEligible && !target.equals(source)) {
-            return blocked(memberId, bayIndex, expectedWingId, "该联队不支持武器换装");
+            return blocked(memberId, bayIndex, expectedWingId, Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t025", "该联队不支持武器换装"));
         }
         // Validate the same calculation used by the header and the registered wing before any payment.
         refitBudgetForTacticals(baseId, target, targetTactical);
@@ -808,9 +809,9 @@ public final class Moci_FighterLoadoutService {
         boolean changed = !expectedWingId.equals(targetId);
         Map<String, Integer> consume = new LinkedHashMap<>(), returns = new LinkedHashMap<>();
         delta(paid(source, baseline), vanilla ? Map.of() : paid(target, baseline), consume, returns);
-        String reason = changed ? null : "装配未改动";
+        String reason = changed ? null : Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t026", "装配未改动");
         List<CargoAPI> cargos = sources();
-        if (cargos.isEmpty()) reason = "货舱不可用";
+        if (cargos.isEmpty()) reason = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t027", "货舱不可用");
         // 采购计划：货舱/仓库不够的部分从当前交互市场购买，并在应用前校验信用点。
         // 只做纯计算，不修改任何库存；真正扣款/转移发生在 applyRefit 里。
         List<Purchase> purchases = new ArrayList<>();
@@ -823,7 +824,7 @@ public final class Moci_FighterLoadoutService {
                 if (owned >= need) continue;
                 int remaining = need - owned;
                 WeaponSpecAPI purchased = weapon(entry.getKey());
-                if (purchased == null) { reason = "武备不足：未知武器"; break; }
+                if (purchased == null) { reason = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t028", "武备不足：未知武器"); break; }
                 // 与 bestMarketUnitPrice 同一组来源、同一顺序：只用能合法买到且有库存的子市场，先买最便宜的。
                 for (DisplayCargo marketSource : purchasableSources(markets, purchased, entry.getKey())) {
                     if (remaining <= 0) break;
@@ -833,13 +834,13 @@ public final class Moci_FighterLoadoutService {
                     purchaseCost = Math.addExact(purchaseCost, Math.multiplyExact(unitPrice, take));
                     remaining -= take;
                 }
-                if (remaining > 0) { reason = "武备不足：" + Objects.toString(purchased.getWeaponName(), "未知武器"); purchases.clear(); purchaseCost = 0; break; }
+                if (remaining > 0) { reason = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t029", "武备不足：") + Objects.toString(purchased.getWeaponName(), Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t030", "未知武器")); purchases.clear(); purchaseCost = 0; break; }
             }
         }
         if (reason == null && purchaseCost > 0) {
             int credits = playerCredits();
             if (credits < purchaseCost) {
-                reason = "信用点不足：需要 " + purchaseCost + " · 现有 " + credits;
+                reason = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t031", "信用点不足：需要 ") + purchaseCost + Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t032", " · 现有 ") + credits;
             }
         }
         return new RefitPlan(memberId, bayIndex, expectedWingId, targetId, target, consume, returns,
@@ -847,14 +848,14 @@ public final class Moci_FighterLoadoutService {
                 reason == null ? purchases : List.of(), reason == null ? purchaseCost : 0);
     }
     public static synchronized String applyRefit(RefitPlan plan) {
-        if (busy) return "另一项装配变更正在提交";
-        if (plan == null) return "无可用装配方案";
+        if (busy) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t033", "另一项装配变更正在提交");
+        if (plan == null) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t034", "无可用装配方案");
         busy = true;
         try {
             RefitPlan fresh = previewTactical(plan.memberId, plan.bayIndex, plan.sourceWingId, plan.loadout,
                     plan.tacticalHullmods);
             if (fresh.blockReason != null) return fresh.blockReason;
-            if (!Objects.equals(fresh.targetWingId, plan.targetWingId)) return "原型或装配定义已改变，请重新确认";
+            if (!Objects.equals(fresh.targetWingId, plan.targetWingId)) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t035", "原型或装配定义已改变，请重新确认");
             FleetMemberAPI member = findMember(fresh.memberId);
             // 先按当前预览把市场武器买进玩家货舱，让后续装配事务能像普通库存一样消耗它们；
             // 任何一步失败都必须把已发生的购买完整退回市场并退还信用点。
@@ -865,7 +866,7 @@ public final class Moci_FighterLoadoutService {
                 if (issue == null) issue = installRefit(fresh, member);
             } catch (RuntimeException ex) {
                 Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "fighter refit failed", ex);
-                issue = "换装提交失败";
+                issue = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t036", "换装提交失败");
             }
             if (issue != null) return purchases.abort(issue);
             // 采购与装配事务都成功后才上报成交；这两步在回滚范围之外，绝不撤销已完成的换装。
@@ -875,7 +876,7 @@ public final class Moci_FighterLoadoutService {
         } catch (RuntimeException ex) {
             // 界面入口：换装准备或事务中的意外异常不能穿进对话框；库存与采购已在内层回滚。
             Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "fighter refit could not be prepared", ex);
-            return "换装准备失败，已保留原装配和库存";
+            return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t037", "换装准备失败，已保留原装配和库存");
         } finally { busy = false; }
     }
 
@@ -890,7 +891,7 @@ public final class Moci_FighterLoadoutService {
         ShipVariantAPI before = member.getVariant();
         ShipVariantAPI next = isolatedVariant(before, member.getId());
         next.setWingId(plan.bayIndex, plan.targetWingId);
-        if (!plan.targetWingId.equals(next.getWingId(plan.bayIndex))) return "该机库拒绝替换联队";
+        if (!plan.targetWingId.equals(next.getWingId(plan.bayIndex))) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t038", "该机库拒绝替换联队");
         return transact(member, before, next, plan.consume, plan.returns);
     }
 
@@ -937,23 +938,23 @@ public final class Moci_FighterLoadoutService {
     private static String makePurchases(List<Purchase> lines, PurchaseRollback rollback) {
         if (lines == null || lines.isEmpty()) return null;
         CargoAPI player = playerCargo();
-        if (player == null) return "货舱不可用";
+        if (player == null) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t027", "货舱不可用");
         long total = 0;
         for (Purchase p : lines) total += (long) p.unitPrice() * p.count();
         // 单价与数量都是非负 int：总额不超过 int 时每一笔也不超过，下面逐笔直接相乘。
-        if (total > Integer.MAX_VALUE) return "购买价格溢出，已取消";
+        if (total > Integer.MAX_VALUE) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t039", "购买价格溢出，已取消");
         MutableValue credits = player.getCredits();
         float balance = credits.get();
-        if (!Float.isFinite(balance)) return "信用点数据异常，请重新确认";
-        if (total > 0 && (double) balance < total) return "信用点不足，请重新确认";
+        if (!Float.isFinite(balance)) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t040", "信用点数据异常，请重新确认");
+        if (total > 0 && (double) balance < total) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t041", "信用点不足，请重新确认");
         for (Purchase p : lines) {
             // 预览到提交之间玩家可能退出市场界面或改变交易模式，提交前必须再核对一次。
             if (!Moci_FighterMarketAccess.isTradable(p.submarket())
                     || !Moci_FighterMarketAccess.isLegalPurchase(p.submarket(), p.weaponId())) {
-                return "市场已不可交易，请重新确认";
+                return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t042", "市场已不可交易，请重新确认");
             }
             if (safeQuantity(p.submarket().getCargo(), p.weaponId()) < p.count()) {
-                return "市场库存已改变，请重新确认";
+                return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t043", "市场库存已改变，请重新确认");
             }
         }
         rollback.credits = credits;
@@ -965,7 +966,7 @@ public final class Moci_FighterLoadoutService {
                 int count = purchase.count();
                 int marketBefore = rollback.rememberQuantity(market, id);
                 int playerAfter = Math.addExact(rollback.rememberQuantity(player, id), count);
-                if (marketBefore < count) return "市场库存已改变，请重新确认";
+                if (marketBefore < count) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t043", "市场库存已改变，请重新确认");
                 int cost = Math.multiplyExact(purchase.unitPrice(), count);
                 float balanceAfter = credits.get() - cost;
                 market.removeWeapons(id, count);
@@ -977,7 +978,7 @@ public final class Moci_FighterLoadoutService {
             }
         } catch (RuntimeException ex) {
             Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "市场购买失败", ex);
-            return "市场购买失败";
+            return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t044", "市场购买失败");
         }
         return null;
     }
@@ -1018,8 +1019,8 @@ public final class Moci_FighterLoadoutService {
                 Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "采购余额无法核实", ex);
                 restored = false;
             }
-            if (restored) return reason + "；采购库存与信用点已恢复";
-            failure = "采购回滚未能完成，已进入只读保护；请保留当前存档并查看日志";
+            if (restored) return reason + Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t045", "；采购库存与信用点已恢复");
+            failure = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t046", "采购回滚未能完成，已进入只读保护；请保留当前存档并查看日志");
             Global.getLogger(Moci_FighterLoadoutService.class).error(LOG_PREFIX + failure);
             return failure;
         }
@@ -1076,13 +1077,13 @@ public final class Moci_FighterLoadoutService {
     /** Called by the campaign coordinator after the native refit editor has closed. */
     public static synchronized String restoreWithoutHullmod(FleetMemberAPI member) {
         if (member == null || member.getVariant() == null || member.getVariant().hasHullMod(HULLMOD_ID)) return null;
-        if (busy) return "另一项装配变更正在提交";
+        if (busy) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t033", "另一项装配变更正在提交");
         // 恢复路径只读内存里的定义、不改注册库：注册库不可写时必须仍能把管理船插卸干净。
         if (!initialized) initializeApplication();
         if (failure != null) return failure;
         String eligibilityFailure = Moci_FighterLoadoutEligibility.getFailure();
         if (eligibilityFailure != null) return eligibilityFailure;
-        if (findMember(member.getId()) != member) return "母舰已不在玩家舰队";
+        if (findMember(member.getId()) != member) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t017", "母舰已不在玩家舰队");
         busy = true;
         try {
             ShipVariantAPI before = member.getVariant();
@@ -1093,7 +1094,7 @@ public final class Moci_FighterLoadoutService {
             for (int i = 0; i < before.getWings().size(); i++) {
                 String id = before.getWingId(i);
                 if (!isCustomWingId(id)) continue;
-                if (before.getHullSpec().isBuiltInWing(i)) return "内置联队装配异常，已保留所有装配";
+                if (before.getHullSpec().isBuiltInWing(i)) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t047", "内置联队装配异常，已保留所有装配");
                 String issue = validateSource(id);
                 if (issue != null) return issue;
                 Moci_FighterLoadoutSpec source = Moci_FighterLoadoutStore.get(id);
@@ -1101,7 +1102,7 @@ public final class Moci_FighterLoadoutService {
                 refund.forEach((weapon, n) -> returns.merge(weapon, n, Math::addExact));
                 if (next == null) next = isolatedVariant(before, member.getId());
                 next.setWingId(i, source.getBaseWingId());
-                if (!source.getBaseWingId().equals(next.getWingId(i))) return "机库恢复失败，已保留所有装配";
+                if (!source.getBaseWingId().equals(next.getWingId(i))) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t048", "机库恢复失败，已保留所有装配");
             }
             if (next == null && tacticalResidue) next = isolatedVariant(before, member.getId());
             if (next == null) return null;
@@ -1113,7 +1114,7 @@ public final class Moci_FighterLoadoutService {
             // 入口：协调器在原版改装界面关闭后调用（Moci_AirSquadronCoordinator），异常不能穿进原版界面流程；
             // 能事先判断的情况都已在上面返回了原因，这里只剩变体克隆隔离失败等引擎内部状态。
             Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "cannot prepare carrier restoration", ex);
-            return "恢复准备失败，已保留原装配和库存";
+            return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t049", "恢复准备失败，已保留原装配和库存");
         } finally { busy = false; }
     }
     /**
@@ -1162,7 +1163,7 @@ public final class Moci_FighterLoadoutService {
         boolean mutationsStarted = false;
         try {
             List<CargoAPI> cargos = sources();
-            if (cargos.isEmpty()) return "货舱不可用";
+            if (cargos.isEmpty()) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t027", "货舱不可用");
             Set<String> ids = new LinkedHashSet<>(consume.keySet()); ids.addAll(returns.keySet());
             for (CargoAPI cargo : cargos) {
                 Map<String, Integer> counts = new LinkedHashMap<>();
@@ -1170,9 +1171,9 @@ public final class Moci_FighterLoadoutService {
                 snapshots.add(new Snapshot(cargo, counts));
             }
             for (Map.Entry<String, Integer> entry : consume.entrySet()) {
-                if (available(cargos, entry.getKey()) < entry.getValue()) return "库存已改变，请重新确认";
+                if (available(cargos, entry.getKey()) < entry.getValue()) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t050", "库存已改变，请重新确认");
             }
-            if (member.getVariant() != before) return "母舰装配已改变，请重新确认";
+            if (member.getVariant() != before) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t051", "母舰装配已改变，请重新确认");
             mutationsStarted = true;
             for (Map.Entry<String, Integer> entry : consume.entrySet()) {
                 int remaining = entry.getValue();
@@ -1216,10 +1217,10 @@ public final class Moci_FighterLoadoutService {
                     restored &= restoreQuantity(snapshot.cargo, entry.getKey(), entry.getValue());
                 }
             }
-            if (!restored) failure = "装配事务回滚未能完成，已进入只读保护；请保留当前存档并查看日志";
+            if (!restored) failure = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t052", "装配事务回滚未能完成，已进入只读保护；请保留当前存档并查看日志");
             Global.getLogger(Moci_FighterLoadoutService.class)
                     .error(LOG_PREFIX + "fighter transaction failed; rollback=" + restored, ex);
-            return restored ? "换装提交失败，母舰与各来源库存已恢复" : failure;
+            return restored ? Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t053", "换装提交失败，母舰与各来源库存已恢复") : failure;
         }
     }
     private static boolean restoreQuantity(CargoAPI cargo, String id, int expected) {
@@ -1241,19 +1242,19 @@ public final class Moci_FighterLoadoutService {
     }
     private static String validateSource(String id) {
         Moci_FighterLoadoutSpec source = Moci_FighterLoadoutStore.get(id);
-        if (source == null) return "自定义联队缺少保存定义，已保留装配";
+        if (source == null) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t054", "自定义联队缺少保存定义，已保留装配");
         if (definitionIssues.containsKey(id)) return definitionIssues.get(id);
         String issue = definitionIssue(source);
         if (issue != null) return issue;
         FighterWingSpecAPI wing = getWingSpec(id);
         if (wing == null || !source.getVariantId().equals(wing.getVariantId())
                 || !source.getLoadout().equals(readLoadout(id))
-                || !getTacticalHullmods(id).equals(selectedTactical(wing.getVariant()))) return "自定义联队与保存定义不一致，已保留装配";
+                || !getTacticalHullmods(id).equals(selectedTactical(wing.getVariant()))) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t055", "自定义联队与保存定义不一致，已保留装配");
         return null;
     }
     private static String definitionIssue(Moci_FighterLoadoutSpec spec) {
         FighterWingSpecAPI prototype = getWingSpec(spec.getBaseWingId());
-        if (prototype == null || prototype.getVariant() == null) return "原型联队缺失，已保留装配";
+        if (prototype == null || prototype.getVariant() == null) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t056", "原型联队缺失，已保留装配");
         List<WeaponSlotAPI> slots = getEditableSlots(prototype);
         Set<String> ids = new LinkedHashSet<>();
         for (WeaponSlotAPI slot : slots) {
@@ -1262,20 +1263,20 @@ public final class Moci_FighterLoadoutService {
             boolean stockWeapon = weaponId != null && weapon(weaponId) != null
                     && weaponId.equals(prototype.getVariant().getWeaponId(slot.getId()));
             if (weaponId == null || (!weaponId.isEmpty() && !stockWeapon && !canFitSlot(slot, weaponId))) {
-                return "保存的武器或槽位已失效，已保留装配";
+                return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t057", "保存的武器或槽位已失效，已保留装配");
             }
         }
         if (!ids.equals(spec.getLoadout().keySet()) || !ids.equals(spec.getBaseline().keySet())) {
-            return "原型武器槽已改变，已保留装配";
+            return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t058", "原型武器槽已改变，已保留装配");
         }
         for (String id : spec.getBaseline().values()) {
-            if (!id.isEmpty() && weapon(id) == null) return "保存的默认武器基线缺失，已保留装配";
+            if (!id.isEmpty() && weapon(id) == null) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t059", "保存的默认武器基线缺失，已保留装配");
         }
         return null;
     }
     private static String registerDefinition(Moci_FighterLoadoutSpec spec) {
         FighterWingSpecAPI prototype = getWingSpec(spec.getBaseWingId());
-        if (prototype == null || prototype.getVariant() == null) return "无法恢复型号：原型联队缺失";
+        if (prototype == null || prototype.getVariant() == null) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t060", "无法恢复型号：原型联队缺失");
         String metadataIssue = definitionIssue(spec);
         // 保存的战术改装可能同组冲突或引用了已移除的船插：按每组一项恢复，
         // 而不是让整支联队注册失败（那会连原型装配都恢复不了）。这类定义仍按原规则只读锁定。
@@ -1284,14 +1285,14 @@ public final class Moci_FighterLoadoutService {
         if (!new LinkedHashSet<>(rawTacticals).equals(new LinkedHashSet<>(tolerated))) {
             Global.getLogger(Moci_FighterLoadoutService.class).warn(LOG_PREFIX + "saved tactical selection repaired to one per group: "
                     + spec.getWingId() + " " + rawTacticals + " -> " + tolerated);
-            if (metadataIssue == null) metadataIssue = "保存的战术改装已失效或同组冲突，已按每组一项恢复";
+            if (metadataIssue == null) metadataIssue = Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t061", "保存的战术改装已失效或同组冲突，已按每组一项恢复");
         }
         if (metadataIssue != null) definitionIssues.put(spec.getWingId(), metadataIssue);
         // 再按原型判断可用性得到生效列表：变体 hullMods、联队 OP 和之后的换装都只用生效列表。
         List<String> tacticals = availableTacticals(spec.getWingId(), tolerated, prototype);
         if (!Moci_FighterLoadoutRegistry.isVariantRegistered(spec.getVariantId())) {
             ShipVariantAPI variant = prototype.getVariant().clone();
-            if (variant == null || variant == prototype.getVariant()) return "战机变体无法隔离";
+            if (variant == null || variant == prototype.getVariant()) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t062", "战机变体无法隔离");
             variant.setHullVariantId(spec.getVariantId()); variant.setSource(VariantSource.STOCK);
             for (WeaponSlotAPI slot : getEditableSlots(prototype)) {
                 String id = spec.getLoadout().get(slot.getId());
@@ -1317,7 +1318,7 @@ public final class Moci_FighterLoadoutService {
             // 战术改装必须在变体注册前写进 hullMods：注册后再 addMod 不会同步到已注册的 HullVariantSpec。
             applyTactical(variant, tacticals);
             applyCustomFighterTags(variant);
-            if (!Moci_FighterLoadoutRegistry.registerVariant(variant)) return "战机变体注册失败";
+            if (!Moci_FighterLoadoutRegistry.registerVariant(variant)) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t063", "战机变体注册失败");
         }
         // Invalid saved weapons already fall back to stock; keep the prototype OP for this read-only recovery.
         float opCost = metadataIssue == null ? refitBudget(prototype, spec.getLoadout(), tacticals, true).opCost()
@@ -1325,21 +1326,21 @@ public final class Moci_FighterLoadoutService {
         FighterWingSpecAPI wing = getWingSpec(spec.getWingId());
         if (wing == null) {
             wing = copyWing(spec, prototype, opCost);
-            if (wing == null) return "联队规格复制失败：自动装配分类或来源模组信息无法继承";
-            if (!Moci_FighterLoadoutRegistry.registerWing(spec.getWingId(), wing)) return "联队规格注册失败";
+            if (wing == null) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t064", "联队规格复制失败：自动装配分类或来源模组信息无法继承");
+            if (!Moci_FighterLoadoutRegistry.registerWing(spec.getWingId(), wing)) return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t065", "联队规格注册失败");
         }
         if (!spec.getWingId().equals(wing.getId()) || !spec.getVariantId().equals(wing.getVariantId())) {
-            return "型号 ID 或装配定义冲突";
+            return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t066", "型号 ID 或装配定义冲突");
         }
         ShipVariantAPI registeredVariant = wing.getVariant();
         if (registeredVariant == null || !spec.getVariantId().equals(registeredVariant.getHullVariantId())) {
-            return "联队变体规格缺失或 ID 不匹配";
+            return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t067", "联队变体规格缺失或 ID 不匹配");
         }
         if (metadataIssue == null && !spec.getLoadout().equals(readLoadout(spec.getWingId()))) {
-            return "型号 ID 或装配定义冲突";
+            return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t066", "型号 ID 或装配定义冲突");
         }
         if (!tacticals.equals(selectedTactical(registeredVariant))) {
-            return "战术改装与保存定义不一致";
+            return Moci_TextLoader.getText("code_Moci_FighterLoadoutService", "t068", "战术改装与保存定义不一致");
         }
         applyCustomFighterTags(registeredVariant);
         applyCustomFighterTags(wing);

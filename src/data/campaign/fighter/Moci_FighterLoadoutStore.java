@@ -1,5 +1,6 @@
 package data.campaign.fighter;
 
+import data.scripts.util.Moci_TextLoader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -34,7 +35,7 @@ public final class Moci_FighterLoadoutStore {
     static synchronized void initialize() {
         definitions.clear(); loaded = true; failure = null; lastCommitFailure = null;
         SettingsAPI settings = Global.getSettings();
-        if (settings == null) { failure = "游戏配置尚未初始化"; return; }
+        if (settings == null) { failure = Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t001", "游戏配置尚未初始化"); return; }
         // 三份副本都参与恢复：main 优先，其余只补缺失条目；单份损坏不拖累其余副本。
         List<String> damaged = new ArrayList<>();
         Map<String, Moci_FighterLoadoutSpec> main = parseCopy(settings, FILE_NAME, damaged);
@@ -44,16 +45,16 @@ public final class Moci_FighterLoadoutStore {
         boolean mainMissing = main == null && !definitions.isEmpty();
         boolean mainIncomplete = main != null && !main.keySet().equals(definitions.keySet());
         if (damaged.isEmpty() && !mainMissing && !mainIncomplete) return;
-        String reason = !damaged.isEmpty() ? "副本损坏：" + String.join(", ", damaged)
-                : mainMissing ? "主文件缺失" : "副本内容不一致";
+        String reason = !damaged.isEmpty() ? Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t002", "副本损坏：") + String.join(", ", damaged)
+                : mainMissing ? Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t003", "主文件缺失") : Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t004", "副本内容不一致");
         if (definitions.isEmpty()) {
             // 只存在损坏副本时不要用空库覆盖它，保持只读让人工/后续版本抢救。
-            failure = "装配注册库异常，已进入只读保护：" + reason;
+            failure = Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t005", "装配注册库异常，已进入只读保护：") + reason;
             Global.getLogger(Moci_FighterLoadoutStore.class).warn(failure);
             return;
         }
         if (!selfHeal(reason)) {
-            failure = "装配注册库异常且无法自愈，已进入只读保护：" + reason;
+            failure = Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t006", "装配注册库异常且无法自愈，已进入只读保护：") + reason;
             return;
         }
         Global.getLogger(Moci_FighterLoadoutStore.class).warn(
@@ -96,7 +97,7 @@ public final class Moci_FighterLoadoutStore {
             Global.getLogger(Moci_FighterLoadoutStore.class).warn(
                     "Fighter catalog read-back differs; rewriting durable copies from memory", ex);
             if (selfHeal("落库副本与内存不一致")) return true;
-            failure = "保存的装配注册库无法读回，已阻止提交：" + ex.getMessage();
+            failure = Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t007", "保存的装配注册库无法读回，已阻止提交：") + ex.getMessage();
             return false;
         }
     }
@@ -139,7 +140,7 @@ public final class Moci_FighterLoadoutStore {
     /** 单文件超过引擎上限时返回原因，否则 null。 */
     private static String oversizeReason(String text) {
         return text.length() <= MAX_COMMON_FILE_CHARS ? null
-                : "注册库文本 " + text.length() + " 字符，超过单文件上限 " + MAX_COMMON_FILE_CHARS;
+                : Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t008", "注册库文本 ") + text.length() + Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t009", " 字符，超过单文件上限 ") + MAX_COMMON_FILE_CHARS;
     }
     /**
      * 存档内嵌副本用：只导出给定 ID 中内存里有的定义，格式与注册库文件相同。
@@ -204,7 +205,7 @@ public final class Moci_FighterLoadoutStore {
                     + added + " definition(s)); catalog stays read-only: " + failure);
             return added;
         }
-        if (!selfHeal("存档内嵌副本回灌")) lastCommitFailure = "存档内嵌的装配定义已恢复但仍无法写回注册库";
+        if (!selfHeal("存档内嵌副本回灌")) lastCommitFailure = Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t010", "存档内嵌的装配定义已恢复但仍无法写回注册库");
         return added;
     }
     /** 已加载的定义条数，用于常驻日志与提示。 */
@@ -216,7 +217,7 @@ public final class Moci_FighterLoadoutStore {
     static synchronized String describeFailure() {
         ensureLoaded();
         if (lastCommitFailure != null) return lastCommitFailure;
-        return failure == null ? "装配定义保存失败，未提交换装" : failure;
+        return failure == null ? Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t011", "装配定义保存失败，未提交换装") : failure;
     }
 
     /**
@@ -234,7 +235,7 @@ public final class Moci_FighterLoadoutStore {
             if (old.sameDefinition(spec)) {
                 return verifyDurableCatalog();
             }
-            failure = "装配型号 ID 冲突，已进入只读保护";
+            failure = Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t012", "装配型号 ID 冲突，已进入只读保护");
             return false;
         }
         SettingsAPI settings = Global.getSettings();
@@ -248,8 +249,8 @@ public final class Moci_FighterLoadoutStore {
             }
             String unloaded = firstDiskOnlyDefinition(disk);
             if (unloaded != null) {
-                return commitFailed("注册库文件里有本次运行未载入的定义 " + unloaded
-                        + "，为避免覆盖已停止写入；重启游戏后会自动合并", null);
+                return commitFailed(Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t013", "注册库文件里有本次运行未载入的定义 ") + unloaded
+                        + Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t014", "，为避免覆盖已停止写入；重启游戏后会自动合并"), null);
             }
             Map<String, Moci_FighterLoadoutSpec> next = new LinkedHashMap<>(definitions);
             next.put(spec.getWingId(), spec);
@@ -282,7 +283,7 @@ public final class Moci_FighterLoadoutStore {
         return null;
     }
     private static boolean commitFailed(String reason, Exception cause) {
-        lastCommitFailure = "装配定义保存失败，未提交换装；旧库或备份已保留：" + reason;
+        lastCommitFailure = Moci_TextLoader.getText("code_Moci_FighterLoadoutStore", "t015", "装配定义保存失败，未提交换装；旧库或备份已保留：") + reason;
         if (cause == null) Global.getLogger(Moci_FighterLoadoutStore.class).warn(lastCommitFailure);
         else Global.getLogger(Moci_FighterLoadoutStore.class).warn(lastCommitFailure, cause);
         return false;

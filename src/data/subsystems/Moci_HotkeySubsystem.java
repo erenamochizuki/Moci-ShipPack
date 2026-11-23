@@ -1,5 +1,6 @@
 package data.subsystems;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.ShipAPI;
 import java.util.List;
@@ -32,12 +33,12 @@ public abstract class Moci_HotkeySubsystem extends MagicSubsystem {
     /** 键位查询结果：keyCode ≤ 0 表示当前没有可用键，error 说明原因。 */
     public record Binding(int keyCode, String keyName, String error) {
         public Binding {
-            if (keyName == null) keyName = "未绑定";
+            if (keyName == null) keyName = Moci_TextLoader.getText("code_Moci_HotkeySubsystem", "t001", "未绑定");
             if (error == null) error = "";
         }
 
         public static Binding none(String reason) {
-            return new Binding(Keyboard.KEY_NONE, "未绑定", reason);
+            return new Binding(Keyboard.KEY_NONE, Moci_TextLoader.getText("code_Moci_HotkeySubsystem", "t001", "未绑定"), reason);
         }
 
         public boolean available() {
@@ -68,7 +69,7 @@ public abstract class Moci_HotkeySubsystem extends MagicSubsystem {
     @Override
     public String getStateText() {
         // 热键池用完时 MagicLib 不给键，提示玩家去 LunaLib 指定。
-        if (getAssignedKey() <= 0) return "未分配键，去 LunaLib 设置";
+        if (getAssignedKey() <= 0) return Moci_TextLoader.getText("code_Moci_HotkeySubsystem", "t002", "未分配键，去 LunaLib 设置");
         return status.isEmpty() ? hintText() : status;
     }
 
@@ -98,13 +99,13 @@ public abstract class Moci_HotkeySubsystem extends MagicSubsystem {
     public Binding binding() {
         int code = getAssignedKey();
         if (code > 0) return new Binding(code, getKeyText(), "");
-        return Binding.none("没有分到按键，请在 LunaLib → Moci 里给「" + getDisplayText() + "」设置按键");
+        return Binding.none(Moci_TextLoader.getText("code_Moci_HotkeySubsystem", "t003", "没有分到按键，请在 LunaLib → Moci 里给「") + getDisplayText() + Moci_TextLoader.getText("code_Moci_HotkeySubsystem", "t004", "」设置按键"));
     }
 
     /** 查某艘船上某个托管子系统的当前键位。 */
     public static Binding binding(ShipAPI ship, Class<? extends Moci_HotkeySubsystem> type) {
         Moci_HotkeySubsystem holder = find(ship, type);
-        return holder == null ? Binding.none("这台机体没有挂载对应的按键") : holder.binding();
+        return holder == null ? Binding.none(Moci_TextLoader.getText("code_Moci_HotkeySubsystem", "t005", "这台机体没有挂载对应的按键")) : holder.binding();
     }
 
     public static <T extends Moci_HotkeySubsystem> T find(ShipAPI ship, Class<T> type) {

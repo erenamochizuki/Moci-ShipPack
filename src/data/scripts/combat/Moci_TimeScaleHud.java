@@ -1,5 +1,6 @@
 package data.scripts.combat;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -56,8 +57,8 @@ public final class Moci_TimeScaleHud implements Moci_CombatSink {
     private int shownWorldMods = -1;
     private int shownShipMods = -1;
 
-    private String title = "时间流";
-    private String text = "世界 ×? · 本舰 ×?";
+    private String title = Moci_TextLoader.getText("code_Moci_TimeScaleHud", "t001", "时间流");
+    private String text = Moci_TextLoader.getText("code_Moci_TimeScaleHud", "t002", "世界 ×? · 本舰 ×?");
 
     private Moci_TimeScaleHud(CombatEngineAPI engine) {
         this.engine = engine;
@@ -162,11 +163,11 @@ public final class Moci_TimeScaleHud implements Moci_CombatSink {
     /** 只在读数真的变了才重建（重建路径允许分配，稳态一帧零分配）。 */
     private void rebuild(float world, float ship, int worldMods, int shipMods, boolean showShip) {
         StringBuilder builder = new StringBuilder(72);
-        builder.append("世界 ").append(multText(world)).append('(').append(worldMods).append(')');
+        builder.append(Moci_TextLoader.getText("code_Moci_TimeScaleHud", "t003", "世界 ")).append(multText(world)).append('(').append(worldMods).append(')');
         if (showShip) {
-            builder.append(" · 本舰 ").append(multText(ship)).append('(').append(shipMods).append(')');
+            builder.append(Moci_TextLoader.getText("code_Moci_TimeScaleHud", "t004", " · 本舰 ")).append(multText(ship)).append('(').append(shipMods).append(')');
         }
-        title = "时间流 · 生效 " + (worldMods + (showShip ? shipMods : 0)) + " 条";
+        title = Moci_TextLoader.getText("code_Moci_TimeScaleHud", "t005", "时间流 · 生效 ") + (worldMods + (showShip ? shipMods : 0)) + Moci_TextLoader.getText("code_Moci_TimeScaleHud", "t006", " 条");
         text = builder.toString();
         shownWorld = world;
         shownShipValue = ship;

@@ -1,5 +1,6 @@
 package data.scripts.weapons.ui;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
@@ -115,15 +116,15 @@ public class Moci_WeaponSwitcherSimpleUI {
     private String getKeyText(String tag) {
         Integer keyCode = keyMap.get(tag);
         if (keyCode == null) {
-            return "按键: 未知";
+            return Moci_TextLoader.getText("code_Moci_WeaponSwitcherSimpleUI", "t001", "按键: 未知");
         }
-        return "按键: " + Keyboard.getKeyName(keyCode);
+        return Moci_TextLoader.getText("code_Moci_WeaponSwitcherSimpleUI", "t002", "按键: ") + Keyboard.getKeyName(keyCode);
     }
 
     private String getWeaponName(String tag) {
         WeaponAPI weapon = current.get(tag);
         if (weapon == null) {
-            return "未绑定武器";
+            return Moci_TextLoader.getText("code_Moci_WeaponSwitcherSimpleUI", "t003", "未绑定武器");
         }
         String name = weapon.getDisplayName();
         return name == null || name.isEmpty() ? weapon.getId() : name;

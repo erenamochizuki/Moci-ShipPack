@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -58,7 +59,7 @@ public class Moci_YamatoAirDefense extends BaseShipSystemScript {
     @Override
     public StatusData getStatusData(int index, State state, float effectLevel) {
         if (index == 0) {
-            return new StatusData("射程增加 25%", false);
+            return new StatusData(Moci_TextLoader.getText("code_Moci_YamatoAirDefense", "t001", "射程增加 25%"), false);
         }
         return null;
     }

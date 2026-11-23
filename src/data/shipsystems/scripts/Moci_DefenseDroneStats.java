@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
@@ -13,9 +14,9 @@ public class Moci_DefenseDroneStats extends BaseShipSystemScript {
 	public static final float SENSOR_RANGE_PERCENT = 5; // 视野加成
 	public static final float EWAR_STRENGTH = 0.25f; // 电子战强度值
 	private static final String STATUS_ICON = "graphics/icons/hullsys/drone_sensor.png"; // 沿用DamperField图标
-	private static final String STATUS_NAME = "守卫无人机";
+	private static final String STATUS_NAME = Moci_TextLoader.getText("code_Moci_DefenseDroneStats", "t001", "守卫无人机");
 	private static final String STATUS_DESC_FORMAT =
-			"战场视野+ %s | 电子战强度+ %s";
+			Moci_TextLoader.getText("code_Moci_DefenseDroneStats", "t002", "战场视野+ %s | 电子战强度+ %s");
 
 	public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
 		float sensorRangePercent = SENSOR_RANGE_PERCENT * effectLevel;
@@ -46,7 +47,7 @@ public class Moci_DefenseDroneStats extends BaseShipSystemScript {
 						(int) ecmPercent + "%"
 				);
 			} catch (Exception e) {
-				desc = "状态激活中";
+				desc = Moci_TextLoader.getText("code_Moci_DefenseDroneStats", "t003", "状态激活中");
 			}
 
 			// 最终状态更新

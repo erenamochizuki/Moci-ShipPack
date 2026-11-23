@@ -1,5 +1,6 @@
 package data.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -935,12 +936,12 @@ public class Moci_CombatSquadCombatPlugin extends BaseEveryFrameCombatPlugin {
                 Object callsignObj = Global.getCombatEngine().getCustomData().get(callsignKey);
                 if (callsignObj instanceof String) {
                     String callsign = (String) callsignObj;
-                    return (callsign != null && !callsign.isEmpty()) ? callsign : ("机师-" + (index + 1));
+                    return (callsign != null && !callsign.isEmpty()) ? callsign : (Moci_TextLoader.getText("code_Moci_CombatSquadCombatPlugin", "t001", "机师-") + (index + 1));
                 }
             }
         } catch (Exception e) {
         }
-        return "机师-" + (index + 1);
+        return Moci_TextLoader.getText("code_Moci_CombatSquadCombatPlugin", "t001", "机师-") + (index + 1);
     }
 
     /**

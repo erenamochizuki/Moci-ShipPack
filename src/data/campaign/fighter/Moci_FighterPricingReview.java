@@ -1,5 +1,6 @@
 package data.campaign.fighter;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
@@ -42,7 +43,7 @@ final class Moci_FighterPricingReview {
             try {
                 for (SubmarketAPI sub : market.getSubmarketsCopy()) {
                     if (sub != null && Moci_FighterMarketGuard.isPlayerStorage(sub)) {
-                        audit.inspectStored(sub.getCargoNullOk(), market.getName() + "仓库：");
+                        audit.inspectStored(sub.getCargoNullOk(), market.getName() + Moci_TextLoader.getText("code_Moci_FighterPricingReview", "t001", "仓库："));
                     }
                 }
             } catch (RuntimeException | LinkageError ex) {
@@ -92,8 +93,8 @@ final class Moci_FighterPricingReview {
         if (increase > 0) {
             int remaining = variant.getUnusedOP(playerStats);
             if (remaining < 0 && remaining + increase >= 0) {
-                notify.accept("航空中队管理：" + label + " 因联队新计价超出 " + -(long) remaining
-                        + " OP，请复核母舰装配。已保留原装配，未扣货物。");
+                notify.accept(Moci_TextLoader.getText("code_Moci_FighterPricingReview", "t002", "航空中队管理：") + label + Moci_TextLoader.getText("code_Moci_FighterPricingReview", "t003", " 因联队新计价超出 ") + -(long) remaining
+                        + Moci_TextLoader.getText("code_Moci_FighterPricingReview", "t004", " OP，请复核母舰装配。已保留原装配，未扣货物。"));
             }
         }
         Map<String, String> modules = variant.getStationModules();

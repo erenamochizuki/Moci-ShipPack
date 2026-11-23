@@ -9,6 +9,7 @@ package data.scripts.weapons;
  * 但按用户要求恢复我方原本的 4 秒变形冷却。
  */
 
+import data.scripts.util.Moci_TextLoader;
 import java.util.Map;
 
 import com.fs.starfarer.api.combat.CombatEngineAPI;
@@ -312,21 +313,21 @@ public final class Moci_MechTransformController implements EveryFrameWeaponEffec
             return;
         }
 
-        String title = "Z高达变形系统";
+        String title = Moci_TextLoader.getText("code_Moci_MechTransformController", "t001", "Z高达变形系统");
         String data;
         boolean isDebuff = false;
 
         if (state == State.TRANSFORMING) {
-            data = "变形中";
+            data = Moci_TextLoader.getText("code_Moci_MechTransformController", "t002", "变形中");
         } else if (state == State.REVERTING || state == State.REVERT_COMPLETE) {
-            data = "复归中";
+            data = Moci_TextLoader.getText("code_Moci_MechTransformController", "t003", "复归中");
         } else if (cooldownTimer > 0f) {
-            data = String.format("冷却 %.1f秒", cooldownTimer);
+            data = String.format(Moci_TextLoader.getText("code_Moci_MechTransformController", "t004", "冷却 %.1f秒"), cooldownTimer);
             isDebuff = true;
         } else if (state == State.TRANSFORMED) {
-            data = "Wave Rider: 基准最高330 / 加速度650 / 转向60，X切换复归";
+            data = Moci_TextLoader.getText("code_Moci_MechTransformController", "t005", "Wave Rider: 基准最高330 / 加速度650 / 转向60，X切换复归");
         } else {
-            data = "MS形态: 加速度220 / 刹车400 / 转向100，X切换变形";
+            data = Moci_TextLoader.getText("code_Moci_MechTransformController", "t006", "MS形态: 加速度220 / 刹车400 / 转向100，X切换变形");
         }
 
         engine.maintainStatusForPlayerShip(STATUS_KEY,

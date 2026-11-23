@@ -277,10 +277,10 @@
     ],
     "moci_howling_launcher":
     [
-        {"file":"sounds/moci/effects/weapon/moci_howling_launcher_01.ogg","pitch":1.00,"volume":0.5},
-        {"file":"sounds/moci/effects/weapon/moci_howling_launcher_01.ogg","pitch":1.00,"volume":0.4},
-        {"file":"sounds/moci/effects/weapon/moci_howling_launcher_02.ogg","pitch":1.00,"volume":0.5},
-        {"file":"sounds/moci/effects/weapon/moci_howling_launcher_02.ogg","pitch":1.00,"volume":0.4},
+        {"file":"sounds/moci/effects/weapon/moci_howling_launcher_01.ogg","pitch":1.00,"volume":0.8},
+        {"file":"sounds/moci/effects/weapon/moci_howling_launcher_01.ogg","pitch":1.00,"volume":0.75},
+        {"file":"sounds/moci/effects/weapon/moci_howling_launcher_02.ogg","pitch":1.00,"volume":0.8},
+        {"file":"sounds/moci/effects/weapon/moci_howling_launcher_02.ogg","pitch":1.00,"volume":0.75},
     ],
 
   # ================================================================

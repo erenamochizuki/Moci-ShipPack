@@ -1,5 +1,6 @@
 package data.shipsystems.scripts;
 
+import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
@@ -104,11 +105,11 @@ public class Moci_SuperTimporalStats extends BaseShipSystemScript {
 	public StatusData getStatusData(int index, State state, float effectLevel) {
 		// 状态栏显示逻辑
 		if (index == 0) {
-			return new StatusData("时空加速场激活", false);
+			return new StatusData(Moci_TextLoader.getText("code_Moci_SuperTimporalStats", "t001", "时空加速场激活"), false);
 		}
 		if (index == 1) {
 			float timeMult = 1f + (MAX_TIME_MULT - 1f) * effectLevel;
-			return new StatusData("主观时间流速 x" + String.format("%.1f", timeMult), false);
+			return new StatusData(Moci_TextLoader.getText("code_Moci_SuperTimporalStats", "t002", "主观时间流速 x") + String.format("%.1f", timeMult), false);
 		}
 		return null;
 	}
