@@ -75,6 +75,8 @@
         "no_items_exchanged": "未兑换商品",
         "insufficient_commodity": "资源不足，无法兑换 {name} (需要 {required} 个 {commodity}，当前拥有 {current} 个)",
         "insufficient_credits": "星币不足，无法兑换 {name} (需要 {required} 星币，当前拥有 {current} 星币)",
+        "insufficient_total_commodity": "{commodity}不足：所选商品共需 {required} 个，当前只有 {current} 个",
+        "insufficient_total_credits": "星币不足：所选商品共需 {required} 星币，当前只有 {current} 星币",
         "exchange_failed": "兑换失败：资源不足",
         "exchanged_item": "已兑换：{name}",
         "unsupported_sale_item": "不支持直接出售的奖品：{id}",
@@ -83,7 +85,7 @@
         "ticket_count": "兑奖券 x {tickets}",
         "cost_heading": "购买开销",
         "credits_count": "星币 x {num}",
-        "partial_due_to_shortage": "持有的兑换物不足，仅能兑换部分选中物品",
+        "partial_due_to_shortage": "持有的兑奖券不足，确认后不会兑换任何物品",
         "current_action": "当前操作：",
         "credits_delta": "星币 {delta}"
       },

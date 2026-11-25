@@ -195,6 +195,32 @@ public final class Moci_AirSquadronArt {
         ancestors.remove(variant);
     }
 
+    /**
+     * 实机装饰武器脚本（everyFrameEffect）在战斗里会把关联的 <槽位>_SOURCE 真武器、<槽位>_FOLLOW 跟随武器隐藏掉。
+     * 战役界面没有战斗回调，奖励预览按同一张表把这些槽位略去，画面才和实机一致。
+     * 清单与 tools/tests/MociPausedWeaponVisibilityRegression.java 的 RULES 一一对应；新增装饰脚本时两边一起加。
+     */
+    private static final Set<String> HIDE_SOURCE_EFFECTS = Set.of(
+            "Moci_MechHeadDecoWeaponEffect_ShroudedDragon", "Moci_MechProjDecoWeaponEffect",
+            "Moci_MechProjDecoWeaponEffect_Animation", "Moci_MechProjDecoWeaponEffect_Charge",
+            "Moci_MechProjDecoWeaponEffect_GM", "Moci_MechProjDecoWeaponEffect_PsyZaku",
+            "Moci_MechProjDecoWeaponEffect_shield_arm_Hide", "Moci_MechProjDecoWeaponEffect_Zaku",
+            "Moci_MechProjDecoWeaponWithShieldControl_Effect", "Moci_MechProjDecoWeaponWithShield_Effect",
+            "Moci_MechShoulderDecoWeaponEffect", "Moci_MechHeadDecoWeaponEfect",
+            "Moci_MechShoulderDecoWeaponEffect_MS", "Moci_MechShoulderDecoWeaponEffect_Zaku",
+            "Moci_MechShoulderDecoWeaponEffect_PsyZaku", "Moci_AMX004ShoulderDecoWeaponEffect",
+            "Moci_HoarShroudDragonShoulderDecoEffect", "Moci_HoarShroudDragonShoulderDecoWeaponEffect");
+    private static final Set<String> HIDE_FOLLOW_EFFECTS = Set.of(
+            "Moci_AMX004ArmDecoWeaponEffect", "Moci_MechHeadDecoWeaponEffect_ShroudedDragon",
+            "Moci_MechProjDecoWeaponEffect", "Moci_MechProjDecoWeaponEffect_Animation",
+            "Moci_MechProjDecoWeaponEffect_followControl_no_Hide", "Moci_MechProjDecoWeaponEffect_GM",
+            "Moci_MechProjDecoWeaponEffect_noHide", "Moci_MechProjDecoWeaponEffect_shield_arm",
+            "Moci_MechProjDecoWeaponEffect_shield_arm_Hide", "Moci_MechProjDecoWeaponEffect_shield_arm_keepdef",
+            "Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense", "Moci_MechProjDecoWeaponEffect_shield_arm_RX0",
+            "Moci_MechProjDecoWeaponEffect_shield_arm_v2", "Moci_MechProjDecoWeaponEffect_Zaku",
+            "Moci_MSZ006ShieldArmEffect", "Moci_MechHeadDecoWeaponEfect",
+            "Moci_MechHeadDecoWeaponEfect_noHide", "Moci_MechHeadDecoWeaponEfect_noHide_HeadLightSync");
+
     private Set<String> hiddenPreviewSlots(List<WeaponSlotAPI> slots, Map<String, String> fitted) {
         Set<String> hidden = new java.util.HashSet<>();
         for (WeaponSlotAPI slot : slots) {
@@ -202,24 +228,13 @@ public final class Moci_AirSquadronArt {
             String weaponId = fitted.get(slot.getId());
             if (weaponId == null) continue;
             String effect = previewEffects.computeIfAbsent(weaponId, this::previewEffect);
-            boolean hideSource, hideFollow;
-            // Explicit callback contracts, never a blanket rule for *_SOURCE mounts.
-            switch (effect) {
-                case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect",
-                     "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_Zaku",
-                     "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide" -> {
-                    hideSource = true; hideFollow = true;
-                }
-                case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide",
-                     "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm" -> {
-                    hideSource = false; hideFollow = true;
-                }
-                default -> { continue; }
-            }
+            // 按类名（不含包名）查实机脚本的隐藏规则，脚本换包也不受影响。
+            String simple = effect.substring(effect.lastIndexOf('.') + 1);
+            boolean hideSource = HIDE_SOURCE_EFFECTS.contains(simple), hideFollow = HIDE_FOLLOW_EFFECTS.contains(simple);
+            if (!hideSource && !hideFollow) continue;
             String sourceId = slot.getId() + "_SOURCE";
             if (hideSource) hidden.add(sourceId);
-            boolean followLinked = fitted.containsKey(sourceId)
-                    || (effect.endsWith("_Zaku") && fitted.containsKey(slot.getId() + "_TYPE"));
+            boolean followLinked = fitted.containsKey(sourceId) || fitted.containsKey(slot.getId() + "_TYPE");
             if (hideFollow && followLinked) hidden.add(slot.getId() + "_FOLLOW");
         }
         return hidden;

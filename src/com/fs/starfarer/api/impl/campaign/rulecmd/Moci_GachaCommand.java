@@ -99,8 +99,12 @@ public class Moci_GachaCommand extends BaseCommandPlugin {
         Moci_GachaManager.gachaMemoryItem = resource;
         Moci_GachaManager.gachaMemoryItemNum = unitCost;
         Moci_GachaBatchReceipt receipt = Moci_GachaManager.getInstance().GachaWithDrawResults(cargo, text, count);
-        cargo.removeCommodity(resource, (int) required);
-        AddRemoveCommodity.addCommodityLossText(resource, (int) required, text);
+        // 只按实际完成的抽取次数扣费（奖池中途抽空时少于请求次数）。
+        int performed = receipt.draws().size();
+        if (performed <= 0) return;
+        int charged = performed * unitCost;
+        cargo.removeCommodity(resource, charged);
+        AddRemoveCommodity.addCommodityLossText(resource, charged, text);
         if (count == 1) Moci_GachaRevealDialog.open(dialog, receipt.totals(), count);
         else Moci_GachaBatchDialog.open(dialog, receipt, () -> performDraw(dialog, cargo, count, resource, unitCost));
     }

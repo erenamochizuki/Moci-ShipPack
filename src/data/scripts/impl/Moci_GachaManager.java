@@ -125,162 +125,7 @@ public class Moci_GachaManager {
                 new CargoPickerListener() {
                     @Override
                     public void pickedCargo(CargoAPI cargo) {
-                        if (cargo.isEmpty()) {
-                            dialog.getTextPanel().addPara(text("gacha.shop.no_items_exchanged"));
-                        } else {
-                            Map<String, Integer> resultMap = new HashMap<>();
-                            for (CargoStackAPI stack : cargo.getStacksCopy()) {
-//                                if (stack.isCommodityStack()) {
-//                                    id = stack.getCommodityId();
-//                                    playerCargo.addCommodity(id, (int) stack.getSize());
-//                                    AddRemoveCommodity.addCommodityGainText(id, (int) stack.getSize(), dialog.getTextPanel());
-//                                }
-//                                if (stack.isWeaponStack()) {
-//                                    id = stack.getWeaponSpecIfWeapon().getWeaponId();
-//                                    playerCargo.addWeapons(id, (int) stack.getSize());
-//                                    AddRemoveCommodity.addCommodityGainText(id, (int) stack.getSize(), dialog.getTextPanel());
-//                                }
-//                                if (stack.isFighterWingStack()) {
-//                                    id = stack.getFighterWingSpecIfWing().getId();
-//                                    playerCargo.addFighters(id, (int) stack.getSize());
-//                                    AddRemoveCommodity.addFighterGainText(id, (int) stack.getSize(), dialog.getTextPanel());
-//                                }
-                                if (!stack.isSpecialStack()) {
-                                    continue;
-                                }
-                                String id = stack.getSpecialDataIfSpecial().getData();
-                                int num = 1;
-                                if (resultMap.containsKey(id)) {
-                                    num += resultMap.get(id);
-                                }
-                                resultMap.put(id, num);
-                            }
-                            TextPanelAPI text = dialog.getTextPanel();
-                            Map<String, Integer> costMap = new HashMap<>();
-                            boolean hasInsufficientResources = false;
-                            boolean rewardReceived = false;
-                            if (!resultMap.isEmpty()) {
-                                // 首先检查所有物品是否有足够的资源
-                                for (String id : resultMap.keySet()) {
-                                    Moci_GachaData data = dataMap.get(id);
-                                    int requestedQuantity = resultMap.get(id);
-                                    int requiredCost = data.sellReqItemNum * requestedQuantity;
-                                    
-                                    if (Global.getSettings().getCommoditySpec(data.sellReqItemId) != null) {
-                                        int currentQuantity = (int) playerCargo.getCommodityQuantity(data.sellReqItemId);
-                                        if (currentQuantity < requiredCost) {
-                                            text.addPara(formatText("gacha.shop.insufficient_commodity",
-                                                            mapOf("name", data.name,
-                                                                    "required", String.valueOf(requiredCost),
-                                                                    "commodity", Global.getSettings().getCommoditySpec(data.sellReqItemId).getName(),
-                                                                    "current", String.valueOf(currentQuantity))),
-                                                    Misc.getNegativeHighlightColor());
-                                            hasInsufficientResources = true;
-                                        }
-                                    } else {
-                                        float currentCredits = playerCargo.getCredits().get();
-                                        if (currentCredits < requiredCost) {
-                                            text.addPara(formatText("gacha.shop.insufficient_credits",
-                                                            mapOf("name", data.name,
-                                                                    "required", String.valueOf(requiredCost),
-                                                                    "current", String.valueOf((int) currentCredits))),
-                                                    Misc.getNegativeHighlightColor());
-                                            hasInsufficientResources = true;
-                                        }
-                                    }
-                                }
-                                
-                                // 如果有任何资源不足，则停止兑换
-                                if (hasInsufficientResources) {
-                                    text.addPara(text("gacha.shop.exchange_failed"), Misc.getNegativeHighlightColor());
-                                    return; // 直接返回，不进行任何兑换
-                                }
-                                
-                                // 所有检查通过后，进行实际兑换
-                                for (String id : resultMap.keySet()) {
-                                    Moci_GachaData data = dataMap.get(id);
-                                    int i = resultMap.get(id);
-                                    int record = 0;
-                                    if (Gacha_Recorder.containsKey(id)) {
-                                        record = Gacha_Recorder.get(id);
-                                    }
-                                    record += i;
-                                    if (dataMap.get(id).maxUse > 0 && record >= dataMap.get(id).maxUse) {
-                                        removeItem(id, true);
-                                    }
-                                    Gacha_Recorder.put(id, record);
-                                    int cost = data.sellReqItemNum * i;
-                                    if (costMap.containsKey(data.sellReqItemId)) {
-                                        cost += costMap.get(data.sellReqItemId);
-                                    }
-                                    costMap.put(data.sellReqItemId, cost);
-                                    int num = 0;
-                                    while (i > 0) {
-                                        i--;
-                                        num += data.getItemValue();
-                                    }
-                                    // 添加兑换成功提示
-                                    text.addPara(formatText("gacha.shop.exchanged_item", mapOf("name", data.name)),
-                                            Misc.getPositiveHighlightColor());
-                                    
-                                    // 记录兑换日志
-                                    log.info("玩家兑换：商品 " + data.id + "，消耗兑奖券 x" + cost);
-                                    
-                                    if (data.type == GachaType.Commodity) {
-                                        AddRemoveCommodity.addCommodityGainText(data.itemID, num, text);
-                                        playerCargo.addCommodity(data.itemID, num);
-                                        rewardReceived |= num > 0;
-                                    } else if (data.type == GachaType.Weapon) {
-                                        playerCargo.addWeapons(data.itemID, num);
-                                        rewardReceived |= num > 0;
-                                        AddRemoveCommodity.addWeaponGainText(data.itemID, num, text);
-                                    } else if (data.type == GachaType.Fighter) {
-                                        playerCargo.addFighters(data.itemID, num);
-                                        rewardReceived |= num > 0;
-                                        AddRemoveCommodity.addFighterGainText(data.itemID, num, text);
-                                    } else if (data.type == GachaType.SpecialItem) {
-                                        SpecialItemData specialItem = new SpecialItemData(data.itemID, data.param);
-                                        AddRemoveCommodity.addItemGainText(specialItem, num, text);
-                                        playerCargo.addSpecial(specialItem, num);
-                                        rewardReceived |= num > 0;
-                                    } else if (data.type == GachaType.ShipID) {
-                                        log.info("商店兑换舰船: ID=" + data.id + ", ItemID=" + data.itemID);
-                                        if (Global.getSettings().getHullSpec(data.itemID) != null) {
-                        String variantId = findValidVariantId(data.itemID);
-                        if (variantId != null) {
-                            playerCargo.getFleetData().addFleetMember(variantId);
-                            rewardReceived = true;
-                            log.info("商店兑换成功生成舰船: HullID=" + data.itemID + ", VariantID=" + variantId);
-                        } else {
-                            text.addPara(formatText("gacha.error.missing_variant", mapOf("id", data.itemID)));
-                            log.error("商店兑换舰船变体不存在: HullID=" + data.itemID);
-                        }
-                                        } else {
-                                            text.addPara(formatText("gacha.error.invalid_ship", mapOf("id", data.id)));
-                                            log.error("商店兑换非法舰船: ID=" + data.id + ", ItemID=" + data.itemID);
-                                        }
-                                    } else {
-                                        text.addPara(formatText("gacha.shop.unsupported_sale_item", mapOf("id", data.id)));
-                                    }
-
-                                }
-                            }
-                            if (!costMap.isEmpty()) {
-                                for (String id : costMap.keySet()) {
-                                    int num = costMap.get(id);
-                                    if (Global.getSettings().getCommoditySpec(id) != null) {
-                                        playerCargo.removeCommodity(id, num);
-                                        AddRemoveCommodity.addCommodityLossText(id, num, text);
-                                    } else {
-                                        playerCargo.getCredits().subtract(num);
-                                        AddRemoveCommodity.addCreditsLossText(num, text);
-                                    }
-                                }
-                            }
-                            if (rewardReceived) {
-                                Moci_CampaignFeedback.playRewardReceived();
-                            }
-                        }
+                        exchangePicked(dialog, playerCargo, cargo);
                     }
 
                     @Override
@@ -312,7 +157,8 @@ public class Moci_GachaManager {
                                 if (stack == null || !stack.isSpecialStack()) {
                                     continue;
                                 }
-                                Moci_GachaData data = dataMap.get(stack.getSpecialDataIfSpecial().getData());
+                                Moci_GachaData data = stack.getSpecialDataIfSpecial() == null ? null : dataMap.get(stack.getSpecialDataIfSpecial().getData());
+                                if (data == null) continue;
                                 int num = (int) stack.getSize();
                                 if (resultMap.containsKey(data)) {
                                     num += resultMap.get(data);
@@ -363,6 +209,7 @@ public class Moci_GachaManager {
                                 panel.addPara(text("gacha.shop.current_action"), 10);
                                 String id = pickedUp.getSpecialDataIfSpecial().getData();
                                 Moci_GachaData data = dataMap.get(id);
+                                if (data == null) return;
                                 id = data.sellReqItemId;
                                 CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(id);
                                 String add = " + ";
@@ -384,6 +231,111 @@ public class Moci_GachaManager {
                     }
                 });
 
+    }
+
+    /**
+     * 定向泽科诺瓦兑换结算：先按“所选全部商品 × 数量”汇总每种兑换物的总价，
+     * 任何一种不够就整单取消（不扣、不发）；够了才先扣兑换物，再逐件发放。
+     * 旧实现逐件比价、每个堆叠只算 1 件，导致兑奖券不够也能换、多选数量被吞。
+     */
+    private void exchangePicked(InteractionDialogAPI dialog, CargoAPI playerCargo, CargoAPI cargo) {
+        TextPanelAPI text = dialog.getTextPanel();
+        Map<String, Integer> picked = new LinkedHashMap<>();
+        if (cargo != null) {
+            for (CargoStackAPI stack : cargo.getStacksCopy()) {
+                if (stack == null || !stack.isSpecialStack() || stack.getSpecialDataIfSpecial() == null) continue;
+                String id = stack.getSpecialDataIfSpecial().getData();
+                Moci_GachaData data = dataMap.get(id);
+                int quantity = (int) stack.getSize();
+                if (data == null || quantity <= 0 || data.sellReqItemId == null || data.sellReqItemId.isEmpty()) continue;
+                picked.merge(id, quantity, Integer::sum);
+            }
+        }
+        if (picked.isEmpty()) {
+            text.addPara(text("gacha.shop.no_items_exchanged"));
+            return;
+        }
+        Map<String, Long> required = new LinkedHashMap<>();
+        for (Map.Entry<String, Integer> entry : picked.entrySet()) {
+            Moci_GachaData data = dataMap.get(entry.getKey());
+            required.merge(data.sellReqItemId, (long) data.sellReqItemNum * entry.getValue(), Long::sum);
+        }
+        boolean insufficient = false;
+        for (Map.Entry<String, Long> entry : required.entrySet()) {
+            CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(entry.getKey());
+            long have = spec != null ? (long) playerCargo.getCommodityQuantity(entry.getKey()) : (long) playerCargo.getCredits().get();
+            if (have >= entry.getValue()) continue;
+            insufficient = true;
+            if (spec != null) {
+                text.addPara(formatText("gacha.shop.insufficient_total_commodity", mapOf(
+                        "commodity", spec.getName() == null ? entry.getKey() : spec.getName(), "required", String.valueOf(entry.getValue()), "current", String.valueOf(have))),
+                        Misc.getNegativeHighlightColor());
+            } else {
+                text.addPara(formatText("gacha.shop.insufficient_total_credits", mapOf(
+                        "required", String.valueOf(entry.getValue()), "current", String.valueOf(have))),
+                        Misc.getNegativeHighlightColor());
+            }
+        }
+        if (insufficient) {
+            text.addPara(text("gacha.shop.exchange_failed"), Misc.getNegativeHighlightColor());
+            return;
+        }
+        // 先扣兑换物，再发放；两步之间不会再有失败分支。
+        for (Map.Entry<String, Long> entry : required.entrySet()) {
+            int cost = (int) (long) entry.getValue();
+            if (Global.getSettings().getCommoditySpec(entry.getKey()) != null) {
+                playerCargo.removeCommodity(entry.getKey(), cost);
+                AddRemoveCommodity.addCommodityLossText(entry.getKey(), cost, text);
+            } else {
+                playerCargo.getCredits().subtract(cost);
+                AddRemoveCommodity.addCreditsLossText(cost, text);
+            }
+        }
+        boolean rewardReceived = false;
+        for (Map.Entry<String, Integer> entry : picked.entrySet()) {
+            String id = entry.getKey();
+            Moci_GachaData data = dataMap.get(id);
+            int count = entry.getValue();
+            int record = Gacha_Recorder.getOrDefault(id, 0) + count;
+            if (data.maxUse > 0 && record >= data.maxUse) removeItem(id, true);
+            Gacha_Recorder.put(id, record);
+            int num = 0;
+            for (int i = 0; i < count; i++) num += data.getItemValue();
+            text.addPara(formatText("gacha.shop.exchanged_item", mapOf("name", data.name)), Misc.getPositiveHighlightColor());
+            log.info("玩家兑换：商品 " + data.id + " x" + count + "，单价 " + data.sellReqItemNum + " " + data.sellReqItemId);
+            if (data.type == GachaType.Commodity) {
+                AddRemoveCommodity.addCommodityGainText(data.itemID, num, text);
+                playerCargo.addCommodity(data.itemID, num);
+                rewardReceived |= num > 0;
+            } else if (data.type == GachaType.Weapon) {
+                playerCargo.addWeapons(data.itemID, num);
+                AddRemoveCommodity.addWeaponGainText(data.itemID, num, text);
+                rewardReceived |= num > 0;
+            } else if (data.type == GachaType.Fighter) {
+                playerCargo.addFighters(data.itemID, num);
+                AddRemoveCommodity.addFighterGainText(data.itemID, num, text);
+                rewardReceived |= num > 0;
+            } else if (data.type == GachaType.SpecialItem) {
+                SpecialItemData specialItem = new SpecialItemData(data.itemID, data.param);
+                AddRemoveCommodity.addItemGainText(specialItem, num, text);
+                playerCargo.addSpecial(specialItem, num);
+                rewardReceived |= num > 0;
+            } else if (data.type == GachaType.ShipID) {
+                String variantId = Global.getSettings().getHullSpec(data.itemID) == null ? null : findValidVariantId(data.itemID);
+                if (variantId != null) {
+                    // 选了几份就发几艘。
+                    for (int i = 0; i < count; i++) playerCargo.getFleetData().addFleetMember(variantId);
+                    rewardReceived = true;
+                    log.info("商店兑换舰船: HullID=" + data.itemID + ", VariantID=" + variantId + " x" + count);
+                } else {
+                    text.addPara(formatText("gacha.error.missing_variant", mapOf("id", data.itemID)));
+                    log.error("商店兑换舰船失败（舰船或变体不存在）: ID=" + data.id + ", ItemID=" + data.itemID);
+                }
+            } else {
+                text.addPara(formatText("gacha.shop.unsupported_sale_item", mapOf("id", data.id)));
+            }
+        }
+        if (rewardReceived) Moci_CampaignFeedback.playRewardReceived();
     }
 
     public void addShopCargo(CargoAPI shop, WeightedRandomPicker<String> picker) {
@@ -507,6 +459,8 @@ public class Moci_GachaManager {
         List<Moci_GachaData> rolled = new ArrayList<>();
         Map<Moci_GachaData, List<Integer>> slotQuantities = new IdentityHashMap<>();
         Map<Moci_GachaData, Moci_GachaReward> grantedByEntry = new IdentityHashMap<>();
+        // 军官每抽各自生成（姓名、头像、是否转为 AI 核心都可能不同），按抽取顺序逐个记录。
+        Map<Moci_GachaData, List<Moci_GachaReward>> officerGrants = new IdentityHashMap<>();
         String id;
         boolean rewardReceived = false;
         Map<Moci_GachaData, Integer> resultMap = new LinkedHashMap<>();
@@ -559,6 +513,8 @@ public class Moci_GachaManager {
             }
             Global.getSector().getPlayerPerson().getMemoryWithoutUpdate().set("$Moci_GachaNoSSRTime", noSSR);
         }
+        // 奖池中途抽空时循环会提前结束：之后的兑奖券、结果格子和扣费都只按实际抽了的次数算。
+        totalDraws = rolled.size();
         if (!resultMap.isEmpty()) {
             String CreditText = null;
             String Text = null;
@@ -607,9 +563,11 @@ public class Moci_GachaManager {
                     if (Global.getSettings().getHullSpec(data.itemID) != null) {
                         String variantId = findValidVariantId(data.itemID);
                         if (variantId != null) {
-                            cargo.getFleetData().addFleetMember(variantId);
+                            // 同一批里抽中几次就发几艘，每一抽都有自己的舰船。
+                            for (int copy = 0; copy < quantities.size(); copy++) cargo.getFleetData().addFleetMember(variantId);
                             rewardReceived = true;
-                            granted = 1; receiptParam = variantId;
+                            granted = quantities.size(); receiptParam = variantId;
+                            for (int copy = 0; copy < quantities.size(); copy++) quantities.set(copy, 1);
                             log.debug("成功生成舰船: HullID=" + data.itemID + ", VariantID=" + variantId);
                         } else {
                             text.addPara(formatText("gacha.error.missing_variant", mapOf("id", data.itemID)));
@@ -620,57 +578,63 @@ public class Moci_GachaManager {
                         log.error("抽到非法舰船: ID=" + data.id + ", ItemID=" + data.itemID);
                     }
                 } else if (data.type == GachaType.OFFICER) {
-                    log.debug("抽卡获得军官: ID=" + data.id + ", ItemID=" + data.itemID + ", 稀有度=" + data.rare);
-                    WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
-                    Map<String, officerData> officers = null;
-                    boolean out = false;
-                    String coreType = null; // 用于记录替换的核心类型
-                    officers = Officer_Map.get(data.itemID);
-                    if (officers != null && !officers.isEmpty()) {
-                        picker.addAll(officers.keySet());
-                        log.debug("可用军官池: " + data.itemID + ", 数量=" + officers.size() + ", 军官ID列表=" + officers.keySet());
-                    } else {
-                        out = true;
-                        log.info("军官池为空或不存在，转换为AI核心: " + data.itemID);
-                        if ("SSR_Officer".equals(data.itemID)) {
-                            picker = SSR_Officer_Instead_Item;
-                            coreType = Moci_TextLoader.getText("code_Moci_GachaManager", "t009", "阿尔法核心");
-                        } else if ("SR_Officer".equals(data.itemID)) {
-                            picker = SR_Officer_Instead_Item;
-                            coreType = Moci_TextLoader.getText("code_Moci_GachaManager", "t010", "贝塔核心");
+                    log.debug("抽卡获得军官: ID=" + data.id + ", ItemID=" + data.itemID + ", 稀有度=" + data.rare + ", 次数=" + quantities.size());
+                    // 同一批里抽中几次就招募几名（军官池耗尽后转为对应 AI 核心），每一抽单独记录。
+                    List<Moci_GachaReward> grants = new ArrayList<>();
+                    for (int draw = 0; draw < quantities.size(); draw++) {
+                        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
+                        Map<String, officerData> officers = null;
+                        boolean out = false;
+                        String coreType = null; // 用于记录替换的核心类型
+                        officers = Officer_Map.get(data.itemID);
+                        if (officers != null && !officers.isEmpty()) {
+                            picker.addAll(officers.keySet());
+                            log.debug("可用军官池: " + data.itemID + ", 数量=" + officers.size() + ", 军官ID列表=" + officers.keySet());
                         } else {
-                            picker = R_Officer_Instead_Item;
-                            coreType = Moci_TextLoader.getText("code_Moci_GachaManager", "t011", "伽马核心");
+                            out = true;
+                            log.info("军官池为空或不存在，转换为AI核心: " + data.itemID);
+                            if ("SSR_Officer".equals(data.itemID)) {
+                                picker = SSR_Officer_Instead_Item;
+                                coreType = Moci_TextLoader.getText("code_Moci_GachaManager", "t009", "阿尔法核心");
+                            } else if ("SR_Officer".equals(data.itemID)) {
+                                picker = SR_Officer_Instead_Item;
+                                coreType = Moci_TextLoader.getText("code_Moci_GachaManager", "t010", "贝塔核心");
+                            } else {
+                                picker = R_Officer_Instead_Item;
+                                coreType = Moci_TextLoader.getText("code_Moci_GachaManager", "t011", "伽马核心");
+                            }
                         }
-                    }
-                    String pickedId = picker.pick();
-                    log.info("选中的ID: " + pickedId + ", 是否转换为核心=" + out);
-                    if (out) {
-                        // 添加重复军官转化提示
-                        text.addPara(formatText("gacha.officer.convert_duplicate", mapOf("core", coreType)),
-                                com.fs.starfarer.api.util.Misc.getHighlightColor());
-                        AddRemoveCommodity.addCommodityGainText(pickedId, 1, text);
-                        cargo.addCommodity(pickedId, 1);
-                        rewardReceived = true;
-                        granted = 1; receiptType = "Commodity"; receiptItem = pickedId; receiptName = coreType;
-                        log.info("转换为AI核心完成: " + coreType + ", 物品ID=" + pickedId);
-                    } else {
-                        officerData officerInfo = officers.get(pickedId);
-                        PersonAPI officer = officerInfo.genOfficer();
-                        String hire = officerInfo.hireText;
-                        log.info("生成军官: OfficerDataID=" + pickedId + ", 生成的军官名=" + officer.getNameString() + 
-                                ", 等级=" + officer.getStats().getLevel() + ", 性格=" + officer.getPersonalityAPI().getId());
-                        if(hire!=null){
-                            text.addPara(officer.getNameString()+":"+hire);
-                        }
+                        String pickedId = picker.pick();
+                        log.info("选中的ID: " + pickedId + ", 是否转换为核心=" + out);
+                        if (out) {
+                            // 添加重复军官转化提示
+                            text.addPara(formatText("gacha.officer.convert_duplicate", mapOf("core", coreType)),
+                                    com.fs.starfarer.api.util.Misc.getHighlightColor());
+                            AddRemoveCommodity.addCommodityGainText(pickedId, 1, text);
+                            cargo.addCommodity(pickedId, 1);
+                            rewardReceived = true;
+                            grants.add(new Moci_GachaReward(data.id, coreType, "Commodity", pickedId, receiptParam, 1, data.rare, null));
+                            log.info("转换为AI核心完成: " + coreType + ", 物品ID=" + pickedId);
+                        } else {
+                            officerData officerInfo = officers.get(pickedId);
+                            PersonAPI officer = officerInfo.genOfficer();
+                            String hire = officerInfo.hireText;
+                            log.info("生成军官: OfficerDataID=" + pickedId + ", 生成的军官名=" + officer.getNameString() + 
+                                    ", 等级=" + officer.getStats().getLevel() + ", 性格=" + officer.getPersonalityAPI().getId());
+                            if(hire!=null){
+                                text.addPara(officer.getNameString()+":"+hire);
+                            }
 
-                        Global.getSector().getPlayerFleet().getFleetData().addOfficer(officer);
-                        rewardReceived = true;
-                        AddRemoveCommodity.addOfficerGainText(officer, text);
-                        granted = 1; receiptName = officer.getNameString(); portrait = officer.getPortraitSprite();
-                        officers.remove(pickedId);
-                        log.info("军官已添加到舰队，从池中移除: " + pickedId);
+                            Global.getSector().getPlayerFleet().getFleetData().addOfficer(officer);
+                            rewardReceived = true;
+                            AddRemoveCommodity.addOfficerGainText(officer, text);
+                            grants.add(new Moci_GachaReward(data.id, officer.getNameString(), receiptType, receiptItem, receiptParam, 1, data.rare, officer.getPortraitSprite()));
+                            officers.remove(pickedId);
+                            log.info("军官已添加到舰队，从池中移除: " + pickedId);
+                        }
                     }
+                    officerGrants.put(data, grants);
+                    for (Moci_GachaReward grant : grants) mergeSettled(settled, grant);
                 } else {
                     text.addPara(formatText("gacha.error.unknown_prize_type", mapOf("id", data.id)));
                 }
@@ -732,19 +696,37 @@ public class Moci_GachaManager {
             Moci_GachaData data = n < rolled.size() ? rolled.get(n) : null;
             Moci_GachaReward aggregate = grantedByEntry.get(data), reward = null;
             String message = Moci_TextLoader.getText("code_Moci_GachaManager", "t014", "该次未获得可发放奖励");
-            if (aggregate != null) {
+            List<Moci_GachaReward> officerList = data == null ? null : officerGrants.get(data);
+            if (officerList != null) {
                 int offset = offsets.getOrDefault(data, 0);
                 offsets.put(data, offset + 1);
-                // Preserve legacy grouped ship/officer grants. Never invent a second delivery in the UI.
-                boolean groupedUnique = data.type == GachaType.ShipID || data.type == GachaType.OFFICER;
-                int quantity = groupedUnique ? (offset == 0 ? aggregate.quantity() : 0) : slotQuantities.get(data).get(offset);
+                if (offset < officerList.size()) reward = officerList.get(offset);
+            } else if (aggregate != null) {
+                int offset = offsets.getOrDefault(data, 0);
+                offsets.put(data, offset + 1);
+                int quantity = slotQuantities.get(data).get(offset);
                 if (quantity > 0) reward = new Moci_GachaReward(aggregate.id(), aggregate.name(), aggregate.type(),
                         aggregate.itemId(), aggregate.param(), quantity, aggregate.rarity(), aggregate.portrait());
-                else message = groupedUnique ? Moci_TextLoader.getText("code_Moci_GachaManager", "t015", "本批同类奖励已合并结算") : Moci_TextLoader.getText("code_Moci_GachaManager", "t016", "该次发放数量为零");
+                else message = Moci_TextLoader.getText("code_Moci_GachaManager", "t016", "该次发放数量为零");
             }
             slots.add(new Moci_GachaBatchReceipt.Draw(n + 1, reward, message));
         }
         return new Moci_GachaBatchReceipt(slots, settled);
+    }
+
+    /** 汇总里同一物品（例如军官池耗尽后转成的同种 AI 核心）合并成一行；真实军官各自一行。 */
+    private static void mergeSettled(List<Moci_GachaReward> settled, Moci_GachaReward grant) {
+        if (!"OFFICER".equals(grant.type())) {
+            for (int i = 0; i < settled.size(); i++) {
+                Moci_GachaReward r = settled.get(i);
+                if (r.id().equals(grant.id()) && r.type().equals(grant.type()) && r.itemId().equals(grant.itemId())) {
+                    settled.set(i, new Moci_GachaReward(r.id(), r.name(), r.type(), r.itemId(), r.param(),
+                            r.quantity() + grant.quantity(), r.rarity(), r.portrait()));
+                    return;
+                }
+            }
+        }
+        settled.add(grant);
     }
 
     public boolean hasItem(String id) {
@@ -1131,49 +1113,51 @@ public class Moci_GachaManager {
         float brY = y;//cy - 18f;
 
         Moci_GachaData data = dataMap.get(id);
-        SpriteAPI nothing = Global.getSettings().getSprite("default_sell_Item", "bpOverlayShip"); //啥都没有的时候渲染的图
-
+        if (data == null) return;
         if (data.type == GachaType.Weapon) {
-            String weaponId = data.itemID;
-            renderer.renderWeaponWithCorners(weaponId, blX, blY, tlX, tlY, trX, trY, brX, brY, alphaMult, glowMult * 0.5f, false);
+            renderer.renderWeaponWithCorners(data.itemID, blX, blY, tlX, tlY, trX, trY, brX, brY, alphaMult, glowMult * 0.5f, false);
         } else if (data.type == GachaType.Fighter) {
             FighterWingSpecAPI spec = Global.getSettings().getFighterWingSpec(data.itemID);
-            if (spec == null) {
-                nothing.renderWithCorners(blX, blY, tlX, tlY, trX, trY, brX, brY);
-            } else {
-                String hullId = spec.getVariant().getHullSpec().getHullId();
-                renderer.renderShipWithCorners(hullId, null, blX, blY, tlX, tlY, trX, trY, brX, brY,
-                        alphaMult, glowMult * 0.5f, false);
-            }
+            if (spec == null) renderIcon(fallbackIcon(), x, y, w, h, alphaMult);
+            else renderer.renderShipWithCorners(spec.getVariant().getHullSpec().getHullId(), null, blX, blY, tlX, tlY, trX, trY, brX, brY,
+                    alphaMult, glowMult * 0.5f, false);
         } else if (data.type == GachaType.ShipID) {
-            String hullId = data.itemID;
-            renderer.renderShipWithCorners(hullId, null, blX, blY, tlX, tlY, trX, trY, brX, brY,
+            renderer.renderShipWithCorners(data.itemID, null, blX, blY, tlX, tlY, trX, trY, brX, brY,
                     alphaMult, glowMult * 0.5f, false);
         } else if (data.type == GachaType.Commodity) {
             CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(data.itemID);
-            if (spec != null) {
-                nothing = Global.getSettings().getSprite(spec.getIconName());
-            }
-            nothing.renderWithCorners(blX, blY, tlX, tlY, trX, trY, brX, brY);
+            renderIcon(spec == null ? fallbackIcon() : Global.getSettings().getSprite(spec.getIconName()), x, y, w, h, alphaMult);
         } else if (data.type == GachaType.SpecialItem) {
             SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(data.itemID);
-            if (spec != null) {
-                nothing = Global.getSettings().getSprite(spec.getIconName());
-            }
-            nothing.renderWithCorners(blX, blY, tlX, tlY, trX, trY, brX, brY);
-            if (spec != null) {
-                if (spec.getId().equals("ship_bp")) {
-                    renderShipBP(x, y, w, h, alphaMult, glowMult, renderer, data.param);
-                } else if (spec.getId().equals("weapon_bp")) {
-                    renderWeaponBP(x, y, w, h, alphaMult, glowMult, renderer, data.param);
-                } else if (spec.getId().equals("fighter_bp")) {
-                    renderFighterBP(x, y, w, h, alphaMult, glowMult, renderer, data.param);
-                } else if (spec.getId().equals("industry_bp")) {
-                    renderIndustryBP(x, y, w, h, alphaMult, glowMult, renderer, data.param);
-                }
-            }
+            String specId = spec == null ? "" : spec.getId();
+            // 蓝图按原版样式只画一次（卡片底 + 舰船／武器剪影），不再先把蓝图图标拉伸铺满格子。
+            if ("ship_bp".equals(specId) && data.param != null) renderShipBP(x, y, w, h, alphaMult, glowMult, renderer, data.param);
+            else if ("weapon_bp".equals(specId) && data.param != null) renderWeaponBP(x, y, w, h, alphaMult, glowMult, renderer, data.param);
+            else if ("fighter_bp".equals(specId) && data.param != null) renderFighterBP(x, y, w, h, alphaMult, glowMult, renderer, data.param);
+            else if ("industry_bp".equals(specId) && data.param != null) renderIndustryBP(x, y, w, h, alphaMult, glowMult, renderer, data.param);
+            else renderIcon(spec == null ? fallbackIcon() : Global.getSettings().getSprite(spec.getIconName()), x, y, w, h, alphaMult);
         }
+    }
 
+    private static SpriteAPI fallbackIcon() {
+        return Global.getSettings().getSprite("default_sell_Item", "bpOverlayShip");
+    }
+
+    /** 物品图标保持原比例居中，最大占格子短边的 70%，不放大到原图尺寸以上（与原版货物格观感一致）。 */
+    private static void renderIcon(SpriteAPI sprite, float x, float y, float w, float h, float alphaMult) {
+        if (sprite == null || sprite.getWidth() <= 0 || sprite.getHeight() <= 0) return;
+        float box = Math.min(w, h) * 0.7f;
+        float scale = Math.min(1f, Math.min(box / sprite.getWidth(), box / sprite.getHeight()));
+        float oldW = sprite.getWidth(), oldH = sprite.getHeight(), oldAlpha = sprite.getAlphaMult();
+        try {
+            sprite.setSize(oldW * scale, oldH * scale);
+            sprite.setAlphaMult(alphaMult);
+            sprite.setNormalBlend();
+            sprite.renderAtCenter(x + w / 2f, y + h / 2f);
+        } finally {
+            sprite.setSize(oldW, oldH);
+            sprite.setAlphaMult(oldAlpha);
+        }
     }
 
 //    public static List<String> getStringList(String string) {
@@ -1386,7 +1370,8 @@ public class Moci_GachaManager {
         bgColor = Misc.setAlpha(bgColor, 255);
         renderer.renderBGWithCorners(bgColor, blX, blY, tlX, tlY, trX, trY, brX, brY,
                 alphaMult * mult, glowMult * 0.5f * mult, false);
-        renderer.renderShipWithCorners(wingId, null, blX, blY, tlX, tlY, trX, trY, brX, brY,
+        FighterWingSpecAPI wing = Global.getSettings().getFighterWingSpec(wingId);
+        if (wing != null) renderer.renderShipWithCorners(wing.getVariant().getHullSpec().getHullId(), null, blX, blY, tlX, tlY, trX, trY, brX, brY,
                 alphaMult * mult, glowMult * 0.5f * mult, !known);
 
         SpriteAPI overlay = Global.getSettings().getSprite("ui", "bpOverlayFighter");

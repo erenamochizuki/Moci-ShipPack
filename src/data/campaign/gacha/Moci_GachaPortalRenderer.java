@@ -27,6 +27,10 @@ public final class Moci_GachaPortalRenderer {
     private final SpriteAPI[] icons;
     private final Moci_AirSquadronArt.Model[] models;
     private final float[] iconRatios, nativeWidths, nativeHeights;
+    // 固定显示尺寸（UI 像素，0 表示不固定）：军官头像在特写和重点展示里一律按这个边长显示。
+    private final float[] fixedUiSizes;
+    /** 军官头像在揭晓特写与左侧重点展示中的显示边长（UI 像素）。 */
+    public static final float PORTRAIT_UI_SIZE = 128f;
     private final boolean[] faceDown;
     // 三类特效数量：中心细粒子、前景纺锤形粒子、圆形散景光斑；改变数量影响绘制成本。
     private static final int INNER_SPARKS = 320, FOREGROUND_SPINDLES = 120, ROUND_BOKEH = 180;
@@ -57,6 +61,7 @@ public final class Moci_GachaPortalRenderer {
         this.models = models.clone();
         this.icons = icons.clone();
         this.iconRatios = new float[icons.length];
+        this.fixedUiSizes = new float[icons.length];
         this.nativeWidths = new float[icons.length];
         this.nativeHeights = new float[icons.length];
         for (int i = 0; i < icons.length; i++) {
@@ -131,12 +136,24 @@ public final class Moci_GachaPortalRenderer {
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GL11.glShadeModel(GL11.GL_SMOOTH);
             if (batch == null) draw(sequence, Math.max(0, Math.min(2, rank)), true, sequence.index());
-            else if (batch.focusIndex() >= 0) {
-                int index = batch.focusIndex();
-                draw(batch.inspecting() ? batch.ambient() : batch.focusSequence(), batch.rankAt(index), true, index);
-            } else {
-                draw(batch.ambient(), 0, false, 0);
-                drawCards(batch);
+            else {
+                // 列表与 SR／SSR 特写之间交叉淡化：特写开始时列表淡出，特写结束后列表在最后一帧特写上淡入。
+                float cards = batch.cardsVisibility();
+                if (batch.focusIndex() >= 0) {
+                    int index = batch.focusIndex();
+                    draw(batch.inspecting() ? batch.ambient() : batch.focusSequence(), batch.rankAt(index), true, index);
+                    if (cards > 0) withAlpha(cards, () -> { draw(batch.ambient(), 0, false, 0); drawCards(batch); });
+                } else {
+                    Moci_GachaRevealSequence fading = batch.fadingFocus();
+                    if (fading != null && cards < 1) {
+                        int index = batch.fadingFocusIndex();
+                        draw(fading, batch.rankAt(index), true, index);
+                        withAlpha(cards, () -> { draw(batch.ambient(), 0, false, 0); drawCards(batch); });
+                    } else {
+                        draw(batch.ambient(), 0, false, 0);
+                        drawCards(batch);
+                    }
+                }
             }
         } finally {
             GL11.glMatrixMode(GL11.GL_MODELVIEW);
@@ -144,6 +161,28 @@ public final class Moci_GachaPortalRenderer {
             GL11.glMatrixMode(previousMatrix);
             GL11.glPopAttrib();
         }
+    }
+
+    private void withAlpha(float factor, Runnable body) {
+        float saved = alpha;
+        alpha = saved * Moci_GachaRevealSequence.clamp(factor);
+        try { if (alpha > 0) body.run(); } finally { alpha = saved; }
+    }
+
+    /**
+     * 舰船／图标贴图走 SpriteAPI 渲染，结束时会关闭 GL_BLEND。不恢复的话后面画的星星光晕会变成实心圆。
+     * 每次画完贴图都调用一次。
+     */
+    private static void restoreBlend() {
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    /** 圆形粒子的分段数：屏幕上只有几个像素的光点不需要 24 段，减少每帧顶点数。 */
+    private int segments(float radius) {
+        float onScreen = radius * Math.max(stageScaleX, stageScaleY);
+        return onScreen < 4 ? 8 : onScreen < 12 ? 12 : 24;
     }
 
     private void draw(Moci_GachaRevealSequence s, int rank, boolean drawHero, int assetIndex) {
@@ -230,6 +269,11 @@ public final class Moci_GachaPortalRenderer {
             float height = ratio >= 1 ? 390 / ratio : 330;
             float nativeLimit = nativeLimit(assetIndex, width, height);
             width *= nativeLimit; height *= nativeLimit;
+            if (fixedUiSizes[assetIndex] > 0) {
+                float f = fixedUiSizes[assetIndex];
+                width = (ratio >= 1 ? f : f * ratio) / stageScaleX;
+                height = (ratio >= 1 ? f / ratio : f) / stageScaleY;
+            }
             size = Math.min(1f, size); // The reveal bounce must never enlarge a source pixel.
             float rise = showing ? (1f - reveal) * -16f : -28 * (1f - emergence);
             if (showing) {
@@ -247,11 +291,12 @@ public final class Moci_GachaPortalRenderer {
                     if (faceDown[assetIndex]) GL11.glRotatef(180f, 0, 0, 1);
                     models[assetIndex].renderCentered(0, 0, width * size, height * size,
                             emergence * alpha, new Color(value, value, value));
-                } finally { GL11.glPopMatrix(); }
+                } finally { GL11.glPopMatrix(); restoreBlend(); }
             } else if (icons[assetIndex] != null) {
                 float value = showing ? 0.12f + 0.88f * reveal : 0.025f;
                 texture(icons[assetIndex], CX, CY + rise, width * size, height * size, faceDown[assetIndex] ? 180f : 0f,
                         value, value, value, emergence);
+                restoreBlend();
             } else {
                 // An untextured signal diamond is an honest fallback for an unavailable icon.
                 quad(CX, CY + rise, 110 * size, 110 * size, (float) Math.PI / 4, showing ? accent : 0x08100b, emergence);
@@ -298,7 +343,10 @@ public final class Moci_GachaPortalRenderer {
         quad(FEATURE_X, FEATURE_Y, 306, 198, 0, 0x0c141a, .95f * land);
         quad(FEATURE_X, 294, 306, 1, 0, 0x303e47, land);
         if (featured >= 0) {
-            drawAsset(featured, FEATURE_X, FEATURE_Y, 280, 176, 1, land);
+            if (fixedUiSizes[featured] > 0) {
+                float f = fixedUiSizes[featured];
+                drawAsset(featured, FEATURE_X, FEATURE_Y, f / stageScaleX, f / stageScaleY, 1, land);
+            } else drawAsset(featured, FEATURE_X, FEATURE_Y, 280, 176, 1, land);
             rarityStars(FEATURE_X, 264, batch.rankAt(featured), 15, land, PANEL_COLORS[batch.rankAt(featured)]);
         } else seal(FEATURE_X, FEATURE_Y, 1.4f, land);
         for (int i = batch.pageStart(); i < batch.pageEnd(); i++) {
@@ -347,7 +395,7 @@ public final class Moci_GachaPortalRenderer {
         rarityStars(x,y,rank,radius,opacity,RARITY_COLORS[rank]);
     }
     private void rarityStars(float x, float y, int rank, float radius, float opacity, int color) {
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        restoreBlend();
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
         for (int i = 0; i <= rank; i++) glow(x + (i - rank * .5f) * radius * 2.7f, y, radius * 1.6f, color, opacity * .22f);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -394,6 +442,11 @@ public final class Moci_GachaPortalRenderer {
                 nativeHeights[index] / (height * stageScaleY)));
     }
 
+    /** 让某个奖品（军官头像）以固定 UI 像素边长显示；只影响特写和重点展示，卡片小图仍按格子缩放。 */
+    public void setFixedUiSize(int index, float uiPixels) {
+        if (index >= 0 && index < fixedUiSizes.length) fixedUiSizes[index] = Math.max(0f, uiPixels);
+    }
+
     private void drawAsset(int index, float x, float y, float maxW, float maxH, float progress, float opacity) {
         float ratio = iconRatios[index], h = Math.min(maxH, maxW / Math.max(.01f, ratio)), w = h * ratio;
         float nativeLimit = nativeLimit(index, w, h);
@@ -406,9 +459,10 @@ public final class Moci_GachaPortalRenderer {
                 if (faceDown[index]) GL11.glRotatef(180, 0, 0, 1);
                 models[index].renderCentered(0, 0, w, h, opacity * alpha, new Color(value, value, value));
             } finally { GL11.glPopMatrix(); }
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            restoreBlend();
         } else if (icons[index] != null) {
             texture(icons[index], x, y, w, h, faceDown[index] ? 180 : 0, value, value, value, opacity);
+            restoreBlend();
         } else {
             ring(x, y, 22, .2f, 0, 0x9db3a1, opacity * .5f);
         }
@@ -472,11 +526,13 @@ public final class Moci_GachaPortalRenderer {
     }
 
     private void glow(float x, float y, float radius, int c, float opacity) {
+        if (opacity * alpha <= .002f) return;
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glBegin(GL11.GL_TRIANGLE_FAN);
         setColor(c, opacity); GL11.glVertex2f(x, y);
-        for (int i = 0; i <= 24; i++) {
-            float a = i * (float) (Math.PI * 2 / 24);
+        int n = segments(radius);
+        for (int i = 0; i <= n; i++) {
+            float a = i * (float) (Math.PI * 2 / n);
             setColor(c, 0); GL11.glVertex2f(x + cos(a) * radius, y + sin(a) * radius);
         }
         GL11.glEnd();
@@ -484,11 +540,13 @@ public final class Moci_GachaPortalRenderer {
 
     /** Lens-shaped light, pinched to a point at each end, fading smoothly at the edge. */
     private void spindle(float x, float y, float length, float width, float angle, int c, float opacity) {
+        if (opacity * alpha <= .002f) return;
         float ca = cos(angle), sa = sin(angle);
         GL11.glBegin(GL11.GL_TRIANGLE_FAN);
         setColor(c, opacity); GL11.glVertex2f(x, y);
-        for (int i = 0; i <= 24; i++) {
-            float a = i * (float) (Math.PI * 2 / 24), sy = sin(a);
+        int n = Math.max(12, segments(length * .5f));
+        for (int i = 0; i <= n; i++) {
+            float a = i * (float) (Math.PI * 2 / n), sy = sin(a);
             float lx = cos(a) * length * 0.5f, ly = sy * Math.abs(sy) * width * 0.5f;
             setColor(c, 0); GL11.glVertex2f(x + lx * ca - ly * sa, y + lx * sa + ly * ca);
         }
@@ -496,17 +554,19 @@ public final class Moci_GachaPortalRenderer {
     }
 
     private void bokeh(float x, float y, float radius, int c, float opacity) {
+        if (opacity * alpha <= .002f) return;
+        int n = segments(radius);
         GL11.glBegin(GL11.GL_TRIANGLE_FAN);
         setColor(c, opacity); GL11.glVertex2f(x, y);
-        for (int i = 0; i <= 24; i++) {
-            float a = i * (float) (Math.PI * 2 / 24);
+        for (int i = 0; i <= n; i++) {
+            float a = i * (float) (Math.PI * 2 / n);
             setColor(c, opacity * 0.7f);
             GL11.glVertex2f(x + cos(a) * radius * 0.65f, y + sin(a) * radius * 0.65f);
         }
         GL11.glEnd();
         GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
-        for (int i = 0; i <= 24; i++) {
-            float a = i * (float) (Math.PI * 2 / 24), dx = cos(a) * radius, dy = sin(a) * radius;
+        for (int i = 0; i <= n; i++) {
+            float a = i * (float) (Math.PI * 2 / n), dx = cos(a) * radius, dy = sin(a) * radius;
             setColor(c, opacity * 0.7f); GL11.glVertex2f(x + dx * 0.65f, y + dy * 0.65f);
             setColor(c, 0); GL11.glVertex2f(x + dx, y + dy);
         }

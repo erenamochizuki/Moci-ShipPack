@@ -6,7 +6,7 @@ id,trigger,conditions,script,text,options,notes,Column 08,
 # 自定义选项：只在废弃空间站基础上添加额外选项，不覆盖原版功能,,,,,,,,
 moci_GachaExtraOptions,PopulateOptions,"$tag:moci_gachaEntity
 $hasMarket",,,"10:moci_gacha_ops1:接入""沙仑的玫瑰""",,,
-moci_GachaDevOptions,PopulateOptions,"$tag:moci_gachaEntity
+#moci_GachaDevOptions,PopulateOptions,"$tag:moci_gachaEntity
 $hasMarket",,,15:moci_gacha_dev_test:获取测试物资,,,
 moci_GachaDefaultLeave,DialogOptionSelected,$option == moci_gacha_leave score:1000,"ShowDefaultVisual
 FireAll PopulateOptions",,,,,
@@ -52,20 +52,20 @@ moci_gacha_gacha10:抽10次
 moci_gacha_gacha1:抽1次
 moci_gacha_ops2:返回",,,
 ,,,,,,,,
-moci_GachaGacha100,DialogOptionSelected,$option == moci_gacha_gacha100 score:1000,"Moci_GachaCommand ""gacha"" 100
-ShowImageVisual Moci_gacha_Gacha1
+moci_GachaGacha100,DialogOptionSelected,$option == moci_gacha_gacha100 score:1000,"ShowImageVisual Moci_gacha_Gacha1
+Moci_GachaCommand ""gacha"" 100
 SetShortcut moci_gacha_ops2 ""ESCAPE""",,moci_gacha_ops2:继续,,,
-moci_GachaGacha50,DialogOptionSelected,$option == moci_gacha_gacha50 score:1000,"Moci_GachaCommand ""gacha"" 50
-ShowImageVisual Moci_gacha_Gacha1
+moci_GachaGacha50,DialogOptionSelected,$option == moci_gacha_gacha50 score:1000,"ShowImageVisual Moci_gacha_Gacha1
+Moci_GachaCommand ""gacha"" 50
 SetShortcut moci_gacha_ops2 ""ESCAPE""",,moci_gacha_ops2:继续,,,
-moci_GachaGacha20,DialogOptionSelected,$option == moci_gacha_gacha20 score:1000,"Moci_GachaCommand ""gacha"" 20
-ShowImageVisual Moci_gacha_Gacha1
+moci_GachaGacha20,DialogOptionSelected,$option == moci_gacha_gacha20 score:1000,"ShowImageVisual Moci_gacha_Gacha1
+Moci_GachaCommand ""gacha"" 20
 SetShortcut moci_gacha_ops2 ""ESCAPE""",,moci_gacha_ops2:继续,,,
-moci_GachaGacha10,DialogOptionSelected,$option == moci_gacha_gacha10 score:1000,"Moci_GachaCommand ""gacha"" 10
-ShowImageVisual Moci_gacha_Gacha1
+moci_GachaGacha10,DialogOptionSelected,$option == moci_gacha_gacha10 score:1000,"ShowImageVisual Moci_gacha_Gacha1
+Moci_GachaCommand ""gacha"" 10
 SetShortcut moci_gacha_ops2 ""ESCAPE""",,moci_gacha_ops2:继续,,,
-moci_GachaGacha1,DialogOptionSelected,$option == moci_gacha_gacha1 score:1000,"Moci_GachaCommand ""gacha"" 1
-ShowImageVisual Moci_gacha_Gacha1
+moci_GachaGacha1,DialogOptionSelected,$option == moci_gacha_gacha1 score:1000,"ShowImageVisual Moci_gacha_Gacha1
+Moci_GachaCommand ""gacha"" 1
 SetShortcut moci_gacha_ops2 ""ESCAPE""",,moci_gacha_ops2:继续,,,
 ,,,,,,,,
 moci_GachaDialogSelect03,DialogOptionSelected,$option == moci_gacha_ops3 score:1000,"SetShortcut moci_gacha_ops1 ""ESCAPE""","这个装置似乎还提供了向特定的时空和地点进行""泽科诺瓦""的功能，这意味着你可以通过花费大量的能量获得指定的物品，而你手头刚好有合适的能量源。","moci_gacha_ops4:进行""定向泽科诺瓦""
