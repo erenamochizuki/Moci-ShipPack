@@ -1,4 +1,4 @@
-package data.shipsystems.scripts;
+package data.shipsystems.scripts.travel;
 
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
@@ -8,7 +8,7 @@ import data.scripts.util.Moci_Util;
 import java.awt.Color;
 import java.util.List;
 import org.lwjgl.util.vector.Vector2f;
-import static data.shipsystems.scripts.Moci_NebulaGateMotion.*;
+import static data.shipsystems.scripts.travel.Moci_NebulaGateMotion.*;
 
 final class Moci_NebulaCloudFlash implements Moci_Util.NebulaPuffObserver {
     private static final float INTERVAL = .60f, JITTER = .09f, ECHO_DELAY = .15f, LATE_MARGIN = .10f;
