@@ -1341,13 +1341,7 @@
       "param_gamma_core": "Gamma"
     }
   },
-  "Moci_damped_armor": {
-    "description": {
-      "unapplicable_shield_shunt": "与护盾分流器冲突",
-      "unapplicable_front_shield": "与定向护盾生成器冲突",
-      "unapplicable_no_shield": "舰船没有护盾"
-    }
-  },
+  
   "Moci_EinstWeapon": {
     "status": {
       "title": "原生种兵器",

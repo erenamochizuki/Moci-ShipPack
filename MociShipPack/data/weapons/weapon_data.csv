@@ -4,7 +4,6 @@ name,id,tier,rarity,base value,range,damage/second,damage/shot,emp,impact,turn r
 独眼 DEM SRM,Moci_gazer_fighter,,,5000,1200,,200,,15,30,20,3,,,KINETIC,0,,0,2,3,0.1,0,0,0,0,,150,25,5,250,"DO_NOT_AIM, SYSTEM","missile6, merc, rare_bp, damage_special, damage_soft_flux",,,,压制,较慢,良好,,,导弹对目标发射引力子束，在 %s 秒内共造成约 %s 动能伤害。此伤害受导弹武器伤害效果影响，而不受能量武器伤害效果影响。,10 | 1000,,,TRUE,
 重型空雷发射器,Moci_phasecl_bomber,,,100000,2500,,600,600,-25,100,100,5,,,ENERGY,0,,0,0,5,0.25,15,30,5,0,,100,550,55,800,"SYSTEM, STRIKE, BOMB","no_drop, no_sell, no_drop_salvage, restricted",,,,打击,非常慢,无,,,命中时对装甲造成 %s 的额外伤害，且该伤害不受装甲减伤影响。,250,,,TRUE,
 蝰迹 MRM 发射舱,Moci_viper_trace,3,,8000,2000,,150,1500,15,10,16,,,,HIGH_EXPLOSIVE,150,,0,10,4,0.5,0,0,0,,,425,250,16,175,"DO_NOT_AIM, HEATSEEKER","utility13, missile_bp, merc, ind",,,,反引擎,较快,优秀,,,,,,,,
-赛博 SRM 投射阵列,Moci_sabotpod_large,3,,12000,1200,,100,,15,10,28,30,,,KINETIC,0,,0,9,4,0.25,0,0,0,0,,200,150,8,300,GUIDED_POOR,"missile13, strike8, rare_bp, merc, ind",,,,反护盾,较慢,较差,,,当命中船体或装甲时，有 %s 的概率产生打击武器与引擎的电弧，造成 %s EMP。,25% | 200,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 超频热脉冲加农炮,Moci_tpc_cannon,,,100000,1000,,270,,10,0,,,,,ENERGY,216,,0,0.5,1,0,0,10,1,5,,1400,,,,"SYSTEM, SHOW_IN_CODEX","no_drop, no_sell, no_drop_salvage, restricted",,,,通用,,,,,命中护盾时造成 %s 的额外伤害。,33%,,,,
 霰射式热脉冲炮,Moci_tpc_shotgun,,,100000,850,,150,,10,0,,,,,HIGH_EXPLOSIVE,75,,0,0.8,5,0,4,18,1,2,,1400,,,,"SYSTEM, SHOW_IN_CODEX","no_drop, no_sell, no_drop_salvage, restricted",,,,反装甲,,,,,命中时对装甲造成 %s 的额外伤害，且该伤害不受装甲减伤影响。,55,,,,

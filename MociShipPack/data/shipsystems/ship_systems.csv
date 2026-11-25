@@ -33,7 +33,6 @@ Trans-Am,Moci_Trans_AM,,,,,,,,,,1,5,1,10,,,,,,,,,,,,,graphics/icons/hullsys/temp
 相位干扰,Moci_acausaldisruptor,,,,,,0.2,,,,0.1,,0.1,12,,,,,,,,,,,,,graphics/icons/hullsys/quantum_disruptor.png
 幅能裂隙放电,Moci_flux_rift_lightning,,,,,,,,,,0.1,,0.1,4,TRUE,,,,,,,,,,,offensive,graphics/icons/hullsys/quantum_disruptor.png
 能量武器快充,Moci_energy_forgevats,,,,,,-0.2,,2,0.05,0.5,0,0.5,0,,,,,,,,,,,,,graphics/icons/hullsys/missile_autoforge.png
-终结指令,Moci_drone_strike,,,,,,,,10,0.25,0,0.05,0,0,,,,,,,,,,,,,graphics/icons/hullsys/drone_pd_high.png
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,
 紧急机动推进器,Moci_ms_burst_driver,1,,,,,,,4,0.15,0.2,0.6,0.2,,,,,,,,,,,,,,graphics/icons/hullsys/burn_drive.png
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,

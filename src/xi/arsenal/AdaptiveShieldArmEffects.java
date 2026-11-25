@@ -42,8 +42,7 @@ public final class AdaptiveShieldArmEffects implements EveryFrameWeaponEffectPlu
             case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_keepdef" -> new Moci_MechProjDecoWeaponEffect_shield_arm_keepdef();
             case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_RX0" -> new Moci_MechProjDecoWeaponEffect_shield_arm_RX0();
             case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense" -> new Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense();
-            case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide",
-                 "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide" -> new Moci_MechProjDecoWeaponEffect_noHide();
+            case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide" -> new Moci_MechProjDecoWeaponEffect_noHide();
             case "data.scripts.weapons.units.Moci_MSZ006ShieldArmEffect" -> new Moci_MSZ006ShieldArmEffect();
             default -> throw new IllegalArgumentException("Unsupported original shield-arm callback: "+name);
         };

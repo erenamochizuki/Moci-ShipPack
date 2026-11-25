@@ -211,7 +211,6 @@ public final class Moci_AirSquadronArt {
                     hideSource = true; hideFollow = true;
                 }
                 case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide",
-                     "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide", // 附属 mod 用的兼容壳
                      "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm" -> {
                     hideSource = false; hideFollow = true;
                 }

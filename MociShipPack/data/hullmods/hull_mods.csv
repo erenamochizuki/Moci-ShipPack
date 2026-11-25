@@ -10,7 +10,6 @@ Omega特征,Moci_omega_engine,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_Om
 开放式维修龙门架,Moci_open_maintenance_gantry,,,,,,,,TRUE,,0,0,0,0,data.hullmods.carrier.Moci_OpenMaintenanceGantry,这艘船的后勤港口同时可以作为飞行甲板来使用，海量的后勤港口加强了舰队的整备能力，但也导致了搭载舰载机时会提高后勤压力。,强化了舰队后勤能力并且装载舰载机装配会受到惩罚。,,graphics/hullmods/Moci_open_maintenance_gantry.png
 龙门架舰队效果,Moci_open_maintenance_gantry_fleet_effect,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.carrier.Moci_OpenMaintenanceGantryFleetEffect,你不应该看到这个船插,,,
 ,,,,,,,,,,,,,,,,,,,
-固定反转,Moci_anchorrotation,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_AnchorRotation,该结构围绕着固定锚点进行反向旋转，仅适用于空间站模块。,,,graphics/hullmods/axial_rotation.png
 隐藏插件,Moci_hidden_hullmod,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.module.Moci_Hidden_Hullmod,,,,
 及其易损,Moci_easytobreak,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.Moci_EasyToBreak,这个舰船及其易损，一旦在战斗中被击毁几乎没有任何机会被打捞。,这个舰船及其易损，一旦在战斗中被击毁几乎没有任何机会被打捞。,,graphics/hullmods/rugged_construction.png
 超级甲板,Moci_SuperFlightDeck,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.carrier.Moci_SuperFlightDeck,增加大量甲板,增加大量甲板,,
@@ -26,9 +25,6 @@ Omega特征,Moci_omega_engine,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_Om
 先进甲板改装,Moci_advanced_flight_deck,,,MOCI武库,no_build_in,武器,500000,,TRUE,TRUE,100,100,100,100,data.hullmods.carrier.Moci_AdvancedFlightDeck,,,,graphics/hullmods/Moci_fighter_expand.png
 ,,,,,,,,,,,,,,,,,,,
 轻武器集成,Moci_small_weapon_integration,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_SmallWeaponIntegration,降低 %s 点所有小型能量、实弹武器所需的装配点。,降低小型能量、实弹武器所需装配点。,,graphics/hullmods/Moci_small_weapon_integration.png
-武器超频,Moci_weapon_overload,,,MOCI武库,no_build_in,武器,10000,,TRUE,,100,100,100,100,data.hullmods.Moci_weapon_overload,"这艘舰船搭载了极其先进的武器系统，能够使其搭载的武器发挥出超乎想象的效果。
-
-搭载所有武器的伤害和射速都提升了 %s。",提升搭载武器的射速和伤害。,,graphics/hullmods/ballistics_integration.png
 先进装配模式,Moci_advance_weaponIntegration,,,MOCI武库,no_build_in,武器,10000,,TRUE,,100,100,100,100,data.hullmods.Moci_AdvanceWeaponIntegration,"先进的武器装配系统允许舰船搭载更多更重型的武器。
 
 令舰船搭载的装配点数超过 %s 的 %s 和 %s 装配点降低为 %s 。",降低搭载武器所占用的装配点。,,graphics/hullmods/assault_package.png
@@ -42,8 +38,6 @@ Omega特征,Moci_omega_engine,,,,,,,,TRUE,,100,100,100,100,data.hullmods.Moci_Om
 搭载的战机的数量 %s ，降低 %s 的战机战斗范围，提高 %s 的整备下降速率。",翻倍搭载的舰载机的数量。,,graphics/hullmods/Moci_fighter_expand.png
 纳米虫导弹工厂,Moci_nanobot_factory,3,0.5,MOCI武库,"req_spaceport, no_build_in","导弹, 武器",10000,,,,15,30,50,80,data.hullmods.Moci_MissileReload,"为自身搭载能够回收舰船残骸的纳米虫。允许舰船在击杀敌方舰船时回复一定的导弹备弹。纳米虫的释放会影响到对自身舰船的修复 。
 ",击杀舰船回复弹药。,,graphics/hullmods/Moci_MissileReload.png
-阻尼装甲,Moci_damped_armor,3,0.5,MOCI武库,"req_spaceport, no_build_in","护盾, 防御",10000,,,,35,50,65,80,data.hullmods.Moci_DamperArmor,"将舰船的护盾发生器改装成类似阻尼立场的装甲能量发生器。禁用所有武器并移除舰船的飞行甲板。重力干涉装置也导致了舰船的质量翻倍。
-根据舰船等级每秒产生 %s / %s / %s / %s 的硬幅能，减少 %s 船体和装甲受到的伤害，延长 %s 的过载时间。当舰船超载时将失去减伤效果。",禁用武器并大幅减少舰船收到的伤害。,,graphics/hullmods/Moci_damped_armor.png
 高速导弹挂架改装,Moci_highspeed_missilerack,3,0.5,MOCI武库,req_spaceport,"导弹, 武器",10000,,,,8,12,20,30,data.hullmods.Moci_HighSpeedMissileRack,改装导弹的装填系统，用额外驱动的装弹机和挂架实现导弹的高速装填。,快速冷却导弹武器并产生幅能。,,graphics/hullmods/Moci_highspeed_missilerack.png
 高能聚焦武器改装,Moci_high_energy_focus,3,0.5,MOCI武库,"req_spaceport, no_build_in",武器,10000,,,,10,18,26,34,data.hullmods.Moci_HighEnergyFocus,一种集成化的高能聚焦系统，通过额外的武器供能系统使得能量武器能够发挥出远超其原本的性能。,提高能量武器的辐能消耗和伤害，禁用战术系统。,,graphics/hullmods/Moci_high_energy_focus.png
 裂隙排幅回路,Moci_flux_rift_vent,3,0.5,MOCI武库,"req_spaceport, no_build_in",特殊,10000,TRUE,,,8,12,20,30,data.hullmods.Moci_FluxRiftVent,排幅时，每排掉 %s 点幅能就会从系统槽位释放一道裂隙电弧。电弧会优先攻击 %s 范围内最近的敌方舰船、战机和导弹；命中造成 %s 能量伤害和 %s EMP伤害。,排幅时按消散幅能释放裂隙电弧。,,graphics/icons/hullsys/quantum_disruptor.png
