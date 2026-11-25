@@ -11,7 +11,7 @@ import com.fs.starfarer.api.util.Misc;
 import data.scripts.util.Moci_TextLoader;
 
 /**
- * 飞龙「战术系统：X」船插：告诉玩家当前是什么战术系统、有什么效果。
+ * 飞龙「X系统」船插：告诉玩家当前是什么战术系统、有什么效果。
  *
  * <p>本身没有任何效果，也不在船插列表里出现（hull_mods.csv 里 hidden）。玩家在改装界面拆掉它，
  * 内置的 {@link Moci_Pa_HiryuSystemSwitcher} 就把舰船换成循环中下一个模式的舰体，并装上下一个模式的这个船插。</p>

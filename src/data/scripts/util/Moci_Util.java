@@ -1435,6 +1435,11 @@ public class Moci_Util {
 			return this;
 		}
 
+		/** 两条光带的纹理相对世界坐标的旋转角度（度）；默认固定在原来的角度。 */
+		public float getAuroraTextureRotation() {
+			return 0f;
+		}
+
 		/** 半径会逐帧变化时开启，见 lockTexTiling */
 		public AuroraParams setLockTexTiling(boolean lockTexTiling) {
 			this.lockTexTiling = lockTexTiling;
@@ -1707,6 +1712,7 @@ public class Moci_Util {
 				lockedTotalTex = 0f;
 			}
 			float texPerSegment = totalTex / segments;
+			float rotationOffset = -params.getAuroraTextureRotation() / 360f * totalTex;
 
 			float texWidth = tex.getTextureWidth();
 			leftTX0 = texWidth * bandWidthInTexture / imageWidth;
@@ -1722,7 +1728,7 @@ public class Moci_Util {
 			float maxExtent = 0f;
 
 			for (int iter = 0; iter < 2; iter++) {
-				float texStart = iter == 0 ? 0f : texStart1;
+				float texStart = (iter == 0 ? 0f : texStart1) + rotationOffset;
 				for (int i = 0; i < stride; i++) {
 					int segIndex = i % segments;
 					float phaseRad;

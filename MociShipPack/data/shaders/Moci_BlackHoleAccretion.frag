@@ -12,8 +12,18 @@ uniform float u_spin;    // 1.0 = counter-clockwise, -1.0 = clockwise
 uniform vec3 u_colCore;
 uniform vec3 u_colMid;
 uniform vec3 u_colEdge;
+uniform float u_growth;  // 0 at launch size, approaches 1 as the hole grows (mass)
 
 varying vec2 v_pos;
+
+// Near-horizon emission. Kept moderate on purpose: this pass is added straight into the frame
+// before the lens captures it, so anything brighter saturates to flat white and buries both the
+// spiral structure and the shadow edge. The lens draws the bright photon ring itself.
+const float GLOW_FALLOFF = 0.9;        // inner glow e-folding distance, in horizon radii
+const float GLOW_BASE = 0.10;
+const float GLOW_DENSITY = 0.42;
+const float LIP_MIN = 0.25;            // inner lip brightness on the cool side
+const float LIP_MAX = 0.80;            // inner lip brightness on the hot side
 
 const float PI = 3.14159265;
 const float TAU = 6.28318531;
@@ -56,7 +66,7 @@ vec2 brightDir(float t, float seed) {
     return vec2(cos(a), sin(a));
 }
 
-vec3 diskPass(vec2 p, float r, vec2 dir, float rs, float cloudEnd, float death, float seed) {
+vec3 diskPass(vec2 p, float r, vec2 dir, float rs, float cloudEnd, float death, float seed, float flash) {
     float t = u_time;
     float rn = r / rs;
     float ang = atan(p.y, p.x + 0.000001);
@@ -82,27 +92,33 @@ vec3 diskPass(vec2 p, float r, vec2 dir, float rs, float cloudEnd, float death, 
     // Radial envelopes: x is 0 at the horizon and 1 at the cloud edge.
     float x = clamp((r - rs) / max(cloudEnd - rs, 0.0001), 0.0, 1.0);
     float envCloud = (1.0 - x) * (1.0 - x);
-    float glow = exp(-max(rn - 1.0, 0.0) / 1.5);
+    float glow = exp(-max(rn - 1.0, 0.0) / GLOW_FALLOFF);
 
     // One hot inner lip that falls off into the disk, not a second detached band.
     float lop = 0.5 + 0.5 * dot(dir, brightDir(t, seed));
     float hotSide = lop * lop;
     float lip = exp(-max(rn - 1.0, 0.0) / mix(0.12, 0.37, hotSide));
-    lip *= mix(0.32, 1.02, hotSide) * (1.0 + 0.35 * sin(PI * death));
+    lip *= mix(LIP_MIN, LIP_MAX, hotSide) * (1.0 + 0.35 * sin(PI * death));
 
     vec3 cloudCol = mix(u_colEdge, u_colMid, smoothstep(0.0, 0.55, envCloud));
     vec3 rgb = cloudCol * envCloud * dens * 0.92
-             + mix(u_colMid, u_colCore, 0.65) * glow * (0.20 + 0.64 * dens)
+             + mix(u_colMid, u_colCore, 0.65) * glow * (GLOW_BASE + GLOW_DENSITY * dens)
              + u_colCore * lip;
 
     // Anamorphic lens-flare streak through the centre (always screen-horizontal), kept at least
     // ~1.5 pixels thick so it does not shimmer when the hole is small or the view is zoomed out.
+    // It grows stronger with mass: brighter core line, wider soft wing; the quad (and so the
+    // streak length) is also lengthened on the Java side. The burst flash briefly blows it out.
+    float g = clamp(u_growth, 0.0, 1.0);
+    float gEase = g * g * (3.0 - 2.0 * g);
     float px = fwidth(v_pos.y);
-    float h = max(0.10 * rs, 1.5 * px);
+    float h = max((0.10 + 0.05 * gEase) * rs, 1.5 * px);
     float ay = abs(p.y);
     float lenFall = 1.0 - smoothstep(0.0, 1.0, abs(p.x));
-    float streak = (exp(-ay / h) + 0.22 * exp(-ay / (h * 5.0))) * lenFall * lenFall;
-    rgb += mix(u_colMid, u_colCore, 0.8) * streak * 0.39;
+    float wing = 0.22 + 0.45 * gEase;
+    float streak = (exp(-ay / h) + wing * exp(-ay / (h * 5.0))) * lenFall * lenFall;
+    float streakGain = mix(0.25, 1.15, gEase) * (1.0 + 2.5 * flash);
+    rgb += mix(u_colMid, u_colCore, 0.8) * streak * streakGain;
 
     // Filaments: short-lived lightning-like wisps that strike two opposite sectors at a time.
     float slotLen = 0.8;
@@ -121,8 +137,9 @@ vec3 diskPass(vec2 p, float r, vec2 dir, float rs, float cloudEnd, float death, 
         rgb += u_colCore * wisp * sector * radial * flick * 0.9;
     }
 
-    // Fade to nothing before the quad border so the quad itself never shows.
-    float border = 1.0 - smoothstep(0.90, 1.0, max(abs(p.x), abs(p.y)));
+    // Fade to nothing before the quad border so the quad itself never shows. Uses the real quad
+    // position (v_pos), because during the burst p is a shrunken sampling position.
+    float border = 1.0 - smoothstep(0.90, 1.0, max(abs(v_pos.x), abs(v_pos.y)));
     // A faint, continuous source sheet: cutting a second black silhouette into the
     // input projects a spurious black crescent. Only the lens owns the shadow.
     float inner = 1.0 - smoothstep(0.12, 1.35, rn);
@@ -134,8 +151,45 @@ void main() {
     vec2 p = v_pos;
     float r = length(p);
     float rs = max(u_shape.x, 0.0001);
+    float cloudEnd = u_shape.y;
+    float death = clamp(u_shape.z, 0.0, 1.0);
+    float seed = u_shape.w;
     vec2 dir = p / max(r, 0.00001);
 
-    vec3 rgb = diskPass(p, r, dir, rs, u_shape.y, u_shape.z, u_shape.w);
+    // Burst timeline (death 0..1): a sharp flash at the very start, everything else eases out.
+    float e = 1.0 - pow(1.0 - death, 3.0);
+    float alive = 1.0 - death;
+    float onset = smoothstep(0.0, 0.04, death);
+    float flash = onset * exp(-death * 9.0);
+
+    // Accretion matter is flung outward: sample the disk at a shrunken position so it expands,
+    // and let it thin out faster than the shock ring.
+    float expand = 1.0 + 1.6 * e;
+    vec3 rgb = diskPass(p / expand, r / expand, dir, rs, cloudEnd, death, seed, flash) * alive * alive;
+
+    if (death > 0.0) {
+        float border = 1.0 - smoothstep(0.90, 1.0, max(abs(p.x), abs(p.y)));
+
+        // Core flash.
+        float core = exp(-max(r - 0.5 * rs, 0.0) / (2.5 * rs + 0.04));
+        rgb += u_colCore * core * flash * 2.2;
+
+        // Ragged shock ring racing out from the horizon past the old cloud edge.
+        float ringR = mix(rs, cloudEnd * 2.6, e);
+        float ringW = mix(0.02, 0.09, e);
+        float ragged = 0.55 + 0.9 * fbm(dir * 3.0 + vec2(seed, death * 2.0));
+        float dr = (r - ringR) / ringW;
+        float ring = exp(-dr * dr) * ragged * pow(alive, 1.4) * onset;
+        rgb += mix(u_colMid, u_colCore, 0.7) * ring * 1.4 * border;
+
+        // Radial debris jets inside the ring: noise picks uneven directions, widths and lengths,
+        // so it never reads as evenly spaced spokes.
+        float jn = fbm(dir * 6.0 + vec2(seed * 0.7, seed));
+        float jet = smoothstep(0.56, 0.78, jn);
+        float jetLen = ringR * (0.45 + 0.55 * smoothstep(0.5, 0.85, jn));
+        float spRadial = smoothstep(rs, rs * 1.5, r) * (1.0 - smoothstep(jetLen * 0.6, jetLen, r));
+        rgb += u_colCore * jet * spRadial * onset * alive * alive * 0.9 * border;
+    }
+
     gl_FragColor = vec4(rgb * u_alpha, 1.0);
 }

@@ -162,6 +162,10 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
     // 舰载机/残骸移除阈值
     public static final float FIGHTER_HULK_REMOVE_PENETRATION = 0.8f; // 80%深入后移除
     public static final float ABSORBED_MASS_RATIO = 0.25f; // 吸收质量=船体×25%
+    /** 核心汲取范围：舰船外缘距黑洞中心不超过此距离（世界单位）时，黑洞从它身上汲取质量 */
+    public static final float CORE_SIPHON_RANGE = 125f;
+    /** 核心汲取比例：每 DAMAGE_INTERVAL（0.1 秒）获得舰船质量（ShipAPI.getMass）的千分之一 */
+    public static final float CORE_SIPHON_MASS_FRACTION = 0.001f;
     
     // === 潮汐撕扯EMP伤害参数 ===
     public static final float TIDAL_BASE_EMP_DPS = 200f; // 基础潮汐EMP DPS
@@ -991,6 +995,12 @@ public class Moci_GravityCannonChargeGlow extends BaseCombatLayeredRenderingPlug
             float eventHorizon = rsWorld;
             // 触碰事件视界的判定：舰船边缘触碰到视界即开始受伤
             float distanceToEdge = distance - target.getCollisionRadius(); // 舰船外缘到黑洞中心的距离
+
+            // 核心汲取：舰船外缘进入核心范围后，每个 DAMAGE_INTERVAL 从它身上获得其质量的一部分（不分敌我，不含舰载机）
+            if (tick && !isFighter && distanceToEdge <= CORE_SIPHON_RANGE) {
+                float siphoned = Math.max(0f, target.getMass()) * CORE_SIPHON_MASS_FRACTION;
+                if (siphoned > 0f) Moci_SingularityRenderer.getOrCreate().addMass(this.proj, siphoned);
+            }
             boolean touchingHorizon = distanceToEdge <= eventHorizon;
             
             if (touchingHorizon) {

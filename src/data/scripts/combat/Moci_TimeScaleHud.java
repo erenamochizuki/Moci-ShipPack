@@ -42,6 +42,12 @@ public final class Moci_TimeScaleHud implements Moci_CombatSink {
     private static final String LOG_PREFIX = "[MOCI-TIME] ";
     private static final Logger LOG = Logger.getLogger(Moci_TimeScaleHud.class);
 
+    /**
+     * 常驻排查开关：修饰符条数一变就把世界 / 本舰时间修饰符的 id 和倍率逐条写进日志，
+     * 用来查「世界倍率回不到 ×1.00」到底是谁留下的（禁止挂到 devMode 上）。
+     */
+    public static final boolean TRACE_MODIFIERS = true;
+
     /** 读数变化小于这个量就不重拼字符串（避免每帧分配）。 */
     private static final float EPSILON = 0.01f;
 
@@ -147,6 +153,9 @@ public final class Moci_TimeScaleHud implements Moci_CombatSink {
                 || shipMods != shownShipMods
                 || changed(world, shownWorld)
                 || changed(ship, shownShipValue)) {
+            if (TRACE_MODIFIERS && (worldMods != shownWorldMods || shipMods != shownShipMods)) {
+                traceModifiers(world, ship, worldMods, shipMods);
+            }
             rebuild(world, ship, worldMods, shipMods, showShip);
         }
 
@@ -175,6 +184,39 @@ public final class Moci_TimeScaleHud implements Moci_CombatSink {
         shownShipMods = shipMods;
         shownShip = showShip;
         built = true;
+    }
+
+    /** 条数变化时把每条修饰符的来源 id 和倍率写进日志。只在条数变化时调用，不是每帧。 */
+    private void traceModifiers(float world, float ship, int worldMods, int shipMods) {
+        try {
+            ShipAPI player = engine.getPlayerShip();
+            StringBuilder builder = new StringBuilder(256);
+            builder.append(LOG_PREFIX).append("时间修饰变化 世界 ").append(multText(world))
+                    .append('(').append(worldMods).append(")[");
+            describe(builder, engine.getTimeMult());
+            builder.append("] 本舰 ").append(multText(ship)).append('(').append(shipMods).append(")[");
+            if (player != null && player.getMutableStats() != null) {
+                describe(builder, player.getMutableStats().getTimeMult());
+            }
+            builder.append("] ship=").append(player == null ? "-" : player.getId())
+                    .append(" hull=").append(player == null || player.getHullSpec() == null ? "-" : player.getHullSpec().getHullId())
+                    .append(" t=").append(String.format(Locale.ROOT, "%.2f", engine.getTotalElapsedTime(false)));
+            LOG.info(builder.toString());
+        } catch (RuntimeException | LinkageError failure) {
+            LOG.warn(LOG_PREFIX + "记录时间修饰失败", failure);
+        }
+    }
+
+    private static void describe(StringBuilder builder, MutableStat stat) {
+        if (stat == null || stat.getMultMods() == null) return;
+        boolean first = true;
+        for (java.util.Map.Entry<String, MutableStat.StatMod> entry : stat.getMultMods().entrySet()) {
+            if (!first) builder.append(", ");
+            first = false;
+            MutableStat.StatMod mod = entry.getValue();
+            builder.append(entry.getKey()).append('=')
+                    .append(mod == null ? "?" : String.format(Locale.ROOT, "%.3f", mod.getValue()));
+        }
     }
 
     /** 乘算修饰符条数；读不到就当 0（读数行仍能显示倍率）。 */

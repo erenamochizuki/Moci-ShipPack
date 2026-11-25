@@ -1167,7 +1167,7 @@
     "description": {
       "title": "飞龙级战术系统",
       "current": "当前战术系统： %s 。",
-      "intro": "在改装界面拆掉当前的「战术系统」船插，就会切换到下一个战术系统，顺序为：",
+      "intro": "在改装界面拆掉当前的战术系统船插，就会切换到下一个战术系统，顺序为：",
       "cycle": "# %s 、 %s 、 %s 依次循环。",
       "switch_keep": "切换通过替换为对应型号的舰体完成，武器、船插与 D 插保持不变。",
       "unapplicable_reason": "只能安装在对应战术系统的飞龙级战舰上。",
@@ -1176,17 +1176,17 @@
       "mode_switch_next": "拆掉此船插将切换至 %s 。",
       "config_highenergy_name": "高能聚焦",
       "config_plasma_name": "等离子推进器",
-      "config_recall_name": "召回系统"
+      "config_recall_name": "召回指令"
     }
   },
   "Moci_hiryu_system_highenergy": {
-    "name": "战术系统：高能聚焦"
+    "name": "高能聚焦系统"
   },
   "Moci_hiryu_system_plasma": {
-    "name": "战术系统：等离子推进器"
+    "name": "等离子推进器系统"
   },
   "Moci_hiryu_system_recall": {
-    "name": "战术系统：召回系统"
+    "name": "召回指令系统"
   },
   "Moci_CombatSquadDeployment": {
     "description": {

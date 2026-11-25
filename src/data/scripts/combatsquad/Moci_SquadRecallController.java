@@ -55,10 +55,10 @@ public final class Moci_SquadRecallController {
     /** 距站位不超过此半径即完成集结。 */
     private static final float ARRIVE_DISTANCE = 100f;
     /** 吸附区外缘与到位边缘的速度、朝向响应率（每秒），两者之间按距离线性过渡。 */
-    private static final float OUTER_RESPONSE_RATE = 2f;
-    private static final float INNER_RESPONSE_RATE = 8f;
+    private static final float OUTER_RESPONSE_RATE = 4f;
+    private static final float INNER_RESPONSE_RATE = 16f;
     /** 相对队长的目标接近速度为剩余距离乘以此系数（每秒），上限为僚机航速。 */
-    private static final float APPROACH_RATE = 0.8f;
+    private static final float APPROACH_RATE = 1.8f;
     /** 距站位小于该距离后速度加成按距离收敛，避免高速冲过头。 */
     private static final float SPEED_TAPER_DISTANCE = 300f;
     private static final float SPEED_TAPER_MIN = 0.2f;

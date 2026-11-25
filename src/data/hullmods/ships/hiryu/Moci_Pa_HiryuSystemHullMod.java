@@ -8,9 +8,9 @@ import com.fs.starfarer.api.combat.ShipHullSpecAPI;
  * 飞龙级战术系统相关船插的公共部分。
  *
  * <p>飞龙的三种战术系统各对应一个舰体：本体 {@code Moci_Hiryu}（高能聚焦）与两个隐藏皮肤
- * {@code Moci_Hiryu_Plasma}（等离子推进器）、{@code Moci_Hiryu_Recall}（召回系统）。
+ * {@code Moci_Hiryu_Plasma}（等离子推进器）、{@code Moci_Hiryu_Recall}（召回指令）。
  * 切换战术系统就是把舰船的舰体在这三者之间替换（由内置的 {@link Moci_Pa_HiryuSystemSwitcher} 完成），
- * 不再克隆并改写舰体规格。装配里的「战术系统：X」船插（{@link Moci_Pa_HiryuSystemMode}）
+ * 不再克隆并改写舰体规格。装配里的「X系统」船插（{@link Moci_Pa_HiryuSystemMode}）
  * 只用来显示当前系统，拆掉它就循环到下一个系统。</p>
  */
 abstract class Moci_Pa_HiryuSystemHullMod extends BaseHullMod {
@@ -39,7 +39,7 @@ abstract class Moci_Pa_HiryuSystemHullMod extends BaseHullMod {
       this.nameKey = nameKey;
     }
 
-    /** 拆掉当前模式船插后循环到的下一个模式：高能聚焦 → 召回系统 → 等离子推进器 → 高能聚焦。 */
+    /** 拆掉当前模式船插后循环到的下一个模式：高能聚焦 → 召回指令 → 等离子推进器 → 高能聚焦。 */
     Mode next() {
       switch (this) {
         case HIGH_ENERGY: return RECALL;

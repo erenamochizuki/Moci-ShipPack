@@ -12,6 +12,25 @@ varying vec2 v_uv;
 // Black hole cannon only: 1.00 = original bend, 0.00 = shadow without refraction.
 const float ACCRETION_LENS_STRENGTH = 1.5;
 
+// Black hole cannon shadow and photon ring, all radii in units of the horizon radius rs.
+// The shadow is centred and as large as the horizon, with a short soft edge, so it reads as
+// missing light instead of a black sticker on a white glow.
+const float SHADOW_RADIUS = 1.0;
+const float SHADOW_SOFT = 0.12;        // width of the soft inner edge
+// Photon ring: the thin, brightest line hugging the shadow, plus a fainter secondary image.
+const float PHOTON_RING_RADIUS = 1.03;
+const float PHOTON_RING_WIDTH = 0.028; // never thinner than ~1.2 screen pixels
+const float PHOTON_RING2_RADIUS = 1.12;
+const float PHOTON_RING2_GAIN = 0.35;
+const float PHOTON_RING_GAIN = 1.25;
+// Doppler beaming: the side moving towards the viewer (left, same as the disk hot side) is brighter.
+const float PHOTON_RING_BEAM = 0.45;
+const vec3 PHOTON_RING_COLOR = vec3(1.0, 0.93, 0.82);
+// Light bent around the hole piles up towards the shadow: a soft glow that is brightest at the
+// ring and fades outwards, so the shadow sits inside light instead of being cut into it.
+const float EDGE_GLOW_FALLOFF = 0.28;
+const float EDGE_GLOW_GAIN = 0.32;
+
 vec2 deflectToSourceUV(vec2 uv, float lensWeight){
     float thetaE = rs_rlens_strength.z;
     vec2 px = uv * texSize;
@@ -70,9 +89,15 @@ void main(){
         float travel = clamp(min(reach.x, reach.y), 0.0, 1.0);
         vec2 samplePx = clamp(px + delta * travel, lo, hi);
         vec3 refracted = texture2D(srcTex, samplePx / texSize).rgb;
-        float shadow = length((q - vec2(0.20, -0.18)) * vec2(0.96, 1.22));
-        float transmission = smoothstep(0.22, 1.05, shadow);
-        gl_FragColor = vec4(mix(base, refracted * transmission, fade), 1.0);
+        float transmission = smoothstep(SHADOW_RADIUS - SHADOW_SOFT, SHADOW_RADIUS + 0.02, rn);
+        float w1 = max(PHOTON_RING_WIDTH, 1.2 / rs);
+        float d1 = (rn - PHOTON_RING_RADIUS) / w1;
+        float d2 = (rn - PHOTON_RING2_RADIUS) / (w1 * 2.4);
+        float beam = 1.0 - PHOTON_RING_BEAM + PHOTON_RING_BEAM * clamp(-q.x / max(rn, 0.0001), -1.0, 1.0);
+        float edgeGlow = exp(-max(rn - PHOTON_RING_RADIUS, 0.0) / EDGE_GLOW_FALLOFF) * transmission;
+        float ring = (exp(-d1 * d1) + PHOTON_RING2_GAIN * exp(-d2 * d2) + EDGE_GLOW_GAIN * edgeGlow) * beam;
+        vec3 col = refracted * transmission + PHOTON_RING_COLOR * ring * PHOTON_RING_GAIN;
+        gl_FragColor = vec4(mix(base, col, fade), 1.0);
         return;
     }
     // ~2px anti-aliased horizon edge: solid horizon color inside, blends into the lens outside.

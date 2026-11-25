@@ -82,7 +82,7 @@ public final class Moci_SingularityRenderer extends BaseCombatLayeredRenderingPl
     private static final float RMAX_COEFF = 3.5f;                         // rMax = 3.5 * θE
     private static final float COLLAPSE_THRESHOLD = 100f;              // 事件视界达到此半径（世界单位）后坍塌
     private static final float COLLAPSE_SHRINK_PER_SEC = 140f;         // 坍塌完成后向 0 收缩速度（世界单位/秒）
-    private static final float TRAVEL_MASS_PER_WORLD = 2f;                // 每世界单位位移增加的质量
+    private static final float TRAVEL_MASS_PER_WORLD = 3f;                // 每世界单位位移增加的质量
     private static final float RADIUS_SMOOTH_LERP = 5f;                   // 半径平滑时间常数（秒）
     // 关闭坍塌阶段时：允许继续膨胀到上限并在弹体结束时蒸发
     private static final float NO_COLLAPSE_MAX_RS = 250f;              // 无坍塌时的半径上限（世界单位）
