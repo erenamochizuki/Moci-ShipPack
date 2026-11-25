@@ -5,7 +5,6 @@
     "goalVariant": false,
     "hullId": "Moci_RGM_79P",
     "hullMods": [
-        "Moci_LandingSequence",
         "advancedoptics",
         "autorepair",
         "stabilizedshieldemitter",

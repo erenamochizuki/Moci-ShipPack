@@ -15,7 +15,6 @@ import org.magiclib.subsystems.MagicSubsystemsManager;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
-import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 
@@ -31,8 +30,7 @@ import data.scripts.util.Moci_TextLoader;
  * getOrder 保持默认 0：舰船自带的子系统先拿热键，新人类排在后面。
  *
  * 效果：消耗 300 软幅能，10 秒（本舰时间）内本舰及子模块时流 ×1.5，世界时流 ×1/1.5。
- * 自动新人类（技能监听器的 MociPlayerSkill1_ 修饰）生效时不能开启；
- * 开启期间如果自动新人类触发，本能力立即让位结束，两者不叠加。
+ * 开启时播放 moci_fx_nt 音效。
  * 开启期间周身有极光（{@link Moci_PilotAura}），强度恒定所以尺寸不变，结束时淡出。
  *
  * 强化人的主动能力是它的弱化版，见 {@link Moci_AugmentedHumanSubsystem}：
@@ -47,6 +45,8 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
     private static final String TEXT_ID = "Moci_PlayerSkill1";
     /** LunaSettings 键位项；0 = 不指定，由 MagicLib 自动分配。 */
     public static final String KEY_SETTING = "Moci_NewtypeActivationKey";
+    /** 开启时播放的音效（sounds.json）。 */
+    private static final String ACTIVATE_SOUND = "moci_fx_nt";
 
     public static final float ACTIVE_SECONDS = 10f;
     public static final float SOFT_FLUX_COST = 300f;
@@ -59,12 +59,13 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
             SOFT_FLUX_COST, ACTIVE_SECONDS, SHIP_TIME_MULT, WORLD_TIME_MULT);
 
     private final String effectId;
-    private final String originalId;
     /** 日志里的能力名（新人类 / 强化人）。 */
     private final String label;
     private final float shipTimeMult;
     private final float worldTimeMult;
     private final Moci_PilotAura aura;
+    /** 开启音效的音调：新人类为 1，强化人按强度压低一点，听起来更沉。 */
+    private final float soundPitch;
     /** 写过时流的本舰/子模块。模块掉出模块树后仍在场，必须按记账释放。 */
     private final Set<ShipAPI> touched = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<ShipAPI> scratch = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -86,11 +87,11 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
                                     Moci_PilotAura.Style auraStyle) {
         super(ship);
         this.effectId = effectIdPrefix + ship.getId();
-        this.originalId = "MociPlayerSkill1_" + ship.getId();
         this.label = label;
         this.shipTimeMult = scaledShipTimeMult(strength);
         this.worldTimeMult = 1f / this.shipTimeMult;
         this.aura = new Moci_PilotAura(ship, auraStyle);
+        this.soundPitch = strength >= 1f ? 1f : 0.85f;
     }
 
     /** 按强度比例缩放后的本舰时流倍率：1 + (1.5 - 1) × strength。 */
@@ -145,7 +146,6 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
                 && (engine.getCombatUI().isShowingCommandUI() || engine.getCombatUI().isShowingDeploymentDialog())) {
             return false;
         }
-        if (originalActive()) return false;
         return finitePositive(engine.getTimeMult().getModifiedValue())
                 && finitePositive(ship.getMutableStats().getTimeMult().getModifiedValue());
     }
@@ -163,6 +163,8 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
             guardActive = true;
             engine.addPlugin(new RetreatGuard());
         }
+        // 开启音效：沿用原先自动新人类触发时的 moci_fx_nt。
+        Global.getSoundPlayer().playSound(ACTIVATE_SOUND, soundPitch, 1f, ship.getLocation(), ship.getVelocity());
         if (TRACE) LOG.info(LOG_PREFIX + label + "开启 ship=" + ship.getId() + " 软幅能+" + SOFT_FLUX_COST);
     }
 
@@ -186,10 +188,6 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
             forceStop("玩家换乘");
             return;
         }
-        if (originalActive()) {
-            forceStop("自动新人类触发，让位");
-            return;
-        }
         applyEffects(engine);
     }
 
@@ -206,14 +204,6 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
     @Override
     public String getBriefText() {
         return Moci_TextLoader.getText(TEXT_ID, "subsystem.brief", BRIEF_FALLBACK);
-    }
-
-    @Override
-    public String getExtraInfoText() {
-        if (state == State.READY && originalActive()) {
-            return Moci_TextLoader.getText(TEXT_ID, "subsystem.auto_active", "自动N.T.生效中");
-        }
-        return super.getExtraInfoText();
     }
 
     /** 开启时显示剩余时间；进入/退出/冷却都是 0 秒，MagicLib 默认算法会除以 0。 */
@@ -267,12 +257,6 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
         activeElapsed = false;
         if (state != State.READY) setState(State.READY);
         if (TRACE) LOG.info(LOG_PREFIX + label + "提前结束（" + reason + "） ship=" + ship.getId());
-    }
-
-    /** 自动新人类的修饰（技能监听器写在本舰上，1.5 → 1.0 线性回落）还在起作用。 */
-    private boolean originalActive() {
-        MutableStat.StatMod mod = ship.getMutableStats().getTimeMult().getMultStatMod(originalId);
-        return mod != null && Math.abs(mod.getValue() - 1f) > 0.0001f;
     }
 
     private static void collectTree(ShipAPI root, Set<ShipAPI> out) {

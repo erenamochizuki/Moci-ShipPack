@@ -5,7 +5,6 @@
     "goalVariant": false,
     "hullId": "Moci_RMS_179",
     "hullMods": [
-        "Moci_LandingSequence",
         "advancedoptics",
         "autorepair",
         "auxiliarythrusters",

@@ -1,0 +1,14 @@
+{
+	"baseHullId":"Moci_Hiryu",
+	"skinHullId":"Moci_Hiryu_Recall",
+	"hullName":"飞龙",
+	"descriptionId":"Moci_Hiryu",
+	"incompatibleWithBaseHull":false, # 与本体共用装配
+	"restoreToBaseHull":false, # 修复 D 插后保持当前战术系统
+	"systemId":"recalldevice",
+	# 战术系统切换专用型号：由「定制化战术系统」船插在本体与皮肤之间互换，不在任何地方单独出现
+	"tags":["restricted","no_dealer","no_sell","no_drop","no_drop_salvage","no_bp_drop","no_sim","no_autofit","hide_in_codex"],
+	"addHints":["HIDE_IN_CODEX"],
+	"baseValueMult":1,
+	"spriteName":"graphics/ships/Moci_Hiryu.png",
+}

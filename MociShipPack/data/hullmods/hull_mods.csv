@@ -123,7 +123,7 @@ CR值流失速度提升{%s}，但该舰峰值时间增加{%s}；舰船装配小�
 人形机动兵器,Moci_MobileSuits,,,,,,,,TRUE,,0,0,0,0,data.hullmods.mobilesuit.Moci_MobileSuitsIDcard,<Tooltip created in script>,机动兵器作为独特的舰船类型，不受大多数殉爆和撞击伤害。,,graphics/hullmods/Moci_MobileSuits.png
 可变式框架,Moci_VariableFrame,,,,,,,,TRUE,,0,0,0,0,data.hullmods.mobilesuit.Moci_VariableFrame,<Tooltip created in script>,支持MS/WR形态切换的可变式骨架。,,graphics/hullmods/Moci_VariableFrame.png
 机动装甲,Moci_MobileArmour,,,,,,,,TRUE,,0,0,0,0,data.hullmods.mobilesuit.Moci_MobileArmour,<Tooltip created in script>,机动装甲作为独特的舰船类型，战场表现与通常舰船有所不同。,,graphics/hullmods/Moci_MobileArmor.png
-喷气背包子系统,Moci_MobilitySubsystemHullmod,,,,,,,,TRUE,TRUE,0,0,0,0,xi.arsenal.SmoothMobilityHullmod,启动保留当前惯性并连续加力；原有速度与加减速强度保留，结束时速度加成平滑收回；原生充能、按键、AI与尾焰继续工作。,平滑喷气背包。,,
+喷气背包子系统,Moci_MobilitySubsystemHullmod,,,,,,,,TRUE,TRUE,0,0,0,0,xi.arsenal.SmoothMobilityHullmod,短时大幅提高速度。,短时大幅提高速度。,,
 NTD,Moci_NTDSubsystemHullmod,,,,,,,,TRUE,,0,0,0,0,xi.arsenal.UnicornSharedNtdHullmod,三机共享常驻NTD：启动500软幅能、维持20软幅能每本机秒；关闭按累计时长支付结构成本并进入过载与武器停摆；多机精神共振自动展开并锁定关闭，过载优先强制解除。,常驻NTD与精神感应共振。,,
 抗光束涂层,Moci_antibeamcoating,,,,,,,,TRUE,,0,0,0,0,data.hullmods.Moci_AntiBeamCoating,"在舰船的表面涂装一种特殊的涂层，使得伤害较低的光束武器难以对该舰船造成伤害。同时还会使得舰船免疫日冕等环境伤害。
 
@@ -188,9 +188,9 @@ NTD,Moci_NTDSubsystemHullmod,,,,,,,,TRUE,,0,0,0,0,xi.arsenal.UnicornSharedNtdHul
 ,,,,,,,,,,,,,,,,,,,
 定制化战术系统,Moci_conditional_system_change,,,,,,,,TRUE,,0,0,0,0,data.hullmods.ships.hiryu.Moci_Pa_HiryuSystemSwitcher,高度定制化的舰船允许通过改装的方式更换舰船的战术系统。,更换舰船的战术系统,,graphics/hullmods/Moci_conditional_system_change.png
 ,,,,,,,,,,,,,,,,,,,
-高能聚焦系统,Moci_hiryu_system_highenergy,,,,,,,,TRUE,,0,0,0,0,data.hullmods.ships.hiryu.Moci_Pa_HiryuSystemHighEnergy,当前战术系统为高能聚焦,高能聚焦战术系统,,graphics/hullmods/Moci_hiryu_system_highenergy.png
-召回指令系统,Moci_hiryu_system_recall,,,,,,,,TRUE,,0,0,0,0,data.hullmods.ships.hiryu.Moci_Pa_HiryuSystemRecall,当前战术系统为召回指令,召回指令战术系统,,graphics/hullmods/Moci_hiryu_system_recall.png
-等离子推进器系统,Moci_hiryu_system_plasma,,,,,,,,TRUE,,0,0,0,0,data.hullmods.ships.hiryu.Moci_Pa_HiryuSystemPlasma,当前战术系统为等离子推进器,等离子推进器战术系统,,graphics/hullmods/Moci_hiryu_system_plasma.png
+战术系统：高能聚焦,Moci_hiryu_system_highenergy,,,,,,,,TRUE,,0,0,0,0,data.hullmods.ships.hiryu.Moci_Pa_HiryuSystemHighEnergy,当前战术系统为高能聚焦，拆掉后切换至召回系统。,当前战术系统：高能聚焦,,graphics/hullmods/Moci_hiryu_system_highenergy.png
+战术系统：召回系统,Moci_hiryu_system_recall,,,,,,,,TRUE,,0,0,0,0,data.hullmods.ships.hiryu.Moci_Pa_HiryuSystemRecall,当前战术系统为召回系统，拆掉后切换至等离子推进器。,当前战术系统：召回系统,,graphics/hullmods/Moci_hiryu_system_recall.png
+战术系统：等离子推进器,Moci_hiryu_system_plasma,,,,,,,,TRUE,,0,0,0,0,data.hullmods.ships.hiryu.Moci_Pa_HiryuSystemPlasma,当前战术系统为等离子推进器，拆掉后切换至高能聚焦。,当前战术系统：等离子推进器,,graphics/hullmods/Moci_hiryu_system_plasma.png
 ,,,,,,,,,,,,,,,,,,,
 塞克谬系统,Moci_PsycommuSystem,,,,,,,,TRUE,,0,0,0,0,data.hullmods.mobilesuit.Moci_PsycommuSystem,通过增幅脑电波来让舰船的操作更加得心应手，使得驾驶员可以做出原本难以想象的动作。战术系统启动期间将提高武器射速并降低幅能消耗，同时赋予舰船能够穿越舰船和障碍物的能力。,,,graphics/hullmods/Moci_PsycommuSystem.png
 生物传感器,Moci_BioSensor,,,,,,,,TRUE,,0,0,0,0,data.hullmods.mobilesuit.Moci_BioSensor,通过生物传感器模拟塞克谬系统，战术系统启动期间提供较弱的武器和机动加成；新人类驾驶员仍可获得时流加成。,,,graphics/hullmods/Moci_BioSensor.png

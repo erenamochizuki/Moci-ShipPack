@@ -5,7 +5,6 @@
     "goalVariant": false,
     "hullId": "Moci_MSN_00100",
     "hullMods": [
-        "Moci_LandingSequence",
         "armoredweapons",
         "autorepair",
         "fluxbreakers",

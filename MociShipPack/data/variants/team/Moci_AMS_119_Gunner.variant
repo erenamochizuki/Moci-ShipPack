@@ -5,7 +5,6 @@
     "goalVariant": false,
     "hullId": "Moci_AMS_119",
     "hullMods": [
-        "Moci_LandingSequence",
         "armoredweapons",
         "fluxbreakers",
         "fluxcoil",

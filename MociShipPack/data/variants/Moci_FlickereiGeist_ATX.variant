@@ -5,7 +5,6 @@
     "goalVariant": false,
     "hullId": "Moci_FlickereiGeist",
     "hullMods": [
-        "Moci_LandingSequence",
         "eccm",
         "fluxbreakers",
         "heavyarmor",

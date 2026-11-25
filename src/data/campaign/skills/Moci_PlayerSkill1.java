@@ -2,27 +2,13 @@ package data.campaign.skills;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.characters.ShipSkillEffect;
-import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
-import com.fs.starfarer.api.combat.DamagingProjectileAPI;
-import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
-import com.fs.starfarer.api.input.InputEventAPI;
 import data.scripts.util.Moci_TextLoader;
-import data.scripts.util.Moci_PilotAura;
 import data.shipsystems.scripts.Moci_MissileJammerSystemScript;
 import org.apache.log4j.Logger;
-import org.lazywizard.lazylib.MathUtils;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 public class Moci_PlayerSkill1 {
     private static final Logger LOG = Global.getLogger(Moci_PlayerSkill1.class);
@@ -30,18 +16,6 @@ public class Moci_PlayerSkill1 {
 
     private static final String TEXT_ID = "Moci_PlayerSkill1";
     private static final String AUGMENTED_HUMAN_SKILL_ID = "Moci_AugmentedHumanSkill";
-
-    private static String formatWholeNumber(float value) {
-        return String.valueOf(Math.round(value));
-    }
-
-    private static String formatOneDecimal(float value) {
-        return String.format(Locale.US, "%.1f", value);
-    }
-
-    private static String formatTwoDecimals(float value) {
-        return String.format(Locale.US, "%.2f", value);
-    }
 
     public static class Level1 implements ShipSkillEffect {
 
@@ -115,6 +89,11 @@ public class Moci_PlayerSkill1 {
         }
     }
 
+    /**
+     * 新人类主动能力：亲自驾驶时把 {@link data.subsystems.Moci_NewtypeSubsystem} 挂到座舰上。
+     *
+     * <p>原先这里还有「附近有敌舰 / 高威胁弹药时自动触发时流」的被动效果，已按设计移除，只保留手动主动能力。</p>
+     */
     public static class Level3 implements ShipSkillEffect {
 
         @Override
@@ -139,14 +118,7 @@ public class Moci_PlayerSkill1 {
 
         @Override
         public String getEffectDescription(float level) {
-            return Moci_TextLoader.getTextWithReplacements(TEXT_ID, "description.level3",
-                    Moci_TextLoader.mapOf(
-                            "enemy_range", formatWholeNumber(listener.ENEMY_RANGE),
-                            "projectile_range", formatWholeNumber(listener.PROJECTILE_RANGE),
-                            "ship_time_mult", formatOneDecimal(listener.SHIP_TIME_MULT),
-                            "active_duration", formatWholeNumber(listener.ACTIVE_DURATION),
-                            "cooldown_duration", formatWholeNumber(listener.COOLDOWN_DURATION)
-                    ));
+            return Moci_TextLoader.getText(TEXT_ID, "description.level3");
         }
 
         @Override
@@ -160,55 +132,13 @@ public class Moci_PlayerSkill1 {
         }
     }
 
+    /** 只负责在玩家亲自驾驶时挂载新人类手动子系统。 */
     private static class listener implements AdvanceableListener {
         private static final String LISTENER_DATA_KEY = "MociPlayerSkill1Listener";
 
-        // ========== 可配置参数 ==========
-        // 时间流速相关
-        static final float SHIP_TIME_MULT = 1.5f;        // 舰船时间流速倍率
-        static final float WORLD_TIME_MULT = 0.9f;     // 世界时间流速倍率
-        
-        // 持续时间和冷却时间
-        static final float ACTIVE_DURATION = 20f;      // 效果持续时间（秒）
-        static final float COOLDOWN_DURATION = 50f;    // 冷却时间（秒）
-        
-        // 检测范围（使用距离平方避免平方根运算）
-        static final float ENEMY_RANGE = 1000f;        // 敌方舰船检测范围
-        static final float PROJECTILE_RANGE = 500f;    // 弹药检测范围
-        static final float ENEMY_RANGE_SQ = ENEMY_RANGE * ENEMY_RANGE;
-        static final float PROJECTILE_RANGE_SQ = PROJECTILE_RANGE * PROJECTILE_RANGE;
-        
-        // 威胁阈值
-        static final float MISSILE_DAMAGE_THRESHOLD = 500f;    // 导弹伤害阈值
-        static final float PROJECTILE_DAMAGE_THRESHOLD = 140f; // 弹丸伤害阈值
-        
-        // 性能优化：采样间隔
-        static final float CHECK_FREQUENCY = 0.1f;     // 检测频率（秒）
-
-        // ================================
-        
         final ShipAPI ship;
-        final String id;
-        final String spriteName;
-
-        float coldDown = 0;
-        float active = 0;
-        float checkInterval = 0;
-        Object key = new Object();
-
-        /**
-         * 已经写过时缓的子模块。必须记账：模块掉出父舰的模块树后仍在场，
-         * 只按「当前树」清理会把它身上的修饰符永久留下。
-         */
-        private final Set<ShipAPI> touchedModules = Collections.newSetFromMap(new IdentityHashMap<>());
-        /** 本次挂载是否已经为「船/模块没了」打过日志；只为避免每帧刷屏，重新挂载时复位。 */
-        private boolean releaseLogged;
         /** 新人类手动子系统是否已尝试挂到本舰（成功失败都只试一次，避免每帧重试刷日志）。 */
         private boolean newtypeAttached;
-        /** 生效期间的周身极光（绿 / 蓝绿渐变），尺寸跟随技能强度与碰撞半径。 */
-        private final Moci_PilotAura aura;
-        private ActiveGuard guard;
-        private boolean wasPlayerHost;
 
         public static listener getInstance(ShipAPI ship) {
             Object cached = ship.getCustomData().get(LISTENER_DATA_KEY);
@@ -224,13 +154,10 @@ public class Moci_PlayerSkill1 {
             if (ship == null) {
                 return;
             }
-
             Object listenerObj = ship.getCustomData().remove(LISTENER_DATA_KEY);
             if (listenerObj instanceof listener) {
-                ((listener) listenerObj).unapply();
                 ship.removeListener((listener) listenerObj);
             }
-            for (listener existing : ship.getListeners(listener.class)) existing.unapply();
             ship.removeListenerOfClass(listener.class);
         }
 
@@ -238,364 +165,36 @@ public class Moci_PlayerSkill1 {
             if (ship == null) {
                 return false;
             }
-
             ShipAPI parent = ship.getParentStation();
             return ship.isStationModule() || (parent != null && parent != ship);
         }
 
-        private static ShipAPI getRootShip(ShipAPI ship) {
-            ShipAPI current = ship;
-            while (current != null) {
-                ShipAPI parent = current.getParentStation();
-                if (parent == null || parent == current) {
-                    return current;
-                }
-                current = parent;
-            }
-            return ship;
-        }
-
         private listener(ShipAPI ship) {
             this.ship = ship;
-            this.id = "MociPlayerSkill1_" + ship.getId();
-            this.spriteName = Global.getSettings().getSpriteName("icon", "Moci_skill1");
-            this.aura = new Moci_PilotAura(ship, Moci_PilotAura.Style.NEWTYPE);
         }
 
         @Override
         public void advance(float amount) {
-            // 检查战斗引擎是否可用
-            if (Global.getCombatEngine() == null || Global.getCombatEngine().isPaused()) {
+            CombatEngineAPI engine = Global.getCombatEngine();
+            if (engine == null || engine.isPaused()) {
                 return;
             }
-
-            if (dead(ship)) {
-                releaseForDead(ship, "宿主舰");
+            if (!ship.isAlive() || ship.isHulk() || ship.wasRemoved() || !engine.isEntityInPlay(ship)) {
                 ship.getCustomData().remove(LISTENER_DATA_KEY);
                 ship.removeListener(this);
                 return;
             }
-
-            CombatEngineAPI engine = Global.getCombatEngine();
-            boolean player = isPlayerShip();
-            if (player) wasPlayerHost = true;
-            if (guard != null && !guard.valid()) {
-                finishActivation();
-                return;
-            }
-            if (ship.isShuttlePod() || isChildModule(ship) || transferring(engine, player)) return;
-            if (!player && wasPlayerHost && !hasNpcPilot()) return;
+            if (newtypeAttached || ship.isShuttlePod() || isChildModule(ship)) return;
 
             // 新人类手动主动能力：MagicLib 子系统，挂在玩家当前座舰上。
             // 按键默认由 MagicLib 分配，玩家可在 LunaLib「新人类主动键」里改。
-            if (!newtypeAttached && Global.getCombatEngine().getPlayerShip() == ship) {
+            if (engine.getPlayerShip() == ship) {
                 newtypeAttached = true;
                 try {
                     data.subsystems.Moci_NewtypeSubsystem.attach(ship);
                 } catch (RuntimeException | LinkageError e) {
                     LOG.warn(LOG_PREFIX + "新人类子系统挂载失败 ship=" + ship.getId(), e);
                 }
-            }
-
-            if (coldDown > 0) {
-                coldDown -= amount;
-                return;
-            }
-
-            if (active > 0) {
-                float progress = 1f - (active / ACTIVE_DURATION);
-                apply(player, progress);
-                active -= amount;
-                if (active <= 0) {
-                    finishActivation();
-                }
-            } else {
-                // 性能优化：采样间隔，不是每帧都检测
-                checkInterval -= amount;
-                if (checkInterval > 0) {
-                    return;
-                }
-                checkInterval = CHECK_FREQUENCY;
-                
-                var shipLoc = ship.getLocation();
-                int shipOwner = ship.getOwner();
-                
-                // 性能优化1：使用舰船专用网格检测敌方舰船（1000范围）
-                Iterator<Object> shipIter = Global.getCombatEngine().getShipGrid()
-                        .getCheckIterator(shipLoc, 2000, 2000);
-                
-                while (shipIter.hasNext()) {
-                    Object obj = shipIter.next();
-                    if (!(obj instanceof ShipAPI)) continue;
-                    
-                    ShipAPI t = (ShipAPI) obj;
-                    // 提前过滤：敌对且非残骸
-                    if (t.getOwner() + shipOwner != 1 || t.isHulk()) {
-                        continue;
-                    }
-                    
-                    // 使用距离平方避免平方根运算
-                    float distSq = MathUtils.getDistanceSquared(shipLoc, t.getLocation());
-                    if (distSq <= ENEMY_RANGE_SQ) {
-                        Global.getSoundPlayer().playSound("moci_fx_nt", 1.0f, 0.7f, shipLoc,
-                                ship.getVelocity());
-                        activate(player);
-                        return;
-                    }
-                }
-                
-                // 性能优化2：使用导弹专用网格检测高威胁弹药（500范围）
-                Iterator<Object> missileIter = Global.getCombatEngine().getMissileGrid()
-                        .getCheckIterator(shipLoc, 1000, 1000);
-                
-                while (missileIter.hasNext()) {
-                    Object obj = missileIter.next();
-                    if (!(obj instanceof MissileAPI)) continue;
-                    
-                    MissileAPI missile = (MissileAPI) obj;
-                    // 提前过滤：敌对导弹
-                    if (missile.getOwner() + shipOwner != 1) {
-                        continue;
-                    }
-                    
-                    // 使用距离平方避免平方根运算
-                    float distSq = MathUtils.getDistanceSquared(shipLoc, missile.getLocation());
-                    if (distSq > PROJECTILE_RANGE_SQ) {
-                        continue;
-                    }
-                    
-                    // 检查导弹伤害阈值
-                    if (missile.getDamageAmount() >= MISSILE_DAMAGE_THRESHOLD) {
-                        Global.getSoundPlayer().playSound("moci_fx_nt", 1.0f, 1.0f, shipLoc,
-                                ship.getVelocity());
-                        activate(player);
-                        return;
-                    }
-                }
-                
-                // 性能优化3：使用全对象网格检测高威胁弹丸（500范围）
-                // 注意：这里只检测非导弹的弹丸，因为导弹已经在上面检测过了
-                Iterator<Object> projIter = Global.getCombatEngine().getAllObjectGrid()
-                        .getCheckIterator(shipLoc, 1000, 1000);
-                
-                while (projIter.hasNext()) {
-                    Object obj = projIter.next();
-                    if (!(obj instanceof DamagingProjectileAPI)) continue;
-                    if (obj instanceof MissileAPI) continue; // 跳过导弹，已经检测过
-                    
-                    DamagingProjectileAPI p = (DamagingProjectileAPI) obj;
-                    // 提前过滤：敌对弹丸
-                    if (p.getOwner() + shipOwner != 1) {
-                        continue;
-                    }
-                    
-                    // 使用距离平方避免平方根运算
-                    float distSq = MathUtils.getDistanceSquared(shipLoc, p.getLocation());
-                    if (distSq > PROJECTILE_RANGE_SQ) {
-                        continue;
-                    }
-                    
-                    // 检查弹丸伤害阈值
-                    if (p.getDamageAmount() >= PROJECTILE_DAMAGE_THRESHOLD) {
-                        Global.getSoundPlayer().playSound("moci_fx_nt", 1.0f, 1.0f, shipLoc,
-                                ship.getVelocity());
-                        activate(player);
-                        return;
-                    }
-                }
-            }
-        }
-
-        private void activate(boolean player) {
-            active = ACTIVE_DURATION;
-            guard = new ActiveGuard(Global.getCombatEngine(), player);
-            guard.engine.addPlugin(guard);
-            apply(player, 0f);
-        }
-
-        private boolean transferring(CombatEngineAPI engine, boolean player) {
-            ShipAPI from = engine.getShipPlayerIsTransferringCommandFrom();
-            return from != null && (player || getRootShip(from) == ship);
-        }
-
-        private void finishActivation() {
-            unapply();
-            coldDown = COOLDOWN_DURATION;
-        }
-
-        private final class ActiveGuard extends BaseEveryFrameCombatPlugin {
-            final CombatEngineAPI engine;
-            final boolean player;
-
-            ActiveGuard(CombatEngineAPI engine, boolean player) {
-                this.engine = engine;
-                this.player = player;
-            }
-
-            boolean valid() {
-                return engine == Global.getCombatEngine() && !dead(ship) && !ship.isShuttlePod()
-                        && !isChildModule(ship) && ship.hasListener(listener.this)
-                        && player == isPlayerShip() && !transferring(engine, player)
-                        && (player || !wasPlayerHost || hasNpcPilot());
-            }
-
-            @Override
-            public void advance(float amount, List<InputEventAPI> events) {
-                if (guard == this && !valid()) finishActivation();
-            }
-        }
-
-        private boolean hasNpcPilot() {
-            return ship.getCaptain() != null && !ship.getCaptain().isPlayer()
-                    && ship.getCaptain().getStats().getSkillLevel(TEXT_ID) > 0f;
-        }
-
-        private void apply(boolean player, float progress) {
-            float clampedProgress = Math.max(0f, Math.min(1f, progress));
-            // 技能强度：触发瞬间为 1，随持续时间线性回落到 0（时流倍率也是按它插值的）
-            float effectLevel = 1f - clampedProgress;
-            float shipTimeMult = SHIP_TIME_MULT + (1f - SHIP_TIME_MULT) * clampedProgress;
-            float worldTimeMult = WORLD_TIME_MULT + (1f - WORLD_TIME_MULT) * clampedProgress;
-
-            ship.getMutableStats().getTimeMult().modifyMult(id, shipTimeMult);
-            syncChildModuleTimeMult(shipTimeMult);
-            aura.update(effectLevel);
-
-            var engine = Global.getCombatEngine();
-            // 世界那一半只给玩家舰且必须还活着：舰船被打爆后没人会把它改回 1 倍速，
-            // 于是「开着技能被打死」会把全局永久拖慢 0.9 倍 —— 这就是「进了时缓出不来」。
-            if (player && engine != null && ship.isAlive() && !ship.wasRemoved()) {
-                engine.getTimeMult().modifyMult(id, worldTimeMult);
-                engine.maintainStatusForPlayerShip(
-                        key,
-                        spriteName,
-                        Moci_TextLoader.getText(TEXT_ID, "status.title"),
-                        Moci_TextLoader.getTextWithReplacements(TEXT_ID, "status.time_mult",
-                                Moci_TextLoader.mapOf("ship_time_mult", formatTwoDecimals(shipTimeMult))),
-                        false
-                );
-            } else if (engine != null) {
-                engine.getTimeMult().unmodify(id);
-            }
-            // 重新挂上就是新的一次挂载，允许「船没了」再报一次
-            releaseLogged = false;
-        }
-
-        /**
-         * 这艘船的时缓还该不该存在：判「船没了」。
-         *
-         * <p>为什么判这四条：被打爆（{@code isHulk}）与自然消失（{@code wasRemoved}）都要摘；
-         * 换场后 {@code Global.getCombatEngine()} 会换人或为 null，旧战场的属性表已经没意义；
-         * {@code isEntityInPlay} 覆盖「还活着但已被移出场」这种中间态。</p>
-         */
-        private boolean dead(ShipAPI target) {
-            if (target == null) return true;
-            if (!target.isAlive() || target.isHulk() || target.wasRemoved()) return true;
-            var engine = Global.getCombatEngine();
-            return engine == null || !engine.isEntityInPlay(target);
-        }
-
-        /** 船/模块没了：把本条时缓摘干净并留一条日志。摘除本身幂等，重复调用无害。 */
-        private void releaseForDead(ShipAPI target, String what) {
-            unapply();
-            if (!releaseLogged) {
-                releaseLogged = true;
-                LOG.warn(LOG_PREFIX + what + "已死亡或离场，摘掉时缓（ship="
-                        + (target == null ? "-" : target.getId()) + "）");
-            }
-        }
-
-        private void unapply() {
-            active = 0f;
-            if (guard != null) {
-                guard.engine.getTimeMult().unmodify(id);
-                guard.engine.removePlugin(guard);
-                guard = null;
-            }
-            aura.fade();
-            try {
-                ship.getMutableStats().getTimeMult().unmodify(id);
-            } catch (RuntimeException | LinkageError ignored) {
-                // 舰船已被回收：这条属性表不存在了，没有可摘的东西
-            }
-            clearChildModuleTimeMult();
-        }
-
-        private boolean isPlayerShip() {
-            ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
-            return playerShip != null && !playerShip.isShuttlePod() && getRootShip(playerShip) == ship;
-        }
-
-        private void syncChildModuleTimeMult(float shipTimeMult) {
-            Set<ShipAPI> seen = Collections.newSetFromMap(new IdentityHashMap<>());
-            syncChildModuleTimeMult(ship, shipTimeMult, seen);
-            // 掉出父舰模块树的老模块仍在场，但这一帧没人再写它：
-            // 必须先把它身上的旧修饰符摘掉，否则它会带着时缓活到战斗结束。
-            if (!touchedModules.isEmpty()) {
-                Set<ShipAPI> dropped = Collections.newSetFromMap(new IdentityHashMap<>());
-                for (ShipAPI module : touchedModules) {
-                    if (!seen.contains(module)) dropped.add(module);
-                }
-                for (ShipAPI module : dropped) {
-                    try {
-                        module.getMutableStats().getTimeMult().unmodify(id);
-                    } catch (RuntimeException | LinkageError ignored) {
-                        // 模块已被回收：没有可摘的东西
-                    }
-                    touchedModules.remove(module);
-                }
-            }
-        }
-
-        private void syncChildModuleTimeMult(ShipAPI parent, float shipTimeMult, Set<ShipAPI> visited) {
-            if (parent == null || !visited.add(parent) || parent.getChildModulesCopy() == null) {
-                return;
-            }
-
-            for (ShipAPI module : parent.getChildModulesCopy()) {
-                if (module == null) {
-                    continue;
-                }
-                // 打爆的模块还挂在父舰的模块树里（残骸不立即脱树），必须先摘再跳过：
-                // 否则它会一直带着时缓，而没有任何一帧会再回头处理它。
-                if (dead(module)) {
-                    try {
-                        module.getMutableStats().getTimeMult().unmodify(id);
-                    } catch (RuntimeException | LinkageError ignored) {
-                        // 模块已被回收：没有可摘的东西
-                    }
-                    continue;
-                }
-                module.getMutableStats().getTimeMult().modifyMult(id, shipTimeMult);
-                touchedModules.add(module);
-                syncChildModuleTimeMult(module, shipTimeMult, visited);
-            }
-        }
-
-        private void clearChildModuleTimeMult() {
-            // 按记账清，而不是只按当前模块树清：掉出树的老模块也必须摘
-            for (ShipAPI module : touchedModules) {
-                try {
-                    module.getMutableStats().getTimeMult().unmodify(id);
-                } catch (RuntimeException | LinkageError ignored) {
-                    // 模块已被回收：没有可摘的东西
-                }
-            }
-            touchedModules.clear();
-            clearChildModuleTimeMult(ship, new HashSet<>());
-        }
-
-        private void clearChildModuleTimeMult(ShipAPI parent, Set<ShipAPI> visited) {
-            if (parent == null || !visited.add(parent) || parent.getChildModulesCopy() == null) {
-                return;
-            }
-
-            for (ShipAPI module : parent.getChildModulesCopy()) {
-                if (module == null) {
-                    continue;
-                }
-                module.getMutableStats().getTimeMult().unmodify(id);
-                clearChildModuleTimeMult(module, visited);
             }
         }
     }

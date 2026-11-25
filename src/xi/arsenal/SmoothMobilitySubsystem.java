@@ -41,7 +41,7 @@ public final class SmoothMobilitySubsystem extends Moci_MobilitySubsystem {
     private void clearExit(){ship.getMutableStats().getMaxSpeed().unmodify(OUT_MODIFIER);}
     @Override public void onFinished(){super.onFinished();clearExit();}
     @Override public void onShipDeath(){super.onShipDeath();clearExit();}
-    @Override public String getBriefText(){return "惯性衔接 · 平滑加力";}
+    // 简述沿用父类从 Moci_Hullmod_Texts.json 读取的「短时大幅提高速度」。
     @Override public String getDisplayText(){return emergencyName(ship.getHullSpec())?"紧急机动":"喷气背包";}
     /** Curated exact original Gundam-universe primary families,including their base/D skins.
      * New content may opt in with a semantic tag. The source Mobile_Suit asset folder

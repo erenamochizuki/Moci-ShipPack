@@ -5,7 +5,6 @@
     "goalVariant": false,
     "hullId": "Moci_RGM_89",
     "hullMods": [
-        "Moci_LandingSequence",
         "armoredweapons",
         "auxiliarythrusters",
         "fluxdistributor",

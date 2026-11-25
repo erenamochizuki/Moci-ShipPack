@@ -5,7 +5,6 @@
     "goalVariant": false,
     "hullId": "Moci_RGM_86",
     "hullMods": [
-        "Moci_LandingSequence",
         "advancedoptics",
         "armoredweapons",
         "autorepair",

@@ -5,7 +5,6 @@
     "goalVariant": false,
     "hullId": "Moci_RGM_79",
     "hullMods": [
-        "Moci_LandingSequence",
         "advancedoptics",
         "heavyarmor",
         "unstable_injector",

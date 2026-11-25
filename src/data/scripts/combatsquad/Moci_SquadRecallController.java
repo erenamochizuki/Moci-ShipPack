@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.Global;
@@ -49,8 +50,15 @@ public final class Moci_SquadRecallController {
     /** 召回期间的最大速度加成（%）与机动性加成（%）。 */
     public static final float SPEED_BONUS_PERCENT = 200f;
     public static final float MANEUVER_BONUS_PERCENT = 50f;
-    /** 距站位小于该距离视为到位。 */
-    private static final float ARRIVE_DISTANCE = 120f;
+    /** 距站位不超过此半径时，由吸附接替导航 AI 的推力与转向。 */
+    public static final float ATTRACTION_DISTANCE = 400f;
+    /** 距站位不超过此半径即完成集结。 */
+    private static final float ARRIVE_DISTANCE = 100f;
+    /** 吸附区外缘与到位边缘的速度、朝向响应率（每秒），两者之间按距离线性过渡。 */
+    private static final float OUTER_RESPONSE_RATE = 2f;
+    private static final float INNER_RESPONSE_RATE = 8f;
+    /** 相对队长的目标接近速度为剩余距离乘以此系数（每秒），上限为僚机航速。 */
+    private static final float APPROACH_RATE = 0.8f;
     /** 距站位小于该距离后速度加成按距离收敛，避免高速冲过头。 */
     private static final float SPEED_TAPER_DISTANCE = 300f;
     private static final float SPEED_TAPER_MIN = 0.2f;
@@ -179,7 +187,7 @@ public final class Moci_SquadRecallController {
                 ShipAIConfig savedConfig = savedAI.getConfig();
                 Moci_SquadRecallAI recallAI = new Moci_SquadRecallAI(wingman, savedAI, savedConfig);
                 Entry entry = new Entry(wingman, commander, recallAI, savedAI, savedConfig, order);
-                recallAI.setDestination(computeSlot(entry), commander.getFacing());
+                recallAI.setDestination(computeSlot(entry));
 
                 wingman.setShipAI(recallAI);
                 entry.installedAI = wingman.getShipAI();
@@ -210,12 +218,15 @@ public final class Moci_SquadRecallController {
             if (endReason == null) {
                 entry.elapsed += amount;
                 Vector2f slot = computeSlot(entry);
-                entry.recallAI.setDestination(slot, entry.commander.getFacing());
+                entry.recallAI.setDestination(slot);
                 applyBonus(entry);
-                if (Misc.getDistance(entry.wingman.getLocation(), slot) <= ARRIVE_DISTANCE) {
+                float distance = Misc.getDistance(entry.wingman.getLocation(), slot);
+                if (distance <= ARRIVE_DISTANCE) {
                     endReason = "到位";
                 } else if (entry.elapsed >= TIMEOUT_SECONDS) {
                     endReason = "超时";
+                } else if (distance <= ATTRACTION_DISTANCE) {
+                    applyAttraction(entry, slot, distance, amount);
                 }
             }
             if (endReason != null) {
@@ -278,6 +289,28 @@ public final class Moci_SquadRecallController {
         if (n == 0) return 180f;
         float magnitude = 25f * ((n + 1) / 2);
         return 180f + (n % 2 == 1 ? -magnitude : magnitude);
+    }
+
+    private static void applyAttraction(Entry entry, Vector2f slot, float distance, float amount) {
+        ShipAPI wingman = entry.wingman;
+        float proximity = (ATTRACTION_DISTANCE - distance) / (ATTRACTION_DISTANCE - ARRIVE_DISTANCE);
+        float rate = OUTER_RESPONSE_RATE + proximity * (INNER_RESPONSE_RATE - OUTER_RESPONSE_RATE);
+        float blend = 1f - (float) Math.exp(-rate * Math.max(0f, amount));
+
+        // 在队长速度上叠加朝站位的速度分量，距离越短，相对接近速度越低。
+        float approachSpeed = Math.min(wingman.getMaxSpeedWithoutBoost(), distance * APPROACH_RATE);
+        float scale = approachSpeed / distance;
+        Vector2f location = wingman.getLocation();
+        Vector2f leaderVelocity = entry.commander.getVelocity();
+        Vector2f velocity = wingman.getVelocity();
+        velocity.x += (leaderVelocity.x + (slot.x - location.x) * scale - velocity.x) * blend;
+        velocity.y += (leaderVelocity.y + (slot.y - location.y) * scale - velocity.y) * blend;
+
+        float facing = wingman.getFacing();
+        float turn = MathUtils.getShortestRotation(facing, entry.commander.getFacing());
+        wingman.setFacing(facing + turn * blend);
+        // 导航 AI 在吸附区内不再下转向指令，残留的角速度按同样的系数衰减，免得和对齐互相拉扯。
+        wingman.setAngularVelocity(wingman.getAngularVelocity() * (1f - blend));
     }
 
     private static void applyBonus(Entry entry) {

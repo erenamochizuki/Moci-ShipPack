@@ -5,7 +5,6 @@
     "goalVariant": false,
     "hullId": "Moci_AltEisen",
     "hullMods": [
-        "Moci_LandingSequence",
         "armoredweapons",
         "blast_doors",
         "heavyarmor",

@@ -1165,73 +1165,28 @@
   "Moci_conditional_system_change": {
     "name": "定制化战术系统",
     "description": {
-      "title": "飞龙级战术系统切换器",
-      "intro": "允许飞龙级在三种战术系统之间进行切换：",
-      "line_highenergy": "- %s：搭载高能聚焦战术系统",
-      "line_highenergy_highlights": [
-        "高能聚焦"
-      ],
-      "line_recall": "- %s：搭载召回指令战术系统",
-      "line_recall_highlights": [
-        "召回指令"
-      ],
-      "line_plasma": "- %s：搭载等离子推进器战术系统",
-      "line_plasma_highlights": [
-        "等离子推进器"
-      ],
-      "unapplicable_reason": "只能安装在飞龙级战舰上",
+      "title": "飞龙级战术系统",
+      "current": "当前战术系统： %s 。",
+      "intro": "在改装界面拆掉当前的「战术系统」船插，就会切换到下一个战术系统，顺序为：",
+      "cycle": "# %s 、 %s 、 %s 依次循环。",
+      "switch_keep": "切换通过替换为对应型号的舰体完成，武器、船插与 D 插保持不变。",
+      "unapplicable_reason": "只能安装在对应战术系统的飞龙级战舰上。",
+      "mode_title": "当前战术系统",
+      "mode_current": "飞龙当前搭载的战术系统为 %s ：",
+      "mode_switch_next": "拆掉此船插将切换至 %s 。",
       "config_highenergy_name": "高能聚焦",
-      "config_highenergy_desc": "提供高能聚焦战术系统",
-      "config_recall_name": "召回指令",
-      "config_recall_desc": "提供召回指令战术系统",
       "config_plasma_name": "等离子推进器",
-      "config_plasma_desc": "提供等离子推进器战术系统"
+      "config_recall_name": "召回系统"
     }
   },
   "Moci_hiryu_system_highenergy": {
-    "name": "高能聚焦系统",
-    "description": {
-      "title": "高能聚焦系统",
-      "install": "- 为飞龙级安装%s战术系统",
-      "install_highlights": [
-        "高能聚焦"
-      ],
-      "switch_next": "拆卸此船插将切换至%s。",
-      "switch_next_highlights": [
-        "召回指令"
-      ],
-      "unapplicable_reason": "只能安装在飞龙级战舰上"
-    }
-  },
-  "Moci_hiryu_system_recall": {
-    "name": "召回指令系统",
-    "description": {
-      "title": "召回指令系统",
-      "install": "- 为飞龙级安装%s战术系统",
-      "install_highlights": [
-        "召回指令"
-      ],
-      "switch_next": "拆卸此船插将切换至%s。",
-      "switch_next_highlights": [
-        "等离子推进器"
-      ],
-      "unapplicable_reason": "只能安装在飞龙级战舰上"
-    }
+    "name": "战术系统：高能聚焦"
   },
   "Moci_hiryu_system_plasma": {
-    "name": "等离子推进器系统",
-    "description": {
-      "title": "等离子推进器系统",
-      "install": "- 为飞龙级安装%s战术系统",
-      "install_highlights": [
-        "等离子推进器"
-      ],
-      "switch_next": "拆卸此船插将切换至%s。",
-      "switch_next_highlights": [
-        "高能聚焦"
-      ],
-      "unapplicable_reason": "只能安装在飞龙级战舰上"
-    }
+    "name": "战术系统：等离子推进器"
+  },
+  "Moci_hiryu_system_recall": {
+    "name": "战术系统：召回系统"
   },
   "Moci_CombatSquadDeployment": {
     "description": {
@@ -1505,12 +1460,11 @@
     }
   },
   "Moci_PlayerSkill1": {
-    "subsystem": {"auto_active": "自动N.T.生效中"},
     "name": "新人类",
     "description": {
       "level1": "无视米诺夫斯基粒子的干扰效果",
       "level2": "降低 100% 导弹被电子反制或热诱弹拦截的概率。",
-      "level3": "当周围 {enemy_range} 范围内有敌人或 {projectile_range} 范围内有高威胁弹药时触发效果，获得 {ship_time_mult} 倍的时流，并在 {active_duration} 秒内逐渐恢复至 1 倍，冷却 {cooldown_duration} 秒。亲自驾驶时还可以按子系统栏的「新人类 [键]」手动开启：消耗 300 软幅能，10 秒内本舰时流 ×1.5、世界时流放慢，不与自动触发叠加；按键可在 LunaLib 设置「新人类主动键」里改。"
+      "level3": "亲自驾驶时可以按子系统栏的「新人类 [键]」手动开启：消耗 300 软幅能，10 秒内本舰时流 ×1.5、世界时流放慢；按键可在 LunaLib 设置「新人类主动键」里改。"
     },
     "status": {
       "title": "N.T.",
@@ -1578,7 +1532,7 @@
   },
   "Moci_MobilitySubsystem": {
     "display": "喷气背包",
-    "brief": "大幅提高速度",
+    "brief": "短时大幅提高速度",
     "state": {
       "ready": "就绪",
       "in": "启动中",

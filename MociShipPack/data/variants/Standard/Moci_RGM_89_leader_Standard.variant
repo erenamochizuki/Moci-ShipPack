@@ -6,7 +6,6 @@
     "hullId": "Moci_RGM_89_leader",
     "hullMods": [
         "Moci_CombatSquad",
-        "Moci_LandingSequence",
         "Moci_RGM_89_leader_WeaponSwap_right_rifle",
         "armoredweapons",
         "autorepair",

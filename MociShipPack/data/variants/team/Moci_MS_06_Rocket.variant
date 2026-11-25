@@ -5,7 +5,6 @@
     "goalVariant": false,
     "hullId": "Moci_MS_06",
     "hullMods": [
-        "Moci_LandingSequence",
         "armoredweapons",
         "auxiliarythrusters",
         "hardenedshieldemitter",
