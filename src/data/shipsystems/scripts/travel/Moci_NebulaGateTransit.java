@@ -3,7 +3,6 @@ package data.shipsystems.scripts.travel;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import data.scripts.util.Moci_Util;
-import data.scripts.util.Moci_TravelDriveControl.AnimationLock;
 import com.fs.starfarer.combat.CombatViewport;
 import com.fs.starfarer.combat.entities.Ship;
 import org.lwjgl.BufferUtils;
@@ -72,8 +71,11 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
             .22f, .20f);   // 淡入、保持亮度各占寿命的比例，剩余时段淡出
         }
         int emitBurst(CombatEngineAPI engine,Vector2f gate,float radius,float seed,int index,float at,Random random,Moci_Util.NebulaPuffStyle puff) {
+            return emitBurst(engine,gate,radius,seed,index,at,random,puff,null);
+        }
+        int emitBurst(CombatEngineAPI engine,Vector2f gate,float radius,float seed,int index,float at,Random random,Moci_Util.NebulaPuffStyle puff,Moci_Util.NebulaPuffObserver observer) {
             if (palette.isEmpty()) return index;
-            for (int i=0;i<perBurst;i++) emitSmoke(engine,gate,radius,seed,index++,at,random,puff,palette);
+            for (int puffIndex=0;puffIndex<perBurst;puffIndex++) emitSmoke(engine,gate,radius,seed,index++,at,random,puff,palette,observer);
             return index;
         }
     }
@@ -83,9 +85,6 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
                 SCORCH_BLOCKS,SCORCH_DEPTH,SCORCH_CHIPS, // v3 主块数、大块凹凸、小缺口
                 SCORCH_V2_ROUGHNESS);                    // v2 碎齿起伏强度
     }
-    private static final ShipCommand[] BLOCK = {ShipCommand.VENT_FLUX, ShipCommand.TOGGLE_SHIELD_OR_PHASE_CLOAK,
-            ShipCommand.ACCELERATE, ShipCommand.ACCELERATE_BACKWARDS, ShipCommand.DECELERATE, ShipCommand.STRAFE_LEFT,
-            ShipCommand.STRAFE_RIGHT, ShipCommand.TURN_LEFT, ShipCommand.TURN_RIGHT};
     // Native render() writes this cache even for a visual copy. External thrusters read it separately from extraAlpha.
     private static final VarHandle COMBINED = combinedAlpha();
     private static VarHandle combinedAlpha() {
@@ -102,6 +101,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
     private double battleElapsed;
     private final Moci_TransitFold openingFold = new Moci_TransitFold();
     private final Moci_TransitArcLights arcLights;
+    private final Moci_NebulaCloudFlash cloudFlash;
     private final ShipAPI ship;
     private final ArrayList<Part> parts = new ArrayList<>();
     private final Vector2f dest;
@@ -114,8 +114,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
     private final Moci_NebulaGateMask mask;
     private final EnumSet<CombatEngineLayers> layers = EnumSet.of(CombatEngineLayers.UNDER_SHIPS_LAYER);
     private float nose, tail, width, age, nextSmoke = SMOKE, nextArc = LIGHTNING;
-    private boolean released, expired, systemEnded;
-    private AnimationLock controls;
+    private boolean started, released, expired, systemEnded;
 
     Moci_NebulaGateTransit(CombatEngineAPI engine, ShipAPI ship, Vector2f to) {
         this(engine,ship,to,Moci_NebulaGate.EVENT,false,Moci_NebulaGate.ANIMATION_SPEED);
@@ -150,6 +149,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
         mask = new Moci_NebulaGateMask(gate,axisX,axisY,radius);
         plane.put(axisX).put(axisY).put(0d).put(-(axisX*(double)gate.x+axisY*(double)gate.y)).flip();
         seed = random.nextFloat()*6.28f;
+        cloudFlash = new Moci_NebulaCloudFlash(gate,radius,seed,speed,ribbon);
         scorch = makeScorch(seed);
     }
 
@@ -178,7 +178,6 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
             s.setDoNotRender(true); s.setExtraAlphaMult(0f); cache(0f);
             s.setCollisionClass(CollisionClass.NONE); s.getLocation().set(at); s.setFacing(heading);
             s.getVelocity().set(0f,0f); s.setAngularVelocity(0f);
-            for (ShipCommand cmd : BLOCK) s.blockCommandForOneFrame(cmd);
         }
         void cache(float value) { if (COMBINED != null && s instanceof Ship nativeShip) COMBINED.set(nativeShip,value); }
         void release() {
@@ -197,8 +196,8 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
     }
 
     void start() {
-        if (released || controls!=null) return;
-        controls=new AnimationLock(engine,ship);
+        if (started || released) return;
+        started=true;
         for (Part p : parts) p.take();
     }
     void registered(CombatEntityAPI host) {
@@ -206,10 +205,9 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
         start();
     }
     void stop() { systemEnded=true; if (ship.isHulk()) cleanup(); }
-    boolean locked() { return !released; }
+    boolean isStaging() { return started && !released; }
     private void release() {
         if (released) return;
-        if (controls!=null) controls.release();
         for (Part p : parts) p.release();
         released=true;
     }
@@ -227,11 +225,14 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
     }
     @Override public EnumSet<CombatEngineLayers> getActiveLayers() { return layers; }
 
-    private boolean visible() {
+    private static boolean visible(CombatEngineAPI engine,ShipAPI ship,Vector2f gate) {
         ShipAPI player=engine.getPlayerShip(); int side=player==null || player.getOwner()==100 ? 0 : player.getOwner();
         if (ship.getOwner()==side) return true;
         FogOfWarAPI fog=engine.getFogOfWar(side);
         return fog==null || fog.isVisible(gate);
+    }
+    static boolean inView(CombatEngineAPI engine,ShipAPI ship,Vector2f gate,float renderRadius) {
+        return visible(engine,ship,gate) && engine.getViewport().isNearViewport(gate,renderRadius);
     }
     @Override public void advance(float amount) {
         if (expired) return;
@@ -239,18 +240,20 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
         if (ship.isRetreating()) { cleanup(); return; } // 入场燃烧可能已经结束，不能等下一次 apply 才解锁
         if (amount<=0f || engine.isPaused()) return;
         battleElapsed+=amount;
-        if (ribbon) age=Moci_FluxRibbonDrive.TIMING.animationAt((float)battleElapsed);
-        else age+=amount*speed;
+        float battle=(float)battleElapsed;
+        age=ribbon ? Moci_FluxRibbonDrive.TIMING.animationAt(battle) : battle*speed;
         if (!released) {
-            if (age<HANDOFF && controls!=null) controls.advance();
             for (Part p : parts) {
                 if (p.s!=ship && (!p.s.isAlive() || !engine.isEntityInPlay(p.s) || p.s.getParentStation()!=ship)) p.release();
                 if (p.held) p.pin();
             }
             if (age>=HANDOFF) release();
         }
-        if (age>=END) { cleanup(); return; }
-        boolean emit=visible() && engine.getViewport().isNearViewport(gate,getRenderRadius());
+        if (age>=END) {
+            cloudFlash.finishTransit(engine,ship,getRenderRadius(),battle);
+            cleanup(); return;
+        }
+        boolean emit=inView(engine,ship,gate,getRenderRadius());
         if (battleElapsed-amount<FOLD_END) {
             boolean foldVisible=emit && engine.getViewport().isNearViewport(gate,radius*Moci_TransitFold.OUTER_RADIUS);
             openingFold.advance((float)battleElapsed,foldVisible,gate,radius,FLASH);
@@ -258,9 +261,13 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
         arcLights.advance(amount,emit);
         // Fixed event times, never a burst of catch-up particles after an off-screen wait.
         while (nextSmoke<=age && nextSmoke<CLOSED) {
-            if (emit) smokeIndex=smoke.emitBurst(engine,gate,radius,seed,smokeIndex,nextSmoke,random,puffs[ribbon ? Moci_FluxRibbonDrive.TIMING.phaseAt(nextSmoke) : 0]);
+            if (emit) {
+                var observer=cloudFlash.beginSmokeBatch(battle) ? cloudFlash : null;
+                smokeIndex=smoke.emitBurst(engine,gate,radius,seed,smokeIndex,nextSmoke,random,puffs[ribbon ? Moci_FluxRibbonDrive.TIMING.phaseAt(nextSmoke) : 0],observer);
+            }
             nextSmoke += smoke.interval(nextSmoke);
         }
+        cloudFlash.advance(engine,battle,emit);
         while (nextArc<=age && nextArc<HANDOFF+.25f) {
             float interval = nextArc < OPEN ? ARC_INTERVAL_BEFORE_OPEN : ARC_INTERVAL_AFTER_OPEN;
             if (emit) lightning(age-nextArc<Math.max(.02f,interval));
@@ -269,7 +276,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
     }
 
     private Vector2f polar(float r, float a) { return new Vector2f(gate.x+r*(float)Math.cos(a),gate.y+r*(float)Math.sin(a)); }
-    private static void emitSmoke(CombatEngineAPI engine,Vector2f gate,float radius,float seed,int index,float at,Random random,Moci_Util.NebulaPuffStyle puff,Moci_NebulaSmokePalette palette) {
+    private static void emitSmoke(CombatEngineAPI engine,Vector2f gate,float radius,float seed,int index,float at,Random random,Moci_Util.NebulaPuffStyle puff,Moci_NebulaSmokePalette palette,Moci_Util.NebulaPuffObserver observer) {
         // 相邻烟心沿黄金角错开，小幅随机偏移打散队列，避免连续数团都堆在同侧。
         float angle=seed+index*2.399963f+(random.nextFloat()-.5f)*.48f;
         float growth=.32f+.68f*ease((at-SMOKE)/.92f); // 烟心起初铺开到最终范围的 32%，0.92 秒后铺满
@@ -277,7 +284,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
         Color color=palette.sample(colorBand,angle-seed);
         Moci_Util.spawnNebulaPuff(engine, gate, radius, // 当前战场、云团中心、世界尺寸基准
                 growth, angle, random,                 // 当前散布进度、方向（弧度）、本次随机源
-                puff, color);                          // 烟团参数（已换算播放速度）、该片星云的颜色及透明度
+                puff, color, observer);
     }
     private void lightning(boolean lightCurrentArc) {
         float a=random.nextFloat()*6.283f;
@@ -319,7 +326,7 @@ final class Moci_NebulaGateTransit extends BaseCombatLayeredRenderingPlugin {
     }
 
     @Override public void render(CombatEngineLayers layer, ViewportAPI viewport) {
-        if (expired || !visible() || !viewport.isNearViewport(gate,getRenderRadius())) return;
+        if (expired || !visible(engine,ship,gate) || !viewport.isNearViewport(gate,getRenderRadius())) return;
         if (layer==CombatEngineLayers.UNDER_SHIPS_LAYER) {
             float flareAge=flashAge((float)battleElapsed,ribbon ? Moci_FluxRibbonDrive.TIMING.rate(0) : speed);
             drawAtmosphere(gate,radius,facing,age,flareAge,seed,viewport.getAlphaMult(),scorch,ribbon);

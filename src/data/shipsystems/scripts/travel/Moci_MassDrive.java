@@ -3,7 +3,6 @@ package data.shipsystems.scripts.travel;
 import data.scripts.util.Moci_TextLoader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
-import com.fs.starfarer.api.combat.CombatEntityAPI;
 import com.fs.starfarer.api.combat.CombatLayeredRenderingPlugin;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -17,7 +16,6 @@ public class Moci_MassDrive extends BaseShipSystemScript {
         boolean isLeaving();
         void cancel();
         void stop();
-        default void registered(CombatEntityAPI host) {}
     }
 
     private final String eventKey, sequenceKey;
@@ -52,10 +50,9 @@ public class Moci_MassDrive extends BaseShipSystemScript {
         }
         int index = ship.getCustomData().get(sequenceKey) instanceof Integer last ? last + 1 : 0;
         Pass pass = createPass(engine, ship, index);
-        CombatEntityAPI host=engine.addLayeredRenderingPlugin(pass);
+        engine.addLayeredRenderingPlugin(pass);
         ship.setCustomData(sequenceKey, index);
         ship.setCustomData(eventKey, pass);
-        pass.registered(host);
     }
 
     @Override

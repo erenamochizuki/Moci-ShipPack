@@ -1,0 +1,10 @@
+{
+    "baseHullId": "Moci_Hiryu",
+    "skinHullId": "Moci_Hiryu_TestPetal",
+    "hullName": "飞龙（翠瓣·测试）",
+    "descriptionId": "Moci_Hiryu",
+    "descriptionPrefix": "测试用飞龙：在船包测试战役中使用翠瓣旅行引擎。",
+    "incompatibleWithBaseHull": true,
+    "tags": ["restricted", "no_sell", "no_dealer"],
+    "addHints": ["HIDE_IN_CODEX"]
+}

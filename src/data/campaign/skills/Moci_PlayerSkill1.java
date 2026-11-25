@@ -2,11 +2,14 @@ package data.campaign.skills;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.characters.ShipSkillEffect;
+import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
+import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.DamagingProjectileAPI;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
+import com.fs.starfarer.api.input.InputEventAPI;
 import data.scripts.util.Moci_TextLoader;
 import data.scripts.util.Moci_PilotAura;
 import data.shipsystems.scripts.Moci_MissileJammerSystemScript;
@@ -17,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -117,7 +121,7 @@ public class Moci_PlayerSkill1 {
         public void apply(MutableShipStatsAPI stats, ShipAPI.HullSize hullSize, String id, float level) {
             if (stats.getEntity() instanceof ShipAPI) {
                 ShipAPI ship = (ShipAPI) stats.getEntity();
-                if (listener.isChildModule(ship)) {
+                if (ship.isShuttlePod() || listener.isChildModule(ship)) {
                     listener.removeInstance(ship);
                     return;
                 }
@@ -203,19 +207,17 @@ public class Moci_PlayerSkill1 {
         private boolean newtypeAttached;
         /** 生效期间的周身极光（绿 / 蓝绿渐变），尺寸跟随技能强度与碰撞半径。 */
         private final Moci_PilotAura aura;
+        private ActiveGuard guard;
+        private boolean wasPlayerHost;
 
         public static listener getInstance(ShipAPI ship) {
-            if (ship.getCustomData().containsKey(LISTENER_DATA_KEY)) {
-                return (listener) ship.getCustomData().get(LISTENER_DATA_KEY);
-            } else {
-                if (ship.hasListenerOfClass(listener.class)) {
-                    ship.removeListenerOfClass(listener.class);
-                }
-                listener newListener = new listener(ship);
-                ship.getCustomData().put(LISTENER_DATA_KEY, newListener);
-                ship.addListener(newListener);
-                return newListener;
-            }
+            Object cached = ship.getCustomData().get(LISTENER_DATA_KEY);
+            if (cached instanceof listener && ship.hasListener(cached)) return (listener) cached;
+            removeInstance(ship);
+            listener newListener = new listener(ship);
+            ship.getCustomData().put(LISTENER_DATA_KEY, newListener);
+            ship.addListener(newListener);
+            return newListener;
         }
 
         public static void removeInstance(ShipAPI ship) {
@@ -227,12 +229,9 @@ public class Moci_PlayerSkill1 {
             if (listenerObj instanceof listener) {
                 ((listener) listenerObj).unapply();
                 ship.removeListener((listener) listenerObj);
-            } else {
-                for (listener existing : ship.getListeners(listener.class)) {
-                    existing.unapply();
-                }
-                ship.removeListenerOfClass(listener.class);
             }
+            for (listener existing : ship.getListeners(listener.class)) existing.unapply();
+            ship.removeListenerOfClass(listener.class);
         }
 
         public static boolean isChildModule(ShipAPI ship) {
@@ -270,14 +269,22 @@ public class Moci_PlayerSkill1 {
                 return;
             }
 
-            // 这是本监听器唯一的每帧入口（Ship.advance 遍历 AdvanceableListener 调它，对残骸也照调）。
-            // 引擎不会在舰船被打爆时回头摘掉修饰符，世界那一笔会永久留场 —— 只能在这里自己发现。
             if (dead(ship)) {
                 releaseForDead(ship, "宿主舰");
                 ship.getCustomData().remove(LISTENER_DATA_KEY);
                 ship.removeListener(this);
                 return;
             }
+
+            CombatEngineAPI engine = Global.getCombatEngine();
+            boolean player = isPlayerShip();
+            if (player) wasPlayerHost = true;
+            if (guard != null && !guard.valid()) {
+                finishActivation();
+                return;
+            }
+            if (ship.isShuttlePod() || isChildModule(ship) || transferring(engine, player)) return;
+            if (!player && wasPlayerHost && !hasNpcPilot()) return;
 
             // 新人类手动主动能力：MagicLib 子系统，挂在玩家当前座舰上。
             // 按键默认由 MagicLib 分配，玩家可在 LunaLib「新人类主动键」里改。
@@ -290,27 +297,17 @@ public class Moci_PlayerSkill1 {
                 }
             }
 
-            if (isChildModule(ship)) {
-                active = 0f;
-                coldDown = 0f;
-                checkInterval = 0f;
-                unapply();
-                return;
-            }
-
             if (coldDown > 0) {
                 coldDown -= amount;
                 return;
             }
 
-            boolean player = isPlayerShip();
             if (active > 0) {
                 float progress = 1f - (active / ACTIVE_DURATION);
                 apply(player, progress);
                 active -= amount;
                 if (active <= 0) {
-                    unapply();
-                    coldDown = COOLDOWN_DURATION;
+                    finishActivation();
                 }
             } else {
                 // 性能优化：采样间隔，不是每帧都检测
@@ -411,7 +408,46 @@ public class Moci_PlayerSkill1 {
 
         private void activate(boolean player) {
             active = ACTIVE_DURATION;
+            guard = new ActiveGuard(Global.getCombatEngine(), player);
+            guard.engine.addPlugin(guard);
             apply(player, 0f);
+        }
+
+        private boolean transferring(CombatEngineAPI engine, boolean player) {
+            ShipAPI from = engine.getShipPlayerIsTransferringCommandFrom();
+            return from != null && (player || getRootShip(from) == ship);
+        }
+
+        private void finishActivation() {
+            unapply();
+            coldDown = COOLDOWN_DURATION;
+        }
+
+        private final class ActiveGuard extends BaseEveryFrameCombatPlugin {
+            final CombatEngineAPI engine;
+            final boolean player;
+
+            ActiveGuard(CombatEngineAPI engine, boolean player) {
+                this.engine = engine;
+                this.player = player;
+            }
+
+            boolean valid() {
+                return engine == Global.getCombatEngine() && !dead(ship) && !ship.isShuttlePod()
+                        && !isChildModule(ship) && ship.hasListener(listener.this)
+                        && player == isPlayerShip() && !transferring(engine, player)
+                        && (player || !wasPlayerHost || hasNpcPilot());
+            }
+
+            @Override
+            public void advance(float amount, List<InputEventAPI> events) {
+                if (guard == this && !valid()) finishActivation();
+            }
+        }
+
+        private boolean hasNpcPilot() {
+            return ship.getCaptain() != null && !ship.getCaptain().isPlayer()
+                    && ship.getCaptain().getStats().getSkillLevel(TEXT_ID) > 0f;
         }
 
         private void apply(boolean player, float progress) {
@@ -470,6 +506,12 @@ public class Moci_PlayerSkill1 {
         }
 
         private void unapply() {
+            active = 0f;
+            if (guard != null) {
+                guard.engine.getTimeMult().unmodify(id);
+                guard.engine.removePlugin(guard);
+                guard = null;
+            }
             aura.fade();
             try {
                 ship.getMutableStats().getTimeMult().unmodify(id);
@@ -477,16 +519,11 @@ public class Moci_PlayerSkill1 {
                 // 舰船已被回收：这条属性表不存在了，没有可摘的东西
             }
             clearChildModuleTimeMult();
-            try {
-                var engine = Global.getCombatEngine();
-                if (engine != null) engine.getTimeMult().unmodify(id);
-            } catch (RuntimeException | LinkageError ignored) {
-            }
         }
 
         private boolean isPlayerShip() {
             ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
-            return playerShip != null && getRootShip(playerShip) == ship;
+            return playerShip != null && !playerShip.isShuttlePod() && getRootShip(playerShip) == ship;
         }
 
         private void syncChildModuleTimeMult(float shipTimeMult) {
