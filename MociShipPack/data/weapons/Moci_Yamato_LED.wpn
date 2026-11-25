@@ -3,7 +3,7 @@
 	"specClass":"beam",
 	"type":"DECORATIVE",
 	"size":"SMALL",
-	"everyFrameEffect":"data.scripts.weapons.Moci_YamatoWeaponChargeBlinker",
+	"everyFrameEffect":"data.scripts.weapons.animation.Moci_YamatoWeaponChargeBlinker",
 	"showDamageWhenDecorative":false,
 	"renderBelowAllWeapons":true,
 	"turretSprite":"graphics/weapons/Moci_Yamato_LED.png",

@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_HiddenWeapon",
+  "everyFrameEffect": "data.scripts.weapons.misc.Moci_HiddenWeapon",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/weapons/Moci_Syunran/Moci_Syunran_Weapon_M_00.png",

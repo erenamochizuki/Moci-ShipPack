@@ -7,7 +7,7 @@
 	"spawnType":"BALLISTIC",
 	"collisionClass":"PROJECTILE_FF",
 	"collisionClassByFighter":"PROJECTILE_FIGHTER",
-    "onHitEffect":"data.scripts.weapons.Moci_mjolnir_OnHitEffect",
+    "onHitEffect":"data.scripts.weapons.onhit.Moci_mjolnir_OnHitEffect",
 	"length":50.0,
 	"hitGlowRadius":72,
 	"width":8.0,

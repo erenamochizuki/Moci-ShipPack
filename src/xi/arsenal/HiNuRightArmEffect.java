@@ -10,7 +10,7 @@ import com.fs.starfarer.api.combat.WeaponAPI;
  * after hook selects only this new arm's pose after native weapon operations.
  */
 public final class HiNuRightArmEffect
-        extends data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide
+        extends data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide
         implements EveryFrameWeaponEffectPluginWithAdvanceAfter {
     @Override
     public void advanceAfter(float amount, CombatEngineAPI engine, WeaponAPI weapon) {

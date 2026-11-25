@@ -4,7 +4,7 @@
   "projectileSpecId": "type_1_lrm",
   "type": "MISSILE",
   "size": "MEDIUM",
-  "everyFrameEffect": "data.scripts.weapons.Moci_PendingBill_missileAnimeEffect",
+  "everyFrameEffect": "data.scripts.weapons.animation.Moci_PendingBill_missileAnimeEffect",
   "turretSprite": "graphics/weapons/Moci_PendingBill/Moci_PendingBill_Missile_R_00.png",
   "hardpointSprite": "graphics/weapons/Moci_PendingBill/Moci_PendingBill_Missile_R_00.png",
   "turretOffsets": [

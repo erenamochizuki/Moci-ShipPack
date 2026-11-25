@@ -2,7 +2,7 @@ package xi.arsenal;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
-import data.scripts.weapons.Moci_WingmanSupport;
+import data.scripts.weapons.wingman.Moci_WingmanSupport;
 import java.util.*;
 
 /** Shared, clock-neutral additions for the two owned ports of the original Moci Hi-Nu controller. */

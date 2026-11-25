@@ -469,8 +469,8 @@ public final class RifleFiringPose {
         private boolean handingOff() {
             if (!ship.isAlive() || ship.isHulk()) return false;
             if (!blockedReason(ship).isEmpty()) return true;
-            return Boolean.TRUE.equals(ship.getCustomData().get(data.scripts.weapons.Moci_MechTransformController.CUSTOM_PARTS_HIDDEN))
-                    || Boolean.TRUE.equals(ship.getCustomData().get(data.scripts.weapons.Moci_MechTransformController.CUSTOM_TRANSFORMED));
+            return Boolean.TRUE.equals(ship.getCustomData().get(data.scripts.weapons.mech.Moci_MechTransformController.CUSTOM_PARTS_HIDDEN))
+                    || Boolean.TRUE.equals(ship.getCustomData().get(data.scripts.weapons.mech.Moci_MechTransformController.CUSTOM_TRANSFORMED));
         }
         void restore() {
             // 交棒那一帧不要先还原贴图：否则步枪/骨骼会闪回原生挂点一帧，接管方下一帧才盖住。

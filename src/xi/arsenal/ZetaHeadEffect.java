@@ -5,7 +5,7 @@ import com.fs.starfarer.api.combat.EveryFrameWeaponEffectPluginWithAdvanceAfter;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.combat.WeaponGroupAPI;
-import data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide;
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide;
 import java.util.Set;
 import org.lazywizard.lazylib.MathUtils;
 

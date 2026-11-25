@@ -7,7 +7,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.util.Moci_TextLoader;
-import data.shipsystems.scripts.Moci_DeepDiveWeaponControl;
+import data.shipsystems.scripts.deepdive.Moci_DeepDiveWeaponControl;
 
 public class Moci_PhaseSubLaunch extends BaseHullMod {
     public static final String HULLMOD_ID = "Moci_PhaseSubLaunch";

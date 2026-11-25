@@ -1,5 +1,13 @@
 package xi.arsenal;
 
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide;
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm;
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide;
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense;
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_RX0;
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_keepdef;
+import data.scripts.weapons.units.Moci_MSZ006ShieldArmEffect;
+
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.EveryFrameWeaponEffectPlugin;
 import com.fs.starfarer.api.combat.EveryFrameWeaponEffectPluginWithAdvanceAfter;
@@ -29,13 +37,14 @@ public final class AdaptiveShieldArmEffects implements EveryFrameWeaponEffectPlu
     }
     static EveryFrameWeaponEffectPlugin createOriginal(String name) {
         return switch(name) {
-            case "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm" -> new Moci_MechProjDecoWeaponEffect_shield_arm();
-            case "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide" -> new Moci_MechProjDecoWeaponEffect_shield_arm_Hide();
-            case "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_keepdef" -> new Moci_MechProjDecoWeaponEffect_shield_arm_keepdef();
-            case "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_RX0" -> new Moci_MechProjDecoWeaponEffect_shield_arm_RX0();
-            case "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense" -> new Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense();
-            case "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide" -> new Moci_MechProjDecoWeaponEffect_noHide();
-            case "data.scripts.weapons.Moci_MSZ006ShieldArmEffect" -> new Moci_MSZ006ShieldArmEffect();
+            case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm" -> new Moci_MechProjDecoWeaponEffect_shield_arm();
+            case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide" -> new Moci_MechProjDecoWeaponEffect_shield_arm_Hide();
+            case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_keepdef" -> new Moci_MechProjDecoWeaponEffect_shield_arm_keepdef();
+            case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_RX0" -> new Moci_MechProjDecoWeaponEffect_shield_arm_RX0();
+            case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense" -> new Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense();
+            case "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide",
+                 "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide" -> new Moci_MechProjDecoWeaponEffect_noHide();
+            case "data.scripts.weapons.units.Moci_MSZ006ShieldArmEffect" -> new Moci_MSZ006ShieldArmEffect();
             default -> throw new IllegalArgumentException("Unsupported original shield-arm callback: "+name);
         };
     }

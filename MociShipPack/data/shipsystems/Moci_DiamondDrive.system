@@ -1,6 +1,6 @@
 {
     "id":"Moci_DiamondDrive", "type":"ENGINE_MOD", "aiType":"NONE",
-    "statsScript":"data.shipsystems.scripts.Moci_DiamondDrive",
+    "statsScript":"data.shipsystems.scripts.travel.Moci_DiamondDrive",
     "engineActivateHiddenNozzles":false, "flameoutOnImpactChance":0,
     "clampTurnRateAfter":true, "clampMaxSpeedAfter":true, "alwaysAccelerate":true,
     "loopSound":"system_travel_drive_loop", "outOfUsesSound":"engine_disabled",

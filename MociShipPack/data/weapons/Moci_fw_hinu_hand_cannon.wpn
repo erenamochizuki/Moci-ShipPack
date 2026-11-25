@@ -4,7 +4,7 @@
   "type": "ENERGY",
   "size": "LARGE",
   "everyFrameEffect": "xi.arsenal.HiNuCannonWeaponEffect",
-  "beamEffect": "data.scripts.weapons.Moci_BeamHardFlux",
+  "beamEffect": "data.scripts.weapons.beam.Moci_BeamHardFlux",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "",

@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "BALLISTIC",
   "size": "LARGE",
-  "beamEffect": "data.scripts.weapons.Moci_eutecticpulse_Effect",
+  "beamEffect": "data.scripts.weapons.misc.Moci_eutecticpulse_Effect",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/weapons/Moci_eutecticpulse_turret_base.png",

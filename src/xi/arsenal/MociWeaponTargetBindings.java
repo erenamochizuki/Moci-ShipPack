@@ -2,9 +2,9 @@ package xi.arsenal;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
-import data.scripts.weapons.Moci_MechProjDecoWeaponEffect;
-import data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide;
-import data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_RX0;
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect;
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide;
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_RX0;
 import java.util.*;
 
 /** Read-only structural discovery for exact original Moci callbacks; no original callback or pose advancement. */

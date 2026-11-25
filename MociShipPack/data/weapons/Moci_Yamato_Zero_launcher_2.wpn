@@ -6,7 +6,7 @@
   "size": "SMALL",
   "turretSprite": "graphics/weapons/Moci_Yamato_Zero_launcher_R.png",
   "hardpointSprite": "graphics/weapons/Moci_Yamato_Zero_launcher_R.png",
-  "everyFrameEffect": "data.scripts.weapons.Moci_ZeroWingman2_Effect",
+  "everyFrameEffect": "data.scripts.weapons.wingman.Moci_ZeroWingman2_Effect",
   "renderHints": [RENDER_LOADED_MISSILES],
   "turretOffsets": [
     0,

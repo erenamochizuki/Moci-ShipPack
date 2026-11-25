@@ -7,9 +7,9 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.BaseAICoreOfficerPluginImpl;
 import com.fs.starfarer.api.impl.campaign.ids.Ranks;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import data.hullmods.Moci_ModelCore;
-import data.hullmods.Moci_ShipboardAIConfigLoader;
-import data.hullmods.Moci_ShipboardAIManager;
+import data.hullmods.shipboardai.Moci_ModelCore;
+import data.hullmods.shipboardai.Moci_ShipboardAIConfigLoader;
+import data.hullmods.shipboardai.Moci_ShipboardAIManager;
 
 import java.util.Random;
 

@@ -3,7 +3,7 @@
 	"specClass":"beam",
 	"type":"DECORATIVE",
 	"size":"SMALL",
-	#"beamEffect":"data.scripts.weapons.Moci_HSITunnelDecoController",
+	#"beamEffect":"data.scripts.weapons.animation.Moci_HSITunnelDecoController",
 	"showDamageWhenDecorative":false,
 	"renderBelowAllWeapons":false,
 	"renderHints":["RENDER_ADDITIVE"],	

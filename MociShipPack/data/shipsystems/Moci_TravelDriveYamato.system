@@ -7,7 +7,7 @@
 	#"aiType":"CUSTOM",
 	#"aiScript":"data.shipsystems.scripts.ai.Moci_TravelDriveYamatoAI",
 	
-	"statsScript":"data.shipsystems.scripts.Moci_TravelDriveYamatoStats",
+	"statsScript":"data.shipsystems.scripts.travel.Moci_TravelDriveYamatoStats",
 
 	"runScriptWhilePaused":true, # only for the player's ship
 	

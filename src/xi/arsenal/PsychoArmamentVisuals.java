@@ -6,7 +6,7 @@ import com.fs.starfarer.api.combat.listeners.ApplyDamageResultAPI;
 import com.fs.starfarer.api.combat.listeners.DamageListener;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.combat.entities.MovingRay;
-import data.scripts.weapons.Moci_WingmanSupport;
+import data.scripts.weapons.wingman.Moci_WingmanSupport;
 import java.awt.Color;
 import java.util.*;
 import java.util.function.Supplier;

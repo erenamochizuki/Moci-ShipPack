@@ -8,7 +8,7 @@ import com.fs.starfarer.api.combat.ShipCommand;
 import com.fs.starfarer.api.combat.ShipwideAIFlags;
 import com.fs.starfarer.api.util.Misc;
 
-import data.hullmods.Moci_RepairBayScript;
+import data.hullmods.carrier.Moci_RepairBayScript;
 
 /**
  * 返航引导层：不直接接管 ShipAI，只补一个轻量回航意图。

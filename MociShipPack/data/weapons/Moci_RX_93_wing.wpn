@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "UNIVERSAL",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_HSITunnelController_new_RX93",
+  "everyFrameEffect": "data.scripts.weapons.animation.Moci_HSITunnelController_new_RX93",
   "collisionClass": "RAY_FIGHTER",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/Moci_RX_93/wings/RX_93_wing_00.png",

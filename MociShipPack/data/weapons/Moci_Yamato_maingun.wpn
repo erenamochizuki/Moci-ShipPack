@@ -8,7 +8,7 @@
   "turretGunSprite": "graphics/weapons/Moci_Yamato/Moci_Yamato_Maingun_barrel.png",
   "hardpointSprite": "graphics/weapons/Moci_Yamato/Moci_Yamato_Maingun.png",
   "hardpointGunSprite": "graphics/weapons/Moci_Yamato/Moci_Yamato_Maingun_barrel.png",
-  "everyFrameEffect":"data.scripts.weapons.Moci_YamatoMainGunAmmoSwitch",
+  "everyFrameEffect":"data.scripts.weapons.units.Moci_YamatoMainGunAmmoSwitch",
   "glowColor": [
     150,
     100,

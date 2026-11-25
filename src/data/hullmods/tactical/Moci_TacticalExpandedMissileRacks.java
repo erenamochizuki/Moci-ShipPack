@@ -1,0 +1,40 @@
+package data.hullmods.tactical;
+
+import com.fs.starfarer.api.combat.BaseHullMod;
+import com.fs.starfarer.api.combat.MutableShipStatsAPI;
+import com.fs.starfarer.api.combat.ShipAPI.HullSize;
+
+/**
+ * 战术改装（火力组）：扩展发射架。
+ * <p>
+ * 普通效果照搬原版扩展发射架（missleracks），仅供「航空中队管理」的战术改装使用。
+ * 战术改装分防御组和火力组，每组最多一项，按 tags 判组（带 {@code moci_tactical_defense} 的是防御组，其余是火力组）。
+ * 该船插在 CSV 中登记为 hidden + hiddenEverywhere，不会出现在正常改装、市场和图鉴里，
+ * 只由 {@link Moci_TacticalHullmods#applySelections} 以普通船插写入战机联队的 variant，永远不会成为 S 插。
+ * </p>
+ */
+public class Moci_TacticalExpandedMissileRacks extends BaseHullMod implements Moci_TacticalHullmods.ParamTone {
+
+    /** 导弹武器备弹量提升百分比。 */
+    public static final float AMMO_BONUS = 100f;
+    public static final float HULL_PENALTY = 20f;
+
+    @Override
+    public void applyEffectsBeforeShipCreation(HullSize hullSize, MutableShipStatsAPI stats, String id) {
+        stats.getMissileAmmoBonus().modifyPercent(id, AMMO_BONUS);
+        if (hullSize == HullSize.FIGHTER) stats.getHullBonus().modifyMult(id, 1f - HULL_PENALTY * 0.01f);
+    }
+
+    @Override
+    public String getDescriptionParam(int index, HullSize hullSize) {
+        if (index == 0) return "" + (int) AMMO_BONUS + "%";
+        if (index == 1) return (int) HULL_PENALTY + "%";
+        return null;
+    }
+
+    /** 1：最大结构值降低。 */
+    @Override
+    public boolean isNegativeParam(int index) {
+        return index == 1;
+    }
+}

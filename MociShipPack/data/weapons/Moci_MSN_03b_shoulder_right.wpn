@@ -4,7 +4,7 @@
   "projectileSpecId": "Moci_MSN03_WingmanR",
   "type": "MISSILE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechShoulderDecoWeaponEffect",
+  "everyFrameEffect": "data.scripts.weapons.mech.Moci_MechShoulderDecoWeaponEffect",
   "turretSprite": "graphics/ships/Mobile_Suit/Moci_MSN_03/shoulders/MSN_03b_shoulder_right.png",
   "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_MSN_03/shoulders/MSN_03b_shoulder_right.png",
   "renderHints": [

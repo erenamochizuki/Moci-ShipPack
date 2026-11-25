@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechShoulderDecoWeaponEffect",
+  "everyFrameEffect": "data.scripts.weapons.mech.Moci_MechShoulderDecoWeaponEffect",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/BTS/Moci_MS_06/shoulders/MS_06_shoulder_left.png",

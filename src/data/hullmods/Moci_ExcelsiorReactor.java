@@ -23,7 +23,7 @@ import com.fs.starfarer.api.combat.listeners.DamageTakenModifier;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.loading.ProjectileSpawnType;
 import com.fs.starfarer.api.util.IntervalUtil;
-import data.shipsystems.scripts.Moci_PhaseShuntDriveStats;
+import data.shipsystems.scripts.phase.Moci_PhaseShuntDriveStats;
 import data.scripts.util.Moci_ExcelsiorMulti;
 import data.scripts.util.Moci_ExcelsiorUtil;
 import java.awt.Color;

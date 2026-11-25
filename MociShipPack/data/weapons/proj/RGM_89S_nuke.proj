@@ -2,7 +2,7 @@
 	"id":"RGM_89S_nuke",
 	"specClass":"missile",
 	"missileType":"ROCKET",
-	"onHitEffect":"data.scripts.weapons.Moci_NukeEmpOnHitEffect",
+	"onHitEffect":"data.scripts.weapons.onhit.Moci_NukeEmpOnHitEffect",
 	"sprite":"graphics/missiles/Moci_RGM_89_Nuke.png",
 	"size":[19,67],	
 	"center":[9.5,33.5],

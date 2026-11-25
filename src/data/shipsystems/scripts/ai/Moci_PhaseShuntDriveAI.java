@@ -21,7 +21,7 @@ import com.fs.starfarer.api.combat.WeaponAPI.AIHints;
 import com.fs.starfarer.api.combat.WeaponAPI.WeaponType;
 import com.fs.starfarer.api.combat.WeaponGroupAPI;
 import com.fs.starfarer.api.loading.ProjectileSpawnType;
-import data.shipsystems.scripts.Moci_PhaseShuntDriveStats;
+import data.shipsystems.scripts.phase.Moci_PhaseShuntDriveStats;
 import data.scripts.util.Moci_ExcelsiorUtil;
 import java.util.ArrayList;
 import java.util.HashSet;

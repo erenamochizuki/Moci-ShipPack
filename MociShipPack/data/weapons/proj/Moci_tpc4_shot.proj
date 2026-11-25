@@ -1,7 +1,7 @@
 {
 	"id":"Moci_tpc4_shot",
 	"specClass":"projectile",
-    "onHitEffect":"data.scripts.weapons.Moci_Tpc_Flamer_OnHitEffect",
+    "onHitEffect":"data.scripts.weapons.onhit.Moci_Tpc_Flamer_OnHitEffect",
 	"spawnType":"BALLISTIC_AS_BEAM",
 	"collisionClass":"RAY",
 	"collisionClassByFighter":"RAY_FIGHTER",

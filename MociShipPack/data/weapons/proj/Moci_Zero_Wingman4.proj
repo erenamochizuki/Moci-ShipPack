@@ -2,7 +2,7 @@
 	"id":"Moci_Zero_Wingman4",
 	"specClass":"missile",	
 	"missileType":"PHASE_CHARGE",
-	#"onFireEffect":"data.scripts.weapons.Moci_ZeroWingman_Effect",
+	#"onFireEffect":"data.scripts.weapons.wingman.Moci_ZeroWingman_Effect",
 	"behaviorSpec":{"behavior":"PROXIMITY_FUSE",
 					"range":0,
 					"slowToMaxSpeed":true,

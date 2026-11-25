@@ -2,7 +2,7 @@
 	"id":"Moci_PhaseCrossing",
 	"type":"DISPLACER",
 	"aiType":"PHASE_DISPLACER",
-	"statsScript":"data.shipsystems.scripts.Moci_PhaseCrossing",
+	"statsScript":"data.shipsystems.scripts.phase.Moci_PhaseCrossing",
 	
 	"engineGlowColor":[169,161,255,155],
 

@@ -40,7 +40,7 @@ import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.loading.WeaponGroupSpec;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.MutableValue;
-import data.hullmods.Moci_TacticalHullmods;
+import data.hullmods.tactical.Moci_TacticalHullmods;
 
 /** Single-carrier transactions. Global prototypes and cargo LPC stacks are never edited. */
 public final class Moci_FighterLoadoutService {

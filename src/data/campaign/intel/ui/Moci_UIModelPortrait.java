@@ -5,7 +5,7 @@ import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
-import data.hullmods.Moci_ModelCore;
+import data.hullmods.shipboardai.Moci_ModelCore;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;

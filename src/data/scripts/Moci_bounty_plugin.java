@@ -1,5 +1,8 @@
 package data.scripts;
 
+import data.scripts.combatsquad.Moci_CombatSquadBattleListener;
+import data.scripts.shipboardai.Moci_ShipboardAIBattleListener;
+
 import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.PluginPick;
@@ -14,7 +17,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
-import data.hullmods.Moci_OpenMaintenanceGantryFleetEffect;
+import data.hullmods.carrier.Moci_OpenMaintenanceGantryFleetEffect;
 import data.scripts.impl.Moci_GachaMobManager;
 import data.scripts.impl.Moci_GachaManager;
 import data.scripts.impl.Moci_CombatLootListener;
@@ -392,7 +395,7 @@ public class Moci_bounty_plugin extends BaseModPlugin {
      */
     private void initializeDynamicDeploymentSystem() {
         // 根据ModPlugin中的开关设置动态部署点系统状态
-        data.hullmods.Moci_DynamicDeploymentConfig.setDynamicDeployment(ENABLE_DYNAMIC_DEPLOYMENT);
+        data.hullmods.combatsquad.deployment.Moci_DynamicDeploymentConfig.setDynamicDeployment(ENABLE_DYNAMIC_DEPLOYMENT);
 
         if (ENABLE_DYNAMIC_DEPLOYMENT) {
             log.info("动态部署点系统已启用 - 将根据僚机配置动态调整部署点消耗");
@@ -424,9 +427,9 @@ public class Moci_bounty_plugin extends BaseModPlugin {
         Moci_YurikaStoryManager.ensureLoaded();
         
         // 加载CombatSquad配置文件
-        data.hullmods.Moci_CombatSquadConfigLoader.loadAllConfigs();
+        data.hullmods.combatsquad.Moci_CombatSquadConfigLoader.loadAllConfigs();
         // 加载舰载AI配置文件
-        data.hullmods.Moci_ShipboardAIConfigLoader.loadAllConfigs();
+        data.hullmods.shipboardai.Moci_ShipboardAIConfigLoader.loadAllConfigs();
         
         // 检查扩展mod状态
         boolean isExtensionModEnabled = Global.getSettings().getModManager().isModEnabled(MOD_ID_TO_CHECK);

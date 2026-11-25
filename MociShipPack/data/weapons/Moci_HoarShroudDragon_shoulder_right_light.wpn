@@ -1,6 +1,6 @@
 {
   "id": "Moci_HoarShroudDragon_shoulder_right_light",
-  "everyFrameEffect": "data.scripts.weapons.Moci_HoarShroudDragonLightWingAnimationController",
+  "everyFrameEffect": "data.scripts.weapons.units.Moci_HoarShroudDragonLightWingAnimationController",
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",

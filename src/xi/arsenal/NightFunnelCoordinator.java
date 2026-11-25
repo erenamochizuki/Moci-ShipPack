@@ -2,7 +2,7 @@ package xi.arsenal;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
-import data.scripts.weapons.Moci_WingmanSupport;
+import data.scripts.weapons.wingman.Moci_WingmanSupport;
 import java.util.*;
 
 /** Discovers proven original Nightingale launches; engine, never this manager, advances each ShipAI. */

@@ -4,8 +4,8 @@
   "projectileSpecId": "Moci_TDD_1_MISSILE_proj",
   "type": "MISSILE",
   "size": "LARGE",
-  "everyFrameEffect": "data.scripts.weapons.Moci_TDD_1_missileAnimEffect",
-  "onFireEffect": "data.scripts.weapons.Moci_TDD_1_missileAnimEffect",
+  "everyFrameEffect": "data.scripts.weapons.animation.Moci_TDD_1_missileAnimEffect",
+  "onFireEffect": "data.scripts.weapons.animation.Moci_TDD_1_missileAnimEffect",
   "turretSprite": "graphics/weapons/Moci_TDD_1/Moci_TDD_1_MISSILE_L_00.png",
   "hardpointSprite": "graphics/weapons/Moci_TDD_1/Moci_TDD_1_MISSILE_L_00.png",
   "turretOffsets": [

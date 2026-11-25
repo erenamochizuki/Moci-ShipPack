@@ -4,7 +4,7 @@
 	"spawnType":"BALLISTIC",
 	"collisionClass":"PROJECTILE_FF",
 	"collisionClassByFighter":"PROJECTILE_FIGHTER",
-	"onHitEffect":"data.scripts.weapons.Moci_ExplosiveOnHitEffect",
+	"onHitEffect":"data.scripts.weapons.onhit.Moci_ExplosiveOnHitEffect",
 	"length":60.0,
 	"width":60.0,
 	"fadeTime":0.15,

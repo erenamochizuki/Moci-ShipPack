@@ -12,7 +12,7 @@ import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import data.hullmods.Moci_CombatSquadConfigLoader;
+import data.hullmods.combatsquad.Moci_CombatSquadConfigLoader;
 import org.apache.log4j.Logger;
 
 /**

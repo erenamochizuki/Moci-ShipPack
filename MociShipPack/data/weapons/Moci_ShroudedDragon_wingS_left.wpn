@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_VectorEngineController_Small",
+  "everyFrameEffect": "data.scripts.weapons.engine.Moci_VectorEngineController_Small",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/VIII/ShroudedDragon/wings/Moci_ShroudedDragon_wing_left_s.png",

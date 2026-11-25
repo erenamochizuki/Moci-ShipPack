@@ -7,7 +7,7 @@
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/Moci_AMX_004/body/AMX_004_body.png",
   "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_AMX_004/body/AMX_004_body.png",
-  "everyFrameEffect": "data.scripts.weapons.Moci_AMX004BodyBladeController",
+  "everyFrameEffect": "data.scripts.weapons.units.Moci_AMX004BodyBladeController",
   "glowColor": [
     255,
     255,

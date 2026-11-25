@@ -2,7 +2,7 @@
 	"id":"Moci_PhaseCrossing_Simple",
 	"type":"TELEPORTER",
 	"aiType":"PHASE_TELEPORTER_2",
-	"statsScript":"data.shipsystems.scripts.Moci_PhaseCrossing_Simple",
+	"statsScript":"data.shipsystems.scripts.phase.Moci_PhaseCrossing_Simple",
 	
 	"engineGlowColor":[169,161,255,155],
 	

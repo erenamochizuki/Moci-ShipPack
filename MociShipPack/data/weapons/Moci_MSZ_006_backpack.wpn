@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechTransformController",
+  "everyFrameEffect": "data.scripts.weapons.mech.Moci_MechTransformController",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/MSZ_006/backpack/MSZ_006_backpack_00.png",

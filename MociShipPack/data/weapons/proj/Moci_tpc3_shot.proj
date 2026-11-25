@@ -4,7 +4,7 @@
 	"spawnType":"BALLISTIC_AS_BEAM",
 	"collisionClass":"RAY",
 	"collisionClassByFighter":"RAY_FIGHTER",
-    "onHitEffect":"data.scripts.weapons.Moci_Tpc_Shotgun_OnHitEffect",
+    "onHitEffect":"data.scripts.weapons.onhit.Moci_Tpc_Shotgun_OnHitEffect",
 	"length":100.0,
 	"width":20,
 	"fadeTime":0.1,

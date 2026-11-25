@@ -23,7 +23,7 @@ import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 
-import data.scripts.Moci_RadarVisualPlugin;
+import data.scripts.combat.Moci_RadarVisualPlugin;
 
 /**
  * 导弹防御雷达系统

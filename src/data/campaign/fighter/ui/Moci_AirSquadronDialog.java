@@ -48,7 +48,7 @@ import data.campaign.fighter.Moci_FighterLoadoutService.WeaponAvailability;
 import data.campaign.fighter.Moci_FighterRefitBudget.Budget;
 import data.campaign.fighter.Moci_FighterRefitBudget;
 import data.campaign.intel.Moci_CombatSquadManagerIntel;
-import data.hullmods.Moci_TacticalHullmods;
+import data.hullmods.tactical.Moci_TacticalHullmods;
 
 /** A carrier-scoped workbench. UI drafts never mutate the carrier or its shared wing spec. */
 public final class Moci_AirSquadronDialog {

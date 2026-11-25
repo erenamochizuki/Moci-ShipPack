@@ -3,7 +3,7 @@
     "type":"PHASE_CLOAK",
     "aiType":"PHASE_CLOAK",
 
-    "statsScript":"data.shipsystems.scripts.Moci_ExcelsiorPhaseStats",
+    "statsScript":"data.shipsystems.scripts.phase.Moci_ExcelsiorPhaseStats",
     "runScriptWhilePaused":true,
     "runScriptWhileIdle":true,
     "blockActionsWhileChargingDown":false,

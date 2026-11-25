@@ -1,5 +1,7 @@
 package data.hullmods;
 
+import data.hullmods.ships.yamato.Moci_YamatoRepairProtocol;
+
 /**
  * 向后兼容类：
  * hull_mods.csv 当前引用 data.hullmods.Moci_VortexRepairProtocol，

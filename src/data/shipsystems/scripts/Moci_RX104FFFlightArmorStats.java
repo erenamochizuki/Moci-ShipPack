@@ -18,9 +18,9 @@ import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.util.Misc;
 
-import data.hullmods.Moci_MobileSuitsIDcard;
-import data.scripts.Moci_CollisionStateManager;
-import data.scripts.weapons.Moci_RX104FFLegAnimationController;
+import data.hullmods.mobilesuit.Moci_MobileSuitsIDcard;
+import data.scripts.combat.Moci_CollisionStateManager;
+import data.scripts.weapons.units.Moci_RX104FFLegAnimationController;
 
 /**
  * RX-104FF flight-armor drift. Handles lateral impulse, body animation,

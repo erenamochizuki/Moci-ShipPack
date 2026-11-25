@@ -4,7 +4,7 @@
 	"aiType":"CUSTOM",
 	"aiScript":"data.shipsystems.scripts.ai.Moci_RampageGhostArrayAI",
 
-	"statsScript":"data.shipsystems.scripts.Moci_RampageGhostArrayStats",
+	"statsScript":"data.shipsystems.scripts.drone.Moci_RampageGhostArrayStats",
 
 	# no runScriptWhileIdle here: the script relies on unapply() to restore collision class and alpha
 

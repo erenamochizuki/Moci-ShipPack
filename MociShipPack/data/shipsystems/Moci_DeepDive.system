@@ -4,7 +4,7 @@
 	"aiType":"CUSTOM",
 	"aiScript":"data.shipsystems.scripts.ai.Moci_DeepDiveAI",
 	
-	"statsScript":"data.shipsystems.scripts.Moci_DeepDive",
+	"statsScript":"data.shipsystems.scripts.deepdive.Moci_DeepDive",
 	"runScriptWhilePaused":true, # only for the player's ship
 	"runScriptWhileIdle":true,  # this means unapply() never gets called
 	"blockActionsWhileChargingDown":false,

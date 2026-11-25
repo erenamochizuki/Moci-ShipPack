@@ -19,7 +19,7 @@ import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 
-import data.hullmods.Moci_LandingSequence;
+import data.hullmods.carrier.Moci_LandingSequence;
 
 /**
  * 编队AI - 基于MagicLib DroneSubsystem的实现

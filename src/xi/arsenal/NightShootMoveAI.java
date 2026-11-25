@@ -1,11 +1,11 @@
 package xi.arsenal;
 
-import data.scripts.weapons.Moci_MSN04Wingman_Effect;
+import data.scripts.weapons.wingman.Moci_MSN04Wingman_Effect;
 
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.combat.ai.BasicShipAI;
 import com.fs.starfarer.combat.entities.Ship;
-import data.scripts.weapons.Moci_WingmanSupport;
+import data.scripts.weapons.wingman.Moci_WingmanSupport;
 import java.util.*;
 import java.util.function.DoubleSupplier;
 import org.lwjgl.util.vector.Vector2f;

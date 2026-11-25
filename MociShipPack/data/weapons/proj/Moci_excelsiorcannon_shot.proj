@@ -1,7 +1,7 @@
 {
     "id":"Moci_excelsiorcannon_shot",
     "specClass":"projectile",
-	"onFireEffect":"data.scripts.weapons.Moci_FluxShuntOnFireEffect",
+	"onFireEffect":"data.scripts.weapons.misc.Moci_FluxShuntOnFireEffect",
     "spawnType":"BALLISTIC_AS_BEAM",
 	"collisionClass":"NONE",
 	"collisionClassByFighter":"NONE",

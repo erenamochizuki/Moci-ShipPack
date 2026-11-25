@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "UNIVERSAL",
   "size": "MEDIUM",
-  "everyFrameEffect": "data.scripts.weapons.Moci_HSITunnelController_v2",
+  "everyFrameEffect": "data.scripts.weapons.animation.Moci_HSITunnelController_v2",
   "collisionClass": "RAY_FIGHTER",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/Moci_AMX_004/bitbackpack/AMX_004_bitbackpack_00.png",

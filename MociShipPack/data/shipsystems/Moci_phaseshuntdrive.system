@@ -4,7 +4,7 @@
 	"aiType":"CUSTOM",
 	"aiScript":"data.shipsystems.scripts.ai.Moci_PhaseShuntDriveAI",
 
-	"statsScript":"data.shipsystems.scripts.Moci_PhaseShuntDriveStats",
+	"statsScript":"data.shipsystems.scripts.phase.Moci_PhaseShuntDriveStats",
 
 	"jitterColor":[255,150,200,50],
 	"jitterCopies":5,

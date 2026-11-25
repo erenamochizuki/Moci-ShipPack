@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "ENERGY",
   "size": "LARGE",
-  "beamEffect": "data.scripts.weapons.Moci_BeamHardFlux",
+  "beamEffect": "data.scripts.weapons.beam.Moci_BeamHardFlux",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/Moci_RGM_79/arms/RGM_79SP_arm_right_rilfe.png",

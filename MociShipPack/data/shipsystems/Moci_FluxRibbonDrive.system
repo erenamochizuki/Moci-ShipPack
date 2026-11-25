@@ -2,7 +2,7 @@
     "id":"Moci_FluxRibbonDrive",
     "type":"ENGINE_MOD",
     "aiType":"NONE",
-    "statsScript":"data.shipsystems.scripts.Moci_FluxRibbonDrive",
+    "statsScript":"data.shipsystems.scripts.travel.Moci_FluxRibbonDrive",
     "engineActivateHiddenNozzles":false,
     "flameoutOnImpactChance":0,
     "clampTurnRateAfter":true,

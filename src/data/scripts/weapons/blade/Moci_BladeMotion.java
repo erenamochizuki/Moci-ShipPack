@@ -9,7 +9,7 @@ import com.fs.starfarer.api.combat.WeaponAPI;
  *
  * 设计目的：把「谁拥有武器回调」和「谁负责动作编排」解耦。
  * <ul>
- *   <li>武器回调、伤害结算、卡肉（{@link data.scripts.weapons.Moci_MeleeHitEffects}）、
+ *   <li>武器回调、伤害结算、卡肉（{@link data.scripts.weapons.melee.Moci_MeleeHitEffects}）、
  *       火线/烟雾/拖尾等表现始终由我方插件拥有；</li>
  *   <li>动作层只通过本接口「报告状态」，不再继承/包裹我方类，也不再临时改
  *       {@code weapon.getDamage()} 的 modifier 来压制或限流伤害；</li>

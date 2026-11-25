@@ -1,69 +1,8 @@
 package data.scripts.weapons;
 
-import com.fs.starfarer.api.combat.CombatEngineAPI;
-import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.combat.WeaponAPI;
-import org.lazywizard.lazylib.MathUtils;
-
-import java.util.HashSet;
-import java.util.Set;
-
-public class Moci_MechHeadDecoWeaponEfect extends Moci_MechProjDecoWeaponEffect{
-    private boolean wasFiring = false;
-    private boolean isAnimating = false;
-    private static final Set<String> HEAD_AIMING_SLOTS = new HashSet<>();
-    private static final Set<String> MAINWEAPON_AIMING_SLOTS = new HashSet<>();
-    static {
-        HEAD_AIMING_SLOTS.add("ARM_L_SOURCE");
-        HEAD_AIMING_SLOTS.add("ARM_R_SOURCE");
-        MAINWEAPON_AIMING_SLOTS.add("ARM_L_MAIN");
-        MAINWEAPON_AIMING_SLOTS.add("ARM_R_MAIN");
-    }
-
-    @Override
-    protected boolean shouldApplyRecoil(WeaponAPI weapon) {
-        return false;
-    }
-
-    @Override
-    public void advance(float amount, CombatEngineAPI engine, WeaponAPI weapon) {
-        if (engine == null) {
-            return;
-        }
-        if (engine.isPaused()) {
-            // 暂停期间只维护已绑定武器的隐藏，不初始化、不推进动作。
-            maintainHiddenWeapons();
-            return;
-        }
-        super.advance(amount,engine,weapon);
-
-        // 同步开火逻辑
-        if (source != null && source.isFiring() && source.getChargeLevel() > 0.99f) {
-            weapon.setForceFireOneFrame(true);
-        }
-
-        if(source == null){
-            ShipAPI ship=weapon.getShip();
-            float headAngle = ship.getFacing();
-            if (ship.getSelectedGroupAPI() != null) {
-                WeaponAPI current = ship.getSelectedGroupAPI().getActiveWeapon();
-                if(current != null){
-                    // 优先检查主槽位
-                    if(HEAD_AIMING_SLOTS.contains(current.getSlot().getId())){
-                        headAngle=current.getCurrAngle();
-                    }
-                    // 如果主槽位不存在，检查主炮槽位
-                    else if(MAINWEAPON_AIMING_SLOTS.contains(current.getSlot().getId())){
-                        headAngle=current.getCurrAngle();
-                    }
-                }
-            }
-            float diff = MathUtils.getShortestRotation(weapon.getCurrAngle(), headAngle);
-            float turn = weapon.getTurnRate() * amount;
-            if (Math.abs(diff) > turn) {
-                diff = Math.signum(diff) *turn;
-            }
-            weapon.setCurrAngle(weapon.getCurrAngle() + diff);
-        }
-    }
+/**
+ * 兼容壳：附属 mod（维克多重工 / 涡族）的武器数据直接写了这个全限定名。
+ * 实际代码在 {@link data.scripts.weapons.mech.Moci_MechHeadDecoWeaponEfect}，不要往这里加逻辑，也不要删除。
+ */
+public class Moci_MechHeadDecoWeaponEfect extends data.scripts.weapons.mech.Moci_MechHeadDecoWeaponEfect {
 }

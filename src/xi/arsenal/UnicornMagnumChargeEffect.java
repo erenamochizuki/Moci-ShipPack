@@ -2,7 +2,7 @@ package xi.arsenal;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
-import data.scripts.weapons.Moci_Magnum_EveryFrame;
+import data.scripts.weapons.beam.Moci_Magnum_EveryFrame;
 import java.util.*;
 import org.lwjgl.util.vector.Vector2f;
 

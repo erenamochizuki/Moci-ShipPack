@@ -11,7 +11,7 @@ import java.util.UUID;
  * Its modifier is ray-local and is discarded with that native beam;no ship/spec/global stat is changed.
  * It is never called on a pulse MovingRay and is not advanced by the mode owner.
  */
-public class UnicornMagnumBeamEffect extends data.scripts.weapons.Moci_Magnum_BeamEffect {
+public class UnicornMagnumBeamEffect extends data.scripts.weapons.beam.Moci_Magnum_BeamEffect {
     private final String damageModifier=UnicornMagnumModes.KEY+".nativeBeamDamage."+UUID.randomUUID();
     private DamageAPI previousDamage;
     @Override public void advance(float amount,CombatEngineAPI engine,BeamAPI beam){

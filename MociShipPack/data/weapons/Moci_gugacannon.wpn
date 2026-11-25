@@ -2,7 +2,7 @@
   "id": "Moci_gugacannon",
   "specClass": "projectile",
   "projectileSpecId": "gigacannon_shot",
-  "everyFrameEffect": "data.scripts.weapons.Moci_GugacannonFireSoundEffect",
+  "everyFrameEffect": "data.scripts.weapons.misc.Moci_GugacannonFireSoundEffect",
   "type": "ENERGY",
   "size": "MEDIUM",
   "turretSprite": "graphics/weapons/Moci_gugacannon_turret_base.png",

@@ -3,7 +3,7 @@ package data.campaign;
 import com.fs.starfarer.api.PluginPick;
 import com.fs.starfarer.api.campaign.AICoreOfficerPlugin;
 import com.fs.starfarer.api.campaign.BaseCampaignPlugin;
-import data.hullmods.Moci_ModelCore;
+import data.hullmods.shipboardai.Moci_ModelCore;
 
 /**
  * Moci AI核心战役插件

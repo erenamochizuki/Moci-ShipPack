@@ -2,7 +2,7 @@
 	"id":"Moci_Gravity_Cannon_shot",
 	"specClass":"missile",
 	"missileType":"ROCKET",
-	"onHitEffect":"data.scripts.weapons.Moci_GravityCannonEffect",
+	"onHitEffect":"data.scripts.weapons.gravity.Moci_GravityCannonEffect",
 	#"sprite":"graphics/missiles/shell_gauss_cannon.png",
 	"sprite":"",
 	"size":[10,14],	

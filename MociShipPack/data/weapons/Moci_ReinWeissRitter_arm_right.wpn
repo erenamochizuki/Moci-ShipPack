@@ -5,7 +5,7 @@
   "size": "SMALL",
   "showDamageWhenDecorative":false,
   "renderBelowAllWeapons":false,
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect",
+  "everyFrameEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect",
   "turretSprite": "graphics/ships/Mobile_Suit/Moci_ReinWeissRitter/arms/ReinWeissRitter_arm_right.png",
   "hardpointSprite": "graphics/ships/Mobile_Suit/Moci_ReinWeissRitter/arms/ReinWeissRitter_arm_right.png",
   "turretOffsets": [

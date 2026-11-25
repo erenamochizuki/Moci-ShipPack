@@ -3,7 +3,7 @@
 	"specClass":"projectile",
 	"type":"BALLISTIC",
 	"size":"SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_UUN_Beam_Effect",
+  "everyFrameEffect": "data.scripts.weapons.beam.Moci_UUN_Beam_Effect",
 	"turretSprite":"graphics/weapons/mg_light_turret_base.png",
 	"turretGunSprite":"graphics/weapons/mg_light_turret_recoil.png",
 	"hardpointSprite":"graphics/weapons/mg_light_hardpoint_base.png",

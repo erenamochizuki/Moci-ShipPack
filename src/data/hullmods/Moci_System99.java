@@ -1,5 +1,7 @@
 package data.hullmods;
 
+import data.hullmods.shipboardai.Moci_ShipboardAISystemBase;
+
 import com.fs.starfarer.api.campaign.CampaignUIAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;

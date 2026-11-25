@@ -5,7 +5,7 @@ import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import data.campaign.intel.Moci_CombatSquadManagerIntel;
-import data.hullmods.Moci_PilotManager;
+import data.hullmods.combatsquad.Moci_PilotManager;
 import java.util.Collections;
 import java.util.List;
 import org.lazywizard.console.BaseCommand;

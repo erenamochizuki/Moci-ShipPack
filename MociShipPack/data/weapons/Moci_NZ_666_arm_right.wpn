@@ -3,7 +3,7 @@
   "id": "Moci_NZ_666_arm_right",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide",
+  "everyFrameEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide",
   "turretSprite": "graphics/ships/Mobile_Suit/NZ_666/arms/NZ_666_arm_right.png",
   "hardpointSprite": "graphics/ships/Mobile_Suit/NZ_666/arms/NZ_666_arm_right.png",
   "renderHints": [RENDER_BARREL_BELOW],

@@ -14,7 +14,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 
 import data.ai.Moci_CombatSquadAIV2;
-import data.scripts.Moci_SquadRecallController;
+import data.scripts.combatsquad.Moci_SquadRecallController;
 import data.scripts.util.Moci_TextLoader;
 
 /**

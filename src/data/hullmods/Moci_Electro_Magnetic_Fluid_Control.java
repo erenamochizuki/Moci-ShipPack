@@ -23,7 +23,7 @@ import com.fs.starfarer.api.loading.DamagingExplosionSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.util.Moci_TextLoader;
-import data.shipsystems.scripts.Moci_DeepDive;
+import data.shipsystems.scripts.deepdive.Moci_DeepDive;
 
 public class Moci_Electro_Magnetic_Fluid_Control extends BaseLogisticsHullMod {
     private static final String TEXT_ID = "Moci_ElectroMagneticFluidControl";

@@ -3,7 +3,7 @@
   "id": "Moci_MSN_06S_legs",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MSN06SFullBodyAnimationController",
+  "everyFrameEffect": "data.scripts.weapons.units.Moci_MSN06SFullBodyAnimationController",
   "turretSprite": "graphics/ships/Mobile_Suit/MSN_06S/legs/MSN_06S_legs_00.png",
   "hardpointSprite": "graphics/ships/Mobile_Suit/MSN_06S/legs/MSN_06S_legs_00.png",
   "turretOffsets": [

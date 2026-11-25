@@ -4,7 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.ShipwideAIFlags.AIFlags;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
-import data.scripts.weapons.Moci_WingmanSupport;
+import data.scripts.weapons.wingman.Moci_WingmanSupport;
 import java.util.*;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
@@ -193,8 +193,8 @@ public final class PsychoframeEnhancement implements AutoCloseable {
         Object owner=row.get("controller");
         if(!(owner instanceof String controller))return false;
         // 海牛翼部浮游炮控制器已收编回我方类（data.scripts.weapons），旧 xi fork 名保留兼容。
-        return "data.scripts.weapons.Moci_HSITunnelController_new".equals(controller)
-                ||"data.scripts.weapons.Moci_HSITunnelController".equals(controller)
+        return "data.scripts.weapons.animation.Moci_HSITunnelController_new".equals(controller)
+                ||"data.scripts.weapons.animation.Moci_HSITunnelController".equals(controller)
                 ||"xi.arsenal.PsychoframeHiNuController".equals(controller)
                 ||"xi.arsenal.PsychoframeHiNuHwsController".equals(controller);
     }

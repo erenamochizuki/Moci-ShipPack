@@ -3,7 +3,7 @@ package xi.arsenal;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.EveryFrameWeaponEffectPluginWithAdvanceAfter;
 import com.fs.starfarer.api.combat.WeaponAPI;
-import data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide;
+import data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide;
 
 /** Original noHide is inherited once; only own-variant arm angle gets an overlay. */
 public final class FullSalvoArmEffect extends Moci_MechProjDecoWeaponEffect_noHide

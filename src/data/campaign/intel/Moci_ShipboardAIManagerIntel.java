@@ -14,10 +14,10 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.campaign.intel.ui.Moci_CombatSquadDialog;
 import data.campaign.intel.ui.Moci_UIHoverFrame;
-import data.hullmods.Moci_ShipboardAIAuxEffectRegistry;
-import data.hullmods.Moci_ShipboardAIConfigLoader;
-import data.hullmods.Moci_ShipboardAIManager;
-import data.hullmods.Moci_ShipboardAITextRegistry;
+import data.hullmods.shipboardai.Moci_ShipboardAIAuxEffectRegistry;
+import data.hullmods.shipboardai.Moci_ShipboardAIConfigLoader;
+import data.hullmods.shipboardai.Moci_ShipboardAIManager;
+import data.hullmods.shipboardai.Moci_ShipboardAITextRegistry;
 import org.apache.log4j.Logger;
 
 import java.awt.Color;

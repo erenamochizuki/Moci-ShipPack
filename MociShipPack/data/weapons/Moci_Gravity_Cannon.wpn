@@ -5,7 +5,7 @@
   "type": "ENERGY",
   "mountTypeOverride": "SYNERGY",
   "size": "LARGE",
-  "everyFrameEffect": "data.scripts.weapons.Moci_BlackHoleCannonEffect",
+  "everyFrameEffect": "data.scripts.weapons.misc.Moci_BlackHoleCannonEffect",
   "turretSprite": "graphics/weapons/Moci_Gravity_Cannon.png",
   "turretGlowSprite": "graphics/weapons/Moci_Gravity_Cannon_glow.png",
   "hardpointSprite": "",

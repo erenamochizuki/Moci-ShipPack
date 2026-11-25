@@ -10,8 +10,8 @@ import com.fs.starfarer.api.combat.ShipwideAIFlags;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 
-import data.shipsystems.scripts.Moci_RampageGhostArrayStats;
-import data.shipsystems.scripts.Moci_RampageGhostStats;
+import data.shipsystems.scripts.drone.Moci_RampageGhostArrayStats;
+import data.shipsystems.scripts.drone.Moci_RampageGhostStats;
 
 /**
  * 暴走亡灵·列阵的系统 AI。

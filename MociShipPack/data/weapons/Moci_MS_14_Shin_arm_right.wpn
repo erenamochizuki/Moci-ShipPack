@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponWithShield_Effect",
+  "everyFrameEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponWithShield_Effect",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/Shin/Moci_MS_14/arms/MS_14_arm_right_00.png",

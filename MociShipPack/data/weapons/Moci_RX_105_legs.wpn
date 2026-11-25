@@ -3,7 +3,7 @@
   "id": "Moci_RX_105_legs",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_RX105FullBodyAnimationController",
+  "everyFrameEffect": "data.scripts.weapons.units.Moci_RX105FullBodyAnimationController",
   "showDamageWhenDecorative": false,
   "renderBelowAllWeapons": true,
   "turretSprite": "graphics/ships/Mobile_Suit/RX_105/legs/RX_105_legs_00.png",

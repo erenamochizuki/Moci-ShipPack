@@ -12,8 +12,8 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.util.Misc;
 
-import data.scripts.weapons.Moci_Weapon2Effect;
-import data.scripts.weapons.Moci_Weapon2Effect.Moci_EffectScript;
+import data.scripts.weapons.misc.Moci_Weapon2Effect;
+import data.scripts.weapons.misc.Moci_Weapon2Effect.Moci_EffectScript;
 
 public class Moci_Weapon1AI implements AutofireAIPlugin {
     private static final float RANGE = 700; //激活条件 距离低于该值

@@ -3,7 +3,7 @@
 	"type":"ENGINE_MOD",
 	"aiType":"NONE",
 	
-	"statsScript":"data.shipsystems.scripts.Moci_MSLaunchTravelDrive",
+	"statsScript":"data.shipsystems.scripts.travel.Moci_MSLaunchTravelDrive",
 	
 	"engineActivateHiddenNozzles":true,
 	"engineGlowGlowMult":2.5,

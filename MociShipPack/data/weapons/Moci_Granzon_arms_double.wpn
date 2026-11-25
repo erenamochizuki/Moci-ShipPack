@@ -5,7 +5,7 @@
   "type": "ENERGY",
   "size": "LARGE",
   "mountTypeOverride": "SYNERGY",
-  "everyFrameEffect": "data.scripts.weapons.Moci_GravityCannonEffect",
+  "everyFrameEffect": "data.scripts.weapons.gravity.Moci_GravityCannonEffect",
   "turretSprite": "graphics/ships/Mobile_Suit/Granzon/arms/Grazon_arms_double_00.png",
   "turretGlowSprite": "graphics/ships/Mobile_Suit/Granzon/arms/Grazon_arms_double_glow.png",
   "hardpointSprite": "graphics/ships/Mobile_Suit/Granzon/arms/Grazon_arms_double_00.png",

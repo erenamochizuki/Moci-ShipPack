@@ -22,7 +22,7 @@
 
 # ---- 只保留在本地、不进 Git 的内容 ----
 # WORKSPACE.md   工作区地图（个人使用，不上传）
-# CLAUDE.md      已不再使用
+# CLAUDE.md      给 Claude Code 的项目说明（仅本地）
 # docs/          个人设计笔记与整理清单
 # tools/         本地脚本（翻译/修复/回归测试）
 # newdata/       待移植源码 + 已移出的 CTBAnimation 参考副本（见 WORKSPACE.md 第 10 节）

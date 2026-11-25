@@ -1,6 +1,6 @@
 {
   "id": "Moci_HoarShroudDragon_shoulder_right_up",
-  "everyFrameEffect": "data.scripts.weapons.Moci_HoarShroudDragonShoulderDecoWeaponEffect",
+  "everyFrameEffect": "data.scripts.weapons.units.Moci_HoarShroudDragonShoulderDecoWeaponEffect",
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",

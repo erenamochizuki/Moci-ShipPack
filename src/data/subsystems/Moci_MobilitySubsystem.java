@@ -17,7 +17,7 @@ import com.fs.starfarer.api.combat.ShipSystemAPI;
 import com.fs.starfarer.api.combat.ShipwideAIFlags;
 import com.fs.starfarer.api.combat.ShipwideAIFlags.AIFlags;
 import com.fs.starfarer.api.combat.WeaponAPI;
-import data.hullmods.Moci_MobileSuitRepairTracker;
+import data.hullmods.carrier.Moci_MobileSuitRepairTracker;
 import data.scripts.util.Moci_TextLoader;
 
 import java.util.Locale;

@@ -19,7 +19,7 @@
 									 "useDetailedExplosion":false,
 									 "useDetailedExplosionColorAlpha":false,
 									 },
-					#"onExplosionEffect":"data.scripts.weapons.Moci_HWIWingmanEffect",
+					#"onExplosionEffect":"data.scripts.weapons.wingman.Moci_HWIWingmanEffect",
 					"droneId":"Moci_MSN_04_2_bit",
 					"weaponId":"Moci_MSN_04_2_bit_beam",
 					"maxDrones":20,

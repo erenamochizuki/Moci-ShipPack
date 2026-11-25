@@ -4,7 +4,7 @@
   "projectileSpecId": "Moci_Zero_Wingman4",
   "type": "MISSILE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_ZeroWingman2_Effect",
+  "everyFrameEffect": "data.scripts.weapons.wingman.Moci_ZeroWingman2_Effect",
   "turretSprite": "graphics/weapons/Moci_Syunran/Moci_Launcher_R.png",
   "hardpointSprite": "graphics/weapons/Moci_Syunran/Moci_Launcher_R.png",
   "renderHints": [

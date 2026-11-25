@@ -34,7 +34,7 @@
           "variantEvidence": "Moci_AMS_119H_Base"
         }
       ],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_AMS_119_arm_left.wpn",
       "sourceSha256": "29189423aef6eaad5dab73d2684ebd73aec9fc11ad1684ccfeb6963fc8b717cc",
       "weaponId": "Moci_AMS_119_arm_left",
@@ -61,7 +61,7 @@
           "variantEvidence": "Moci_AMS_119H_leader_Base"
         }
       ],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_AMS_119_leader_arm_left.wpn",
       "sourceSha256": "67917f7bdd39b006470460b8bc46f011e15411fec4c4834ed01e63e20b220ed9",
       "weaponId": "Moci_AMS_119_leader_arm_left",
@@ -77,7 +77,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_FA_78_3_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_FA_78_3_arm_left.wpn",
       "sourceSha256": "85768de0622a70d85a908243c00715d179bba2f233d58cd6bee6aa1e129f3b5d",
       "weaponId": "Moci_FA_78_3_arm_left",
@@ -93,7 +93,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MSN_03_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MSN_03_arm_left.wpn",
       "sourceSha256": "e0e034ff86fffee88c41702ee8a11d2794815a134b73ac1078b7b84586fb5f3c",
       "weaponId": "Moci_MSN_03_arm_left",
@@ -109,7 +109,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MSN_03b_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_keepdef",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_keepdef",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MSN_03b_arm_left.wpn",
       "sourceSha256": "17cea6b752430db06ccc5b761c0c019707c4338cf91ef6c42b86747a7e57acf7",
       "weaponId": "Moci_MSN_03b_arm_left",
@@ -125,7 +125,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MSN_04_2_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MSN_04_2_arm_left.wpn",
       "sourceSha256": "019f3b42e17a77f93ffa7e0f64955b27c56c7790e5963f077a6021df99330f69",
       "weaponId": "Moci_MSN_04_2_arm_left",
@@ -141,7 +141,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MSN_06S_base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MSN_06S_arm_left.wpn",
       "sourceSha256": "e889f432268b85575eb0cb7feda436c518c19c85f4d23e4e6cf892db461bacf6",
       "weaponId": "Moci_MSN_06S_arm_left",
@@ -157,7 +157,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MSZ_006_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MSZ006ShieldArmEffect",
+      "originalEffect": "data.scripts.weapons.units.Moci_MSZ006ShieldArmEffect",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MSZ_006_arm_left.wpn",
       "sourceSha256": "97a5c1a37627a1c2bf6040d0193dd2ec64c3337cfa7b4728bec6afdee893ccf9",
       "weaponId": "Moci_MSZ_006_arm_left",
@@ -173,7 +173,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_06_BTS_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_06_BTS_arm_left.wpn",
       "sourceSha256": "1a939a1bb90894f146cc555e90d5837ef654d8dde9afd052829d1f8aa6976ea3",
       "weaponId": "Moci_MS_06_BTS_arm_left",
@@ -189,7 +189,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_06_Char_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_06_Char_arm_left.wpn",
       "sourceSha256": "e9f3ea3670af43ef47dda76b589eaf464de61f8df5d6c76de27f2846a2c9ac81",
       "weaponId": "Moci_MS_06_Char_arm_left",
@@ -205,7 +205,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_06_Shin_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_06_Shin_arm_left.wpn",
       "sourceSha256": "7ed95cad52f2603fd3e327006a8a32237a0b6bc3ce62e2f3d54f30527069cc6f",
       "weaponId": "Moci_MS_06_Shin_arm_left",
@@ -221,7 +221,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_06_leader_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_06_leader_arm_left.wpn",
       "sourceSha256": "835a0347d005beff1f4271af2d2702b18e6eb0376fa18c1fdfe63d9e84e05828",
       "weaponId": "Moci_MS_06_leader_arm_left",
@@ -237,7 +237,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_06_leader_Axe_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_06_leader_axe_arm_left.wpn",
       "sourceSha256": "be1f58018d8529c9710e3b45c6edd0fcd9cc0d195726e2b43d15b2028604308d",
       "weaponId": "Moci_MS_06_leader_axe_arm_left",
@@ -253,7 +253,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_07_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_07_arm_left.wpn",
       "sourceSha256": "4d2522713645223d8077be5fcd555e60300b289e4e45ec052a84e95673262d8d",
       "weaponId": "Moci_MS_07_arm_left",
@@ -269,7 +269,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_14_BTS_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_14_BTS_arm_left.wpn",
       "sourceSha256": "fa3056c78cb667ce99e8ce6e2eb9f604c854628f13b2813a2d6ed63ffccda36b",
       "weaponId": "Moci_MS_14_BTS_arm_left",
@@ -285,7 +285,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_14_Char_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_14_Char_arm_left.wpn",
       "sourceSha256": "c9b2f2abfca2bfb90459687a4c82a23dc343855a34ec9acc7da47d5f2bfb5ed8",
       "weaponId": "Moci_MS_14_Char_arm_left",
@@ -301,7 +301,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_14_Johnny_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_14_Johnny_arm_left.wpn",
       "sourceSha256": "04a1320d49a5230abf0844f1ed6f351953f0c6cf556c76f53df2ac854a4d7597",
       "weaponId": "Moci_MS_14_Johnny_arm_left",
@@ -317,7 +317,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_14_Shin_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_14_Shin_arm_left.wpn",
       "sourceSha256": "5cfe55a5a52de75868796076c2527c80a1de12d9059d747c99e415c94ee01558",
       "weaponId": "Moci_MS_14_Shin_arm_left",
@@ -333,7 +333,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_MS_14_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_MS_14_arm_left.wpn",
       "sourceSha256": "1563a2343b4e79ee1a6903686c5a1642934f1a36f1dc3512c5a41db0952210f5",
       "weaponId": "Moci_MS_14_arm_left",
@@ -349,7 +349,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RGM_79P_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGM_79P_arm_left.wpn",
       "sourceSha256": "2060062d4fac5766bd9d575ce8e990269a2a10bfd6bae417aaf8811daedf2623",
       "weaponId": "Moci_RGM_79P_arm_left",
@@ -365,7 +365,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RGM_79SP_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGM_79SP_arm_left.wpn",
       "sourceSha256": "d973175c1754d9ff7eb3253999c8b0e956d0005aea4d4434501de67ba9ffbe08",
       "weaponId": "Moci_RGM_79SP_arm_left",
@@ -401,7 +401,7 @@
           "variantEvidence": "Moci_RGM_86_Base"
         }
       ],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGM_79_arm_left.wpn",
       "sourceSha256": "7d065a8b3f90d30b366ea1571cb11a41cfc4342b3877c87b86861784e74855e5",
       "weaponId": "Moci_RGM_79_arm_left",
@@ -428,7 +428,7 @@
           "variantEvidence": "Moci_RGM_89_leader_Base"
         }
       ],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGM_89_arm_left.wpn",
       "sourceSha256": "8395a5fcddd6a0fc4cdf7aaf30799ff837e69e7c377684b9e3a7423a8f1d8e58",
       "weaponId": "Moci_RGM_89_arm_left",
@@ -444,7 +444,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RGM_96X_strike_Standard"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGM_96X_arm_left_strike.wpn",
       "sourceSha256": "957ed979d3b6889feb0e23e4ea347fe84b3540688a3ea38532bd4aeca108f2e0",
       "weaponId": "Moci_RGM_96X_arm_left_strike",
@@ -460,7 +460,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RGZ_91_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RGZ_91_arm_left.wpn",
       "sourceSha256": "7aafa3bbf476cc45dd18b21be7c5152752d4ed4c59c15a6d6ae575843f1909fa",
       "weaponId": "Moci_RGZ_91_arm_left",
@@ -476,7 +476,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RMS_106_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_Hide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RMS_106_arm_left.wpn",
       "sourceSha256": "9cc20879d2f322d790e5662ec9020c387369d0c2808e62bcfc2ed12ba5f731f2",
       "weaponId": "Moci_RMS_106_arm_left",
@@ -492,7 +492,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RX_0_1_base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_RX0",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_RX0",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_0_1_arm_left.wpn",
       "sourceSha256": "ad2e557acda15759d9780ef866277d4470e57ba626cc6241f6741b1c4ef8053c",
       "weaponId": "Moci_RX_0_1_arm_left",
@@ -508,7 +508,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RX_0_2_base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_RX0",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_RX0",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_0_2_arm_left.wpn",
       "sourceSha256": "a63b83c3aed62dcb7f2fabe461bde22c45ba0cbb36ac927557aeed61410c81ff",
       "weaponId": "Moci_RX_0_2_arm_left",
@@ -527,7 +527,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RX_105_base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_noHide",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_noHide",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_105_arm_left.wpn",
       "sourceSha256": "847570a9b00a80642818509af76effd33994c34e5b0da716639a9c8814c56165",
       "weaponId": "Moci_RX_105_arm_left",
@@ -543,7 +543,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RX_78_1_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_78_1_arm_left.wpn",
       "sourceSha256": "016e77c153c55eeba4dbe59b05aebb49f90823ec54f595761cc2ead4a57db920",
       "weaponId": "Moci_RX_78_1_arm_left",
@@ -559,7 +559,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RX_78_2_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_78_2_arm_left.wpn",
       "sourceSha256": "db4eb335dcfd58d28c34a19a9e215abfc12ea843f9d55ea4d5cc36a8172dee4f",
       "weaponId": "Moci_RX_78_2_arm_left",
@@ -575,7 +575,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RX_78_3_Base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_78_3_arm_left.wpn",
       "sourceSha256": "8b9dac3d1ef7d3d4142eb3afa275eba9e3945ae2f15710b104740530c30bb81d",
       "weaponId": "Moci_RX_78_3_arm_left",
@@ -591,7 +591,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_RX_93_base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_93_arm_left.wpn",
       "sourceSha256": "89e6869c6f2f07e573f539500c96f3e06254071a2f01548db7906f061da9e9f2",
       "weaponId": "Moci_RX_93_arm_left",
@@ -618,7 +618,7 @@
           "variantEvidence": "Moci_RX_93_v2_HWS_base"
         }
       ],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_RX_93_v2_arm_left.wpn",
       "sourceSha256": "1aa3a5fc59ae904fd6ffc4d88a6474526e45444a1653a78a0120767380c0bb83",
       "weaponId": "Moci_RX_93_v2_arm_left",
@@ -634,7 +634,7 @@
         "normalEvidence": "Principal axis of the exact source module bounds +90deg; visual/native calibration pending",
         "variantEvidence": "Moci_Vangray_base"
       }],
-      "originalEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense",
+      "originalEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_shield_arm_NoDefense",
       "sourceFile": "D:\\DS\\远星拆卸\\远星-纯净机甲\\mods\\Moci的随意之作\\data\\weapons\\Moci_Vangray_arm_left.wpn",
       "sourceSha256": "2301536dc7aca478462fcc14537a546a6c31599ce73568e9ed11e91744b0344a",
       "weaponId": "Moci_Vangray_arm_left",

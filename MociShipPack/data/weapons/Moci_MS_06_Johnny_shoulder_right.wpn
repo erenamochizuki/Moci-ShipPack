@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechShoulderDecoWeaponEffect_Zaku",
+  "everyFrameEffect": "data.scripts.weapons.mech.Moci_MechShoulderDecoWeaponEffect_Zaku",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/Johnny/Moci_MS_06/shoulders/MS_06_shoulder_right_00.png",

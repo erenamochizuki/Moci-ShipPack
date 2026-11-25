@@ -3,7 +3,7 @@
   "id": "Moci_MSN_06S_SHIELD_COVER",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MSN06SShieldCoverEffect",
+  "everyFrameEffect": "data.scripts.weapons.units.Moci_MSN06SShieldCoverEffect",
   "showDamageWhenDecorative": false,
   "renderBelowAllWeapons": false,
   "turretSprite": "graphics/ships/Mobile_Suit/MSN_06S/arms/MSN_06S_left_shield_00.png",

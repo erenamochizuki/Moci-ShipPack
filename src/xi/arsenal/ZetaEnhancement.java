@@ -1,6 +1,6 @@
 package xi.arsenal;
 
-import data.scripts.weapons.Moci_MechTransformController;
+import data.scripts.weapons.mech.Moci_MechTransformController;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.input.InputEventAPI;

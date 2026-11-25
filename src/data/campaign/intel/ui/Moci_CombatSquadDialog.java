@@ -1,7 +1,7 @@
 package data.campaign.intel.ui;
 
 import com.fs.starfarer.api.Global;
-import data.hullmods.Moci_ModelCore;
+import data.hullmods.shipboardai.Moci_ModelCore;
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.CustomVisualDialogDelegate;
@@ -36,12 +36,12 @@ import com.fs.starfarer.api.util.Misc;
 import data.campaign.intel.Moci_CombatSquadManagerIntel;
 import data.campaign.intel.Moci_ShipboardAIManagerIntel;
 import data.campaign.fighter.ui.Moci_AirSquadronArt;
-import data.hullmods.Moci_CombatSquadTextRegistry;
-import data.hullmods.Moci_PilotManager;
-import data.hullmods.Moci_PilotTraining;
-import data.hullmods.Moci_ShipboardAIAuxEffectRegistry;
-import data.hullmods.Moci_ShipboardAIConfigLoader;
-import data.hullmods.Moci_ShipboardAIManager;
+import data.hullmods.combatsquad.Moci_CombatSquadTextRegistry;
+import data.hullmods.combatsquad.Moci_PilotManager;
+import data.hullmods.combatsquad.Moci_PilotTraining;
+import data.hullmods.shipboardai.Moci_ShipboardAIAuxEffectRegistry;
+import data.hullmods.shipboardai.Moci_ShipboardAIConfigLoader;
+import data.hullmods.shipboardai.Moci_ShipboardAIManager;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;

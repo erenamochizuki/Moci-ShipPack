@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "LARGE",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MSN02ArmBitControlEffect",
+  "everyFrameEffect": "data.scripts.weapons.wingman.Moci_MSN02ArmBitControlEffect",
   "collisionClass": "RAY_FIGHTER",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "",

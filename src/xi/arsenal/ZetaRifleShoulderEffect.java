@@ -1,7 +1,7 @@
 package xi.arsenal;
 
 import com.fs.starfarer.api.combat.*;
-import data.scripts.weapons.Moci_MechShoulderDecoWeaponEffect;
+import data.scripts.weapons.mech.Moci_MechShoulderDecoWeaponEffect;
 
 /** 保留原肩部source/arm/wing同步；仅在原生advanceAfter边界应用同一实例动作。 */
 public final class ZetaRifleShoulderEffect extends Moci_MechShoulderDecoWeaponEffect implements EveryFrameWeaponEffectPluginWithAdvanceAfter {

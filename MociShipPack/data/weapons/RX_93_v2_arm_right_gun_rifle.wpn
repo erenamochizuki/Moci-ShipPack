@@ -4,7 +4,7 @@
   "projectileSpecId": "RX_93_v2_arm_right_gun_rifle_shot",
   "type": "ENERGY",
   "size": "MEDIUM",
-  #"everyFrameEffect": "data.scripts.weapons.Moci_DualModeCombineWeaponEffect",
+  #"everyFrameEffect": "data.scripts.weapons.mech.Moci_DualModeCombineWeaponEffect",
   #"turretSprite": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/arms/RX_93_v2_arm_right_gun_00.png",
   "turretSprite": "",
   "turretGlowSprite": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/arms/RX_93_v2_arm_right_gun_rifle_glow.png",

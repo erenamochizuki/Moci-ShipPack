@@ -12,9 +12,9 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 
 import data.ai.Moci_CombatSquadAIV2._STATE_S;
-import data.hullmods.Moci_LandingAI;
-import data.hullmods.Moci_LandingSequence;
-import data.hullmods.Moci_RepairBayScript;
+import data.hullmods.carrier.Moci_LandingAI;
+import data.hullmods.carrier.Moci_LandingSequence;
+import data.hullmods.carrier.Moci_RepairBayScript;
 
 public class Moci_RetreatModule extends Moci_BaseAIModule{
 

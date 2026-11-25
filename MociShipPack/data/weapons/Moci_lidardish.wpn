@@ -5,7 +5,7 @@
 	"size":"SMALL",
 	"showDamageWhenDecorative":true,
 	"renderBelowAllWeapons":false,
-	"everyFrameEffect":"data.scripts.weapons.Moci_DecoLaserFacingController",
+	"everyFrameEffect":"data.scripts.weapons.mech.Moci_DecoLaserFacingController",
 	"turretSprite":"graphics/weapons/Moci_lidar.png",
 	"hardpointSprite":"graphics/weapons/Moci_lidar.png",
 	"turretOffsets":[0, 0],

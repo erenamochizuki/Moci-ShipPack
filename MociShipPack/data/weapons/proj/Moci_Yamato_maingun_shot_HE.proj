@@ -29,7 +29,7 @@
 									 "particleCount":0,
 									 "particleColor":[200,55,55,0],
 									 "sound":"hit_heavy_energy"},
-					"onExplosionEffect":"data.scripts.weapons.Moci_YamatoHEExplosionEffect",
+					"onExplosionEffect":"data.scripts.weapons.onhit.Moci_YamatoHEExplosionEffect",
 					}
 					
 }

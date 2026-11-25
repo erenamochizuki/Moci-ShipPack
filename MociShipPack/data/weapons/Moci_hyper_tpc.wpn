@@ -3,7 +3,7 @@
 	"id":"Moci_hyper_tpc",
 	"type":"ENERGY",
 	"size":"LARGE",
-	"beamEffect":"data.scripts.weapons.Moci_Hyper_Tpc_OnHitEffect",
+	"beamEffect":"data.scripts.weapons.onhit.Moci_Hyper_Tpc_OnHitEffect",
 	"turretSprite":"graphics/weapons/Moci_onslaught_gigacannon_turret_base.png",
 	"turretGlowSprite":"graphics/weapons/Moci_onslaught_gigacannon_turret_glow.png",
 	"hardpointSprite":"",

@@ -1,6 +1,6 @@
 {
   "id": "Moci_HoarShroudDragon_head",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechHeadDecoWeaponEfect_noHide_HeadLightSync",
+  "everyFrameEffect": "data.scripts.weapons.mech.Moci_MechHeadDecoWeaponEfect_noHide_HeadLightSync",
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",

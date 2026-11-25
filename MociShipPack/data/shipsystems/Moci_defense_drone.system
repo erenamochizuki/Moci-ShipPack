@@ -4,7 +4,7 @@
 	"aiType":"CUSTOM",
 	"aiScript":"data.shipsystems.scripts.ai.Moci_DefenseDroneAI",
 	
-	"statsScript":"data.shipsystems.scripts.Moci_DefenseDroneStats",
+	"statsScript":"data.shipsystems.scripts.drone.Moci_DefenseDroneStats",
 
 	"droneVariant":"Moci_drone_sensor",
 	

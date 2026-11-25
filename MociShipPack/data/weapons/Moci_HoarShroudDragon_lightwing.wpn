@@ -1,6 +1,6 @@
 {
   "id": "Moci_HoarShroudDragon_lightwing",
-  "everyFrameEffect": "data.scripts.weapons.Moci_HoarShroudDragonLightWingAnimationController",
+  "everyFrameEffect": "data.scripts.weapons.units.Moci_HoarShroudDragonLightWingAnimationController",
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",

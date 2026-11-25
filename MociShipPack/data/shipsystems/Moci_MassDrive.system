@@ -2,7 +2,7 @@
     "id":"Moci_MassDrive",
     "type":"ENGINE_MOD",
     "aiType":"NONE",
-    "statsScript":"data.shipsystems.scripts.Moci_MassDrive",
+    "statsScript":"data.shipsystems.scripts.travel.Moci_MassDrive",
     "engineActivateHiddenNozzles":false,
     "flameoutOnImpactChance":0,
     "clampTurnRateAfter":true,

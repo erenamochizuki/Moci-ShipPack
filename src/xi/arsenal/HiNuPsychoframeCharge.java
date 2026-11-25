@@ -4,7 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.listeners.*;
 import com.fs.starfarer.api.combat.ShipwideAIFlags.AIFlags;
-import data.scripts.weapons.Moci_WingmanSupport;
+import data.scripts.weapons.wingman.Moci_WingmanSupport;
 import java.util.*;
 import org.lwjgl.util.vector.Vector2f;
 

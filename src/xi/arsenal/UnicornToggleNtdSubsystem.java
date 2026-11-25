@@ -1,7 +1,7 @@
 package xi.arsenal;
 
 import com.fs.starfarer.api.combat.ShipAPI;
-import data.hullmods.Moci_MobileSuitRepairTracker;
+import data.hullmods.carrier.Moci_MobileSuitRepairTracker;
 import data.subsystems.Moci_NTDSubsystem;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;

@@ -4,7 +4,7 @@
   "projectileSpecId": "lightmg_shot",
   "type": "SYSTEM",
   "size": "LARGE",
-  "everyFrameEffect": "data.scripts.weapons.Moci_UUN_Beam_Effect",
+  "everyFrameEffect": "data.scripts.weapons.beam.Moci_UUN_Beam_Effect",
   "turretSprite": "graphics/weapons/Moci_UUN.png",
   "turretGlowSprite": "graphics/weapons/Moci_UUN_glow.png",
   "hardpointSprite": "graphics/weapons/Moci_UUN.png",

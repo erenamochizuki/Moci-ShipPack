@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MechProjDecoWeaponEffect_Charge",
+  "everyFrameEffect": "data.scripts.weapons.mech.Moci_MechProjDecoWeaponEffect_Charge",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/VIII/ShroudedDragon/shoulders/Moci_ShroudedDragon_shoulderweapon_sub_R_00.png",

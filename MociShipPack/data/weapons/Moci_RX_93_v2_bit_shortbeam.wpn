@@ -3,7 +3,7 @@
 	"id":"Moci_RX_93_v2_bit_shortbeam",
 	"type":"ENERGY",
 	"size":"MEDIUM",
-	"beamEffect":"data.scripts.weapons.Moci_RX_93_BeamEffect",
+	"beamEffect":"data.scripts.weapons.beam.Moci_RX_93_BeamEffect",
 	"turretSprite":"graphics/weapons/phase_beam_turret.png",
 	"turretGlowSprite":"graphics/weapons/phase_beam_turret_glow.png",
 	"hardpointSprite":"graphics/weapons/phase_beam_hardpoint.png",

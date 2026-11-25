@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "ENERGY",
   "size": "MEDIUM",
-  "beamEffect": "data.scripts.weapons.Moci_BeamHardFlux",
+  "beamEffect": "data.scripts.weapons.beam.Moci_BeamHardFlux",
   "collisionClass": "RAY_FIGHTER",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/Moci_NZ_333/shoulders/NZ_333_linerbit_weapon.png",

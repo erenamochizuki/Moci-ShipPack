@@ -3,7 +3,7 @@
 	"type":"DRONE_LAUNCHER",
 	"aiType":"DRONE_LAUNCHER_STANDARD",
 	
-	"statsScript":"data.shipsystems.scripts.Moci_SuperSensorDroneStats",
+	"statsScript":"data.shipsystems.scripts.drone.Moci_SuperSensorDroneStats",
 	
 	"droneVariant":"drone_sensor",
 	

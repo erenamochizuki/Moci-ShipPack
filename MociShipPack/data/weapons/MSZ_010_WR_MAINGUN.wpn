@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "ENERGY",
   "size": "LARGE",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MagicAnimationGun",
+  "everyFrameEffect": "data.scripts.weapons.animation.Moci_MagicAnimationGun",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/MSZ_010/backpack/MSZ_010_WR_MAINGUN.png",

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import java.util.TreeMap;
 import org.json.JSONObject;
-import data.hullmods.Moci_TacticalHullmods;
+import data.hullmods.tactical.Moci_TacticalHullmods;
 
 /** Immutable, content-addressed loadout. The free-weapon baseline travels with the LPC. */
 public final class Moci_FighterLoadoutSpec {

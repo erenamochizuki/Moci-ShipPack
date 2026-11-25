@@ -2,7 +2,7 @@
     "id":"Moci_NebulaGate",
     "type":"ENGINE_MOD",
     "aiType":"NONE",
-    "statsScript":"data.shipsystems.scripts.Moci_NebulaGate",
+    "statsScript":"data.shipsystems.scripts.travel.Moci_NebulaGate",
     "engineActivateHiddenNozzles":false,
     "flameoutOnImpactChance":0,
     "clampTurnRateAfter":true,

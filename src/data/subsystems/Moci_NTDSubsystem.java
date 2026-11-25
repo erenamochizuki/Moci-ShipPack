@@ -24,7 +24,7 @@ import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.util.Misc;
 
-import data.hullmods.Moci_MobileSuitRepairTracker;
+import data.hullmods.carrier.Moci_MobileSuitRepairTracker;
 import data.scripts.util.Moci_TextLoader;
 
 /**

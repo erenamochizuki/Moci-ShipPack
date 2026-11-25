@@ -26,7 +26,7 @@
 				  "dec":500},
 	"behaviorSpec":{"behavior":"PROXIMITY_FUSE",
 					#"onExplosionEffect":"com.fs.starfarer.api.impl.combat.RiftCascadeMineExplosion",
-					"onExplosionEffect":"data.scripts.weapons.Moci_GravityMineExplosion",
+					"onExplosionEffect":"data.scripts.weapons.gravity.Moci_GravityMineExplosion",
 					"range":0,
 					"slowToMaxSpeed":true,
 					"delay":0.5,

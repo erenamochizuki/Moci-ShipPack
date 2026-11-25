@@ -4,7 +4,7 @@
   "projectileSpecId": "type_1_lrm",
   "type": "MISSILE",
   "size": "MEDIUM",
-  "everyFrameEffect": "data.scripts.weapons.Moci_Hiryu_missileAnimEffect",
+  "everyFrameEffect": "data.scripts.weapons.animation.Moci_Hiryu_missileAnimEffect",
   "turretSprite": "graphics/weapons/Moci_Hiryu_Missile/Moci_Hiryu_Missile_r_00.png",
   "hardpointSprite": "graphics/weapons/Moci_Hiryu_Missile/Moci_Hiryu_Missile_r_00.png",
   "turretOffsets": [

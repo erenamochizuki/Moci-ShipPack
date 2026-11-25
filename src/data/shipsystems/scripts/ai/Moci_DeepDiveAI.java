@@ -25,8 +25,8 @@ import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.combat.WeaponGroupAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 
-import data.shipsystems.scripts.Moci_DeepDiveMissileManager;
-import data.shipsystems.scripts.Moci_DeepDive;
+import data.shipsystems.scripts.deepdive.Moci_DeepDiveMissileManager;
+import data.shipsystems.scripts.deepdive.Moci_DeepDive;
 
 /**
  * 深潜系统 AI（Moci版）

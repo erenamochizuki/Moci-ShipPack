@@ -18,7 +18,7 @@ import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
-import data.scripts.weapons.Moci_MechSystemFollowerAnimationWeapon;
+import data.scripts.weapons.mech.Moci_MechSystemFollowerAnimationWeapon;
 
 public class Moci_EngineRender extends BaseCombatLayeredRenderingPlugin {
 

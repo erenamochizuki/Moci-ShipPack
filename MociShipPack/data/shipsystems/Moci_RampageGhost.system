@@ -3,7 +3,7 @@
 	"type":"STAT_MOD",
 	"aiType":"ENTROPY_AMPLIFIER",
 	
-	"statsScript":"data.shipsystems.scripts.Moci_RampageGhostStats",
+	"statsScript":"data.shipsystems.scripts.drone.Moci_RampageGhostStats",
 
 	#"runScriptWhilePaused":true, # only for the player's ship
 	"runScriptWhileIdle":true, # unapply() never gets called; the script needs idle frames for the return blink

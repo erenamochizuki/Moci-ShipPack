@@ -4,7 +4,7 @@
 	"type":"ENERGY",
 	"size":"LARGE",
 	#"beamFireOnlyOnFullCharge":true,
-    "everyFrameEffect": "data.scripts.weapons.Moci_Aestivalis_Weapon1Effect",
+    "everyFrameEffect": "data.scripts.weapons.units.Moci_Aestivalis_Weapon1Effect",
     "turretSprite": "",
 	"turretGlowSprite":"",
     "hardpointSprite": "",

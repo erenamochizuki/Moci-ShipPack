@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "ENERGY",
   "size": "LARGE",
-  "beamEffect": "data.scripts.weapons.Moci_BeamHardFlux",
+  "beamEffect": "data.scripts.weapons.beam.Moci_BeamHardFlux",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/ships/Mobile_Suit/Moci_RX_93_v2/superweapon/RX_93_superweapon_inarm.png",

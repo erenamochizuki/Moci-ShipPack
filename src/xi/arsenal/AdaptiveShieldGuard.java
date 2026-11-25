@@ -3,7 +3,7 @@ package xi.arsenal;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.loading.WeaponSlotAPI;
-import data.scripts.weapons.Moci_MechDecoWeaponMutexControl;
+import data.scripts.weapons.mech.Moci_MechDecoWeaponMutexControl;
 import java.util.*;
 import org.json.JSONArray;
 import org.json.JSONObject;

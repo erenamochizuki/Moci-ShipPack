@@ -1,9 +1,9 @@
 package xi.arsenal;
 
-import data.scripts.weapons.Moci_MechTransformController;
+import data.scripts.weapons.mech.Moci_MechTransformController;
 
 import com.fs.starfarer.api.combat.*;
-import data.scripts.weapons.Moci_MSZ006ShieldCoverEffect;
+import data.scripts.weapons.units.Moci_MSZ006ShieldCoverEffect;
 import java.util.*;
 import java.util.function.Function;
 import org.lwjgl.util.vector.Vector2f;

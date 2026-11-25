@@ -8,7 +8,7 @@
 	#"spawnType":"BALLISTIC",
 	#"collisionClass":"PROJECTILE_FF",
 	#"collisionClassByFighter":"PROJECTILE_FIGHTER",
-	"onFireEffect":"data.scripts.weapons.Moci_Weapon4OnFireEffect",
+	"onFireEffect":"data.scripts.weapons.misc.Moci_Weapon4OnFireEffect",
 	"length":45.0,
 	"width":6,
 	"fadeTime":0.3,

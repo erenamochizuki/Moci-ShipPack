@@ -9,8 +9,8 @@ import com.fs.starfarer.api.combat.ShipAIPlugin;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.combat.ai.BasicShipAI;
 import com.fs.starfarer.combat.entities.Ship;
-import data.hullmods.Moci_GNShield_Script;
-import data.scripts.Moci_FilmShieldIntegration;
+import data.hullmods.gn.Moci_GNShield_Script;
+import data.scripts.gn.Moci_FilmShieldIntegration;
 import org.apache.log4j.Logger;
 
 /**

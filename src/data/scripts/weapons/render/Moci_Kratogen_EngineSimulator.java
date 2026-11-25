@@ -17,7 +17,7 @@ import com.fs.starfarer.api.combat.ShipEngineControllerAPI.ShipEngineAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
-import data.hullmods.Moci_MobileSuitsIDcard;
+import data.hullmods.mobilesuit.Moci_MobileSuitsIDcard;
 
 /**
 魔法猫猫的妙妙代码

@@ -4,7 +4,7 @@
   "projectileSpecId": "Moci_MS_06R_ammo_right_shot",
   "type": "MISSILE",
   "size": "SMALL",
-  "everyFrameEffect": "data.scripts.weapons.Moci_MagazineWeapon",
+  "everyFrameEffect": "data.scripts.weapons.misc.Moci_MagazineWeapon",
   "turretSprite": "",
   "hardpointSprite": "",
   "renderHints": [
