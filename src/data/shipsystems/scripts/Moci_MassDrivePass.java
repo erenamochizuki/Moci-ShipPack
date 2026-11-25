@@ -5,7 +5,6 @@ import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.combat.CombatViewport;
 import com.fs.starfarer.combat.entities.Ship;
 import data.scripts.util.Moci_Util;
-import data.scripts.util.Moci_TravelDriveControl.AnimationLock;
 import java.util.EnumSet;
 import java.util.ArrayList;
 import java.util.Random;
@@ -36,7 +35,6 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
     private boolean arrivalPeakFrame;
     private boolean peakWasDrawn;
     private boolean systemEnded;
-    private AnimationLock controls;
     private float stopAge;
     final ArrayList<Ship> modules = new ArrayList<>();
     float hullLength, hullWidth, hullNose, stampSize;
@@ -60,14 +58,6 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
 
     @Override public boolean isLeaving() { return leaving; }
 
-    @Override public void registered(CombatEntityAPI host) {
-        if (!expired && controls == null) controls = new AnimationLock(engine, ship);
-    }
-
-    private void releaseControls() {
-        if (controls != null) { controls.release(); controls = null; }
-    }
-
     @Override public void stop() {
         systemEnded = true;
         if (ship.isHulk() || leaving && !started) cancel();
@@ -75,7 +65,6 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
     }
 
     @Override public void cancel() {
-        releaseControls();
         restore();
         expired = true;
     }
@@ -124,7 +113,6 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
             return;
         }
         boolean present = engine.isEntityInPlay(ship);
-        if (!present) releaseControls();
         if (present && leaving && !ship.isRetreating()) { cancel(); return; }
         if (engine.isPaused() || amount <= 0f) return;
         if (peakWasDrawn) arrivalPeakFrame = false;
@@ -155,11 +143,9 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
         if (!leaving || removed) age += amount / duration;
         if (leaving && !removed) age = -0.015f;
         if (!leaving && previousAge < 0f && age >= 0f) {
-            releaseControls();
             arrivalPeakFrame = true;
             playWarpSound(gate);
         }
-        if (controls != null) controls.advance();
         if (!leaving && age >= 0.81f) expired = true;
     }
 
@@ -185,7 +171,6 @@ final class Moci_MassDrivePass extends BaseCombatLayeredRenderingPlugin implemen
 
     @Override
     public void cleanup() {
-        releaseControls();
         restore();
         if (systemEnded && ship.getCustomData().get(eventKey) == this) ship.removeCustomData(eventKey);
         image.close();

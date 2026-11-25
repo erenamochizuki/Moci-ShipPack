@@ -1,0 +1,10 @@
+{
+    "baseHullId": "Moci_Hiryu",
+    "skinHullId": "Moci_Hiryu_TestRibbon",
+    "hullName": "飞龙（磁弧·测试）",
+    "descriptionId": "Moci_Hiryu",
+    "descriptionPrefix": "测试用飞龙：在船包测试战役中使用磁弧旅行引擎。",
+    "incompatibleWithBaseHull": true,
+    "tags": ["restricted", "no_sell", "no_dealer"],
+    "addHints": ["HIDE_IN_CODEX"]
+}

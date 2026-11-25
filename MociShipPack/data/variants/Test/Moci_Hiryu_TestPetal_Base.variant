@@ -1,0 +1,11 @@
+{
+    "variantId": "Moci_Hiryu_TestPetal_Base",
+    "hullId": "Moci_Hiryu_TestPetal",
+    "displayName": "翠瓣进场测试",
+    "goalVariant": false,
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "hullMods": [],
+    "weaponGroups": [],
+    "wings": []
+}

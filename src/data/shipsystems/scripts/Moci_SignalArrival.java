@@ -2,7 +2,6 @@ package data.shipsystems.scripts;
 
 import com.fs.starfarer.api.combat.*;
 import data.scripts.util.Moci_Util;
-import data.scripts.util.Moci_TravelDriveControl.AnimationLock;
 import org.lwjgl.util.vector.Vector2f;
 import java.util.*;
 import data.shipsystems.scripts.Moci_DiamondDrive.Landing;
@@ -24,9 +23,8 @@ final class Moci_SignalArrival extends BaseCombatLayeredRenderingPlugin {
     private final Moci_Util.PetalPulse[] petals;
     private int firstPetal,lastPetal;
     private float time, nextArc;
-    private boolean released,expired,burnEnded;
+    private boolean started,released,expired,burnEnded;
     private Moci_Util.HullEcho echo;
-    private AnimationLock controls;
 
     private static final class Part {
         final ShipAPI s;
@@ -77,8 +75,8 @@ final class Moci_SignalArrival extends BaseCombatLayeredRenderingPlugin {
         nextArc=style.charge-Petal.ARC_LEAD;
     }
     void start() {
-        if (released || controls!=null) return;
-        controls=new AnimationLock(engine,ship);
+        if (started || released) return;
+        started=true;
         for(var p:parts) p.hold();
     }
     void continueBurn() { burnEnded=false; }
@@ -86,7 +84,6 @@ final class Moci_SignalArrival extends BaseCombatLayeredRenderingPlugin {
     private void forget() { if(ship.getCustomData().get(Moci_DiamondDrive.EVENT)==this) ship.removeCustomData(Moci_DiamondDrive.EVENT); }
     private void release() {
         if(released) return;
-        if(controls!=null) controls.release();
         for(var p:parts) p.release();
         released=true;
     }
@@ -111,7 +108,6 @@ final class Moci_SignalArrival extends BaseCombatLayeredRenderingPlugin {
         }
         boolean emit=visible() && engine.getViewport().isNearViewport(gate,4*radius);
         if(!released) {
-            if(post<0 && controls!=null) controls.advance();
             for(var p:parts) {
                 if(p.s!=ship && (!p.s.isAlive() || p.s.getParentStation()!=ship || !engine.isEntityInPlay(p.s))) { p.release(); p.detached=true; }
                 if(p.held) p.pin();

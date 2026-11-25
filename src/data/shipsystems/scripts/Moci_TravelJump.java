@@ -10,7 +10,6 @@ import org.dark.shaders.distortion.WaveDistortion;
 import org.lazywizard.lazylib.MathUtils;
 import data.scripts.util.Moci_BoxBasedUtil;
 import data.scripts.util.Moci_Util;
-import data.scripts.util.Moci_TravelDriveControl.AnimationLock;
 import com.fs.starfarer.api.input.InputEventAPI;
 import org.boxutil.units.standard.entity.FlareEntity;
 
@@ -21,6 +20,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * HSI旅行跳跃系统 - 实现舰船的高速移动和相位穿越效果
@@ -43,26 +43,63 @@ public class Moci_TravelJump extends BaseShipSystemScript {
     private Staging staging;
     private float visualRadius; // 本次跃迁的光斑和扭曲半径，不用于寻找无碰撞落点
 
-    // 母舰被移除时未必会收到 unapply；短时监听器也负责释放仍在场的模块。
+    private static final class HiddenHull {
+        private static final String KEY = "Moci_TravelJump_hiddenHull";
+        final ShipAPI ship;
+        final float originalAlpha;
+        int users;
+
+        private HiddenHull(ShipAPI ship) {
+            this.ship = ship;
+            originalAlpha = ship.getExtraAlphaMult2();
+        }
+        static HiddenHull hide(ShipAPI ship) {
+            HiddenHull hull;
+            if (ship.getCustomData().get(KEY) instanceof HiddenHull existing) hull = existing;
+            else ship.setCustomData(KEY, hull = new HiddenHull(ship));
+            hull.users++;
+            ship.setExtraAlphaMult2(0f);
+            return hull;
+        }
+        void restore() {
+            if (--users == 0) {
+                ship.setExtraAlphaMult2(originalAlpha);
+                ship.removeCustomData(KEY);
+            }
+        }
+    }
+
     private static final class Staging extends BaseEveryFrameCombatPlugin {
         final CombatEngineAPI engine;
         final ShipAPI root;
-        final AnimationLock lock;
+        final ArrayList<HiddenHull> hulls = new ArrayList<>();
         boolean closed;
         Staging(CombatEngineAPI engine, ShipAPI root) {
             this.engine = engine;
             this.root = root;
-            lock = AnimationLock.hiddenArrival(engine, root);
+            hulls.add(HiddenHull.hide(root));
+            for (ShipAPI module : root.getChildModulesCopy()) {
+                if (attached(module)) hulls.add(HiddenHull.hide(module));
+            }
+        }
+        private boolean attached(ShipAPI module) {
+            return module != null && module.getParentStation() == root && module.isAlive() && engine.isEntityInPlay(module);
         }
         @Override public void advance(float amount, java.util.List<InputEventAPI> events) {
             if (closed) return;
-            if (!root.isAlive() || !engine.isEntityInPlay(root)) close();
-            else if (amount > 0f && !engine.isPaused()) lock.advance();
+            if (!root.isAlive() || !engine.isEntityInPlay(root)) { close(); return; }
+            if (amount <= 0f || engine.isPaused()) return;
+            for (int index = hulls.size() - 1; index >= 0; index--) {
+                HiddenHull hull = hulls.get(index);
+                if (hull.ship != root && !attached(hull.ship)) hulls.remove(index).restore();
+                else hull.ship.setExtraAlphaMult2(0f);
+            }
         }
         void close() {
             if (closed) return;
             closed = true;
-            lock.release();
+            for (HiddenHull hull : hulls) hull.restore();
+            hulls.clear();
             engine.removePlugin(this);
         }
     }
@@ -152,7 +189,7 @@ public class Moci_TravelJump extends BaseShipSystemScript {
 
             // OUT状态的特殊处理（系统结束阶段）
             if (state == State.OUT) {
-                endStaging(); // 显形就交还操控，不等残影、音效结束。
+                endStaging();
 
                 // 计算当前位置和速度差值用于残影效果
                 Vector2f currLoc = ship.getLocation();

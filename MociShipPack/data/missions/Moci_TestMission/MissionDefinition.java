@@ -25,8 +25,17 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 
         // 添加任务简报项
         api.addBriefingItem("测试战役");
+        api.addBriefingItem("旅行引擎试验：先部署旗舰，再依次增援星岚门、磁弧、翠瓣三艘飞龙，观察各自的进场效果。");
 
         api.addToFleet(FleetSide.PLAYER, "Moci_Limarch_Standard", FleetMemberType.SHIP, "MOCI_A1", true); // 旗舰
+
+        Global.getSettings().getHullSpec("Moci_Hiryu_TestGate").setTravelDriveId("Moci_NebulaGate");
+        Global.getSettings().getHullSpec("Moci_Hiryu_TestRibbon").setTravelDriveId("Moci_FluxRibbonDrive");
+        Global.getSettings().getHullSpec("Moci_Hiryu_TestPetal").setTravelDriveId("Moci_PetalDrive");
+
+        api.addToFleet(FleetSide.PLAYER, "Moci_Hiryu_TestGate_Base", FleetMemberType.SHIP, "星岚门试验舰", false);
+        api.addToFleet(FleetSide.PLAYER, "Moci_Hiryu_TestRibbon_Base", FleetMemberType.SHIP, "磁弧试验舰", false);
+        api.addToFleet(FleetSide.PLAYER, "Moci_Hiryu_TestPetal_Base", FleetMemberType.SHIP, "翠瓣试验舰", false);
         api.addToFleet(FleetSide.PLAYER, "Moci_Limarch_xiv_Elite", FleetMemberType.SHIP, "MOCI_A2", false);
         api.addToFleet(FleetSide.PLAYER, "Moci_Limarch_EP_special", FleetMemberType.SHIP, "MOCI_A3", false);
         api.addToFleet(FleetSide.PLAYER, "Moci_Limarch_LG_Base", FleetMemberType.SHIP, "MOCI_A4", false);

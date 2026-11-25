@@ -27,7 +27,7 @@ final class Moci_NebulaSmokePalette {
         return tones[band][tone];
     }
 
-    private static Color toward(Color base, int target, float mix, float alphaScale) {
+    static Color toward(Color base, int target, float mix, float alphaScale) {
         return new Color(mixChannel(base.getRed(), target, mix), mixChannel(base.getGreen(), target, mix),
                 mixChannel(base.getBlue(), target, mix), channel(base.getAlpha() * alphaScale));
     }

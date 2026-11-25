@@ -207,17 +207,27 @@ public class Moci_Util {
 	/** 范围与直径均为基准半径的倍数；寿命用秒，径向/切向速度用每秒位置偏移比例。 */
 	public record NebulaPuffStyle(float innerRadius,float outerRadius,float minDiameter,float maxDiameter,
 			float endSize,float minLife,float maxLife,float radialDrift,float swirl,float fadeIn,float hold) {}
+	@FunctionalInterface
+	public interface NebulaPuffObserver {
+		void emitted(Vector2f position,Vector2f velocity,float diameter,float lifetime,Color color);
+	}
 	/** 生成一团烟；spread 只控制烟心分布，不缩小烟团，因而中心也能相互覆盖。angle 用弧度。 */
 	public static void spawnNebulaPuff(CombatEngineAPI engine,Vector2f center,float radius,float spread,float angle,
 			Random random,NebulaPuffStyle style,Color color) {
+		spawnNebulaPuff(engine,center,radius,spread,angle,random,style,color,null);
+	}
+	public static void spawnNebulaPuff(CombatEngineAPI engine,Vector2f center,float radius,float spread,float angle,
+			Random random,NebulaPuffStyle style,Color color,NebulaPuffObserver observer) {
 		if (engine==null || center==null || style==null || random==null || color==null || !(radius>0)) return;
 		float r=radius*Math.max(0,spread)*(style.innerRadius+(style.outerRadius-style.innerRadius)*random.nextFloat());
 		float dx=r*(float)Math.cos(angle),dy=r*(float)Math.sin(angle);
 		float diameter=radius*(style.minDiameter+(style.maxDiameter-style.minDiameter)*random.nextFloat());
 		float life=style.minLife+(style.maxLife-style.minLife)*random.nextFloat();
 		if (!(diameter>0 && life>0)) return;
-		engine.addNebulaSmokeParticle(new Vector2f(center.x+dx,center.y+dy),new Vector2f(dx*style.radialDrift-dy*style.swirl,dy*style.radialDrift+dx*style.swirl),
-				diameter,style.endSize,style.fadeIn,style.hold,life,color);
+		Vector2f position=new Vector2f(center.x+dx,center.y+dy);
+		Vector2f velocity=new Vector2f(dx*style.radialDrift-dy*style.swirl,dy*style.radialDrift+dx*style.swirl);
+		engine.addNebulaSmokeParticle(position,velocity,diameter,style.endSize,style.fadeIn,style.hold,life,color);
+		if (observer!=null) observer.emitted(position,velocity,diameter,life,color);
 	}
 	/** 瞬时视觉电弧；保留旧调用。empTip 控制是否立即叠加原版终点粒子。 */
 	public static void spawnVisualLightning(CombatEngineAPI engine,Vector2f from,Vector2f to,float width,Color fringe,Color core,boolean empTip) {

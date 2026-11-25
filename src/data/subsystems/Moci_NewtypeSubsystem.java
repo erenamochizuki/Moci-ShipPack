@@ -108,7 +108,7 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
      * 已经有了（不论是新人类还是强化人）就不再挂，两者共用一个按键设置。
      */
     protected static void attachWith(ShipAPI ship, Function<ShipAPI, ? extends Moci_NewtypeSubsystem> factory) {
-        if (ship == null) return;
+        if (ship == null || ship.isShuttlePod()) return;
         List<MagicSubsystem> existing = MagicSubsystemsManager.getSubsystemsForShipCopy(ship);
         if (existing != null) {
             for (MagicSubsystem subsystem : existing) {
@@ -138,7 +138,7 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
     @Override
     public boolean canActivate() {
         CombatEngineAPI engine = Global.getCombatEngine();
-        if (engine == null || engine.getPlayerShip() != ship) return false;
+        if (!hasCommand(engine)) return false;
         if (!ship.isAlive() || ship.isHulk() || !engine.isEntityInPlay(ship)) return false;
         if (ship.controlsLocked() || engine.isUIShowingDialog()) return false;
         if (engine.getCombatUI() != null
@@ -182,7 +182,7 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
             return;
         }
         CombatEngineAPI engine = Global.getCombatEngine();
-        if (engine == null || engine.getPlayerShip() != ship) {
+        if (!hasCommand(engine)) {
             forceStop("玩家换乘");
             return;
         }
@@ -191,6 +191,11 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
             return;
         }
         applyEffects(engine);
+    }
+
+    private boolean hasCommand(CombatEngineAPI engine) {
+        return engine != null && !ship.isShuttlePod() && engine.getPlayerShip() == ship
+                && engine.getShipPlayerIsTransferringCommandFrom() == null;
     }
 
     @Override
@@ -299,8 +304,8 @@ public class Moci_NewtypeSubsystem extends MagicSubsystem {
             if (engine == null) return;
             boolean gone = !engine.isEntityInPlay(ship);
             boolean dead = !ship.isAlive() || ship.isHulk();
-            if (isOn() && !gone && !dead) return;
-            if (isOn()) forceStop(gone ? "舰船离场" : "舰船被毁");
+            if (isOn() && !gone && !dead && hasCommand(engine)) return;
+            if (isOn()) forceStop(gone ? "舰船离场" : dead ? "舰船被毁" : "玩家换乘");
             guardActive = false;
             engine.removePlugin(this);
         }
